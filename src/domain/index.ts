@@ -22,6 +22,7 @@ export * from './roster';
 export * from './schedule';
 export * from './draft';
 export * from './meta';
+export * from './news';
 
 export * from './competition';
 

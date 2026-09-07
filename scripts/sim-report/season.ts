@@ -51,7 +51,7 @@ export interface SeasonResult {
 }
 
 /** A team state with injured players removed from the depth chart. */
-function withoutInjured(team: TeamState, out: ReadonlySet<string>): TeamState {
+export function withoutInjured(team: TeamState, out: ReadonlySet<string>): TeamState {
   if (out.size === 0) return team;
   const depthChart = {} as Record<PositionGroup, string[]>;
   for (const group of POSITION_GROUPS) {

@@ -55,12 +55,17 @@ performance-chip geometry, navigation state restoration, and the IP policy.
 
 ## What exists / what does not
 
-**Exists:** design tokens extracted verbatim from the prototype; 28 domain interfaces
-(360 columns) generated from the real schema; the entity routing seam; the
-competition split enforced at type level; ability/performance components; the
-missing-data boundary; architecture lint; a deterministic parity golden exporter.
+**Exists:** the save-scoped Postgres schema with forced RLS (`docs/SCHEMA.md`); the
+pure game simulation, deterministic under a seeded RNG (`docs/SIMULATION.md`) and
+calibrated against target ranges (`docs/SIM-REPORT.md`); offseason development,
+retirement and draft intake, with league talent proven flat over 40 seasons
+(`docs/OFFSEASON.md`); the draft with scouting fog, and free agency with competing
+bids and cap math (`docs/DRAFT-AND-MARKET.md`); the app shell — bottom tab
+navigation, theme, skeleton loaders (`docs/APP-SHELL.md`, `docs/NAVIGATION-CONTRACT.md`);
+the weekly news feed (`docs/NEWS.md`). Plus the Phase 1 scaffold: design tokens, 28
+domain interfaces, the entity routing seam, the missing-data boundary and
+architecture lint.
 
-**Does not exist yet:** database connection, screens, navigation implementation,
-simulation, save system. The runtime tables (save state, calendar, results,
-standings, season statistics, grades, awards, transactions, news) are specified in
-Prompt 0038.
+**Does not exist yet:** the database connection and the save system — every screen
+still renders against fixtures, and no simulation output is persisted. Depth chart
+editing, the hiring flow and the week-advance loop that joins them are not built.
