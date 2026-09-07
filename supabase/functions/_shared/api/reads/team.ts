@@ -26,6 +26,8 @@ export interface SquadRow {
 
 export interface TeamOut {
   readonly standing: StandingOut | null;
+  /** League position by record, 1 = best. Null before a game is played. */
+  readonly rank: number | null;
   readonly squadSize: number;
   readonly next: FixtureOut | null;
   readonly last: FixtureOut | null;
@@ -46,6 +48,12 @@ export const team: Handler<TeamIn, TeamOut> = {
     }[]>`
       select wins, losses, ties, points_for, points_against, streak from public.standings
        where save_id = ${s.id} and season = ${s.season} and team_id = ${teamId}`;
+
+    const [ranked] = await sql<{ rank: string }[]>`
+      select rank from (
+        select team_id, rank() over (order by win_pct desc, points_for - points_against desc, team_id) as rank
+          from public.standings where save_id = ${s.id} and season = ${s.season}
+      ) r where team_id = ${teamId}`;
 
     const [{ n: squadSize } = { n: '0' }] = await sql<{ n: string }[]>`
       select count(*) as n from public.team_rosters where save_id = ${s.id} and team_id = ${teamId}`;
@@ -80,6 +88,8 @@ export const team: Handler<TeamIn, TeamOut> = {
         pointsFor: standing.points_for, pointsAgainst: standing.points_against,
         streak: parseStreak(standing.streak),
       },
+      rank: ranked === undefined || standing === undefined
+        || standing.wins + standing.losses + standing.ties === 0 ? null : Number(ranked.rank),
       squadSize: Number(squadSize),
       next: next === undefined ? null : {
         gameId: next.game_id, week: next.week, homeTeamId: next.home_team_id,

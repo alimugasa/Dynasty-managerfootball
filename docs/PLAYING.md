@@ -100,13 +100,23 @@ Honestly, and in the order you will notice it:
   The engine drafts in its own strength order and trades nothing, so a template
   `draft_picks` row for a later year is overwritten with the club that actually
   picked.
-- **The first offseason is a bloodbath, and that is the seed's.** The seed's
-  own contracts are 1,342 one-year minimum deals, so about 900 expire at once,
-  the market signs about 1,400 players, and every club then cuts to the roster
-  limit (~700 cuts, 80 of them rookies drafted the same spring, two of them
-  first-rounders). All of it is in `transactions` -- `CONTRACT_EXPIRY`,
+- **The first offseason is busy, and that is the seed's.** The seed's own
+  contracts are 1,342 one-year minimum deals, so about 900 expire at once and
+  the market signs about 950 players; clubs then cut about 160 to the roster
+  limit. All of it is in `transactions` -- `CONTRACT_EXPIRY`,
   `FREE_AGENT_SIGNING`, `RE_SIGNING`, `RELEASE` with the reason and dead money,
-  `DRAFT_SELECTION`, `RETIREMENT` -- as the engine reported it.
+  `DRAFT_SELECTION`, `RETIREMENT` and `WASHOUT` -- as the engine reported it.
+- **Half of every year's departures are washouts, not retirements.** The
+  engine's hazard washes out fringe players at 25-29 and retires the rest at
+  26-41; the log now says which is which. A washout is out of the league, not
+  a free agent, and does not come back.
+- **Clubs pursue their top three needs in free agency,** plus any acute one,
+  so a signing draws one to nineteen bids (mean about four) rather than all 32
+  clubs. Who signs where is different from before this rule.
+- **Rookies have names**, drawn from the league's own first names and
+  surnames, the same for the same seed.
+- **Sacks belong to the pass rush.** EDGE, then DT, then LB; corners get
+  none. Linebackers lead the tackle count.
 - **The seed's 2026 draft class is not what gets drafted.** `draft_classes`
   is the template's data; the engine drafts from its own pipeline, primed at
   create time. Reconciling the two is an open decision.

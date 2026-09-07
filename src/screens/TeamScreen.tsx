@@ -29,11 +29,19 @@ export function TeamScreen() {
   const identity = clubsById.get(save.userTeamId);
   const done = save.phase === 'OFFSEASON';
   const nickname = (id: string): string => clubsById.get(id)?.nickname ?? id;
+  const fullName = (id: string): string => clubsById.get(id)?.name ?? id;
+  const ordinal = (n: number): string => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return `${String(n)}${s[(v - 20) % 10] ?? s[v] ?? s[0] ?? 'th'}`;
+  };
 
   return (
     <Screen
       title={identity?.nickname ?? 'Team'}
-      subtitle={`${String(save.season)} · ${done ? 'Season complete' : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
+      subtitle={`${String(save.season)} · ${done
+        ? `Season complete${q.status === 'ready' && q.data.rank !== null ? ` · finished ${ordinal(q.data.rank)} of 32` : ''}`
+        : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
       screen="team"
     >
       {q.status === 'error' && <QueryError error={q.error} />}
@@ -115,8 +123,8 @@ export function TeamScreen() {
               <div style={{ padding: '0 12px' }}>
                 <ListRow
                   title={q.data.next.homeTeamId === save.userTeamId
-                    ? `vs ${nickname(q.data.next.awayTeamId)}`
-                    : `at ${nickname(q.data.next.homeTeamId)}`}
+                    ? `vs ${fullName(q.data.next.awayTeamId)}`
+                    : `at ${fullName(q.data.next.homeTeamId)}`}
                   subtitle={`Week ${String(q.data.next.week)}`}
                 />
               </div>

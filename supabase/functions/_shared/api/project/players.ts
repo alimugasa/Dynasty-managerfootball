@@ -118,12 +118,15 @@ export async function projectPlayers(
          where save_id = ${saveId} and player_id = any(${departed}::text[])`;
     }
   }
+  // A player who left is no longer in the league, so the update above did not
+  // touch him: his age is written here, as it was when he went.
   const retired = ctx.retired ?? [];
   if (retired.length > 0) {
     await db`
-      update public.players p set team_id = null, retired_season = u.season
+      update public.players p set team_id = null, retired_season = u.season, age = u.age
         from unnest(${retired.map((p) => p.id)}::text[],
-                    ${retired.map((p) => p.retiredInSeason)}::int[]) as u(player_id, season)
+                    ${retired.map((p) => p.retiredInSeason)}::int[],
+                    ${retired.map((p) => Math.round(p.age))}::int[]) as u(player_id, season, age)
        where p.save_id = ${saveId} and p.player_id = u.player_id`;
   }
 

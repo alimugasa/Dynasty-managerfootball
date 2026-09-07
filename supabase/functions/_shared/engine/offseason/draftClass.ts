@@ -131,8 +131,31 @@ export interface IntakeConfig {
   readonly footballIqSd: number;
 }
 
+/** Where a prospect's name comes from: the league's own first names and
+ *  surnames. The seed carries about 500 of each; a class is named from them
+ *  rather than from a list nobody in the world was ever called. */
+export interface NamePalette {
+  readonly first: readonly string[];
+  readonly last: readonly string[];
+}
+
+/** The palette a league's players make. Sorted, so the same players give the
+ *  same palette and the same seed the same names. */
+export function namePalette(players: readonly { readonly name: string }[]): NamePalette {
+  const first = new Set<string>();
+  const last = new Set<string>();
+  for (const p of players) {
+    const parts = p.name.trim().split(/\s+/);
+    if (parts.length < 2 || parts[0] === 'Prospect') continue;
+    first.add(parts[0] ?? '');
+    last.add(parts[parts.length - 1] ?? '');
+  }
+  return { first: [...first].sort(), last: [...last].sort() };
+}
+
 export function generateClass(
   rng: Rng, draftYear: number, config: IntakeConfig = OFFSEASON.intake,
+  names?: NamePalette,
 ): Prospect[] {
   const c = config;
   const out: Prospect[] = [];
@@ -151,6 +174,11 @@ export function generateClass(
       ability,
       POSITION_CEILING[group],
     );
+    const personality = rng.pick(FA_PERSONALITIES);
+    const devRate = clamp(rng.normal(c.devRateMean, c.devRateSd), c.devRateMin, c.devRateMax);
+    const workEthic = Math.round(clamp(rng.normal(c.workEthicMean, c.workEthicSd), 25, 99));
+    const durability = Math.round(clamp(rng.normal(c.durabilityMean, c.durabilitySd), 25, 99));
+    const footballIq = Math.round(clamp(rng.normal(c.footballIqMean, c.footballIqSd), 25, 99));
     out.push({
       // Draft year plus index is already unique, so no module-level counter is
       // needed. A mutable module global would make two simulations sharing a
@@ -159,15 +187,21 @@ export function generateClass(
       name: `Prospect ${draftYear}-${i + 1}`,
       group,
       draftYear,
-      personality: rng.pick(FA_PERSONALITIES),
+      personality,
       ability,
       potential,
       age: 20,
-      devRate: clamp(rng.normal(c.devRateMean, c.devRateSd), c.devRateMin, c.devRateMax),
-      workEthic: Math.round(clamp(rng.normal(c.workEthicMean, c.workEthicSd), 25, 99)),
-      durability: Math.round(clamp(rng.normal(c.durabilityMean, c.durabilitySd), 25, 99)),
-      footballIq: Math.round(clamp(rng.normal(c.footballIqMean, c.footballIqSd), 25, 99)),
+      devRate,
+      workEthic,
+      durability,
+      footballIq,
     });
+  }
+  // Named after every rating is drawn, so a caller without a palette gets the
+  // same class, ratings and all, as one with. A synthetic league with no names
+  // to draw from keeps the placeholder; a real one never does.
+  if (names !== undefined && names.first.length > 0 && names.last.length > 0) {
+    return out.map((p) => ({ ...p, name: `${rng.pick(names.first)} ${rng.pick(names.last)}` }));
   }
   return out;
 }

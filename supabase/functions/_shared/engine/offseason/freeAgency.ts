@@ -14,7 +14,8 @@
 
 import { clamp } from '../calibration.ts';
 import { capSheet, marketValue, veteranContract } from './contracts.ts';
-import { saturated, teamNeeds, type TeamNeeds } from './needs.ts';
+import { POSITION_VALUE, saturated, teamNeeds, type TeamNeeds } from './needs.ts';
+import { POSITION_GROUPS, type PositionGroup } from '../types.ts';
 import { OFFSEASON_QUOTA, OFFSEASON_ROSTER_LIMIT, type League } from './league.ts';
 import { available, roster as rosterOf, setTeam, type RosterIndex } from './rosterIndex.ts';
 import type { CapRules } from './frontOffice.ts';
@@ -62,6 +63,14 @@ export const FREE_AGENCY = {
   choiceNoiseSd: 0.05,
   /** Cap sheets are refreshed every this many signings as rooms fill up. */
   refreshInterval: 25,
+  /**
+   * A club pursues a player only at a group among its most pressing needs, or
+   * anywhere its need is acute. Without this every club with room bid on
+   * every player -- 32 bids on 400 of 1,600 signings -- which is not a market,
+   * it is an auction of everyone by everyone.
+   */
+  pursuitGroups: 3,
+  acuteNeed: 0.6,
 } as const;
 
 export interface Bid {
@@ -138,6 +147,19 @@ export function scoreOffer(
   return score + rng.normal(0, FREE_AGENCY.choiceNoiseSd);
 }
 
+/** The groups a club is in the market for: its top few needs, plus any group
+ *  where the need is acute. Ties broken by positional value, then name. */
+export function pursuits(needs: TeamNeeds): ReadonlySet<PositionGroup> {
+  const ranked = [...POSITION_GROUPS]
+    .filter((g) => needs[g] > 0)
+    .sort((a, b) => (needs[b] - needs[a])
+      || (POSITION_VALUE[b] - POSITION_VALUE[a])
+      || a.localeCompare(b));
+  const out = new Set<PositionGroup>(ranked.slice(0, FREE_AGENCY.pursuitGroups));
+  for (const g of ranked) if (needs[g] >= FREE_AGENCY.acuteNeed) out.add(g);
+  return out;
+}
+
 /**
  * Work the market.
  *
@@ -153,12 +175,16 @@ export function runFreeAgency(
 
   let needsByTeam = new Map<string, TeamNeeds>();
   let spaceByTeam = new Map<string, number>();
+  let pursuitsByTeam = new Map<string, ReadonlySet<PositionGroup>>();
   const refresh = (): void => {
     needsByTeam = new Map();
     spaceByTeam = new Map();
+    pursuitsByTeam = new Map();
     for (const teamId of league.teamIds) {
       const held = rosterOf(index, teamId);
-      needsByTeam.set(teamId, teamNeeds(held));
+      const needs = teamNeeds(held);
+      needsByTeam.set(teamId, needs);
+      pursuitsByTeam.set(teamId, pursuits(needs));
       spaceByTeam.set(
         teamId,
         capSheet(teamId, held, rules, league.deadMoney.get(teamId) ?? 0).available,
@@ -181,6 +207,7 @@ export function runFreeAgency(
       if (needs === undefined) continue;
       if (held.length >= OFFSEASON_ROSTER_LIMIT) continue;
       if (saturated(held, player.group, needs, OFFSEASON_QUOTA)) continue;
+      if (!(pursuitsByTeam.get(teamId)?.has(player.group) ?? false)) continue;
 
       const front = league.fronts.get(teamId);
       const money = offerFrom(

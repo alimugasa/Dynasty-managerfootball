@@ -50,6 +50,16 @@ export function retirementHazard(player: CareerPlayer): number {
   return Math.min(hazard, r.maximumHazard);
 }
 
+/**
+ * What a departure was. The hazard has one mode at the young end -- fringe
+ * players washing out -- and a tail past the peak; both leave the league, but
+ * a 25-year-old nobody signed has not retired, and saying he has is false.
+ * Past the positional peak it is a retirement; before it, a washout.
+ */
+export function retirementReason(player: CareerPlayer): 'RETIREMENT' | 'WASHOUT' {
+  return player.age > PEAK_AGE[player.group] ? 'RETIREMENT' : 'WASHOUT';
+}
+
 export function retireAll(
   players: readonly CareerPlayer[],
   rng: Rng,

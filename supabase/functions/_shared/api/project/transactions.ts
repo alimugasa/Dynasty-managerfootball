@@ -11,6 +11,7 @@ import type { League, CareerPlayer, PlayerContract } from '../../engine/offseaso
 import type { DraftResult } from '../../engine/offseason/draft.ts';
 import type { OffseasonResult } from '../../engine/offseason/population.ts';
 import { contractIdFor } from './contracts.ts';
+import { retirementReason } from '../../engine/offseason/retirement.ts';
 import { ENGINE_DATA_CLASS } from './players.ts';
 
 export interface PlayerBefore {
@@ -93,8 +94,12 @@ export async function logTransactions(
   });
 
   for (const p of result.retired) {
-    rows.push({ kind: 'RETIREMENT', teamId: before.get(p.id)?.teamId ?? null, playerId: p.id,
-      playerName: p.name, detail: `Retired at ${String(p.age)}`,
+    const kind = retirementReason(p);
+    rows.push({ kind, teamId: before.get(p.id)?.teamId ?? null, playerId: p.id,
+      playerName: p.name,
+      detail: kind === 'RETIREMENT'
+        ? `Retired at ${String(p.age)}`
+        : `Out of the league at ${String(p.age)}, rated ${String(Math.round(p.ability))}`,
       capImpact: null, contractId: null, pickId: null });
   }
 

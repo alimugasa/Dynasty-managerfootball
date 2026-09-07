@@ -8,7 +8,7 @@
 import { OFFSEASON } from './calibration.ts';
 import { deadMoneyIfCut, capSheet, expireContracts, cutAppeal } from './contracts.ts';
 import { developAll, NEUTRAL_CONTEXT, type DevelopmentContext } from './development.ts';
-import { developProspects, generateClass, type IntakeConfig } from './draftClass.ts';
+import { developProspects, generateClass, namePalette, type IntakeConfig } from './draftClass.ts';
 import { runDraft, strengthOrder, type DraftResult } from './draft.ts';
 import { runFreeAgency, type FreeAgencyResult } from './freeAgency.ts';
 import { capRules, type CapRules } from './frontOffice.ts';
@@ -226,7 +226,7 @@ export function runOffseason(
   // The class several years out enters the pipeline; every class in it grows.
   const incoming = league.season + intake.pipelineYears;
   if (!league.pipeline.has(incoming)) {
-    league.pipeline.set(incoming, generateClass(rng, incoming, intake));
+    league.pipeline.set(incoming, generateClass(rng, incoming, intake, namePalette(league.players)));
   }
   for (const cls of league.pipeline.values()) developProspects(cls, rng, intake);
 
@@ -265,7 +265,9 @@ export function primePipeline(
 ): void {
   for (let i = 0; i <= intake.pipelineYears; i += 1) {
     const year = league.season + i;
-    if (!league.pipeline.has(year)) league.pipeline.set(year, generateClass(rng, year, intake));
+    if (!league.pipeline.has(year)) {
+      league.pipeline.set(year, generateClass(rng, year, intake, namePalette(league.players)));
+    }
   }
 }
 

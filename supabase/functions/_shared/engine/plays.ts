@@ -8,10 +8,10 @@
 // generator does not need and a play-level engine does.
 
 import { CALIBRATION, clamp } from './calibration.ts';
-import { fieldableIn, starterOf, type TeamRuntime } from './roster.ts';
+import { availableIn, fieldableIn, starterOf, type TeamRuntime } from './roster.ts';
 import type { UnitRatings } from './ratings.ts';
 import type { Rng } from './rng.ts';
-import type { EnginePlayer, PlayOutcome, Weather } from './types.ts';
+import type { EnginePlayer, PlayOutcome, PositionGroup, Weather } from './types.ts';
 
 export interface PlayResolution {
   readonly outcome: PlayOutcome;
@@ -79,13 +79,37 @@ function chooseReceiver(runtime: TeamRuntime, rng: Rng): EnginePlayer {
   return picked ?? starterOf(runtime, 'WR');
 }
 
-/** Which defender is credited. Coverage players on passes, front seven on runs. */
-function chooseDefender(runtime: TeamRuntime, againstRun: boolean, rng: Rng): EnginePlayer {
-  const groups = againstRun
-    ? [...fieldableIn(runtime, 'LB'), ...fieldableIn(runtime, 'DT'), ...fieldableIn(runtime, 'S')]
-    : [...fieldableIn(runtime, 'CB'), ...fieldableIn(runtime, 'S'), ...fieldableIn(runtime, 'LB')];
-  const picked = weightedPick(groups, [0.3, 0.22, 0.18, 0.14, 0.09, 0.07], rng);
-  return picked ?? starterOf(runtime, againstRun ? 'LB' : 'CB');
+/** Who is credited with a play against the defence, by group. A weight per
+ *  group, then the usual depth weighting inside it: the starter at a group is
+ *  likelier than the backup, but a corner is not likelier than every
+ *  linebacker just because his group was listed first. */
+type DefenderTable = readonly (readonly [PositionGroup, number])[];
+
+const RUN_TACKLERS: DefenderTable = [['LB', 0.42], ['DT', 0.2], ['EDGE', 0.18], ['S', 0.12], ['CB', 0.08]];
+const PASS_TACKLERS: DefenderTable = [['CB', 0.36], ['LB', 0.32], ['S', 0.24], ['EDGE', 0.05], ['DT', 0.03]];
+/** Sacks belong to the rush. Corners do not get them. */
+const SACKERS: DefenderTable = [['EDGE', 0.55], ['DT', 0.25], ['LB', 0.17], ['S', 0.03]];
+
+function chooseDefender(
+  runtime: TeamRuntime, play: 'run' | 'pass' | 'sack', rng: Rng,
+): EnginePlayer {
+  const table = play === 'run' ? RUN_TACKLERS : (play === 'pass' ? PASS_TACKLERS : SACKERS);
+  // A group nobody can be fielded from drops out and its weight goes to the
+  // rest; the draw is over whoever is actually on the field.
+  const pools = table.flatMap(([group, weight]) => {
+    const players = availableIn(runtime, group);
+    return players.length === 0 ? [] : [{ players, weight }];
+  });
+  const total = pools.reduce((a, p) => a + p.weight, 0);
+  if (pools.length === 0 || total <= 0) return starterOf(runtime, play === 'run' ? 'LB' : 'CB');
+  let roll = rng.float() * total;
+  let chosen = pools[pools.length - 1];
+  for (const pool of pools) {
+    roll -= pool.weight;
+    if (roll <= 0) { chosen = pool; break; }
+  }
+  const picked = weightedPick(chosen?.players ?? [], [0.5, 0.3, 0.12, 0.05, 0.02, 0.01], rng);
+  return picked ?? starterOf(runtime, play === 'run' ? 'LB' : 'CB');
 }
 
 export function resolveRun(
@@ -98,7 +122,7 @@ export function resolveRun(
   const { run } = CALIBRATION;
   const diff = units.offense.runOffense - units.defense.runDefense + homeFieldRun;
   const rusher = chooseRusher(offense, rng);
-  const defender = chooseDefender(defense, true, rng);
+  const defender = chooseDefender(defense, 'run', rng);
 
   const stuffShare = clamp(run.stuffShareBase + run.stuffSharePerDiff * diff, 0.04, 0.34);
   const targetYpc = clamp(
@@ -172,7 +196,7 @@ export function resolvePass(
       turnover: false,
       wasSack: true,
       passer,
-      defender: chooseDefender(defense, false, rng),
+      defender: chooseDefender(defense, 'sack', rng),
     };
   }
 
@@ -180,12 +204,12 @@ export function resolvePass(
     const yards = Math.round(rng.exponential(pass.scrambleMeanYards));
     return {
       outcome: 'scramble', yards, clockStops: rng.chance(0.3), turnover: false,
-      wasSack: false, passer, rusher: passer, defender: chooseDefender(defense, true, rng),
+      wasSack: false, passer, rusher: passer, defender: chooseDefender(defense, 'run', rng),
     };
   }
 
   const receiver = chooseReceiver(offense, rng);
-  const defender = chooseDefender(defense, false, rng);
+  const defender = chooseDefender(defense, 'pass', rng);
 
   const interceptionRate = clamp(
     pass.interceptionBase + pass.interceptionPerDiff * diff + penalty * pass.interceptionWindPenalty,
