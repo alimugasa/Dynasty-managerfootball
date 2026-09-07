@@ -21,7 +21,7 @@ import { POSITION_CEILING } from './calibration.ts';
 import { clamp } from '../calibration.ts';
 import type { Rng } from '../rng.ts';
 import type { PositionGroup } from '../types.ts';
-import type { Prospect } from './types.ts';
+import { FA_PERSONALITIES, type Prospect } from './types.ts';
 
 /**
  * Gamma deviate, Marsaglia-Tsang. Used for the headroom a prospect has above his
@@ -159,6 +159,7 @@ export function generateClass(
       name: `Prospect ${draftYear}-${i + 1}`,
       group,
       draftYear,
+      personality: rng.pick(FA_PERSONALITIES),
       ability,
       potential,
       age: 20,

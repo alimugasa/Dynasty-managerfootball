@@ -12,6 +12,7 @@ export function player(overrides: Partial<CareerPlayer> = {}): CareerPlayer {
     gamesMissedCareer: 0, gamesMissedSeason: 0,
     accolades: { allLeague: 0, awards: 0, rings: 0 },
     retired: false, retiredInSeason: null,
+    personality: 'MAX_MONEY', contract: null, previousTeamId: null,
     ...overrides,
   };
 }

@@ -15,7 +15,8 @@
     "preflight": "npm run typecheck && npm run lint && npm run lint:arch && npm run test",
     "report:sim": "node scripts/sim-report/index.ts",
     "report:drift": "node scripts/drift-report/index.ts",
-    "report:sweep": "node scripts/drift-report/sweep.ts"
+    "report:sweep": "node scripts/drift-report/sweep.ts",
+    "report:market": "node scripts/market-report/index.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

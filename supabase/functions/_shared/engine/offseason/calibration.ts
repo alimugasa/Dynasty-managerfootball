@@ -126,14 +126,14 @@ export const OFFSEASON = {
     // differs from the reference's. Every setting in the sweep converged; they
     // converged to different levels, which is precisely the finding
     // legacy/ENGINE.md records.
-    classAbilityMean: 58.9,
+    classAbilityMean: 58.6,
     classAbilitySd: 9,
     classAbilityMin: 32,
     classAbilityMax: 88,
     /** Potential above current ability, gamma distributed: most prospects have
      *  a little headroom, a few have a great deal. */
     potentialShape: 2,
-    potentialScale: 7.0,
+    potentialScale: 6.9,
     /** Prospect development inside the pipeline. */
     prospectGrowthGapShare: 0.22,
     prospectGrowthVarianceSd: 0.5,

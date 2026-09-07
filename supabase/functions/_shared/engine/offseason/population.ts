@@ -1,152 +1,125 @@
-// The league as a population: rosters, the pool, and one full offseason.
+// The offseason, end to end.
 //
-// Ability moves only here, so this loop reproduces the league's talent dynamics
-// without simulating a single game. legacy/ENGINE.md relies on exactly that to
-// isolate drift: game simulation does not move ratings, so if the mean is
-// sliding, the cause is in this file and not in the box score.
+// Grade the season just played, develop everyone, retire who is finished, expire
+// contracts, draft the incoming class, work the market, then make every roster
+// legal. Ability moves only in here, so this loop reproduces the league's talent
+// dynamics without simulating a single game.
 
 import { OFFSEASON } from './calibration.ts';
+import { deadMoneyIfCut, capSheet, expireContracts, cutAppeal } from './contracts.ts';
 import { developAll, NEUTRAL_CONTEXT, type DevelopmentContext } from './development.ts';
 import { developProspects, generateClass, type IntakeConfig } from './draftClass.ts';
+import { runDraft, strengthOrder, type DraftResult } from './draft.ts';
+import { runFreeAgency, type FreeAgencyResult } from './freeAgency.ts';
+import { capRules, type CapRules } from './frontOffice.ts';
 import { gradeSeason } from './grading.ts';
+import {
+  meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosterOf, rosterValue,
+  ROSTER_QUOTA, ROSTER_SIZE, type League,
+} from './league.ts';
+import {
+  bestAvailable, buildIndex, roster as indexedRoster, setTeam,
+  type RosterIndex,
+} from './rosterIndex.ts';
 import { retireAll } from './retirement.ts';
-import { POSITION_GROUPS, type PositionGroup } from '../types.ts';
+import { POSITION_GROUPS } from '../types.ts';
 import type { Rng } from '../rng.ts';
-import type { CareerPlayer, OffseasonSummary, Prospect, SeasonGrade } from './types.ts';
+import type { CareerPlayer, OffseasonSummary, SeasonGrade } from './types.ts';
 
-/** Roster shape, 53 players. Fixed so supply and demand stay aligned and a club
- *  cannot answer a shortage at one position by carrying eleven of another. */
-export const ROSTER_QUOTA: Readonly<Record<PositionGroup, number>> = {
-  QB: 3, RB: 4, WR: 7, TE: 3, OL: 10,
-  EDGE: 4, DT: 4, LB: 6, CB: 6, S: 4, K: 1, P: 1,
-};
+export { ROSTER_QUOTA, ROSTER_SIZE, rosterOf, meanRosteredAbility, meanRosteredAge };
+export type { League };
 
-export const ROSTER_SIZE = POSITION_GROUPS.reduce((n, g) => n + ROSTER_QUOTA[g], 0);
-
-/**
- * How wrong the league collectively is about a prospect, in rating points.
- *
- * A single consensus estimate rather than thirty-two separate boards: this loop
- * exists to measure talent flow, and per-club boards change who signs whom
- * without changing how much talent enters. The full draft engine models the
- * boards; here the noise only needs to stop selection from being perfect,
- * because perfect selection would put the intake ceiling above anything a real
- * league achieves.
- */
-const SCOUTING_NOISE_SD = 7.5;
-
-export interface League {
-  readonly teamIds: readonly string[];
-  /** Every player still in the game, rostered or not. */
-  players: CareerPlayer[];
-  /** Classes not yet drafted, keyed by their draft year. */
-  pipeline: Map<number, Prospect[]>;
-  season: number;
+function release(league: League, index: RosterIndex, player: CareerPlayer): void {
+  const teamId = player.teamId;
+  if (teamId === null) return;
+  const dead = deadMoneyIfCut(player);
+  if (dead > 0) league.deadMoney.set(teamId, (league.deadMoney.get(teamId) ?? 0) + dead);
+  setTeam(index, player, null);
+  player.contract = null;
 }
 
-export function rosterOf(league: League, teamId: string): CareerPlayer[] {
-  return league.players.filter((p) => !p.retired && p.teamId === teamId);
-}
-
-/** Mean ability of rostered players: the number that must stay flat. */
-export function meanRosteredAbility(league: League): number {
-  const rostered = league.players.filter((p) => !p.retired && p.teamId !== null);
-  if (rostered.length === 0) return NaN;
-  let sum = 0;
-  for (const p of rostered) sum += p.ability;
-  return sum / rostered.length;
-}
-
-export function meanRosteredAge(league: League): number {
-  const rostered = league.players.filter((p) => !p.retired && p.teamId !== null);
-  if (rostered.length === 0) return NaN;
-  let sum = 0;
-  for (const p of rostered) sum += p.age;
-  return sum / rostered.length;
-}
-
-function prospectToPlayer(prospect: Prospect): CareerPlayer {
-  return {
-    id: prospect.id,
-    name: prospect.name,
-    group: prospect.group,
-    teamId: null,
-    ability: prospect.ability,
-    potential: prospect.potential,
-    mental: 0,
-    reputation: prospect.ability,
-    age: prospect.age,
-    experience: 0,
-    devRate: prospect.devRate,
-    workEthic: prospect.workEthic,
-    durability: prospect.durability,
-    footballIq: prospect.footballIq,
-    gamesMissedCareer: 0,
-    gamesMissedSeason: 0,
-    accolades: { allLeague: 0, awards: 0, rings: 0 },
-    retired: false,
-    retiredInSeason: null,
+function signMinimum(
+  index: RosterIndex, player: CareerPlayer, teamId: string, rules: CapRules, season: number,
+): void {
+  setTeam(index, player, teamId);
+  player.contract = {
+    aav: rules.veteranMinimum, years: 1, yearsRemaining: 1,
+    guaranteed: 0, signedSeason: season,
   };
 }
 
 /**
- * Fill every roster to quota from the available pool.
+ * Make every roster legal.
  *
- * Per group rather than per club, because the quotas are identical: the set of
- * players who end up rostered is the top N at each position by estimated
- * ability, whichever club holds them. Which club matters enormously to a season
- * and not at all to the league's talent level, which is what this loop measures.
+ * Runs after the draft and the market, so it is a tidying step rather than a
+ * team-building one: clubs cut what they cannot carry and fill what they must,
+ * at the minimum, from whoever is left. A club that drafted and signed well has
+ * little for this pass to do.
  */
-export function fillRosters(league: League, rng: Rng): number {
-  let signed = 0;
-  for (const group of POSITION_GROUPS) {
-    const quota = ROSTER_QUOTA[group];
-    const rostered = new Map<string, CareerPlayer[]>();
-    for (const teamId of league.teamIds) rostered.set(teamId, []);
-    const available: CareerPlayer[] = [];
+export function enforceCompliance(
+  league: League, index: RosterIndex, rules: CapRules,
+): number {
+  let moves = 0;
 
-    for (const player of league.players) {
-      if (player.retired || player.group !== group) continue;
-      if (player.teamId === null) available.push(player);
-      else rostered.get(player.teamId)?.push(player);
-    }
+  // Three league-wide passes, not one pass per club.
+  //
+  // Interleaving them means the first club fills its holes from a pool the last
+  // club has not yet released its surplus into. That left clubs a quarterback
+  // short while spare quarterbacks sat unsigned -- a shortage created purely by
+  // the order the clubs were visited in.
 
-    // Clubs cut down to quota before signing, worst first.
-    for (const teamId of league.teamIds) {
-      const held = rostered.get(teamId) ?? [];
-      if (held.length <= quota) continue;
-      held.sort((a, b) => b.ability - a.ability);
-      for (const player of held.slice(quota)) {
-        player.teamId = null;
-        available.push(player);
-      }
-      rostered.set(teamId, held.slice(0, quota));
-    }
-
-    let need = 0;
-    for (const teamId of league.teamIds) need += quota - (rostered.get(teamId)?.length ?? 0);
-    if (need <= 0) continue;
-
-    // The league's collective read on each available player: right on average,
-    // wrong on any individual.
-    const ranked = available
-      .map((player) => ({ player, estimate: player.ability + rng.normal(0, SCOUTING_NOISE_SD) }))
-      .sort((a, b) => b.estimate - a.estimate);
-
-    let cursor = 0;
-    for (const teamId of league.teamIds) {
-      const held = rostered.get(teamId) ?? [];
-      while (held.length < quota && cursor < ranked.length) {
-        const pick = ranked[cursor];
-        cursor += 1;
-        if (pick === undefined) break;
-        pick.player.teamId = teamId;
-        held.push(pick.player);
-        signed += 1;
+  // 1. Everyone cuts down to quota, worst first.
+  for (const teamId of league.teamIds) {
+    for (const group of POSITION_GROUPS) {
+      const held = indexedRoster(index, teamId)
+        .filter((p) => p.group === group)
+        .sort((a, b) => rosterValue(b) - rosterValue(a));
+      for (const player of held.slice(ROSTER_QUOTA[group])) {
+        release(league, index, player);
+        moves += 1;
       }
     }
   }
-  return signed;
+
+  // 2. Everyone gets under the cap. Cut the worst value for money, replacing
+  //    with a minimum-salary body so the roster stays legal in shape as well as
+  //    in cost.
+  for (const teamId of league.teamIds) {
+    let guard = 0;
+    while (guard < 40) {
+      guard += 1;
+      const held = indexedRoster(index, teamId);
+      const sheet = capSheet(teamId, held, rules, league.deadMoney.get(teamId) ?? 0);
+      if (sheet.available >= 0) break;
+      // Cut whoever frees the most money per point of ability lost. Ranking on
+      // cap hit alone targets rookies, whose deals are guaranteed and therefore
+      // save nothing.
+      const worst = held
+        .filter((p) => (p.contract?.aav ?? 0) > rules.veteranMinimum)
+        .filter((p) => cutAppeal(p, rules) > 0)
+        .sort((a, b) => cutAppeal(b, rules) - cutAppeal(a, rules))[0];
+      if (worst === undefined) break;
+      release(league, index, worst);
+      moves += 1;
+    }
+  }
+
+  // 3. Only now does anyone fill. The best body available, not a random one:
+  //    clubs are not stupid about the bottom of a roster, they are just poor.
+  for (const teamId of league.teamIds) {
+    for (const group of POSITION_GROUPS) {
+      let held = indexedRoster(index, teamId).filter((p) => p.group === group).length;
+      while (held < ROSTER_QUOTA[group]) {
+        const best = bestAvailable(index, group);
+        if (best === undefined) break;
+        signMinimum(index, best, teamId, rules, league.season);
+        held += 1;
+        moves += 1;
+      }
+    }
+  }
+
+  return moves;
 }
 
 /** Unsigned players eventually leave the game rather than accumulating forever. */
@@ -160,31 +133,38 @@ export interface OffseasonResult {
   readonly summary: OffseasonSummary;
   readonly grades: readonly SeasonGrade[];
   /** Returned rather than left on the league: retired players are pruned from
-   *  the population at the end of the offseason, so a caller that wants to
-   *  study them has to be handed them here. */
+   *  the population at the end of the offseason. */
   readonly retired: readonly CareerPlayer[];
+  readonly draft: DraftResult;
+  readonly freeAgency: FreeAgencyResult;
 }
 
-/**
- * One complete offseason, in the order the real calendar runs it: the season is
- * graded, players develop, some retire, a class declares, and clubs refill.
- *
- * Grading happens before development because a grade describes the season just
- * played, by the player as he was during it.
- */
 export function runOffseason(
   league: League,
   rng: Rng,
   context: DevelopmentContext = NEUTRAL_CONTEXT,
   intake: IntakeConfig = OFFSEASON.intake,
 ): OffseasonResult {
+  const rules = capRules(league.season);
+
+  // Dead money is carried for the season it was incurred and then written off.
+  league.deadMoney.clear();
+
   const active = league.players.filter((p) => !p.retired && p.teamId !== null);
   const grades = gradeSeason(active, rng, league.season);
 
   const outcomes = developAll(league.players, context, rng);
   const retired = retireAll(league.players, rng, league.season);
+  expireContracts(league.players);
 
-  // The class three years out enters the pipeline; every class in it grows.
+  // Built here, after retirement and expiry have already moved players off
+  // rosters directly. Those two run without an index -- they are callable on a
+  // bare player list -- so indexing before them would leave stale entries that
+  // setTeam could not clear, since it short-circuits when the club has not
+  // changed. Everything from this line on goes through setTeam.
+  const index = buildIndex(league.teamIds, league.players);
+
+  // The class several years out enters the pipeline; every class in it grows.
   const incoming = league.season + intake.pipelineYears;
   if (!league.pipeline.has(incoming)) {
     league.pipeline.set(incoming, generateClass(rng, incoming, intake));
@@ -193,19 +173,18 @@ export function runOffseason(
 
   const declaring = league.pipeline.get(league.season) ?? [];
   league.pipeline.delete(league.season);
-  for (const prospect of declaring) {
-    league.players.push(prospectToPlayer(prospect));
-  }
 
+  const draft = runDraft(league, index, declaring, strengthOrder(league, index), rules, rng);
+  const freeAgency = runFreeAgency(league, index, rules, rng);
+  enforceCompliance(league, index, rules);
   pruneUnsigned(league);
-  const drafted = fillRosters(league, rng);
   league.season += 1;
 
   return {
     summary: {
       season: league.season - 1,
       retired: retired.length,
-      drafted,
+      drafted: draft.picks.length,
       developed: outcomes.length,
       meanAbility: meanRosteredAbility(league),
       meanAge: meanRosteredAge(league),
@@ -214,6 +193,8 @@ export function runOffseason(
     },
     grades,
     retired,
+    draft,
+    freeAgency,
   };
 }
 
@@ -226,3 +207,6 @@ export function primePipeline(
     if (!league.pipeline.has(year)) league.pipeline.set(year, generateClass(rng, year, intake));
   }
 }
+
+/** Prospect conversion, re-exported for callers building a league by hand. */
+export { prospectToPlayer };

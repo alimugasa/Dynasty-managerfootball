@@ -7,8 +7,26 @@
 import { numberOrUndefined, readSeedCsv } from '../lib/seedCsv.ts';
 import { POSITION_GROUPS, type PositionGroup } from '../../supabase/functions/_shared/engine/types.ts';
 import {
-  ROSTER_QUOTA, type CareerPlayer, type League,
+  capRules, FA_PERSONALITIES, marketValue, ROSTER_QUOTA,
+  type CareerPlayer, type FaPersonality, type League, type TeamFront,
 } from '../../supabase/functions/_shared/engine/offseason/index.ts';
+
+/** Stable pseudo-random integer in [0, n) from a string. */
+function hashInt(text: string, n: number): number {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash % n;
+}
+
+/** The seed has no personality column. Derived from the player id by hash
+ *  rather than drawn at random: the loader takes no generator, and a stable
+ *  mapping means the same seed player is the same character every run. */
+function personalityFor(id: string): FaPersonality {
+  return FA_PERSONALITIES[hashInt(id, FA_PERSONALITIES.length)] as FaPersonality;
+}
 
 const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
   QB: 'QB', RB: 'RB', FB: 'RB', WR: 'WR', TE: 'TE',
@@ -23,12 +41,56 @@ export function loadCareerLeague(): League {
   const teamRows = readSeedCsv('teams');
   const playerRows = readSeedCsv('players');
   const attrRows = readSeedCsv('player_attributes');
+  const ownerRows = readSeedCsv('owners');
+  const coachRows = readSeedCsv('coaches');
+  const coachAttrRows = readSeedCsv('coach_attributes');
 
   const attrsById = new Map<string, Record<string, string>>();
   for (const row of attrRows) attrsById.set(row['player_id'] ?? '', row);
 
   const teamIds = teamRows.map((r) => r['team_id'] ?? '').filter((id) => id !== '');
   const known = new Set(teamIds);
+
+  // Front-office state, built from the seed rather than invented: the owner
+  // rows carry spending willingness and win-now bias, and the scouting
+  // department is read off whichever coach evaluates talent for the club.
+  const ownerByTeam = new Map<string, Record<string, string>>();
+  for (const row of ownerRows) ownerByTeam.set(row['team_id'] ?? '', row);
+
+  const coachAttrById = new Map<string, Record<string, string>>();
+  for (const row of coachAttrRows) coachAttrById.set(row['coach_id'] ?? '', row);
+
+  const evaluatorByTeam = new Map<string, number>();
+  for (const row of coachRows) {
+    const teamId = row['team_id'] ?? '';
+    if (teamId === '') continue;
+    const evaluation = numberOrUndefined(
+      coachAttrById.get(row['coach_id'] ?? '')?.['talent_evaluation'],
+    );
+    if (evaluation === undefined) continue;
+    const best = evaluatorByTeam.get(teamId);
+    if (best === undefined || evaluation > best) evaluatorByTeam.set(teamId, evaluation);
+  }
+
+  const fronts = new Map<string, TeamFront>();
+  for (const row of teamRows) {
+    const teamId = row['team_id'] ?? '';
+    if (teamId === '') continue;
+    const owner = ownerByTeam.get(teamId);
+    const spending = numberOrUndefined(owner?.['spending_willingness']) ?? 60;
+    const marketSize = numberOrUndefined(row['market_size']) ?? 5;
+    fronts.set(teamId, {
+      id: teamId,
+      scouting: evaluatorByTeam.get(teamId) ?? 60,
+      spending,
+      winNow: numberOrUndefined(owner?.['win_now_bias']) ?? 0.5,
+      // Standing a player is buying into. Market size is the seed's own proxy.
+      prestige: Math.max(20, Math.min(99, 38 + marketSize * 5)),
+      recentWinRate: 0.5,
+      // A club that will spend on players will spend on scouts.
+      scoutingSpend: 0.6 + (spending / 99) * 0.8,
+    });
+  }
 
   const players: CareerPlayer[] = [];
   for (const row of playerRows) {
@@ -67,10 +129,32 @@ export function loadCareerLeague(): League {
       accolades: { allLeague: 0, awards: 0, rings: 0 },
       retired: false,
       retiredInSeason: null,
+      personality: personalityFor(id),
+      contract: null,
+      previousTeamId: teamId,
     });
   }
 
   if (players.length === 0) throw new Error('Seed data produced no career players');
+
+  // The seed has a contracts table, but not one that maps onto this model's
+  // deal structure, so contracts are derived from market value here. Remaining
+  // years are staggered one to four by a stable hash of the player id: without
+  // the stagger every deal in the league would expire in the same offseason and
+  // the first market would be the only one that ever mattered.
+  const rules = capRules(FIRST_SEASON);
+  for (const player of players) {
+    if (player.teamId === null) continue;
+    const years = 1 + hashInt(`${player.id}:years`, 4);
+    const aav = marketValue(player, rules);
+    player.contract = {
+      aav,
+      years,
+      yearsRemaining: years,
+      guaranteed: Math.round(aav * years * 0.45),
+      signedSeason: FIRST_SEASON - 1,
+    };
+  }
 
   // The seed carries roughly 93 players per club, an offseason roster. Trim each
   // club to its 53-man quota by ability; the rest enter the pool as free agents
@@ -84,5 +168,8 @@ export function loadCareerLeague(): League {
     }
   }
 
-  return { teamIds, players, pipeline: new Map(), season: FIRST_SEASON };
+  return {
+    teamIds, fronts, players, pipeline: new Map(),
+    deadMoney: new Map(), season: FIRST_SEASON,
+  };
 }

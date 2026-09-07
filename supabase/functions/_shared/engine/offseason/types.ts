@@ -18,6 +18,27 @@
 
 import type { PositionGroup } from '../types.ts';
 
+/** What a player weighs when choosing between offers. Assigned at intake and
+ *  fixed for a career: the market has to be able to learn who chases money. */
+export type FaPersonality =
+  | 'MAX_MONEY' | 'CHAMPIONSHIP' | 'LOYALTY' | 'ROLE'
+  | 'LOCATION' | 'COACH_RELATIONSHIP' | 'LONG_TERM_SECURITY';
+
+export const FA_PERSONALITIES: readonly FaPersonality[] = [
+  'MAX_MONEY', 'CHAMPIONSHIP', 'LOYALTY', 'ROLE',
+  'LOCATION', 'COACH_RELATIONSHIP', 'LONG_TERM_SECURITY',
+];
+
+export interface PlayerContract {
+  /** Average annual value, in dollars. */
+  readonly aav: number;
+  yearsRemaining: number;
+  readonly years: number;
+  /** Money still owed if he is cut today. */
+  readonly guaranteed: number;
+  readonly signedSeason: number;
+}
+
 export interface CareerAccolades {
   allLeague: number;
   awards: number;
@@ -58,6 +79,11 @@ export interface CareerPlayer {
   accolades: CareerAccolades;
   retired: boolean;
   retiredInSeason: number | null;
+
+  readonly personality: FaPersonality;
+  contract: PlayerContract | null;
+  /** Club he last played for, which loyalty is measured against. */
+  previousTeamId: string | null;
 }
 
 export interface Prospect {
@@ -65,6 +91,7 @@ export interface Prospect {
   readonly name: string;
   readonly group: PositionGroup;
   readonly draftYear: number;
+  readonly personality: FaPersonality;
   ability: number;
   potential: number;
   age: number;

@@ -14,9 +14,38 @@ export {
   correlation, effectiveAbility, gradeFromZ, gradeSeason, gradingPopulation, seasonForm,
 } from './grading.ts';
 export {
-  fillRosters, meanRosteredAbility, meanRosteredAge, primePipeline, ROSTER_QUOTA,
-  ROSTER_SIZE, rosterOf, runOffseason, type League, type OffseasonResult,
+  enforceCompliance, primePipeline, runOffseason, type OffseasonResult,
 } from './population.ts';
+export {
+  freeAgents, meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosteredPlayers,
+  rosterOf, rosterValue, ROSTER_QUOTA, ROSTER_SIZE, OFFSEASON_QUOTA,
+  OFFSEASON_ROSTER_LIMIT,
+  type League,
+} from './league.ts';
+export {
+  addressedNeed, addressedTopNeed, buildBoard, DRAFT, rankOfNeed, runDraft, strengthOrder,
+  type DraftPick, type DraftResult,
+} from './draft.ts';
+export {
+  FREE_AGENCY, offerFrom, PERSONALITY_WEIGHTS, runFreeAgency, scoreOffer,
+  type Bid, type FreeAgencyResult, type Signing,
+} from './freeAgency.ts';
+export {
+  allocateScouting, SCOUTING, scoutClass, scoutProspect, scoutingSigma,
+  type ScoutingReport,
+} from './scouting.ts';
+export {
+  capSavings, capSheet, contractEfficiency, cutAppeal, deadMoneyIfCut, expireContracts,
+  MAX_DEAD_MONEY_SHARE,
+  marketValue,
+  MAX_AAV_SHARE, perceivedValue, rookieContract, veteranContract, type CapSheet,
+} from './contracts.ts';
+export { FA_PERSONALITIES } from './types.ts';
 export type {
-  CareerAccolades, CareerPlayer, DevelopmentOutcome, OffseasonSummary, Prospect, SeasonGrade,
+  CareerAccolades, CareerPlayer, DevelopmentOutcome, FaPersonality, OffseasonSummary,
+  PlayerContract, Prospect, SeasonGrade,
 } from './types.ts';
+export { capRules, defaultFront, type CapRules, type TeamFront } from './frontOffice.ts';
+export {
+  POSITION_VALUE, STARTERS, saturated, teamNeeds, type TeamNeeds,
+} from './needs.ts';
