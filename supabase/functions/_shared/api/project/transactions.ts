@@ -89,19 +89,26 @@ export async function logTransactions(
       playerName: p.name, detail: `Retired at ${String(p.age)}`, capImpact: null, contractId: null, pickId: null });
   }
 
+  // Every pick, whether or not the rookie survived the same offseason's cut:
+  // the selection happened. A rookie released before week one has no row in
+  // the previous document to diff against, so his release is not logged.
+  const byId = new Map(league.players.map((p) => [p.id, p]));
+  for (const pick of result.draft.picks) {
+    const p = byId.get(pick.prospectId);
+    const contract = p?.contract ?? null;
+    rows.push({
+      kind: 'DRAFT_SELECTION', teamId: pick.teamId, playerId: pick.prospectId,
+      playerName: p?.name ?? pick.prospectId,
+      detail: `Round ${String(pick.round)}, pick ${String(pick.overall)} overall`,
+      capImpact: contract?.aav ?? null,
+      contractId: p === undefined || contract === null ? null : contractIdFor(p, contract.signedSeason),
+      pickId: pickIdFor(pick.season, pick.round, pick.overall - (pick.round - 1) * clubs),
+    });
+  }
+
   for (const p of league.players) {
     const was = before.get(p.id);
-    const pick = picks.get(p.id);
-    if (pick !== undefined && p.teamId !== null) {
-      rows.push({
-        kind: 'DRAFT_SELECTION', teamId: p.teamId, playerId: p.id, playerName: p.name,
-        detail: `Round ${String(pick.round)}, pick ${String(pick.overall)} overall`,
-        capImpact: p.contract?.aav ?? null,
-        contractId: p.contract === null ? null : contractIdFor(p, p.contract.signedSeason),
-        pickId: pickIdFor(pick.season, pick.round, pick.overall - (pick.round - 1) * clubs),
-      });
-      continue;
-    }
+    if (picks.has(p.id)) continue;
     const from = was?.teamId ?? null;
     if (p.teamId !== null && from !== p.teamId) {
       const signing = signings.get(p.id);
