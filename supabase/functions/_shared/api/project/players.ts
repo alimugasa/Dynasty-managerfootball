@@ -10,6 +10,7 @@
 
 import type { Db } from '../db.ts';
 import { GROUP_OF } from '../../engine/careerWorld.ts';
+import { POSITION_GROUPS } from '../../engine/types.ts';
 import { capRules, marketValue, type League, type CareerPlayer } from '../../engine/offseason/index.ts';
 
 /** Provenance marker on rows the engine wrote, beside the seed's GENERATED
@@ -132,7 +133,11 @@ export async function projectPlayers(
 /** Positions the engine models. A player at any other position -- the long
  *  snapper -- is on his club's roster in the seed and stays on it here: his
  *  rows are never rewritten, because the engine has nothing to say about him. */
-export const MODELLED_POSITIONS: readonly string[] = Object.keys(GROUP_OF);
+export const MODELLED_POSITIONS: readonly string[] = [
+  ...Object.keys(GROUP_OF),
+  // A player the engine created carries his group as his position.
+  ...POSITION_GROUPS,
+];
 
 async function projectRosters(db: Db, saveId: string, league: League): Promise<void> {
   const rules = capRules(league.season);
