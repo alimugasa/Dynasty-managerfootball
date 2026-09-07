@@ -21,7 +21,8 @@
     "perf:fixture": "node scripts/perf/fixture.ts",
     "perf:bench": "node scripts/perf/bench.ts",
     "dev:api": "node scripts/dev-api.ts",
-    "db:seed": "node scripts/import-seed.ts"
+    "db:seed": "node scripts/import-seed.ts",
+    "db:dev-user": "psql \"$DATABASE_URL\" -v uid=\"'${DEV_USER_ID:-00000000-0000-0000-0000-000000000001}'\" -f supabase/dev/dev_user.sql"
   },
   "dependencies": {
     "postgres": "^3.4.9",

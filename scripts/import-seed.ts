@@ -147,13 +147,16 @@ export async function importSeed(databaseUrl: string): Promise<Report> {
         if (table === 'contract_years') {
           // RESHAPED from player_contracts.csv.
           const rows: Row[] = readSeedCsv('player_contracts').map((r) => {
-            const out: Row = { save_id: TEMPLATE_SAVE_ID, contract_id: cell(r['contract_id']), season };
+            // guaranteed is per year and the CSV has only a per-contract total.
+            // Unknown, so NULL -- never the column's old default of false, which
+            // made every release's dead-money math silently wrong.
+            const out: Row = { save_id: TEMPLATE_SAVE_ID, contract_id: cell(r['contract_id']), season, guaranteed: null };
             for (const [from, to] of Object.entries(RESHAPED_CONTRACT_YEAR)) out[to] = cell(r[from]);
             return out;
           });
           await insertRows(tx, table, rows);
           csvRows[table] = 0;
-          notes.push(`RESHAPED contract_years: ${String(rows.length)} rows from five *_${String(season)} columns of player_contracts.csv`);
+          notes.push(`RESHAPED contract_years: ${String(rows.length)} rows from five *_${String(season)} columns of player_contracts.csv; guaranteed written NULL (no per-year source)`);
           continue;
         }
 

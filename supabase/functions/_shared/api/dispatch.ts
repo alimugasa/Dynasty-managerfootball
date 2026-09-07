@@ -8,10 +8,12 @@
 
 import { ApiError, unauthorized, type HandlerContext, type Handler } from './context.ts';
 import { health } from './health.ts';
+import { createSave } from './createSave.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   health,
+  'create-save': createSave,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 

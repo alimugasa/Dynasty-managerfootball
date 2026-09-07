@@ -292,6 +292,42 @@ begin
   end;
 end $$;
 
+-- ---------------------------------------------------------------- 0016 guards
+reset role;
+set role service_role;
+do $$
+declare a uuid := current_setting('test.save_a')::uuid;
+begin
+  -- A save may never inherit the template's placeholder seed.
+  begin
+    perform public.create_save('11111111-1111-1111-1111-111111111111','zero seed','BUF',0,'test');
+    raise exception 'FAIL: create_save accepted rng_seed 0';
+  exception when invalid_parameter_value then null;
+  end;
+
+  -- One status vocabulary: the seed's spelling, and only that. The goal needs
+  -- an owner to exist first, or the foreign key fires before the CHECK under
+  -- test and the assertion passes for the wrong reason.
+  insert into public.owners (save_id, owner_id, team_id, owner_name)
+  values (a, 'O1', 'BUF', 'Test Owner');
+  begin
+    insert into public.owner_goals (save_id, goal_id, team_id, owner_id, season, goal_type, status)
+    values (a, 'G_PENDING', 'BUF', 'O1', 2026, 'WINS', 'PENDING');
+    raise exception 'FAIL: owner_goals accepted the discarded PENDING status';
+  exception when check_violation then null;
+  end;
+
+  -- Unknown guaranteed is NULL, and NULL is accepted: false would be a claim.
+  insert into public.player_contracts (save_id, contract_id, player_id, team_id, contract_type,
+                                       start_year, end_year, years_total, years_remaining)
+  values (a, 'K_NULL', 'BUF_QB_01', 'BUF', 'VETERAN', 2026, 2027, 2, 2);
+  insert into public.contract_years (save_id, contract_id, season, cap_hit, guaranteed)
+  values (a, 'K_NULL', 2026, 1000000, null);
+  if (select guaranteed from public.contract_years where save_id = a and contract_id = 'K_NULL') is not null then
+    raise exception 'FAIL: contract_years.guaranteed did not store NULL';
+  end if;
+end $$;
+
 -- ---------------------------------------------------------------- cascade
 reset role;
 set role service_role;
