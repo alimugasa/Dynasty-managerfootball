@@ -233,11 +233,17 @@ export interface GameResult {
  *  replacement-level phantom player: an empty depth chart is a data problem and
  *  is reported as one. ARCHITECTURE.md rule 3. */
 export class MissingUnitError extends Error {
-  constructor(
-    readonly teamId: string,
-    readonly group: PositionGroup,
-  ) {
+  // Declared as fields rather than constructor parameter properties: parameter
+  // properties emit code, so they cannot be erased by a type-stripping runtime.
+  // Written this way the engine runs unbundled under plain Node and under Deno,
+  // which is what lets the reporting harness fan it out across worker threads.
+  readonly teamId: string;
+  readonly group: PositionGroup;
+
+  constructor(teamId: string, group: PositionGroup) {
     super(`Team ${teamId} has no available ${group}`);
     this.name = 'MissingUnitError';
+    this.teamId = teamId;
+    this.group = group;
   }
 }
