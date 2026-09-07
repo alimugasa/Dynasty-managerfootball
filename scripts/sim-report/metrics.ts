@@ -13,7 +13,13 @@ export interface MetricResult {
   readonly high: number;
   readonly unit: string;
   readonly status: 'ok' | 'below' | 'above';
-  /** Signed distance outside the range, as a fraction of the range midpoint. */
+  /**
+   * How far outside the range the value sits, in multiples of the range's own
+   * width. Width rather than midpoint: a share whose target is 0-0.15% has a
+   * midpoint near zero, so a midpoint-relative figure explodes and sorts a minor
+   * symptom above a major defect. Width answers the more useful question --
+   * how far out is this, relative to how precisely the range was specified.
+   */
   readonly deviation: number;
   readonly tuning: readonly string[];
 }
@@ -170,7 +176,8 @@ function sum(values: ArrayLike<number>): number {
 function judge(key: string, value: number, overrides: Record<string, Target>): MetricResult {
   const target = overrides[key] ?? TARGETS[key];
   if (target === undefined) throw new Error(`No target defined for metric "${key}"`);
-  const midpoint = (target.low + target.high) / 2 || 1;
+  const width = target.high - target.low;
+  const scale = width > 0 ? width : Math.abs((target.low + target.high) / 2) || 1;
   const status = value < target.low ? 'below' : value > target.high ? 'above' : 'ok';
   const distance = status === 'below'
     ? value - target.low
@@ -183,7 +190,7 @@ function judge(key: string, value: number, overrides: Record<string, Target>): M
     high: target.high,
     unit: target.unit,
     status,
-    deviation: distance / midpoint,
+    deviation: distance / scale,
     tuning: target.tuning,
   };
 }
@@ -199,7 +206,7 @@ export function evaluate(
     at('points.mean', d.points.mean),
     at('points.sd', d.points.sd),
     at('points.p95', d.points.p95),
-    at('points.max', d.points.max),
+    at('points.p99', d.points.p99),
     at('shutouts.share', shareWhere(m.points, (v) => v === 0)),
 
     at('yards.mean', d.yards.mean),

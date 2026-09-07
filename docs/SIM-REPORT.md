@@ -24,12 +24,25 @@ npm run report:sim -- --serial                      # one thread, for debugging
 The process exits non-zero when any metric falls outside its range, so it can
 gate a build. The full report still prints either way.
 
-## Supplying your own ranges
+## The ranges
 
 `scripts/sim-report/targets.ts` holds the ranges, their labels, and the engine
-constants that move each one. The shipped values are placeholders drawn from
-real-world professional football: treat a clean run as "not obviously wrong",
-not as "calibrated".
+constants that move each one. They are drawn from real-world professional
+football over roughly the last ten seasons, taking the span the real game
+actually moved through rather than a single year, so a passing result means
+plausible football rather than a match to one particular season.
+
+Two rules were applied when choosing them.
+
+**Gate on stable statistics.** A single extreme observation over half a million
+team-games is mostly noise. The scoring tail is therefore checked at the 99th
+percentile, not the maximum. Maxima are still printed, as information rather
+than as a test.
+
+**Prefer a range the real game has occupied to one centred on current output.**
+A range wide enough that everything fits reports nothing. The injury ranges in
+particular started loose enough that a real defect read as marginal, and are now
+set to what real clubs actually lose.
 
 To override without editing the file, pass a JSON object keyed by metric:
 

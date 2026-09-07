@@ -82,12 +82,12 @@ export function flagged(rows: readonly MetricResult[]): string {
   const sorted = [...bad].sort((a, b) => Math.abs(b.deviation) - Math.abs(a.deviation));
   sorted.forEach((row, i) => {
     const direction = row.status === 'above' ? 'above' : 'below';
-    const pct = `${(Math.abs(row.deviation) * 100).toFixed(1)}%`;
+    const amount = `${Math.abs(row.deviation).toFixed(2)}x the range width`;
     lines.push('');
     lines.push(`  ${i + 1}. ${row.label}`);
     lines.push(
       `     ${fmt(row.value, row.unit)} - ${direction} the ` +
-      `${range(row.low, row.high, row.unit)} target by ${pct} of midpoint`,
+      `${range(row.low, row.high, row.unit)} target by ${amount}`,
     );
     for (const hint of row.tuning) lines.push(`     - ${hint}`);
   });
