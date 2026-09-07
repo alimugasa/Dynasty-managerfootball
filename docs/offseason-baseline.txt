@@ -1,0 +1,105 @@
+DYNASTY MANAGER PRO - OFFSEASON POPULATION REPORT
+------------------------------------------------------------------------------
+  seasons            40  (2026 to 2065)
+  independent runs   5
+  base seed          20260907
+  no games simulated - ability moves only in the offseason
+
+  League mean ability of rostered players, averaged over 5 leagues
+    76.09 |                                          
+    75.92 |         o                                
+    75.75 |        o o                               
+    75.58 | ------o---o------------------------------
+    75.41 |      o     o                             
+    75.24 |                                          
+    75.07 |     o       o                            
+    74.90 |                                          
+    74.73 |    o         o                           
+    74.56 | o.o...........oo............oooooo.......
+    74.39 |  o              oooooooooooo      ooooooo
+    74.23 |                                          
+    74.06 |                                          
+    73.89 |                                          
+    73.72 |                                          
+    73.55 | -----------------------------------------
+    73.38 |                                          
+          +-----------------------------------------
+           1                                      41
+
+  dotted line = starting level 74.60;  dashes = +/- 1.00 rating point
+
+DRIFT
+------------------------------------------------------------------------------
+  starting mean          74.60
+  ending mean            74.35
+  mean total change      -0.25 over 40 seasons
+  per-league change      -0.10, -0.04, -0.65, -0.14, -0.33
+  slope, mean trajectory -0.0219 rating points per season
+  slope, per league      -0.0036 +/- 0.0074 (mean of 5, first 13 seasons excluded)
+  range across leagues   73.96 to 76.04  (spread 2.08)
+  settling transient     peaks +1.26 at season 8, then returns
+  verdict                FLAT - intake is calibrated
+
+ABILITY, PRODUCTION AND REPUTATION
+------------------------------------------------------------------------------
+  These must not be the same number. A league where the best player always
+  grades best has no scouting, no breakouts and no arguments.
+
+  ability to season grade      0.554   target ~0.55
+  ability to reputation        0.987   high, but lagging
+  grade to next season grade   0.305   partly repeatable
+
+DEVELOPMENT
+------------------------------------------------------------------------------
+  breakout seasons       12.6 per season
+  bust seasons           10.8 per season
+  retirements            339.9 per season
+  mean retirement age    29.6
+  retirement age range   25 to 42
+
+PER SEASON (first league, seed 20260907)
+------------------------------------------------------------------------------
+  season      mean      age   retired  drafted  breakouts  busts
+    2026     74.44     26.5       406      128         63     27
+    2027     74.48     26.9       311      124         34     19
+    2028     74.64     27.2       272      133         41     19
+    2029     74.87     27.7       197      131         26     23
+    2030     75.27     28.0       543      151         21     20
+    2031     75.48     28.2       411      192         21     17
+    2032     75.64     28.3       369      189          9     13
+    2033     75.80     28.4       357      200         11     14
+    2034     75.65     28.4       357      208          3     13
+    2035     75.50     28.4       351      213          8     14
+    2036     75.32     28.3       358      233         10     16
+    2037     75.07     28.3       327      206         10     10
+    2038     74.41     28.2       359      238          5      9
+    2039     74.09     28.1       338      225          8      9
+    2040     73.96     28.0       329      226          9     11
+    2041     73.96     28.1       320      210         12     10
+    2042     73.99     28.1       325      207         12     13
+    2043     73.98     28.2       308      201          9      7
+    2044     74.09     28.2       344      210          6     19
+    2045     74.08     28.3       316      193          5     17
+    2046     74.23     28.3       351      223         11     14
+    2047     74.37     28.2       369      240          8      9
+    2048     74.30     28.2       347      215         16     15
+    2049     74.49     28.2       319      221          7     11
+    2050     74.58     28.2       320      211         12      9
+    2051     74.61     28.2       317      206         10      8
+    2052     74.76     28.2       321      201         10     13
+    2053     74.70     28.2       342      213         13      6
+    2054     74.86     28.2       342      222         15      7
+    2055     74.64     28.2       340      212         18      9
+    2056     74.43     28.1       350      244         13      7
+    2057     74.52     28.1       313      219         11      9
+    2058     74.57     28.1       319      208          9      8
+    2059     74.53     28.2       331      206         11     14
+    2060     74.44     28.2       352      218          6      9
+    2061     74.43     28.3       311      195          5     13
+    2062     74.58     28.2       367      234          5      3
+    2063     74.58     28.1       329      215          5      7
+    2064     74.46     28.1       316      214          3      7
+    2065     74.51     28.2       317      197         12     10
+
+  peak ages by group: QB 29, RB 25, WR 27, TE 27, OL 29, EDGE 27, DT 28, LB 27, CB 26, S 27, K 32, P 32
+
