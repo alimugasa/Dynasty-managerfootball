@@ -13,12 +13,18 @@
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    // vite/client declares import.meta.env; node types cover the parity harness's
+    // node:fs / node:path imports. Without these the scaffold's own typecheck
+    // fails, which it had never been run to discover -- it shipped with no
+    // lockfile, so CI could not install and npm run typecheck never executed.
+    "types": ["vite/client", "node"],
     "noEmit": true,
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] }
   },
-  "include": ["src", "tests"],
+  "include": ["src", "tests", "supabase/functions"],
   "exclude": ["legacy", "node_modules", "dist"]
 }

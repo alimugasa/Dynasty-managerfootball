@@ -14,4 +14,12 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
   },
+  overrides: [
+    {
+      // Command-line tooling reports to the terminal; that is its output, not a
+      // stray debug statement.
+      files: ['scripts/**/*.mjs', 'scripts/**/*.js'],
+      rules: { 'no-console': 'off' },
+    },
+  ],
 };

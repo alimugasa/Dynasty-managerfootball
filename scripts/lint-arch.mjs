@@ -7,7 +7,7 @@ import { join, relative, extname } from 'node:path';
 
 const ROOT = process.cwd();
 const MAX_LINES = 400;
-const SCAN = ['src', 'scripts', 'tests'];
+const SCAN = ['src', 'scripts', 'tests', 'supabase/functions'];
 const errors = [];
 
 // Real franchise nicknames and league marks. See docs/IP-POLICY.md.
@@ -30,8 +30,22 @@ function walk(dir, out = []) {
 }
 
 const files = SCAN.flatMap((d) => {
-  try { return walk(join(ROOT, d)); } catch { return []; }
+  try { return walk(join(ROOT, ...d.split('/'))); } catch { return []; }
 });
+
+// The simulation engine must stay a pure function of its inputs. A seed has to
+// reproduce a game exactly -- for a save file, for a golden test, for a bug
+// report -- and any of these would silently break that.
+const ENGINE_DIR = 'supabase/functions/_shared/engine/';
+const IMPURE = [
+  [/\bMath\.random\b/, 'Math.random() is unseeded; draw from the Rng passed in'],
+  [/\bDate\.now\b|\bnew Date\b/, 'reading the clock makes a game unreproducible'],
+  [/\bfetch\s*\(|\bXMLHttpRequest\b/, 'the engine performs no I/O'],
+  [/\bprocess\.|\bDeno\./, 'the engine must not touch the host environment'],
+  [/\bconsole\./, 'the engine must not log; return data instead'],
+  [/from\s+['"]node:|require\s*\(/, 'the engine must not depend on a runtime'],
+  [/\bcrypto\./, 'use the seeded Rng, not a cryptographic source'],
+];
 
 for (const file of files) {
   const rel = relative(ROOT, file);
@@ -71,7 +85,30 @@ for (const file of files) {
     }
   }
 
-  // 5. IP policy
+  // 5. Engine purity
+  if (rel.replace(/\\/g, '/').startsWith(ENGINE_DIR)) {
+    for (const [i, l] of lines.entries()) {
+      if (isComment(l)) continue;
+      for (const [pattern, why] of IMPURE) {
+        if (pattern.test(l)) {
+          errors.push(`${rel}:${i + 1}: ${why}.`);
+        }
+      }
+    }
+  }
+
+  // 6. The frontend may not import the engine. Rule 2 of ARCHITECTURE.md is that
+  //    no simulation outcome is decided in frontend code; the surest way to keep
+  //    that true is for the engine never to reach the bundle at all.
+  if (/^src\//.test(rel.replace(/\\/g, '/'))) {
+    for (const [i, l] of lines.entries()) {
+      if (/_shared\/engine/.test(l)) {
+        errors.push(`${rel}:${i + 1}: src/ may not import the simulation engine; it runs server-side.`);
+      }
+    }
+  }
+
+  // 7. IP policy
   const lower = (rel + '\n' + text).toLowerCase();
   for (const term of IP_DENY) {
     if (new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(lower)) {
