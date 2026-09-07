@@ -9,12 +9,33 @@
          Open Font License, which permits commercial embedding; see
          docs/IP-POLICY.md. Preconnect first so the display face is not the
          thing the first paint waits on. -->
+    <!-- Inline so there is no favicon request to 404 on. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F151B'/%3E%3Cpath d='M16 6l7 4v6c0 5-3 8.5-7 10-4-1.5-7-5-7-10v-6z' fill='%23F0A830'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Loaded without blocking the first paint. As a plain stylesheet this is
+         render-blocking, so a slow or unreachable fonts.googleapis.com holds the
+         entire app on a blank screen until it times out -- measured at 12.7
+         seconds behind a proxy that black-holes it, against 291ms without.
+         media="print" makes the browser fetch it at low priority and not block
+         on it; the onload switch applies it the moment it lands. Both font
+         stacks already fall back to system-ui, so the app is legible either
+         way. -->
     <link
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

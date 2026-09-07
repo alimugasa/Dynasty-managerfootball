@@ -5,6 +5,7 @@ import { useNavigationState } from './app/navigation';
 import { DEFAULT_SCREEN, rootFor, screenFor } from './app/screens';
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
+import { GameProvider } from './game/GameProvider';
 
 /** Resolves the frame on top of the stack to a screen and renders it. */
 function CurrentScreen() {
@@ -52,11 +53,13 @@ export function App() {
   }
 
   return (
-    <NavigationProvider initialScreen={DEFAULT_SCREEN} rootOf={rootFor}>
-      <Shell>
-        <CurrentScreen />
-      </Shell>
-      <TabsForCurrentScreen />
-    </NavigationProvider>
+    <GameProvider>
+      <NavigationProvider initialScreen={DEFAULT_SCREEN} rootOf={rootFor}>
+        <Shell>
+          <CurrentScreen />
+        </Shell>
+        <TabsForCurrentScreen />
+      </NavigationProvider>
+    </GameProvider>
   );
 }

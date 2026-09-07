@@ -1,71 +1,104 @@
-// Office: the front office. Cap, draft capital, staff, and the settings that
-// do not belong on any other tab.
+// Office: the news feed, cap position, and the season's history.
 
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
-import { Caption, Panel, SectionHeader } from '../components/Surface';
+import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
-import { SkeletonLine, SkeletonRegion, SkeletonRows, SkeletonTiles } from '../components/Skeleton';
+import { StatTiles } from '../components/StatTiles';
+import { ActionButton } from '../game/Button';
+import { useGame } from '../game/GameProvider';
+import { capFor, capLimit, recordOf, squadOf } from '../game/store';
 import { Screen } from './Screen';
+
+const money = (n: number) => `${(n / 1e6).toFixed(1)}M`;
 
 export function OfficeScreen() {
   const nav = useNavigator();
+  const { state, restart } = useGame();
+  const squad = squadOf(state, state.userTeamId);
+  const sheet = capFor(state, state.userTeamId);
+
+  const feed = [...state.news].reverse();
+  const history = [...state.history]
+    .filter((h) => h.teamId === state.userTeamId)
+    .sort((a, b) => b.season - a.season);
 
   return (
-    <Screen title="Office" screen="office">
+    <Screen title="Office" subtitle={String(state.season)} screen="office">
       <SectionHeader title="Salary cap" />
-      <SkeletonRegion label="Loading cap position">
-        <SkeletonTiles count={3} />
-        <div style={{ marginTop: 10 }}>
-          <Panel>
-            <div style={{ display: 'grid', gap: 8 }}>
-              <SkeletonLine width="100%" height={10} radius={999} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                <SkeletonLine width={80} height={9} />
-                <SkeletonLine width={64} height={9} />
-              </div>
-            </div>
-          </Panel>
-        </div>
-      </SkeletonRegion>
+      <StatTiles
+        stats={[
+          { label: 'Cap', value: money(capLimit(state.season)) },
+          { label: 'Committed', value: money(sheet.committed) },
+          {
+            label: 'Space',
+            value: money(sheet.available),
+            tone: sheet.available < 0 ? 'negative' : 'positive',
+          },
+        ]}
+      />
 
-      <SectionHeader title="Draft capital" />
-      <SkeletonRegion label="Loading draft picks">
-        <SkeletonRows rows={4} lead={false} />
-      </SkeletonRegion>
+      <SectionHeader title="News" />
+      {feed.length === 0 ? (
+        <EmptyState
+          title="Nothing has happened yet"
+          detail="Stories appear as the season is played."
+        />
+      ) : (
+        <Panel padded={false}>
+          <div style={{ padding: '0 12px' }} data-testid="news-feed">
+            {feed.slice(0, 40).map((item, i) => (
+              <ListRow
+                key={`${String(item.week)}-${String(i)}-${item.headline}`}
+                title={item.headline}
+                subtitle={`Wk ${String(item.week)} · ${item.category.replace('_', ' ').toLowerCase()}`}
+                {...(item.body === null
+                  ? {}
+                  : { trailing: <Caption>{String(item.importance)}</Caption> })}
+              />
+            ))}
+          </div>
+        </Panel>
+      )}
 
-      <SectionHeader title="Front office" />
+      <SectionHeader title="Dynasty history" />
+      {history.length === 0 ? (
+        <EmptyState title="No completed seasons yet" />
+      ) : (
+        <Panel padded={false}>
+          <div style={{ padding: '0 12px' }}>
+            {history.map((h) => (
+              <ListRow
+                key={h.season}
+                title={String(h.season)}
+                subtitle={state.identities.get(h.teamId)?.name ?? h.teamId}
+                trailing={<Caption>{recordOf({ ...h, pointsFor: 0, pointsAgainst: 0, streak: 0 })}</Caption>}
+              />
+            ))}
+          </div>
+        </Panel>
+      )}
+
+      <SectionHeader title="Squad" />
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }}>
-          {/* Navigable rows are live: they exercise push, and the back
-              affordance that appears with them. */}
           <ListRow
-            title="Scouting department"
-            subtitle="Board, budget, reports"
+            title="Full roster and depth chart"
+            subtitle={`${String(squad.length)} players`}
             navigable
-            onSelect={() => nav.push('scouting')}
-          />
-          <ListRow
-            title="Coaching staff"
-            subtitle="Hire and fire"
-            navigable
-            onSelect={() => nav.push('staff')}
-          />
-          <ListRow
-            title="Transactions"
-            subtitle="Signings, releases, trades"
-            navigable
-            onSelect={() => nav.push('transactions')}
+            onSelect={() => { nav.replaceRoot('roster'); }}
           />
         </div>
       </Panel>
 
-      <p style={{ margin: '18px 0 0', color: COLOR.dim, fontSize: 12, lineHeight: 1.6 }}>
-        <Caption>Not connected</Caption>
-        <br />
-        The shell is complete. Screens render their real layout with skeleton
-        placeholders until the data layer is wired.
-      </p>
+      <div style={{ marginTop: 18 }}>
+        <ActionButton onClick={() => { restart(); }} tone="quiet" testId="restart">
+          Start a new dynasty
+        </ActionButton>
+        <p style={{ margin: '8px 0 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
+          Wipes the saved game in this browser.
+        </p>
+      </div>
     </Screen>
   );
 }
