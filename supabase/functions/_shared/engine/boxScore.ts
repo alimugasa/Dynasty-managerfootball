@@ -27,6 +27,11 @@ function emptyTeam(teamId: string): TeamBoxScore {
 
 function emptyPlayer(playerId: string, teamId: string): PlayerStatLine {
   return {
+    // TODO(engine): snaps is never incremented. Every line is created here with
+    // snaps: 0 and no play advances it, so the number reaching the database is
+    // unknown, not zero -- migration 0014 stores NULL for it. Fill it in this
+    // file, in the function that records each play against its participants,
+    // by counting every player on the field for the snap. Sim fix; separate session.
     playerId, teamId, snaps: 0, passAttempts: 0, completions: 0, passYards: 0,
     passTouchdowns: 0, interceptionsThrown: 0, sacksTaken: 0, rushes: 0,
     rushYards: 0, rushTouchdowns: 0, targets: 0, receptions: 0, receivingYards: 0,

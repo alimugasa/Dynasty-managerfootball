@@ -20,7 +20,8 @@
     "report:news": "node scripts/news-report/index.ts",
     "perf:fixture": "node scripts/perf/fixture.ts",
     "perf:bench": "node scripts/perf/bench.ts",
-    "dev:api": "node scripts/dev-api.ts"
+    "dev:api": "node scripts/dev-api.ts",
+    "db:seed": "node scripts/import-seed.ts"
   },
   "dependencies": {
     "postgres": "^3.4.9",

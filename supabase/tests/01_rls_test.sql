@@ -70,7 +70,9 @@ begin
   values (a, 'ONLY_IN_A', 'Solo Player', 'QB', 'Quarterback', 24, 70, 80);
   begin
     insert into public.team_depth_charts (save_id, team_id, unit, slot, depth_order, player_id)
-    values (b, 'MIA', 'OFFENSE', 'QB', 2, 'ONLY_IN_A');
+    -- 'Offense': the seed's spelling, adopted by 0015. The row must be valid
+    -- on every axis but the one under test, or the wrong constraint fires first.
+    values (b, 'MIA', 'Offense', 'QB', 2, 'ONLY_IN_A');
     raise exception 'FAIL: depth chart referenced a player from another save';
   exception when foreign_key_violation then null;
   end;
