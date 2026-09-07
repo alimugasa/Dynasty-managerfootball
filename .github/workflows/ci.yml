@@ -15,3 +15,17 @@ jobs:
       - run: npm run lint
       - run: npm run lint:arch
       - run: npm run test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      # The 390 project uses the iPhone 13 descriptor, which defaults to WebKit,
+      # so both engines are needed. Installing only Chromium fails that project
+      # at launch rather than at assertion, which is easy to misread as flake.
+      - run: npx playwright install --with-deps chromium webkit
+      # Page-level horizontal overflow at 320, 375, 390, 768 and 1280.
+      - run: npm run test:e2e

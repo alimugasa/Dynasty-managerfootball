@@ -20,12 +20,15 @@ export function installOverflowGuard(): () => void {
     );
   };
 
-  const observer = new ResizeObserver(check);
-  observer.observe(document.documentElement);
+  // ResizeObserver is absent in some test and server environments. A dev-only
+  // tripwire must never be the reason something fails to start, so it degrades
+  // to the resize event rather than throwing.
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(check) : null;
+  observer?.observe(document.documentElement);
   window.addEventListener('resize', check);
   check();
   return () => {
-    observer.disconnect();
+    observer?.disconnect();
     window.removeEventListener('resize', check);
   };
 }
