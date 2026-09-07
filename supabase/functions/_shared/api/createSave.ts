@@ -74,6 +74,19 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
       primePipeline(league, createRng(seed32));
 
       await projectWorld(tx, saveId, league);
+      // The seed's injury list describes the clubs as the season opens: a
+      // player it lists as out for n weeks misses the first n-1. Dating those
+      // rows to week 0 of this season is what lets the week runner read them.
+      //
+      // Only the day-to-day list, for now. The seed lists its IR, PUP and NFI
+      // players on the 53 with nobody behind them -- nine clubs' only kicker
+      // or punter -- and with no in-season signing yet, honouring those rows
+      // left 39 of 272 games with no side to field. They are dated the day
+      // clubs can sign a replacement (in-season roster moves); until then they
+      // stay in the table as the seed wrote them, undated and inert.
+      await tx`
+        update public.player_injuries set injured_season = ${save.season}, injured_week = 0
+         where save_id = ${saveId} and injured_season is null and designation = 'DAY_TO_DAY'`;
       await writeDepthChart(tx, saveId, input.teamId, defaultDepthChart(league, input.teamId));
       await seedStandings(tx, saveId, save.season, league.teamIds);
 

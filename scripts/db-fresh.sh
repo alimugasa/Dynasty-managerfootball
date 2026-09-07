@@ -14,6 +14,9 @@ DB="${DB:-dmp_dev}"
 DEV_USER_ID="${DEV_USER_ID:-00000000-0000-0000-0000-000000000001}"
 export PGHOST PGPORT PGUSER
 
+# A shim or app still connected would block the drop; this is a development
+# database and rebuilding it is the point.
+psql -q -d postgres -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$DB' and pid <> pg_backend_pid()" >/dev/null
 psql -q -d postgres -c "drop database if exists $DB"
 psql -q -d postgres -c "create database $DB"
 psql -q -d "$DB" -v ON_ERROR_STOP=1 -f supabase/tests/00_local_shim.sql

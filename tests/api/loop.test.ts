@@ -14,13 +14,16 @@ import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
 
 const PORT = 8792;
 const TEAM = 'BUF';
+// Its own user: the suites run in parallel, and create-save's suite clears
+// every save of the user it signs in as.
+const LOOP_USER = '44444444-0000-0000-0000-00000000dead';
 
 describe('the loop against Postgres', () => {
   let pipe: Pipe;
   const saves: string[] = [];
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT);
+    pipe = await openPipe(PORT, LOOP_USER);
     for (const name of ['Loop A', 'Loop B']) {
       const out = await pipe.api.call<CreateSaveOut>('create-save', { name, teamId: TEAM });
       saves.push(out.saveId);
@@ -38,7 +41,7 @@ describe('the loop against Postgres', () => {
       select rng_seed::text from public.saves where id in (${a}, ${b})`;
     expect(new Set(seeds.map((s) => s.rng_seed)).size).toBe(2);
 
-    await pipe.api.call<WeekOutcome>('sim-week', { saveId: a });
+    const weekA = await pipe.api.call<WeekOutcome>('sim-week', { saveId: a });
     await pipe.api.call<WeekOutcome>('sim-week', { saveId: b });
     const scores = async (id: string): Promise<string> => {
       const rows = await pipe.sql<{ game_id: string; home_score: number; away_score: number }[]>`
@@ -46,16 +49,21 @@ describe('the loop against Postgres', () => {
          where save_id = ${id} and week = 1 order by game_id`;
       return rows.map((r) => `${r.game_id}:${String(r.home_score)}-${String(r.away_score)}`).join(' ');
     };
-    expect(await countRows(pipe.sql, 'game_results', a)).toBe(16);
+    // A fixture no side can be fielded for is reported, never invented: the
+    // seed's day-to-day list can leave a club without its only kicker in
+    // week one, and that game stays unplayed.
+    expect(weekA.played + weekA.abandoned.length).toBe(16);
+    expect(weekA.played).toBeGreaterThanOrEqual(12);
+    expect(await countRows(pipe.sql, 'game_results', a)).toBe(weekA.played);
     expect(await scores(a)).not.toBe(await scores(b));
   }, 60_000);
 
   it('writes a week whole: lines, totals, table, injuries, stories, and the save', async () => {
     const [a] = saves as [string, string];
     const lines = await countRows(pipe.sql, 'player_game_stats', a);
-    expect(lines).toBeGreaterThan(500);
+    expect(lines).toBeGreaterThan(300);
     expect(await countRows(pipe.sql, 'player_season_stats', a)).toBe(lines);
-    expect(await countRows(pipe.sql, 'standings', a, 'and wins + losses + ties = 1')).toBe(32);
+    expect(await countRows(pipe.sql, 'standings', a, 'and wins + losses + ties = 1')).toBeGreaterThanOrEqual(24);
     expect(await countRows(pipe.sql, 'news', a, 'and week = 1')).toBeGreaterThan(0);
     const [save] = await pipe.sql<{ week: number; phase: string }[]>`
       select week, phase from public.saves where id = ${a}`;

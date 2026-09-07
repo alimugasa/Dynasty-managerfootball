@@ -11,7 +11,7 @@ import type { Db } from '../db.ts';
 import {
   capRules, capSheet, deadMoneyIfCut, type CareerPlayer, type League,
 } from '../../engine/offseason/index.ts';
-import { ENGINE_DATA_CLASS } from './players.ts';
+import { ENGINE_DATA_CLASS, MODELLED_POSITIONS } from './players.ts';
 
 export const contractIdFor = (p: CareerPlayer, signedSeason: number): string =>
   `${p.id}-${String(signedSeason)}`;
@@ -25,7 +25,12 @@ export async function projectContracts(db: Db, saveId: string, league: League): 
   const signed = league.players.filter(
     (p) => !p.retired && p.teamId !== null && p.contract !== null && p.contract.yearsRemaining > 0);
 
-  await db`delete from public.player_contracts where save_id = ${saveId}`;
+  // Only the engine's players' deals are rewritten; a long snapper's seed
+  // contract stays as the seed wrote it.
+  await db`
+    delete from public.player_contracts c using public.players p
+     where c.save_id = ${saveId} and p.save_id = c.save_id and p.player_id = c.player_id
+       and p.position = any(${[...MODELLED_POSITIONS]}::text[])`;
 
   const years: YearRow[] = [];
   for (const p of signed) {

@@ -1,7 +1,7 @@
 // A save's world, read from its own rows.
 //
 // create_save() clones the template's world tables under the new save id.
-// This reads the six of them the career loader consumes and hands them to that
+// This reads the eight of them the career loader consumes and hands them to that
 // loader as cells, exactly as the CSV reader would. The loader does not know
 // which source it was given, and that is the point: the league a dynasty plays
 // is built by the same code, from the same rules, as the league every report
@@ -24,6 +24,8 @@ const WORLD_TABLES: readonly { readonly table: string; readonly key: string }[] 
   { table: 'owners', key: 'owner_id' },
   { table: 'coaches', key: 'coach_id' },
   { table: 'coach_attributes', key: 'coach_id' },
+  { table: 'team_rosters', key: 'player_id' },
+  { table: 'player_contracts', key: 'contract_id' },
 ];
 
 function asCell(value: unknown): string {

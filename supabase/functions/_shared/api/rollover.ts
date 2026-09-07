@@ -20,7 +20,9 @@ import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts'
 import {
   defaultDepthChart, positionsFor, projectWorld, seedStandings, writeDepthChart,
 } from './project/index.ts';
-import { draftedMap, logTransactions, recordDraft, snapshotPlayers } from './project/transactions.ts';
+import {
+  draftedMap, logTransactions, recordDraft, snapshotPlayers, type TransactionCounts,
+} from './project/transactions.ts';
 import { createRng } from '../engine/rng.ts';
 import { buildSchedule } from '../engine/season.ts';
 import { runOffseason } from '../engine/offseason/population.ts';
@@ -39,6 +41,8 @@ export interface SeasonOutcome {
   readonly retired: number;
   readonly drafted: number;
   readonly signed: number;
+  /** Rows written to transactions, by kind. */
+  readonly transactions: TransactionCounts;
 }
 
 async function closeSeason(db: Db, saveId: string, season: number, meanOverall: Map<string, number>): Promise<void> {
@@ -131,7 +135,7 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
     previousIds: new Set(before.keys()), drafted: draftedMap(result.draft), retired: result.retired,
   });
   await recordDraft(db, saveId, league, result.draft);
-  const signed = await logTransactions(db, saveId, season, league, before, result);
+  const transactions = await logTransactions(db, saveId, season, league, before, result);
 
   await writeSchedule(db, saveId, league.season, league.teamIds, weeks);
   await seedStandings(db, saveId, league.season, league.teamIds);
@@ -153,6 +157,8 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
 
   return {
     season: league.season, week: 1, phase: 'REGULAR_SEASON',
-    retired: result.retired.length, drafted: result.draft.picks.length, signed,
+    retired: result.retired.length, drafted: result.draft.picks.length,
+    signed: (transactions['FREE_AGENT_SIGNING'] ?? 0) + (transactions['RE_SIGNING'] ?? 0),
+    transactions,
   };
 }

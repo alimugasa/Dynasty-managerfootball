@@ -129,12 +129,20 @@ export async function projectPlayers(
   await projectRosters(db, saveId, league);
 }
 
+/** Positions the engine models. A player at any other position -- the long
+ *  snapper -- is on his club's roster in the seed and stays on it here: his
+ *  rows are never rewritten, because the engine has nothing to say about him. */
+export const MODELLED_POSITIONS: readonly string[] = Object.keys(GROUP_OF);
+
 async function projectRosters(db: Db, saveId: string, league: League): Promise<void> {
   const rules = capRules(league.season);
   const rostered = league.players.filter((p) => !p.retired && p.teamId !== null);
   const free = league.players.filter((p) => !p.retired && p.teamId === null);
 
-  await db`delete from public.team_rosters where save_id = ${saveId}`;
+  await db`
+    delete from public.team_rosters r using public.players p
+     where r.save_id = ${saveId} and p.save_id = r.save_id and p.player_id = r.player_id
+       and p.position = any(${[...MODELLED_POSITIONS]}::text[])`;
   await db`
     insert into public.team_rosters (
       save_id, player_id, team_id, position, jersey_number, roster_status,
@@ -145,7 +153,10 @@ async function projectRosters(db: Db, saveId: string, league: League): Promise<v
                   ${rostered.map((p) => p.teamId)}::text[]) as u(player_id, team_id)
       join public.players p on p.save_id = ${saveId} and p.player_id = u.player_id`;
 
-  await db`delete from public.free_agents where save_id = ${saveId}`;
+  await db`
+    delete from public.free_agents f using public.players p
+     where f.save_id = ${saveId} and p.save_id = f.save_id and p.player_id = f.player_id
+       and p.position = any(${[...MODELLED_POSITIONS]}::text[])`;
   await db`
     insert into public.free_agents (
       save_id, player_id, display_name, position, age, experience_years,

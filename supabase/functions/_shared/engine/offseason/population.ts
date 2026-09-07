@@ -29,11 +29,26 @@ import type { CareerPlayer, OffseasonSummary, SeasonGrade } from './types.ts';
 export { ROSTER_QUOTA, ROSTER_SIZE, rosterOf, meanRosteredAbility, meanRosteredAge };
 export type { League };
 
-function release(league: League, index: RosterIndex, player: CareerPlayer): void {
+/** A player a club let go, and what it cost. Reported rather than left for a
+ *  caller to infer from a before-and-after diff, which could not see a rookie
+ *  drafted and cut in the same offseason. */
+export interface Release {
+  readonly playerId: string;
+  readonly teamId: string;
+  readonly deadMoney: number;
+  /** Why: one body too many in his group, or the money. */
+  readonly reason: 'QUOTA' | 'CAP';
+}
+
+function release(
+  league: League, index: RosterIndex, player: CareerPlayer, log: Release[],
+  reason: Release['reason'],
+): void {
   const teamId = player.teamId;
   if (teamId === null) return;
   const dead = deadMoneyIfCut(player);
   if (dead > 0) league.deadMoney.set(teamId, (league.deadMoney.get(teamId) ?? 0) + dead);
+  log.push({ playerId: player.id, teamId, deadMoney: dead, reason });
   setTeam(index, player, null);
   player.contract = null;
 }
@@ -57,7 +72,7 @@ function signMinimum(
  * little for this pass to do.
  */
 export function enforceCompliance(
-  league: League, index: RosterIndex, rules: CapRules,
+  league: League, index: RosterIndex, rules: CapRules, released: Release[] = [],
 ): number {
   let moves = 0;
 
@@ -75,7 +90,7 @@ export function enforceCompliance(
         .filter((p) => p.group === group)
         .sort((a, b) => rosterValue(b) - rosterValue(a));
       for (const player of held.slice(ROSTER_QUOTA[group])) {
-        release(league, index, player);
+        release(league, index, player, released, 'QUOTA');
         moves += 1;
       }
     }
@@ -92,7 +107,7 @@ export function enforceCompliance(
   // rounds turned one club into 183M of dead money and released the first
   // overall pick. Cutting is not a fixed-point operation and must not be
   // iterated as if it were.
-  moves += cutToCap(league, index, rules);
+  moves += cutToCap(league, index, rules, released);
   moves += fillRosters(league, index, rules);
 
   return moves;
@@ -110,7 +125,9 @@ function holesAt(index: RosterIndex, teamId: string): number {
 }
 
 /** Everyone gets under the cap, with room for the bodies they still need. */
-function cutToCap(league: League, index: RosterIndex, rules: CapRules): number {
+function cutToCap(
+  league: League, index: RosterIndex, rules: CapRules, released: Release[],
+): number {
   let moves = 0;
   for (const teamId of league.teamIds) {
     let guard = 0;
@@ -131,7 +148,7 @@ function cutToCap(league: League, index: RosterIndex, rules: CapRules): number {
         .filter((p) => cutAppeal(p, rules) > 0)
         .sort((a, b) => cutAppeal(b, rules) - cutAppeal(a, rules))[0];
       if (worst === undefined) break;
-      release(league, index, worst);
+      release(league, index, worst, released, 'CAP');
       moves += 1;
     }
   }
@@ -174,6 +191,10 @@ export interface OffseasonResult {
   readonly retired: readonly CareerPlayer[];
   readonly draft: DraftResult;
   readonly freeAgency: FreeAgencyResult;
+  /** Deals that ran out this offseason; the player went to the pool. */
+  readonly expired: readonly CareerPlayer[];
+  /** Players cut by the compliance pass, drafted rookies included. */
+  readonly released: readonly Release[];
 }
 
 export function runOffseason(
@@ -192,7 +213,8 @@ export function runOffseason(
 
   const outcomes = developAll(league.players, context, rng);
   const retired = retireAll(league.players, rng, league.season);
-  expireContracts(league.players);
+  const expired = expireContracts(league.players);
+  const released: Release[] = [];
 
   // Built here, after retirement and expiry have already moved players off
   // rosters directly. Those two run without an index -- they are callable on a
@@ -213,7 +235,7 @@ export function runOffseason(
 
   const draft = runDraft(league, index, declaring, strengthOrder(league, index), rules, rng);
   const freeAgency = runFreeAgency(league, index, rules, rng);
-  enforceCompliance(league, index, rules);
+  enforceCompliance(league, index, rules, released);
   pruneUnsigned(league);
   league.season += 1;
 
@@ -232,6 +254,8 @@ export function runOffseason(
     retired,
     draft,
     freeAgency,
+    expired,
+    released,
   };
 }
 

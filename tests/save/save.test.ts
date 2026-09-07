@@ -205,22 +205,18 @@ describe('a freshly created save', () => {
   });
 
   it('starts with a known, bounded cap overage rather than a clean bill', () => {
-    // Two clubs begin over the cap: contracts in the seed loader are derived
-    // from market value, which knows nothing about the cap. The first
-    // offseason's compliance pass resolves it, and from that point on the
-    // integration test asserts zero cap violations for ten seasons.
+    // Six clubs begin over the cap, and the overage is the seed's: its own
+    // 53-man rosters under its own contracts exceed the cap, whatever its
+    // salary_cap table claims. The loader reads both as they are rather than
+    // cutting someone the seed says is on the roster; the first offseason's
+    // compliance pass resolves it, and from that point on the integration
+    // test asserts zero cap violations for ten seasons.
     //
-    // This is asserted rather than fixed or ignored. Fixing it in the loader
-    // was tried twice -- see the note in scripts/drift-report/careerLeague.ts --
-    // and both corrections cost more than the wart. Bounding it means the wart
-    // cannot quietly become a rot: a change that puts half the league over the
-    // cap at creation fails here.
+    // Bounded rather than ignored: a change that puts half the league over
+    // the cap at creation fails here.
     const capIssues = checkIntegrity(document()).filter((v) => v.kind === 'CAP');
-    // Seven of 32 today. The bound is what stops it becoming twenty.
+    // Six of 32 today. The bound is what stops it becoming twenty.
     expect(capIssues.length).toBeLessThanOrEqual(8);
-    // And no club may start more than a third of the cap over it: the worst is
-    // 84M against a 302M cap, and a club further gone than that could not be
-    // brought legal by cutting at all.
     expect(capIssues.every((v) => v.detail.includes('over the cap'))).toBe(true);
   });
 

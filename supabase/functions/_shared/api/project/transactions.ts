@@ -1,9 +1,13 @@
 // What the offseason did, as rows: the draft into draft_picks, and every move
-// the engine reported or the diff reveals into transactions.
+// the engine reports into transactions.
+//
+// The engine reports its picks, signings, retirements, expiries and releases.
+// The one move it does not name is the minimum signing that fills a roster
+// hole, which shows as a club change in the before-and-after diff and is
+// logged as a signing at the minimum. Nothing else is inferred.
 
 import type { Db } from '../db.ts';
 import type { League, CareerPlayer, PlayerContract } from '../../engine/offseason/index.ts';
-import { deadMoneyIfCut } from '../../engine/offseason/index.ts';
 import type { DraftResult } from '../../engine/offseason/draft.ts';
 import type { OffseasonResult } from '../../engine/offseason/population.ts';
 import { contractIdFor } from './contracts.ts';
@@ -14,7 +18,6 @@ export interface PlayerBefore {
   readonly teamId: string | null;
   readonly previousTeamId: string | null;
   readonly contract: PlayerContract | null;
-  readonly player: CareerPlayer;
 }
 
 /** The league as it stood, with each contract copied: the engine mutates
@@ -23,7 +26,6 @@ export function snapshotPlayers(league: League): Map<string, PlayerBefore> {
   return new Map(league.players.map((p) => [p.id, {
     name: p.name, teamId: p.teamId, previousTeamId: p.previousTeamId,
     contract: p.contract === null ? null : { ...p.contract },
-    player: { ...p, contract: p.contract === null ? null : { ...p.contract } },
   }]));
 }
 
@@ -32,9 +34,6 @@ export type Drafted = Map<string, { round: number; overall: number; year: number
 export const pickIdFor = (year: number, round: number, slot: number): string =>
   `DP${String(year)}R${String(round)}P${String(slot).padStart(2, '0')}`;
 
-/** draft_picks rows for the class the engine just drafted. The engine picks in
- *  its own strength order and trades nothing, so a template row for the same
- *  pick is overwritten with the club that actually picked. */
 export function draftedMap(draft: DraftResult): Drafted {
   const drafted: Drafted = new Map();
   for (const pick of draft.picks) {
@@ -43,6 +42,9 @@ export function draftedMap(draft: DraftResult): Drafted {
   return drafted;
 }
 
+/** draft_picks rows for the class the engine just drafted. The engine picks in
+ *  its own strength order and trades nothing, so a template row for the same
+ *  pick is overwritten with the club that actually picked. */
 export async function recordDraft(
   db: Db, saveId: string, league: League, draft: DraftResult,
 ): Promise<void> {
@@ -74,65 +76,87 @@ interface Tx {
   detail: string | null; capImpact: number | null; contractId: string | null; pickId: string | null;
 }
 
-/** Returns the number of signings logged. */
+export interface TransactionCounts { readonly [kind: string]: number }
+
+/** Returns the rows logged, by kind. */
 export async function logTransactions(
   db: Db, saveId: string, season: number, league: League,
   before: ReadonlyMap<string, PlayerBefore>, result: OffseasonResult,
-): Promise<number> {
+): Promise<TransactionCounts> {
   const clubs = league.teamIds.length;
   const rows: Tx[] = [];
-  const signings = new Map(result.freeAgency.signings.map((s) => [s.playerId, s]));
-  const picks = new Map(result.draft.picks.map((p) => [p.prospectId, p]));
+  const byId = new Map(league.players.map((p) => [p.id, p]));
+  const nameOf = (id: string): string => byId.get(id)?.name ?? before.get(id)?.name ?? id;
+  const dealOf = (p: CareerPlayer | undefined): { aav: number | null; id: string | null } => ({
+    aav: p?.contract?.aav ?? null,
+    id: p === undefined || p.contract === null ? null : contractIdFor(p, p.contract.signedSeason),
+  });
 
   for (const p of result.retired) {
     rows.push({ kind: 'RETIREMENT', teamId: before.get(p.id)?.teamId ?? null, playerId: p.id,
-      playerName: p.name, detail: `Retired at ${String(p.age)}`, capImpact: null, contractId: null, pickId: null });
+      playerName: p.name, detail: `Retired at ${String(p.age)}`,
+      capImpact: null, contractId: null, pickId: null });
   }
 
-  // Every pick, whether or not the rookie survived the same offseason's cut:
-  // the selection happened. A rookie released before week one has no row in
-  // the previous document to diff against, so his release is not logged.
-  const byId = new Map(league.players.map((p) => [p.id, p]));
+  for (const p of result.expired) {
+    const was = before.get(p.id);
+    rows.push({
+      kind: 'CONTRACT_EXPIRY', teamId: was?.teamId ?? p.previousTeamId, playerId: p.id,
+      playerName: p.name,
+      detail: was?.contract === null || was === undefined
+        ? null
+        : `${String(was.contract.years)}-year deal at ${String(was.contract.aav)} ran out`,
+      capImpact: null, contractId: null, pickId: null,
+    });
+  }
+
   for (const pick of result.draft.picks) {
     const p = byId.get(pick.prospectId);
-    const contract = p?.contract ?? null;
+    const deal = dealOf(p);
     rows.push({
       kind: 'DRAFT_SELECTION', teamId: pick.teamId, playerId: pick.prospectId,
-      playerName: p?.name ?? pick.prospectId,
+      playerName: nameOf(pick.prospectId),
       detail: `Round ${String(pick.round)}, pick ${String(pick.overall)} overall`,
-      capImpact: contract?.aav ?? null,
-      contractId: p === undefined || contract === null ? null : contractIdFor(p, contract.signedSeason),
+      capImpact: deal.aav, contractId: deal.id,
       pickId: pickIdFor(pick.season, pick.round, pick.overall - (pick.round - 1) * clubs),
     });
   }
 
+  const signed = new Set<string>();
+  for (const s of result.freeAgency.signings) {
+    signed.add(s.playerId);
+    const p = byId.get(s.playerId);
+    const deal = dealOf(p);
+    rows.push({
+      kind: before.get(s.playerId)?.previousTeamId === s.teamId ? 'RE_SIGNING' : 'FREE_AGENT_SIGNING',
+      teamId: s.teamId, playerId: s.playerId, playerName: nameOf(s.playerId),
+      detail: `${String(s.years)} years, ${String(s.bids)} bids`,
+      capImpact: s.aav, contractId: deal.id, pickId: null,
+    });
+  }
+
+  for (const r of result.released) {
+    rows.push({
+      kind: 'RELEASE', teamId: r.teamId, playerId: r.playerId, playerName: nameOf(r.playerId),
+      detail: `${r.reason === 'QUOTA' ? 'Cut to the roster limit' : 'Cut to the cap'}, `
+        + (r.deadMoney > 0 ? `${String(r.deadMoney)} dead money` : 'no dead money'),
+      capImpact: r.deadMoney, contractId: null, pickId: null,
+    });
+  }
+
+  // Minimum signings by the compliance pass, and undrafted rookies who caught
+  // on: a club where there was none, and no signing reported for it.
+  const drafted = draftedMap(result.draft);
   for (const p of league.players) {
-    const was = before.get(p.id);
-    if (picks.has(p.id)) continue;
-    const from = was?.teamId ?? null;
-    if (p.teamId !== null && from !== p.teamId) {
-      const signing = signings.get(p.id);
-      const kind = signing !== undefined && was?.previousTeamId === p.teamId ? 'RE_SIGNING' : 'FREE_AGENT_SIGNING';
-      rows.push({
-        kind, teamId: p.teamId, playerId: p.id, playerName: p.name,
-        detail: signing === undefined
-          ? (was === undefined ? 'Signed as an undrafted rookie' : 'Signed at the minimum to fill the roster')
-          : `${String(signing.years)} years, ${String(signing.bids)} bids`,
-        capImpact: p.contract?.aav ?? null,
-        contractId: p.contract === null ? null : contractIdFor(p, p.contract.signedSeason),
-        pickId: null,
-      });
-    } else if (p.teamId === null && from !== null && was !== undefined
-               && was.contract !== null && was.contract.yearsRemaining > 1) {
-      // Under contract beyond this year and now without a club: released.
-      // A deal that simply ran out is not logged; the schema has no kind for
-      // an expiry, and calling it a release would be wrong.
-      rows.push({
-        kind: 'RELEASE', teamId: from, playerId: p.id, playerName: p.name,
-        detail: `${String(was.contract.yearsRemaining - 1)} years remained`,
-        capImpact: deadMoneyIfCut(was.player), contractId: null, pickId: null,
-      });
-    }
+    if (p.teamId === null || signed.has(p.id) || drafted.has(p.id)) continue;
+    const from = before.get(p.id)?.teamId ?? null;
+    if (from === p.teamId) continue;
+    const deal = dealOf(p);
+    rows.push({
+      kind: 'FREE_AGENT_SIGNING', teamId: p.teamId, playerId: p.id, playerName: p.name,
+      detail: before.has(p.id) ? 'Signed at the minimum to fill the roster' : 'Signed as an undrafted rookie',
+      capImpact: deal.aav, contractId: deal.id, pickId: null,
+    });
   }
 
   if (rows.length > 0) {
@@ -149,5 +173,7 @@ export async function logTransactions(
           ${rows.map((r) => r.contractId)}::text[], ${rows.map((r) => r.pickId)}::text[]
         ) as u(kind, team_id, player_id, player_name, detail, cap_impact, contract_id, pick_id)`;
   }
-  return rows.filter((r) => r.kind === 'FREE_AGENT_SIGNING' || r.kind === 'RE_SIGNING').length;
+  const counts: Record<string, number> = {};
+  for (const r of rows) counts[r.kind] = (counts[r.kind] ?? 0) + 1;
+  return counts;
 }

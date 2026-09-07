@@ -8,12 +8,14 @@
 //
 // Same 32 clubs and the same players as the game-simulation loader, but carrying
 // the fields a career needs -- age, experience, potential, work ethic, football
-// intelligence, durability -- rather than the fields a snap needs.
+// intelligence, durability -- rather than the fields a snap needs. The roster
+// is the seed's own (team_rosters.roster_status), the contracts are the seed's
+// own (player_contracts), and the players the seed lists without a club enter
+// the free-agent pool.
 
-import { POSITION_GROUPS, type PositionGroup } from './types.ts';
+import type { PositionGroup } from './types.ts';
 import {
-  capRules, FA_PERSONALITIES, marketValue, ROSTER_QUOTA,
-  type CareerPlayer, type FaPersonality, type League, type TeamFront,
+  FA_PERSONALITIES, type CareerPlayer, type FaPersonality, type League, type TeamFront,
 } from './offseason/index.ts';
 
 /** A cell as a number, or undefined when it is empty or not numeric. Never
@@ -62,6 +64,8 @@ export function loadCareerWorld(read: SeedReader): League {
   const ownerRows = read('owners');
   const coachRows = read('coaches');
   const coachAttrRows = read('coach_attributes');
+  const rosterRows = read('team_rosters');
+  const contractRows = read('player_contracts');
 
   const attrsById = new Map<string, Record<string, string>>();
   for (const row of attrRows) attrsById.set(row['player_id'] ?? '', row);
@@ -110,13 +114,41 @@ export function loadCareerWorld(read: SeedReader): League {
     });
   }
 
+  // The seed's own designation of who is on the 53: team_rosters.roster_status.
+  // The rest of a club's ninety (practice-squad candidates, camp bodies) enter
+  // the pool as free agents with the club as their previous club.
+  const activeClub = new Map<string, string>();
+  for (const row of rosterRows) {
+    if (row['roster_status'] !== 'ACTIVE') continue;
+    const id = row['player_id'] ?? '';
+    const teamId = row['team_id'] ?? '';
+    if (id !== '' && known.has(teamId)) activeClub.set(id, teamId);
+  }
+
+  // The seed's own deals. Same shape as the engine's: an average annual value,
+  // a term, years left, a guaranteed total, and the season it was signed.
+  const contractByPlayer = new Map<string, Record<string, string>>();
+  for (const row of contractRows) {
+    if ((row['contract_status'] ?? 'ACTIVE') !== 'ACTIVE') continue;
+    const id = row['player_id'] ?? '';
+    const held = contractByPlayer.get(id);
+    if (held === undefined
+        || (numberOrUndefined(row['end_year']) ?? 0) > (numberOrUndefined(held['end_year']) ?? 0)) {
+      contractByPlayer.set(id, row);
+    }
+  }
+
   const players: CareerPlayer[] = [];
   for (const row of playerRows) {
     const id = row['player_id'] ?? '';
     const group = GROUP_OF[row['position'] ?? ''];
     const ability = numberOrUndefined(row['overall_rating']);
-    const teamId = row['team_id'] ?? '';
-    if (id === '' || group === undefined || ability === undefined || !known.has(teamId)) continue;
+    if (id === '' || group === undefined || ability === undefined) continue;
+
+    // 'FA' is the CSV's sentinel for no club; the database says NULL.
+    const raw = row['team_id'] ?? '';
+    const club = known.has(raw) ? raw : null;
+    const rostered = club !== null && activeClub.get(id) === club;
 
     const attrs = attrsById.get(id);
     const potential = numberOrUndefined(row['potential_rating']) ?? ability;
@@ -124,7 +156,7 @@ export function loadCareerWorld(read: SeedReader): League {
       id,
       name: row['display_name'] ?? id,
       group,
-      teamId,
+      teamId: rostered ? club : null,
       ability,
       // A potential below current ability would mean a player with negative
       // headroom, which the growth term cannot express. Clamp rather than
@@ -148,77 +180,47 @@ export function loadCareerWorld(read: SeedReader): League {
       retired: false,
       retiredInSeason: null,
       personality: personalityFor(id),
-      contract: null,
-      previousTeamId: teamId,
+      contract: rostered ? seedContract(id, contractByPlayer.get(id)) : null,
+      previousTeamId: club,
     });
   }
 
   if (players.length === 0) throw new Error('Seed data produced no career players');
 
-  // The seed has a contracts table, but not one that maps onto this model's
-  // deal structure, so contracts are derived from market value here. Remaining
-  // years are staggered one to four by a stable hash of the player id: without
-  // the stagger every deal in the league would expire in the same offseason and
-  // the first market would be the only one that ever mattered.
-  const rules = capRules(FIRST_SEASON);
-  for (const player of players) {
-    if (player.teamId === null) continue;
-    const years = 1 + hashInt(`${player.id}:years`, 4);
-    const aav = marketValue(player, rules);
-    player.contract = {
-      aav,
-      years,
-      yearsRemaining: years,
-      guaranteed: Math.round(aav * years * 0.45),
-      signedSeason: FIRST_SEASON - 1,
-    };
-  }
-
-  // The seed carries roughly 93 players per club, an offseason roster. Trim each
-  // club to its 53-man quota by ability; the rest enter the pool as free agents
-  // and mostly wash out, which is what happens to them.
-  for (const teamId of teamIds) {
-    for (const group of POSITION_GROUPS) {
-      const held = players
-        .filter((p) => p.teamId === teamId && p.group === group)
-        .sort((a, b) => b.ability - a.ability);
-      for (const player of held.slice(ROSTER_QUOTA[group])) {
-        player.previousTeamId = player.teamId;
-        player.teamId = null;
-        // The contract goes with the club. Clearing teamId alone left 1,152
-        // players holding a deal with nobody, and expireContracts skips
-        // unrostered players, so those contracts never expired -- a save that
-        // asserted something untrue from the moment it was created.
-        player.contract = null;
-      }
-    }
-  }
-
-  const league: League = {
+  // KNOWN DEFECT, in the seed and deliberately left visible. With the seed's
+  // own 53-man rosters and its own contracts, six clubs open the first season
+  // over the salary cap -- one by 69M, 23% of it -- even though the seed's
+  // salary_cap table claims every club is under. The first offseason's
+  // compliance pass resolves it and from then on the league stays legal;
+  // tests/save/save.test.ts bounds the overage so it cannot quietly grow.
+  // Resolving it here would mean cutting players the seed says are on the
+  // roster, which is the engine's decision to make in the offseason, not the
+  // loader's to make silently.
+  return {
     teamIds, fronts, players, pipeline: new Map(),
     deadMoney: new Map(), season: FIRST_SEASON,
   };
+}
 
-  // KNOWN DEFECT, deliberately left. Seven of the 32 clubs come out of the seed
-  // over the salary cap -- one by 84M, 28% of it -- because contracts are
-  // derived from market value and market value knows nothing about the cap. The
-  // first offseason's compliance pass resolves it, and from that point the
-  // league stays legal; tests/save/save.test.ts bounds the overage so it cannot
-  // quietly grow.
-  //
-  // Two corrections were tried and both cost more than the defect. Running the
-  // engine's compliance pass here releases players and charges dead money, and
-  // a from-scratch world has no history to charge: one club came out with 276M
-  // of dead money, further over than it started. Scaling wages to fit works
-  // arithmetically, but this league's intake, market and drift baselines are all
-  // calibrated against these exact contracts -- scaling broke the draft-need
-  // test and pushed the first offseason hard enough to release two first-round
-  // rookies on guaranteed deals.
-  //
-  // The fix belongs to the seed importer that will build the production
-  // template world, where each club's wages can be constructed inside a cap
-  // budget from the start, and the calibration re-run once against the result.
-  // Retro-fitting it onto a harness loader trades a bounded, visible defect for
-  // an unbounded, invisible one.
-  return league;
+/** Rule 3: a rostered player without a deal, or a deal missing a number, is
+ *  reported. The seed carries a contract for every rostered player; a source
+ *  that does not is a different seed and must say so. */
+function seedContract(
+  playerId: string, row: Record<string, string> | undefined,
+): CareerPlayer['contract'] {
+  if (row === undefined) throw new Error(`Rostered player ${playerId} has no contract in the seed`);
+  const need = (column: string): number => {
+    const value = numberOrUndefined(row[column]);
+    if (value === undefined) {
+      throw new Error(`Contract ${row['contract_id'] ?? '?'} for ${playerId} has no ${column}`);
+    }
+    return value;
+  };
+  return {
+    aav: need('average_annual_value'),
+    years: need('years_total'),
+    yearsRemaining: need('years_remaining'),
+    guaranteed: need('guaranteed_money'),
+    signedSeason: need('start_year') - 1,
+  };
 }

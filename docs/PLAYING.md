@@ -81,6 +81,16 @@ Honestly, and in the order you will notice it:
 - **No playoffs.** The last week ends the season and the offseason button
   appears. The standings are the final word; there is no bracket, no champion.
   `game_results.competition` is always `REGULAR`.
+- **The seed's day-to-day injuries are honoured; its long-term list is not
+  yet.** The 195 day-to-day rows are dated to week 0 at create time, so a
+  player listed as out for n weeks misses the first n-1. The 114 IR/PUP/NFI
+  rows stay undated: the seed lists those players on the 53 with nobody
+  behind them -- nine clubs' only kicker or punter -- and until clubs can sign
+  a replacement in season, honouring them left 39 games with no side to field.
+  A club whose only kicker, punter or quarterback is day-to-day still loses
+  that game to a red notice rather than a phantom: 8 of 272 games in the
+  first three weeks of a measured season, none after week 3. The seed's 186 free agents enter the engine's
+  pool.
 - **No in-season roster moves.** You cannot sign, cut, or trade during the
   year. If your only kicker gets hurt, you play without one. Very rarely a club
   cannot field a unit and the game is skipped -- the Team tab says so in a red
@@ -90,18 +100,20 @@ Honestly, and in the order you will notice it:
   The engine drafts in its own strength order and trades nothing, so a template
   `draft_picks` row for a later year is overwritten with the club that actually
   picked.
-- **Contract expiry is not a transaction.** `transactions` holds every pick,
-  signing, release and retirement the engine reports; a deal that simply ran out
-  is not logged, because the schema has no kind for it and calling it a release
-  would be wrong.
+- **The first offseason is a bloodbath, and that is the seed's.** The seed's
+  own contracts are 1,342 one-year minimum deals, so about 900 expire at once,
+  the market signs about 1,400 players, and every club then cuts to the roster
+  limit (~700 cuts, 80 of them rookies drafted the same spring, two of them
+  first-rounders). All of it is in `transactions` -- `CONTRACT_EXPIRY`,
+  `FREE_AGENT_SIGNING`, `RE_SIGNING`, `RELEASE` with the reason and dead money,
+  `DRAFT_SELECTION`, `RETIREMENT` -- as the engine reported it.
 - **The seed's 2026 draft class is not what gets drafted.** `draft_classes`
   is the template's data; the engine drafts from its own pipeline, primed at
   create time. Reconciling the two is an open decision.
-- **The seed's own injuries and free agents are inert.** `player_injuries`
-  keeps the template's 309 rows (no season on them); `free_agents` is rewritten
-  from the engine's pool, so the seed's 186 free agents are not in it. Long
-  snappers have no engine position group and stay on their club's row but not
-  on its roster.
+- **Long snappers are on the roster and not in the sim.** The engine has no
+  position group for them, so the seed's 32 stay on their clubs' `team_rosters`
+  and `player_contracts` rows as the seed wrote them, outside the engine's
+  52-man squad and its cap sheet.
 - **No coaching or staff screens.** `CoachScreen`, `CollegeScreen`,
   `DraftPickScreen`, `ScoutingScreen`, `StaffScreen` and `TransactionsScreen`
   render skeletons and nothing links to them. `transactions` is written; no
@@ -112,10 +124,12 @@ Honestly, and in the order you will notice it:
   them.
 - **News has no coach or award-race stories.** The engine has no coach model
   and no award races are defined; those detectors receive empty inputs.
-- **Seven clubs start over the cap.** Contracts are derived from market value
-  when the world is built (`careerWorld.ts`), and the first offseason's
-  compliance pass resolves it. The Office shows the negative space rather than
-  hiding it.
+- **Seven clubs start over the cap, and that is the seed's too.** With its own
+  53-man rosters under its own contracts: DET -69.4M, SF -18.6M, CAR -16.7M,
+  KC -15.0M, PIT -12.8M, GB -10.1M, DEN -1.2M -- while the seed's `salary_cap`
+  table claims every club is under. Nothing is cut to hide it; the first
+  offseason's compliance pass resolves it (18 cap cuts league-wide) and the
+  Office shows the negative space.
 - **The transport shim trusts `DEV_USER_ID`.** There is no auth server in
   development. The edge function reads the verified JWT; the shim is never
   deployed.
