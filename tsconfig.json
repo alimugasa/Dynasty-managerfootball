@@ -25,6 +25,6 @@
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] }
   },
-  "include": ["src", "tests", "supabase/functions"],
+  "include": ["src", "tests", "supabase/functions", "scripts"],
   "exclude": ["legacy", "node_modules", "dist"]
 }

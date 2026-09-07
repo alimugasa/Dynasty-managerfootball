@@ -22,4 +22,9 @@ const shard = buildShard(
   () => parentPort?.postMessage({ progress: 1 }),
 );
 
-parentPort?.postMessage({ done: shard }, TRANSFERABLE_KEYS.map((key) => shard[key].buffer));
+// .buffer is ArrayBufferLike, which admits SharedArrayBuffer; these are all
+// plain ArrayBuffers, allocated by the typed arrays in buildShard.
+parentPort?.postMessage(
+  { done: shard },
+  TRANSFERABLE_KEYS.map((key) => shard[key].buffer as ArrayBuffer),
+);

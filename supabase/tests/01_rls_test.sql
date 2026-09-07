@@ -171,6 +171,52 @@ begin
   end;
 end $$;
 
+-- ---------------------------------------------------------------- summaries (0012)
+-- The derived tables are save-scoped like everything else, so they get the same
+-- proof rather than the same assumption: one save's summary must be invisible
+-- to another, and the client must not be able to write its own.
+reset role;
+set role service_role;
+do $$
+declare a uuid := current_setting('test.save_a')::uuid;
+        b uuid := current_setting('test.save_b')::uuid;
+begin
+  insert into public.team_season_summary (save_id, season, team_id, competition, games, points_for)
+  values (a, 2026, 'BUF', 'REGULAR', 17, 380), (b, 2026, 'MIA', 'REGULAR', 17, 410);
+  insert into public.player_career_totals (save_id, player_id, competition, pass_yards)
+  values (a, 'BUF_QB_01', 'REGULAR', 44000);
+end $$;
+
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);
+do $$
+declare n integer;
+begin
+  select count(*) into n from public.team_season_summary;
+  if n <> 1 then
+    raise exception 'FAIL: A sees % team_season_summary rows, expected only its own', n;
+  end if;
+  select count(*) into n from public.player_career_totals;
+  if n <> 1 then
+    raise exception 'FAIL: A sees % player_career_totals rows, expected only its own', n;
+  end if;
+
+  -- Writes are the server's. A client must not be able to fabricate a career.
+  begin
+    insert into public.player_career_totals (save_id, player_id, competition, pass_yards)
+    values (current_setting('test.save_a')::uuid, 'BUF_QB_01', 'PLAYOFF', 99999);
+    raise exception 'FAIL: client wrote a career total';
+  exception when insufficient_privilege then null;
+  end;
+
+  begin
+    perform public.refresh_player_career_totals(current_setting('test.save_a')::uuid);
+    raise exception 'FAIL: client invoked refresh_player_career_totals';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 -- ---------------------------------------------------------------- cascade
 reset role;
 set role service_role;

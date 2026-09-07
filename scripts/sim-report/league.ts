@@ -63,11 +63,15 @@ function ratingsFor(
     ['kickPower', pick('kick_power')],
     ['puntPower', pick('punt_power')],
   ];
-  const ratings: Record<string, number> = { overall };
+  // Built as a partial and completed with `overall`, rather than asserted from
+  // a bare Record: the assertion compiled only because nothing checked this
+  // file, and it would have gone on compiling if a required rating were
+  // dropped from the entries list above.
+  const ratings: Partial<Record<keyof EnginePlayer['ratings'], number>> = {};
   for (const [key, value] of entries) {
-    if (value !== undefined) ratings[key] = Math.round(value);
+    if (value !== undefined) ratings[key as keyof EnginePlayer['ratings']] = Math.round(value);
   }
-  return ratings as EnginePlayer['ratings'];
+  return { ...ratings, overall } as EnginePlayer['ratings'];
 }
 
 export interface Fixture {
