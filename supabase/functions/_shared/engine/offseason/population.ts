@@ -81,16 +81,48 @@ export function enforceCompliance(
     }
   }
 
-  // 2. Everyone gets under the cap. Cut the worst value for money, replacing
-  //    with a minimum-salary body so the roster stays legal in shape as well as
-  //    in cost.
+  // 2 then 3, each once. Getting under the cap and filling the roster are not
+  // independent -- filling signs minimum-salary bodies, and a club that has cut
+  // its way to exactly zero goes straight back over when it signs eight of them
+  // -- so the cut pass reserves the room the fill pass is going to need.
+  //
+  // Reserving, rather than alternating cut and fill until they settle. That was
+  // tried and is much worse: every cut charges dead money, so a club that is
+  // over the cap cuts, becomes more over, and cuts again. Four alternating
+  // rounds turned one club into 183M of dead money and released the first
+  // overall pick. Cutting is not a fixed-point operation and must not be
+  // iterated as if it were.
+  moves += cutToCap(league, index, rules);
+  moves += fillRosters(league, index, rules);
+
+  return moves;
+}
+
+/** How many holes a club must still fill, and therefore how many minimum
+ *  salaries the cap pass has to leave room for. */
+function holesAt(index: RosterIndex, teamId: string): number {
+  let holes = 0;
+  for (const group of POSITION_GROUPS) {
+    const held = indexedRoster(index, teamId).filter((p) => p.group === group).length;
+    holes += Math.max(0, ROSTER_QUOTA[group] - held);
+  }
+  return holes;
+}
+
+/** Everyone gets under the cap, with room for the bodies they still need. */
+function cutToCap(league: League, index: RosterIndex, rules: CapRules): number {
+  let moves = 0;
   for (const teamId of league.teamIds) {
     let guard = 0;
     while (guard < 40) {
       guard += 1;
       const held = indexedRoster(index, teamId);
       const sheet = capSheet(teamId, held, rules, league.deadMoney.get(teamId) ?? 0);
-      if (sheet.available >= 0) break;
+      // The reservation. Only the largest 51 hits count, so a club already at
+      // 51 bodies pays nothing more to fill and reserves nothing.
+      const reserve = Math.max(0, Math.min(holesAt(index, teamId), 51 - held.length))
+        * rules.veteranMinimum;
+      if (sheet.available >= reserve) break;
       // Cut whoever frees the most money per point of ability lost. Ranking on
       // cap hit alone targets rookies, whose deals are guaranteed and therefore
       // save nothing.
@@ -104,8 +136,13 @@ export function enforceCompliance(
     }
   }
 
-  // 3. Only now does anyone fill. The best body available, not a random one:
-  //    clubs are not stupid about the bottom of a roster, they are just poor.
+  return moves;
+}
+
+/** Fill to quota. The best body available, not a random one: clubs are not
+ *  stupid about the bottom of a roster, they are just poor. */
+function fillRosters(league: League, index: RosterIndex, rules: CapRules): number {
+  let moves = 0;
   for (const teamId of league.teamIds) {
     for (const group of POSITION_GROUPS) {
       let held = indexedRoster(index, teamId).filter((p) => p.group === group).length;

@@ -13,6 +13,7 @@ export {
 export {
   correlation, effectiveAbility, gradeFromZ, gradeSeason, gradingPopulation, seasonForm,
 } from './grading.ts';
+export { buildIndex, type RosterIndex } from './rosterIndex.ts';
 export {
   enforceCompliance, primePipeline, runOffseason, type OffseasonResult,
 } from './population.ts';

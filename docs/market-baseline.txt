@@ -3,7 +3,7 @@ DYNASTY MANAGER PRO - DRAFT AND MARKET REPORT
   seasons            60 (3 leagues x 20)
   base seed          20260907
   draft picks        13,440
-  free agent deals   45,878
+  free agent deals   46,055
 
 SCOUTING FOG
 ------------------------------------------------------------------------------
@@ -20,14 +20,14 @@ THE DRAFT
 ------------------------------------------------------------------------------
   picks per season             224.0
   mean estimate error          3.33 rating points
-  estimate bias on picks       2.47  (the winner's curse: clubs draft
+  estimate bias on picks       2.48  (the winner's curse: clubs draft
                                      the prospects they overrate)
-  reaches (picked above rank)  59.6%
-  median reach                 11 places
+  reaches (picked above rank)  58.6%
+  median reach                 10 places
   biggest reach / steal        180 / -129
-  picks at a real hole         33.7%  (need >= 0.35 at that position)
-  picks at a top-3 need        47.8%
-  first round, top-3 need      38.5%
+  picks at a real hole         33.4%  (need >= 0.35 at that position)
+  picks at a top-3 need        47.1%
+  first round, top-3 need      36.0%
   first round, biggest need    17.0%
   mean need rank of pick       4.6 of 12  (6.5 would be random)
 
@@ -38,24 +38,24 @@ THE DRAFT
 
 FREE AGENCY
 ------------------------------------------------------------------------------
-  signings per season          764.6
+  signings per season          767.6
   mean bids per signed player  15.0
-  top bidder lost              53.7%
+  top bidder lost              53.8%
   mean premium over market     1.08x
   median premium               1.07x
-  overpaid by 25% or more      9.8%
-  overpaid by 50% or more      2.3%
-  signed below market          20.0%
+  overpaid by 25% or more      10.2%
+  overpaid by 50% or more      2.4%
+  signed below market          19.8%
   mean deal                    7.2M x 2.9 years
 
   premium by personality       (what each type actually ends up paid)
-    MAX_MONEY             1.15x       8.5M   n=6583
-    LONG_TERM_SECURITY    1.12x       7.6M   n=6429
-    LOCATION              1.09x       7.1M   n=6718
-    ROLE                  1.09x       7.0M   n=6676
-    CHAMPIONSHIP          1.08x       7.0M   n=6747
-    COACH_RELATIONSHIP    1.04x       6.7M   n=6367
-    LOYALTY               0.99x       6.1M   n=6358
+    MAX_MONEY             1.15x       8.5M   n=6603
+    LONG_TERM_SECURITY    1.12x       7.6M   n=6648
+    LOCATION              1.09x       7.4M   n=6580
+    ROLE                  1.09x       6.8M   n=6637
+    CHAMPIONSHIP          1.08x       7.2M   n=6540
+    COACH_RELATIONSHIP    1.05x       6.6M   n=6629
+    LOYALTY               0.99x       5.8M   n=6418
 
   A money-first player should land the largest cheque and a ring-first one
   should not, because he took less to go somewhere better.

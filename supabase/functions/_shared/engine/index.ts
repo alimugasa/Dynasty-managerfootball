@@ -12,4 +12,9 @@ export { createRuntime, type TeamRuntime } from './roster.ts';
 export { CALIBRATION } from './calibration.ts';
 export { fieldGoalProbability, weatherPenalty } from './plays.ts';
 export { runShare, chooseFourthDown, fieldGoalDistance, type Situation } from './playcall.ts';
+export { teamStateFor, teamStatesFor, type BridgeOptions } from './careerBridge.ts';
+export {
+  buildSchedule, simulateSeason, type Fixture, type SeasonOptions, type SeasonResult,
+  type TeamRecord,
+} from './season.ts';
 export * from './types.ts';

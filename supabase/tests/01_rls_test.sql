@@ -217,6 +217,79 @@ begin
   end;
 end $$;
 
+-- ---------------------------------------------------------------- save versioning (0013)
+-- The forward-migration driver, proven rather than assumed: a save that cannot
+-- be upgraded is a dynasty that cannot be opened.
+reset role;
+set role service_role;
+do $$
+declare a uuid := current_setting('test.save_a')::uuid;
+        v_reached integer;
+        v_steps   integer;
+        v_target  integer := public.current_save_schema_version();
+begin
+  -- create_save() stamps the current version; force it back to 1 so the chain
+  -- has something to do, which is what an existing dynasty looks like.
+  update public.saves set schema_version = 1 where id = a;
+
+  -- Leave behind exactly the damage the steps are written to repair.
+  insert into public.player_season_stats
+    (save_id, season, competition, player_id, team_id, games_played)
+  values (a, 2026, 'REGULAR', 'BUF_QB_01', null, 17);
+
+  v_reached := public.apply_save_migrations(a);
+  if v_reached <> v_target then
+    raise exception 'FAIL: migration reached version %, expected %', v_reached, v_target;
+  end if;
+
+  if (select schema_version from public.saves where id = a) <> v_target then
+    raise exception 'FAIL: save row not stamped with the new version';
+  end if;
+
+  if (select team_id from public.player_season_stats
+       where save_id = a and player_id = 'BUF_QB_01' and season = 2026) is null then
+    raise exception 'FAIL: v1->v2 step did not backfill team_id';
+  end if;
+
+  select count(*) into v_steps from public.save_migrations where save_id = a;
+  if v_steps <> v_target - 1 then
+    raise exception 'FAIL: logged % steps, expected %', v_steps, v_target - 1;
+  end if;
+
+  -- Idempotent: running it again is a no-op, not a second pass.
+  v_reached := public.apply_save_migrations(a);
+  if v_reached <> v_target then
+    raise exception 'FAIL: re-running migrations moved the version to %', v_reached;
+  end if;
+  select count(*) into v_steps from public.save_migrations where save_id = a;
+  if v_steps <> v_target - 1 then
+    raise exception 'FAIL: re-running logged % steps, expected %', v_steps, v_target - 1;
+  end if;
+
+  -- A save from a newer build must be refused, not silently downgraded.
+  update public.saves set schema_version = v_target + 1 where id = a;
+  begin
+    perform public.apply_save_migrations(a);
+    raise exception 'FAIL: opened a save from a newer build';
+  exception when feature_not_supported then null;
+  end;
+  update public.saves set schema_version = v_target where id = a;
+end $$;
+
+reset role;
+set role authenticated;
+select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);
+do $$
+begin
+  -- Migrating is the server's job. A client that could run it could rewrite
+  -- another dynasty's rows through a security-definer function.
+  begin
+    perform public.apply_save_migrations(current_setting('test.save_a')::uuid);
+    raise exception 'FAIL: client invoked apply_save_migrations';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 -- ---------------------------------------------------------------- cascade
 reset role;
 set role service_role;

@@ -6,23 +6,23 @@ DYNASTY MANAGER PRO - OFFSEASON POPULATION REPORT
   no games simulated - ability moves only in the offseason
 
   League mean ability of rostered players, averaged over 5 leagues
-    77.13 |                                          
-    76.89 |         o                                
-    76.65 |        o o                               
-    76.41 |       o   o                              
-    76.17 |      o                                   
-    75.93 |            o                             
-    75.69 | ----o-------o----------------------------
-    75.45 |                                          
-    75.21 |    o         o                           
-    74.97 |               oo                       oo
-    74.73 |   o             oo   oooooooooooooooooo  
-    74.49 | oo................ooo....................
-    74.25 |                                          
-    74.01 |                                          
-    73.77 |                                          
-    73.52 | -----------------------------------------
-    73.28 |                                          
+    77.05 |                                          
+    76.81 |         o                                
+    76.58 |        o o                               
+    76.35 |       o   o                              
+    76.11 |      o                                   
+    75.88 |            o                             
+    75.64 | ----o-------o----------------------------
+    75.41 |              o                           
+    75.17 |    o          o                          
+    74.94 |   o            oo                  o     
+    74.70 | o................ooo..oooo.oooooooo.ooooo
+    74.47 |  o                  oo    o              
+    74.23 |                                          
+    74.00 |                                          
+    73.76 |                                          
+    73.53 | -----------------------------------------
+    73.29 |                                          
           +-----------------------------------------
            1                                      41
 
@@ -31,13 +31,13 @@ DYNASTY MANAGER PRO - OFFSEASON POPULATION REPORT
 DRIFT
 ------------------------------------------------------------------------------
   starting mean          74.60
-  ending mean            74.96
-  mean total change      +0.36 over 40 seasons
-  per-league change      +0.18, +0.78, +0.04, +0.39, +0.39
-  slope, mean trajectory -0.0279 rating points per season
-  slope, per league      -0.0000 +/- 0.0062 (mean of 5, first 13 seasons excluded)
-  range across leagues   73.89 to 77.24  (spread 3.34)
-  settling transient     peaks +2.21 at season 8, then returns
+  ending mean            74.77
+  mean total change      +0.16 over 40 seasons
+  per-league change      +0.38, +0.23, +0.19, +0.05, -0.05
+  slope, mean trajectory -0.0295 rating points per season
+  slope, per league      -0.0063 +/- 0.0051 (mean of 5, first 13 seasons excluded)
+  range across leagues   74.18 to 76.89  (spread 2.72)
+  settling transient     peaks +2.13 at season 8, then returns
   verdict                FLAT - intake is calibrated
 
 ABILITY, PRODUCTION AND REPUTATION
@@ -45,15 +45,15 @@ ABILITY, PRODUCTION AND REPUTATION
   These must not be the same number. A league where the best player always
   grades best has no scouting, no breakouts and no arguments.
 
-  ability to season grade      0.554   target ~0.55
+  ability to season grade      0.556   target ~0.55
   ability to reputation        0.987   high, but lagging
-  grade to next season grade   0.286   partly repeatable
+  grade to next season grade   0.288   partly repeatable
 
 DEVELOPMENT
 ------------------------------------------------------------------------------
-  breakout seasons       12.6 per season
-  bust seasons           11.4 per season
-  retirements            287.6 per season
+  breakout seasons       12.5 per season
+  bust seasons           10.9 per season
+  retirements            287.8 per season
   mean retirement age    29.3
   retirement age range   25 to 43
 
@@ -61,45 +61,45 @@ PER SEASON (first league, seed 20260907)
 ------------------------------------------------------------------------------
   season      mean      age   retired  drafted  breakouts  busts
     2026     74.41     26.1       376      224         43     20
-    2027     74.71     26.2       282      224         29     11
-    2028     75.17     26.5       244      224         22     15
-    2029     75.59     26.8       180      224         22     15
-    2030     76.04     27.0       423      224         19     20
-    2031     76.37     27.3       291      224         17     16
-    2032     76.59     27.6       261      224         11      9
-    2033     76.44     27.7       316      224         13     12
-    2034     76.35     27.9       265      224          9     13
-    2035     75.89     28.0       300      224          9      7
-    2036     75.55     28.0       319      224         15      9
-    2037     75.32     28.0       300      224          8     12
-    2038     75.25     27.9       277      224          8     10
-    2039     75.11     27.9       309      224         11      9
-    2040     74.97     27.8       315      224          9     10
-    2041     74.78     27.8       259      224          5     10
-    2042     74.79     27.8       275      224          8     10
-    2043     74.63     27.7       313      224         12     15
-    2044     74.71     27.7       269      224         10      6
-    2045     74.99     27.8       251      224         11      9
-    2046     75.05     27.8       275      224          9     10
-    2047     75.22     27.9       281      224          7      7
-    2048     75.00     27.8       285      224         11      9
-    2049     74.94     27.8       294      224         10      6
-    2050     74.72     27.8       320      224         10     10
-    2051     74.92     27.8       293      224          6      6
-    2052     74.99     27.8       250      224         10     10
-    2053     74.80     27.8       289      224         10     10
-    2054     74.72     27.7       295      224          9      5
-    2055     74.77     27.8       267      224         11      8
-    2056     74.81     27.8       267      224          8     12
-    2057     74.58     27.8       298      224          6     12
-    2058     74.49     27.7       280      224          9     17
-    2059     74.48     27.7       310      224         16     11
-    2060     74.60     27.7       277      224          7     10
-    2061     74.77     27.7       253      224          8     10
-    2062     74.70     27.7       284      224          6      9
-    2063     74.46     27.7       276      224         10     10
-    2064     74.64     27.8       260      224         13     12
-    2065     74.78     27.8       299      224          7     16
+    2027     74.78     26.2       282      224         29     11
+    2028     75.19     26.4       260      224         27     10
+    2029     75.64     26.7       216      224         25     21
+    2030     75.99     27.0       430      224         22     25
+    2031     76.27     27.4       285      224         12     15
+    2032     76.43     27.6       266      224         11     11
+    2033     76.54     27.9       278      224          8     13
+    2034     76.17     27.9       309      224          7     13
+    2035     75.82     28.0       293      224          8      6
+    2036     75.43     28.0       307      224          8     13
+    2037     75.09     28.0       314      224          7     17
+    2038     75.06     28.0       289      224         12     11
+    2039     74.92     27.9       308      224         12     10
+    2040     74.94     27.9       291      224         11      9
+    2041     74.91     27.9       272      224          5     14
+    2042     74.68     27.8       314      224          7     10
+    2043     74.75     27.8       286      224         11     12
+    2044     74.62     27.8       295      224          7     14
+    2045     74.53     27.8       288      224          6     11
+    2046     74.27     27.7       295      224         11     12
+    2047     74.50     27.7       297      224          5      3
+    2048     74.42     27.7       271      224         10      8
+    2049     74.63     27.8       271      224         10     15
+    2050     74.66     27.8       292      224         10      9
+    2051     74.58     27.7       284      224          6     13
+    2052     74.66     27.7       288      224         11      7
+    2053     74.60     27.7       286      224         10      5
+    2054     74.55     27.7       279      224          6      9
+    2055     74.86     27.7       273      224          6      9
+    2056     74.99     27.8       268      224          6     10
+    2057     75.12     27.8       305      224         14     12
+    2058     74.98     27.8       261      224         13      9
+    2059     74.97     27.8       287      224          9      5
+    2060     75.19     27.7       267      224         10     12
+    2061     75.17     27.7       272      224          7     12
+    2062     75.06     27.8       277      224          9     15
+    2063     74.99     27.8       312      224         12     11
+    2064     74.97     27.8       288      224          6      9
+    2065     74.99     27.8       270      224          6      9
 
   peak ages by group: QB 29, RB 25, WR 27, TE 27, OL 29, EDGE 27, DT 28, LB 27, CB 26, S 27, K 32, P 32
 

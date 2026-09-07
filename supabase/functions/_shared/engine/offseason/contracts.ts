@@ -94,8 +94,15 @@ export interface CapSheet {
  * around: the bottom of a roster is effectively free, so a club can carry depth
  * it could not otherwise afford.
  */
+/** What a cap sheet needs from a player: the money, and nothing else. Declared
+ *  so the save-integrity check can pass documents rather than casting them into
+ *  CareerPlayer, which is a lie the type system would have accepted. */
+export interface CapCharge {
+  readonly contract: { readonly aav: number } | null;
+}
+
 export function capSheet(
-  teamId: string, roster: readonly CareerPlayer[], rules: CapRules, deadMoney = 0,
+  teamId: string, roster: readonly CapCharge[], rules: CapRules, deadMoney = 0,
 ): CapSheet {
   const hits = roster
     .map((p) => p.contract?.aav ?? rules.veteranMinimum)
@@ -143,7 +150,17 @@ export function deadMoneyIfCut(player: CareerPlayer): number {
 export function expireContracts(players: readonly CareerPlayer[]): CareerPlayer[] {
   const expired: CareerPlayer[] = [];
   for (const player of players) {
-    if (player.retired || player.teamId === null || player.contract === null) continue;
+    if (player.contract === null) continue;
+    // A contract is a relationship with a club: no club, no contract. Skipping
+    // unrostered players left a free agent's deal frozen for ever -- it never
+    // ticked down and never expired -- so a save carried thousands of players
+    // "under contract" to nobody. Nothing reads such a contract (free agency
+    // writes a new one on signing), so clearing it changes no outcome; it stops
+    // the save from asserting something untrue.
+    if (player.retired || player.teamId === null) {
+      player.contract = null;
+      continue;
+    }
     player.contract.yearsRemaining -= 1;
     if (player.contract.yearsRemaining <= 0) {
       player.previousTeamId = player.teamId;

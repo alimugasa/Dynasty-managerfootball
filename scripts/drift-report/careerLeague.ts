@@ -164,12 +164,43 @@ export function loadCareerLeague(): League {
       const held = players
         .filter((p) => p.teamId === teamId && p.group === group)
         .sort((a, b) => b.ability - a.ability);
-      for (const player of held.slice(ROSTER_QUOTA[group])) player.teamId = null;
+      for (const player of held.slice(ROSTER_QUOTA[group])) {
+        player.previousTeamId = player.teamId;
+        player.teamId = null;
+        // The contract goes with the club. Clearing teamId alone left 1,152
+        // players holding a deal with nobody, and expireContracts skips
+        // unrostered players, so those contracts never expired -- a save that
+        // asserted something untrue from the moment it was created.
+        player.contract = null;
+      }
     }
   }
 
-  return {
+  const league: League = {
     teamIds, fronts, players, pipeline: new Map(),
     deadMoney: new Map(), season: FIRST_SEASON,
   };
+
+  // KNOWN DEFECT, deliberately left. Seven of the 32 clubs come out of the seed
+  // over the salary cap -- one by 84M, 28% of it -- because contracts are
+  // derived from market value and market value knows nothing about the cap. The
+  // first offseason's compliance pass resolves it, and from that point the
+  // league stays legal; tests/save/save.test.ts bounds the overage so it cannot
+  // quietly grow.
+  //
+  // Two corrections were tried and both cost more than the defect. Running the
+  // engine's compliance pass here releases players and charges dead money, and
+  // a from-scratch world has no history to charge: one club came out with 276M
+  // of dead money, further over than it started. Scaling wages to fit works
+  // arithmetically, but this league's intake, market and drift baselines are all
+  // calibrated against these exact contracts -- scaling broke the draft-need
+  // test and pushed the first offseason hard enough to release two first-round
+  // rookies on guaranteed deals.
+  //
+  // The fix belongs to the seed importer that will build the production
+  // template world, where each club's wages can be constructed inside a cap
+  // budget from the start, and the calibration re-run once against the result.
+  // Retro-fitting it onto a harness loader trades a bounded, visible defect for
+  // an unbounded, invisible one.
+  return league;
 }
