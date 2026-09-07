@@ -1,0 +1,13 @@
+Copyright (c) 2026. All rights reserved.
+
+This is proprietary software intended for commercial release. No permission is
+granted to copy, modify, distribute or use this code or its data.
+
+If you intend to open-source any part of this repository, replace this file with
+the licence you actually want. Do not leave it as-is by accident — an unlicensed
+public repository still defaults to "all rights reserved", but stating it is
+clearer for anyone who finds it.
+
+Third-party components carry their own licences:
+  Barlow Condensed, Inter — SIL Open Font License 1.1 (commercial use permitted)
+  See docs/IP-POLICY.md for the full intellectual-property position.

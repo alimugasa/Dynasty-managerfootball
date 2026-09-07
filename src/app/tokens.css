@@ -1,0 +1,45 @@
+/* Design tokens extracted verbatim from legacy/ui/index.html :root.
+ * These values are canonical. Do not "improve" or normalise any hex code,
+ * and do not shadow them with a Tailwind theme holding different numbers. */
+:root {
+  /* Night press box: cool slate ink, warm paper text, sideline amber */
+  --ink: #0f151b;
+  --panel: #161f27;
+  --raise: #1d2833;
+  --line: #28353f;
+  --line2: #33434f;
+  --tx: #e8eef4;
+  --mut: #8698a8;
+  --dim: #5e7080;
+  --amber: #f0a830; /* the first-down marker */
+  --teal: #48c4ae; /* positive */
+  --red: #e2574c;
+  --blue: #5b9bd5;
+  --violet: #9b7be0;
+  --g-elite: #9b7be0;
+  --g-vgood: #48c4ae;
+  --g-good: #8fbf56;
+  --g-avg: #d9a441;
+  --g-poor: #d9743f;
+  --g-bad: #c9483e;
+  --nav-h: 60px;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --f-disp: 'Barlow Condensed', system-ui, sans-serif;
+  --f-ui: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--tx);
+  font-family: var(--f-ui);
+  -webkit-font-smoothing: antialiased;
+  /* The page itself never scrolls sideways. Wide tables scroll inside
+   * their own .tscroll containers — see components/TableScroll.tsx. */
+  overflow-x: hidden;
+}

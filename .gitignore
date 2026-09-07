@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.local
+playwright-report/
+test-results/
+.DS_Store
+# Parity goldens are version-controlled test fixtures — never ignore them.
+!legacy/parity/goldens/
+
+# Python bytecode from the frozen reference engine
+__pycache__/
+*.pyc

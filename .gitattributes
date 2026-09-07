@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+# legacy/ is frozen reference material. Keep it out of GitHub's language stats
+# so the repo is not reported as 90% HTML because of one 638KB prototype file.
+legacy/** linguist-vendored
+legacy/ui/index.html linguist-generated
+
+*.csv text
+*.py text
+*.sql text
+*.png binary
+*.jpg binary

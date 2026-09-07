@@ -1,0 +1,9 @@
+division_id,conference_id,name,region,data_class
+AC-E,AC,AC East,East,GENERATED
+AC-N,AC,AC North,North,GENERATED
+AC-S,AC,AC South,South,GENERATED
+AC-W,AC,AC West,West,GENERATED
+NC-E,NC,NC East,East,GENERATED
+NC-N,NC,NC North,North,GENERATED
+NC-S,NC,NC South,South,GENERATED
+NC-W,NC,NC West,West,GENERATED
