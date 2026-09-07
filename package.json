@@ -19,9 +19,11 @@
     "report:market": "node scripts/market-report/index.ts",
     "report:news": "node scripts/news-report/index.ts",
     "perf:fixture": "node scripts/perf/fixture.ts",
-    "perf:bench": "node scripts/perf/bench.ts"
+    "perf:bench": "node scripts/perf/bench.ts",
+    "dev:api": "node scripts/dev-api.ts"
   },
   "dependencies": {
+    "postgres": "^3.4.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

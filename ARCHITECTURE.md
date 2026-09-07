@@ -11,6 +11,13 @@
    progression, awards and financial outcomes come from the engine, server-side.
    The frontend renders them; it never computes them.
 
+   The client is therefore **read-only**. Row-level security grants the
+   `authenticated` role `SELECT` and nothing else on every game-state table (the
+   one exception is a user's own `profiles` row, which holds no game state).
+   Every write goes through a server-side handler running the engine under the
+   service role. This is what makes rule 2 structural rather than advisory: a
+   browser build that computed an outcome would have nowhere to put it.
+
 3. **Missing data is reported, never invented.** If a required table, column or
    relationship is missing, stop and say what is missing. Substituting a
    plausible value is the most serious defect that can be introduced here: it

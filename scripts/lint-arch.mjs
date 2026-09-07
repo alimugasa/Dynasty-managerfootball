@@ -123,6 +123,24 @@ for (const file of files) {
     }
   }
 
+  // 6b. The dev transport is a shim: route, parse, call the shared handler,
+  //     serialize. Zero SQL and zero engine imports, so that every handler is
+  //     forced to live in _shared/api/ where the edge function imports it too.
+  //     A shim that could run a query or a simulation is a second data path
+  //     waiting to happen.
+  if (rel.replace(/\\/g, '/') === 'scripts/dev-api.ts') {
+    for (const [i, l] of lines.entries()) {
+      if (isComment(l)) continue;
+      if (/_shared\/engine/.test(l)) {
+        errors.push(`${rel}:${i + 1}: dev-api.ts may not import the engine; it is a transport shim.`);
+      }
+      if (/\b(select|insert|update|delete|create|alter|drop)\b[\s\S]*\b(from|into|table|set|where)\b/i.test(l)
+          || /\bsql`/.test(l)) {
+        errors.push(`${rel}:${i + 1}: dev-api.ts may not contain SQL; put it in a handler under _shared/api/.`);
+      }
+    }
+  }
+
   // 7. IP policy
   const lower = (rel + '\n' + text).toLowerCase();
   for (const term of IP_DENY) {
