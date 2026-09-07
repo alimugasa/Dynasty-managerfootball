@@ -1,46 +1,31 @@
 // create-save: through the shim, against a real template world.
 //
 // Needs DATABASE_URL pointing at a database with every migration applied and
-// the template imported (npm run db:seed). Skips visibly without it.
+// the template imported (scripts/db-fresh.sh). Fails without it.
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { spawn, type ChildProcess } from 'node:child_process';
-import postgres from 'postgres';
 import { ApiRequestError, createApi } from '../../src/data/client';
-import { parseDatabaseUrl } from '../../supabase/functions/_shared/api/db';
 import { SAVE_SCHEMA_VERSION } from '../../supabase/functions/_shared/save/version';
 import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
 import { guaranteedFlag, UnknownValue } from '../../supabase/functions/_shared/api/mappers';
+import { DEV_USER as USER, openPipe, TEMPLATE, type Pipe } from './harness.ts';
 
-const DATABASE_URL = process.env['DATABASE_URL'];
 const PORT = 8791;
-const USER = '11111111-0000-0000-0000-00000000dead';
-const TEMPLATE = '00000000-0000-0000-0000-000000000000';
 
-describe.skipIf(DATABASE_URL === undefined)('create-save', () => {
-  let shim: ChildProcess;
-  let sql: ReturnType<typeof postgres>;
+describe('create-save', () => {
+  let pipe: Pipe;
+  let sql: Pipe['sql'];
 
   beforeAll(async () => {
-    sql = postgres({ ...parseDatabaseUrl(DATABASE_URL ?? ''), max: 1 });
-    await sql`insert into auth.users (id) values (${USER}) on conflict (id) do nothing`;
+    pipe = await openPipe(PORT);
+    sql = pipe.sql;
     await sql`delete from public.saves where user_id = ${USER}`;
-
-    shim = spawn('node', ['scripts/dev-api.ts'], {
-      env: { ...process.env, DATABASE_URL: DATABASE_URL ?? '', DEV_API_PORT: String(PORT), DEV_USER_ID: USER },
-      stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    await new Promise<void>((resolve, reject) => {
-      const timer = setTimeout(() => { reject(new Error('dev-api did not start')); }, 15000);
-      shim.stderr?.on('data', (c: Buffer) => { if (c.toString().includes('listening')) { clearTimeout(timer); resolve(); } });
-      shim.on('exit', (code) => { clearTimeout(timer); reject(new Error(`dev-api exited ${String(code)}`)); });
-    });
   });
 
-  afterAll(async () => { shim.kill('SIGTERM'); await sql.end(); });
+  afterAll(async () => { await pipe.close(); });
 
   it('clones the whole template world under a fresh seed', async () => {
-    const api = createApi({ apiUrl: `http://localhost:${String(PORT)}` });
+    const api = pipe.api;
     const out = await api.call<CreateSaveOut>('create-save', { name: 'Test dynasty', teamId: 'BUF' });
     expect(out.saveId).toMatch(/^[0-9a-f-]{36}$/);
     expect(out.userTeamId).toBe('BUF');
@@ -53,24 +38,37 @@ describe.skipIf(DATABASE_URL === undefined)('create-save', () => {
     // Server-generated and never zero: zero is the template's placeholder.
     expect(BigInt(save?.rng_seed ?? '0')).not.toBe(0n);
 
-    // Every world row the template holds, cloned. Counted against the
-    // template rather than a constant, so a bigger seed does not fail this.
-    const worldCount = async (saveId: string): Promise<number> => {
+    // The engine's state exists, and the world is projected from it: 53 on
+    // every roster, everyone else a free agent, a contract per rostered player,
+    // a cap sheet per club, an opening table, and the managed club's depth
+    // chart in the engine's order. Counted, not assumed.
+    const count = async (table: string, extra = ''): Promise<number> => {
       const [r] = await sql<{ n: string }[]>`
-        select (select count(*) from public.players where save_id = ${saveId})
-             + (select count(*) from public.player_contracts where save_id = ${saveId})
-             + (select count(*) from public.contract_years where save_id = ${saveId})
-             + (select count(*) from public.team_depth_charts where save_id = ${saveId})
-             + (select count(*) from public.season_schedule where save_id = ${saveId})
-             + (select count(*) from public.coaches where save_id = ${saveId}) as n`;
+        select count(*) as n from public.${sql(table)} where save_id = ${out.saveId} ${sql.unsafe(extra)}`;
       return Number(r?.n ?? 0);
     };
-    expect(await worldCount(out.saveId)).toBe(await worldCount(TEMPLATE));
-    expect(await worldCount(out.saveId)).toBeGreaterThan(10000);
+    const [doc] = await sql<{ players: number; pipeline: number; season: number }[]>`
+      select jsonb_array_length(document->'players') as players,
+             (select count(*) from jsonb_object_keys(document->'pipeline')) as pipeline,
+             (document->'meta'->>'season')::int as season
+        from public.save_documents where save_id = ${out.saveId}`;
+    expect(doc?.season).toBe(out.season);
+    expect(doc?.players).toBeGreaterThan(2000);
+    expect(Number(doc?.pipeline)).toBe(4);
+    expect(await count('team_rosters')).toBe(32 * 53);
+    expect(await count('free_agents')).toBe((doc?.players ?? 0) - 32 * 53);
+    expect(await count('player_contracts')).toBe(32 * 53);
+    expect(await count('salary_cap')).toBe(32);
+    expect(await count('standings', 'and wins = 0 and losses = 0')).toBe(32);
+    expect(await count('team_depth_charts', "and team_id = 'BUF'")).toBe(53);
+    expect(await count('players')).toBe(await count('players', '')); // no player row lost
+    const [status] = await sql<{ phase: string; week: number }[]>`
+      select phase, week from public.saves where id = ${out.saveId}`;
+    expect(status).toEqual({ phase: 'REGULAR_SEASON', week: 1 });
   });
 
   it('gives two saves two different seeds', async () => {
-    const api = createApi({ apiUrl: `http://localhost:${String(PORT)}` });
+    const api = pipe.api;
     const a = await api.call<CreateSaveOut>('create-save', { name: 'A', teamId: 'MIA' });
     const b = await api.call<CreateSaveOut>('create-save', { name: 'B', teamId: 'MIA' });
     const seeds = await sql<{ rng_seed: string }[]>`
@@ -95,11 +93,5 @@ describe.skipIf(DATABASE_URL === undefined)('create-save', () => {
     expect(row?.guaranteed).toBeNull();
     expect(() => guaranteedFlag(row?.guaranteed, { contractId: 'C', season: 2026 })).toThrow(UnknownValue);
     expect(guaranteedFlag(true, { contractId: 'C', season: 2026 })).toBe(true);
-  });
-});
-
-describe('create-save (no database configured)', () => {
-  it.skipIf(DATABASE_URL !== undefined)('is skipped, and says so', () => {
-    expect(DATABASE_URL).toBeUndefined();
   });
 });

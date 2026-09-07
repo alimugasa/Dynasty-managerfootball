@@ -1,20 +1,28 @@
 // Builds the career-level league from the seed tables.
 //
-// The reader is injected and there is no filesystem import anywhere in this
-// file, which is what lets the browser build run this exact loader against
-// bundled CSV strings. careerLeague.ts binds it to node's reader for the
-// scripts and tests.
+// The reader is injected and there is no I/O anywhere in this file. The
+// scripts bind it to CSV files on disk (scripts/drift-report/careerLeague.ts);
+// the server binds it to a save's world rows in Postgres (_shared/api/world.ts).
+// One loader, two sources, so the world a report measures and the world a
+// dynasty plays are built by the same rules.
 //
 // Same 32 clubs and the same players as the game-simulation loader, but carrying
 // the fields a career needs -- age, experience, potential, work ethic, football
 // intelligence, durability -- rather than the fields a snap needs.
 
-import { numberOrUndefined } from '../lib/csv.ts';
-import { POSITION_GROUPS, type PositionGroup } from '../../supabase/functions/_shared/engine/types.ts';
+import { POSITION_GROUPS, type PositionGroup } from './types.ts';
 import {
   capRules, FA_PERSONALITIES, marketValue, ROSTER_QUOTA,
   type CareerPlayer, type FaPersonality, type League, type TeamFront,
-} from '../../supabase/functions/_shared/engine/offseason/index.ts';
+} from './offseason/index.ts';
+
+/** A cell as a number, or undefined when it is empty or not numeric. Never
+ *  zero for a blank: rule 3. */
+export function numberOrUndefined(v: string | undefined): number | undefined {
+  if (v === undefined || v === '') return undefined;
+  const parsed = Number(v);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
 
 /** Stable pseudo-random integer in [0, n) from a string. */
 function hashInt(text: string, n: number): number {
@@ -33,7 +41,7 @@ function personalityFor(id: string): FaPersonality {
   return FA_PERSONALITIES[hashInt(id, FA_PERSONALITIES.length)] as FaPersonality;
 }
 
-const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
+export const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
   QB: 'QB', RB: 'RB', FB: 'RB', WR: 'WR', TE: 'TE',
   OT: 'OL', OG: 'OL', C: 'OL',
   EDGE: 'EDGE', DT: 'DT', LB: 'LB', CB: 'CB', S: 'S',

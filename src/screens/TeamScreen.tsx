@@ -2,64 +2,74 @@
 
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
+import { useSave } from '../app/SaveProvider';
+import { useQuery } from '../hooks/useQuery';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { TeamMark } from '../components/TeamMark';
-import { ActionButton } from '../game/Button';
-import { useGame } from '../game/GameProvider';
-import { WEEKS, recordOf, squadOf } from '../game/store';
+import { ActionButton } from '../components/ActionButton';
+import { Loading, QueryError } from '../components/QueryState';
+import { NewDynasty } from './NewDynasty';
 import { Screen } from './Screen';
+import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
+
+const recordOf = (s: { wins: number; losses: number; ties: number } | null): string =>
+  s === null ? '—' : `${String(s.wins)}-${String(s.losses)}${s.ties > 0 ? `-${String(s.ties)}` : ''}`;
 
 export function TeamScreen() {
   const nav = useNavigator();
-  const { state, busy, notice, simWeek, simSeason, nextSeason } = useGame();
-  const identity = state.identities.get(state.userTeamId);
-  const standing = state.standings.get(state.userTeamId);
-  const squad = squadOf(state, state.userTeamId);
+  const { save, loaded, loadError, clubsById, version, busy, notice, simWeek, simSeason, nextSeason } = useSave();
+  const q = useQuery<TeamOut>('team', { saveId: save?.saveId ?? '' }, version, save !== null);
 
-  const done = state.phase === 'OFFSEASON';
-  const played = state.results.filter(
-    (g) => g.homeTeamId === state.userTeamId || g.awayTeamId === state.userTeamId);
-  const last = played[played.length - 1];
-  const next = state.schedule.find(
-    (f) => f.week === state.week
-      && (f.homeTeamId === state.userTeamId || f.awayTeamId === state.userTeamId));
+  if (loadError !== null) return <Screen title="Team" screen="team"><QueryError error={loadError} /></Screen>;
+  if (!loaded) return <Screen title="Team" screen="team"><Loading label="Loading dynasty" /></Screen>;
+  if (save === null) return <Screen title="Team" subtitle="New dynasty" screen="team"><NewDynasty /></Screen>;
+
+  const identity = clubsById.get(save.userTeamId);
+  const done = save.phase === 'OFFSEASON';
+  const nickname = (id: string): string => clubsById.get(id)?.nickname ?? id;
 
   return (
     <Screen
       title={identity?.nickname ?? 'Team'}
-      subtitle={`${String(state.season)} · ${done ? 'Season complete' : `Week ${String(state.week)} of ${String(WEEKS)}`}`}
+      subtitle={`${String(save.season)} · ${done ? 'Season complete' : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
       screen="team"
     >
-      <Panel>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-          <TeamMark
-            abbreviation={state.userTeamId}
-            primary={identity?.primary ?? '#28353F'}
-            secondary={identity?.secondary ?? '#8698A8'}
-            size={48}
-          />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>
-              {identity?.name ?? state.userTeamId}
+      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'loading' && <Loading label="Loading club" />}
+      {q.status === 'ready' && (
+        <>
+          <Panel>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+              <TeamMark
+                abbreviation={save.userTeamId}
+                primary={identity?.primary ?? '#28353F'}
+                secondary={identity?.secondary ?? '#8698A8'}
+                size={48}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>
+                  {identity?.name ?? save.userTeamId}
+                </div>
+                <div style={{ color: COLOR.mut, fontSize: 12 }}>
+                  {recordOf(q.data.standing)} · {q.data.squadSize} players
+                </div>
+              </div>
             </div>
-            <div style={{ color: COLOR.mut, fontSize: 12 }}>
-              {recordOf(standing)} · {squad.length} players
-            </div>
-          </div>
-        </div>
-      </Panel>
+          </Panel>
 
-      <div style={{ marginTop: 10 }}>
-        <StatTiles
-          stats={[
-            { label: 'Record', value: recordOf(standing) },
-            { label: 'Points for', value: String(standing?.pointsFor ?? 0) },
-            { label: 'Against', value: String(standing?.pointsAgainst ?? 0) },
-          ]}
-        />
-      </div>
+          <div style={{ marginTop: 10 }}>
+            <StatTiles
+              stats={[
+                { label: 'Record', value: recordOf(q.data.standing) },
+                { label: 'Points for', value: q.data.standing === null ? '—' : String(q.data.standing.pointsFor) },
+                { label: 'Against', value: q.data.standing === null ? '—' : String(q.data.standing.pointsAgainst) },
+              ]}
+            />
+          </div>
+        </>
+      )}
 
       {notice !== null && (
         <p
@@ -77,73 +87,75 @@ export function TeamScreen() {
       <SectionHeader title={done ? 'Offseason' : 'Advance'} />
       <div style={{ display: 'grid', gap: 8 }}>
         {done ? (
-          <ActionButton onClick={nextSeason} disabled={busy} testId="next-season">
-            {busy ? 'Running offseason…' : `Run offseason → ${String(state.season + 1)}`}
+          <ActionButton onClick={() => { void nextSeason(); }} disabled={busy !== null} testId="next-season">
+            {busy ?? `Run offseason → ${String(save.season + 1)}`}
           </ActionButton>
         ) : (
           <>
-            <ActionButton onClick={simWeek} disabled={busy} testId="sim-week">
-              {busy ? 'Simulating…' : `Sim week ${String(state.week)}`}
+            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
+              {busy ?? `Sim week ${String(save.week)}`}
             </ActionButton>
-            <ActionButton onClick={simSeason} disabled={busy} tone="quiet" testId="sim-season">
+            <ActionButton onClick={() => { void simSeason(); }} disabled={busy !== null} tone="quiet" testId="sim-season">
               Sim to end of season
             </ActionButton>
           </>
         )}
       </div>
 
-      <SectionHeader title="This week" />
-      {next === undefined ? (
-        <EmptyState
-          title={done ? 'Regular season complete' : 'No fixture this week'}
-          {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
-        />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            <ListRow
-              title={
-                next.homeTeamId === state.userTeamId
-                  ? `vs ${state.identities.get(next.awayTeamId)?.nickname ?? next.awayTeamId}`
-                  : `at ${state.identities.get(next.homeTeamId)?.nickname ?? next.homeTeamId}`
-              }
-              subtitle={`Week ${String(next.week)}`}
+      {q.status === 'ready' && (
+        <>
+          <SectionHeader title="This week" />
+          {q.data.next === null ? (
+            <EmptyState
+              title={done ? 'Regular season complete' : 'No fixture this week'}
+              {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
             />
-          </div>
-        </Panel>
-      )}
+          ) : (
+            <Panel padded={false}>
+              <div style={{ padding: '0 12px' }}>
+                <ListRow
+                  title={q.data.next.homeTeamId === save.userTeamId
+                    ? `vs ${nickname(q.data.next.awayTeamId)}`
+                    : `at ${nickname(q.data.next.homeTeamId)}`}
+                  subtitle={`Week ${String(q.data.next.week)}`}
+                />
+              </div>
+            </Panel>
+          )}
 
-      <SectionHeader title="Last result" />
-      {last === undefined ? (
-        <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            <ListRow
-              title={`${state.identities.get(last.awayTeamId)?.nickname ?? last.awayTeamId} ${String(last.awayScore)} — ${String(last.homeScore)} ${state.identities.get(last.homeTeamId)?.nickname ?? last.homeTeamId}`}
-              subtitle={`Week ${String(last.week)}`}
-              navigable
-              onSelect={() => { nav.push('game', { id: last.gameId }); }}
-            />
-          </div>
-        </Panel>
-      )}
+          <SectionHeader title="Last result" />
+          {q.data.last === null ? (
+            <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
+          ) : (
+            <Panel padded={false}>
+              <div style={{ padding: '0 12px' }}>
+                <ListRow
+                  title={`${nickname(q.data.last.awayTeamId)} ${String(q.data.last.awayScore)} — ${String(q.data.last.homeScore)} ${nickname(q.data.last.homeTeamId)}`}
+                  subtitle={`Week ${String(q.data.last.week)}`}
+                  navigable
+                  onSelect={() => { nav.push('game', { id: q.data.last?.gameId ?? '' }); }}
+                />
+              </div>
+            </Panel>
+          )}
 
-      <SectionHeader title="Squad" />
-      <Panel padded={false}>
-        <div style={{ padding: '0 12px' }}>
-          {squad.slice(0, 5).map((p) => (
-            <ListRow
-              key={p.id}
-              title={p.name}
-              subtitle={`${p.group} · age ${String(p.age)}`}
-              trailing={<Caption>{String(Math.round(p.ability))}</Caption>}
-              navigable
-              onSelect={() => { nav.push('player', { id: p.id }); }}
-            />
-          ))}
-        </div>
-      </Panel>
+          <SectionHeader title="Squad" />
+          <Panel padded={false}>
+            <div style={{ padding: '0 12px' }}>
+              {q.data.squad.map((p) => (
+                <ListRow
+                  key={p.playerId}
+                  title={p.name}
+                  subtitle={`${p.group} · age ${String(p.age)}`}
+                  trailing={<Caption>{String(p.overall)}</Caption>}
+                  navigable
+                  onSelect={() => { nav.push('player', { id: p.playerId }); }}
+                />
+              ))}
+            </div>
+          </Panel>
+        </>
+      )}
     </Screen>
   );
 }

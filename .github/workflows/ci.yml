@@ -1,31 +1,65 @@
 name: CI
 on: [push, pull_request]
 
+# Every job that touches game state runs against a real Postgres: the
+# migrations applied from nothing, the template imported through the importer,
+# the API suites through the shim. Nothing here skips when the database is
+# missing -- the suites fail and say so.
+env:
+  PGHOST: localhost
+  PGPORT: '5432'
+  PGUSER: postgres
+  PGPASSWORD: postgres
+  DEV_USER_ID: 00000000-0000-0000-0000-000000000001
+
 jobs:
   preflight:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
+      # 22: the scripts and the shim run TypeScript under node's own type
+      # stripping, which 20 does not have.
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with: { node-version: '22', cache: 'npm' }
       - run: npm ci
-      # legacy/ is excluded from every check: frozen Python and one
-      # deliberately monolithic HTML file.
+      # legacy/ is excluded from every check: frozen Python, the seed CSVs and
+      # one deliberately monolithic HTML file.
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run lint:arch
+      # A clean database: every migration in order, then the importer, then the
+      # development user. The URL it prints is what the suites connect to.
+      - run: DB=dmp_ci scripts/db-fresh.sh | tail -1 | sed 's/^ready: //' | tr ' ' '\n' >> "$GITHUB_ENV"
       - run: npm run test
+      # The schema's own suite, on a second throwaway database.
+      - run: DB=dmp_rls bash supabase/tests/run-local.sh
 
   e2e:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with: { node-version: '22', cache: 'npm' }
       - run: npm ci
       # The 390 project uses the iPhone 13 descriptor, which defaults to WebKit,
       # so both engines are needed. Installing only Chromium fails that project
       # at launch rather than at assertion, which is easy to misread as flake.
       - run: npx playwright install --with-deps chromium webkit
-      # Page-level horizontal overflow at 320, 375, 390, 768 and 1280.
+      - run: DB=dmp_ci scripts/db-fresh.sh | tail -1 | sed 's/^ready: //' | tr ' ' '\n' >> "$GITHUB_ENV"
+      # Playwright starts the shim (from DATABASE_URL) and the app, then walks
+      # the shell at 320, 375, 390, 768 and 1280.
       - run: npm run test:e2e

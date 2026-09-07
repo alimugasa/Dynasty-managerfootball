@@ -14,9 +14,12 @@ import {
   SkeletonLine, SkeletonRegion, SkeletonRows, SkeletonTiles,
 } from '../components/Skeleton';
 import { TeamMark, TeamMarkSkeleton } from '../components/TeamMark';
-import { useGame } from '../game/GameProvider';
-import { playerById } from '../game/store';
+import { useSave } from '../app/SaveProvider';
+import { useQuery } from '../hooks/useQuery';
+import { Loading, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
+import type { PlayerOut } from '../../supabase/functions/_shared/api/reads/player';
+import type { GameOut } from '../../supabase/functions/_shared/api/reads/game';
 
 /** Header shared by every entity profile: a mark, a name, a line of metadata. */
 function ProfileHeader({ markSize = 48 }: { readonly markSize?: number }) {
@@ -35,34 +38,31 @@ function ProfileHeader({ markSize = 48 }: { readonly markSize?: number }) {
 
 export function PlayerScreen() {
   const { params } = useNavigationState();
-  const { state } = useGame();
+  const { save, clubsById, version } = useSave();
   const id = params['id'] ?? '';
-  const player = playerById(state, id);
+  const q = useQuery<PlayerOut>(
+    'player', { saveId: save?.saveId ?? '', playerId: id }, version, save !== null && id !== '');
 
-  if (player === undefined) {
+  if (id === '' || save === null) {
     return (
       <Screen title="Player" screen="player">
-        <EmptyState
-          title="No such player"
-          detail={id === '' ? 'No player id was passed to this screen.' : `Nothing on file for "${id}".`}
-        />
+        <EmptyState title="No such player" detail="No player id was passed to this screen." />
+      </Screen>
+    );
+  }
+  if (q.status === 'loading') return <Screen title="Player" screen="player"><Loading label="Loading player" /></Screen>;
+  if (q.status === 'error') {
+    return (
+      <Screen title="Player" screen="player">
+        {q.error.message.includes('not found')
+          ? <EmptyState title="No such player" detail={`Nothing on file for "${id}".`} />
+          : <QueryError error={q.error} />}
       </Screen>
     );
   }
 
-  const totals = { pass: 0, rush: 0, rec: 0, tackles: 0, games: 0 };
-  for (const game of state.results) {
-    for (const line of game.players) {
-      if (line.playerId !== id) continue;
-      totals.pass += line.passYards;
-      totals.rush += line.rushYards;
-      totals.rec += line.receivingYards;
-      totals.tackles += line.tackles;
-      totals.games += 1;
-    }
-  }
-
-  const club = player.teamId === null ? null : state.identities.get(player.teamId);
+  const player = q.data;
+  const club = player.teamId === null ? null : clubsById.get(player.teamId);
 
   return (
     <Screen title={player.name} subtitle={player.group} screen="player">
@@ -85,24 +85,24 @@ export function PlayerScreen() {
 
       <div style={{ marginTop: 10 }}>
         <StatTiles stats={[
-          { label: 'Overall', value: String(Math.round(player.ability)), tone: 'accent' },
-          { label: 'Potential', value: String(Math.round(player.potential)) },
-          { label: 'Durability', value: String(Math.round(player.durability)) },
+          { label: 'Overall', value: String(player.overall), tone: 'accent' },
+          { label: 'Potential', value: String(player.potential) },
+          { label: 'Durability', value: player.durability === null ? '—' : String(player.durability) },
         ]}
         />
       </div>
 
-      <SectionHeader title={`${String(state.season)} season`} />
-      {totals.games === 0 ? (
+      <SectionHeader title={`${String(save.season)} season`} />
+      {player.season === null ? (
         <EmptyState title="No games played yet this season" />
       ) : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }}>
-            <ListRow title="Games" trailing={<span style={{ color: COLOR.tx }}>{totals.games}</span>} />
-            {totals.pass > 0 && <ListRow title="Passing yards" trailing={<span style={{ color: COLOR.tx }}>{totals.pass}</span>} />}
-            {totals.rush > 0 && <ListRow title="Rushing yards" trailing={<span style={{ color: COLOR.tx }}>{totals.rush}</span>} />}
-            {totals.rec > 0 && <ListRow title="Receiving yards" trailing={<span style={{ color: COLOR.tx }}>{totals.rec}</span>} />}
-            {totals.tackles > 0 && <ListRow title="Tackles" trailing={<span style={{ color: COLOR.tx }}>{totals.tackles}</span>} />}
+            <ListRow title="Games" trailing={<span style={{ color: COLOR.tx }}>{player.season.games}</span>} />
+            {player.season.passYards > 0 && <ListRow title="Passing yards" trailing={<span style={{ color: COLOR.tx }}>{player.season.passYards}</span>} />}
+            {player.season.rushYards > 0 && <ListRow title="Rushing yards" trailing={<span style={{ color: COLOR.tx }}>{player.season.rushYards}</span>} />}
+            {player.season.recYards > 0 && <ListRow title="Receiving yards" trailing={<span style={{ color: COLOR.tx }}>{player.season.recYards}</span>} />}
+            {player.season.tackles > 0 && <ListRow title="Tackles" trailing={<span style={{ color: COLOR.tx }}>{player.season.tackles}</span>} />}
           </div>
         </Panel>
       )}
@@ -156,43 +156,38 @@ export function CollegeScreen() {
 export function GameScreen() {
   const { params } = useNavigationState();
   const nav = useNavigator();
-  const { state } = useGame();
-  const game = state.results.find((g) => g.gameId === (params['id'] ?? ''));
+  const { save, clubsById, version } = useSave();
+  const gameId = params['id'] ?? '';
+  const q = useQuery<GameOut>(
+    'game', { saveId: save?.saveId ?? '', gameId }, version, save !== null && gameId !== '');
 
-  if (game === undefined) {
+  if (gameId === '' || save === null || q.status === 'error') {
     return (
       <Screen title="Box score" screen="game">
-        <EmptyState
-          title="No such game"
-          detail="It may belong to a season that has already rolled over."
-        />
+        {q.status === 'error' && !q.error.message.includes('not found')
+          ? <QueryError error={q.error} />
+          : <EmptyState title="No such game" detail="It may belong to a season that has already rolled over." />}
       </Screen>
     );
   }
+  if (q.status === 'loading') return <Screen title="Box score" screen="game"><Loading label="Loading box score" /></Screen>;
 
-  const home = state.identities.get(game.homeTeamId);
-  const away = state.identities.get(game.awayTeamId);
-  const byId = new Map(state.league.players.map((p) => [p.id, p]));
+  const game = q.data;
+  const home = clubsById.get(game.home.teamId);
+  const away = clubsById.get(game.away.teamId);
+  const total = (s: GameOut['home']): number | null =>
+    s.passYards === null || s.rushYards === null ? null : s.passYards + s.rushYards;
+  const show = (n: number | null): string => (n === null ? '—' : String(n));
 
-  const rows: { label: string; home: number; away: number }[] = [
+  const rows: { label: string; home: number | null; away: number | null }[] = [
     { label: 'Points', home: game.home.score, away: game.away.score },
-    { label: 'Total yards', home: game.home.passYards + game.home.rushYards, away: game.away.passYards + game.away.rushYards },
+    { label: 'Total yards', home: total(game.home), away: total(game.away) },
     { label: 'Passing', home: game.home.passYards, away: game.away.passYards },
     { label: 'Rushing', home: game.home.rushYards, away: game.away.rushYards },
     { label: 'First downs', home: game.home.firstDowns, away: game.away.firstDowns },
     { label: 'Turnovers', home: game.home.turnovers, away: game.away.turnovers },
     { label: 'Sacks allowed', home: game.home.sacksAllowed, away: game.away.sacksAllowed },
   ];
-
-  const leaders = [...game.players]
-    .map((line) => ({
-      line,
-      player: byId.get(line.playerId),
-      total: line.passYards + line.rushYards + line.receivingYards,
-    }))
-    .filter((e) => e.total > 0)
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 8);
 
   const th = { textAlign: 'left' as const, color: COLOR.mut, fontSize: 11, padding: '6px 8px', whiteSpace: 'nowrap' as const };
   const td = { color: COLOR.tx, fontSize: 13, padding: '6px 8px', whiteSpace: 'nowrap' as const };
@@ -206,27 +201,27 @@ export function GameScreen() {
       <Panel>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <TeamMark
-            abbreviation={game.awayTeamId}
+            abbreviation={game.away.teamId}
             primary={away?.primary ?? '#28353F'}
             secondary={away?.secondary ?? '#8698A8'}
             size={40}
           />
           <span data-testid="away-score" style={{ color: COLOR.tx, fontSize: 24, fontWeight: 700 }}>
-            {game.awayScore}
+            {game.away.score}
           </span>
           <div style={{ flex: 1, textAlign: 'center', color: COLOR.dim, fontSize: 11 }}>at</div>
           <span data-testid="home-score" style={{ color: COLOR.tx, fontSize: 24, fontWeight: 700 }}>
-            {game.homeScore}
+            {game.home.score}
           </span>
           <TeamMark
-            abbreviation={game.homeTeamId}
+            abbreviation={game.home.teamId}
             primary={home?.primary ?? '#28353F'}
             secondary={home?.secondary ?? '#8698A8'}
             size={40}
           />
         </div>
         <div style={{ marginTop: 8, color: COLOR.mut, fontSize: 12, textAlign: 'center' }}>
-          {away?.nickname ?? game.awayTeamId} at {home?.nickname ?? game.homeTeamId}
+          {away?.nickname ?? game.away.teamId} at {home?.nickname ?? game.home.teamId}
         </div>
       </Panel>
 
@@ -237,17 +232,17 @@ export function GameScreen() {
             <table style={{ borderCollapse: 'collapse', width: '100%' }}>
               <thead>
                 <tr>
-                  <th style={th}>{away?.nickname ?? game.awayTeamId}</th>
+                  <th style={th}>{away?.nickname ?? game.away.teamId}</th>
                   <th style={th} />
-                  <th style={th}>{home?.nickname ?? game.homeTeamId}</th>
+                  <th style={th}>{home?.nickname ?? game.home.teamId}</th>
                 </tr>
               </thead>
               <tbody data-testid="box-team-stats">
                 {rows.map((r) => (
                   <tr key={r.label} style={{ borderTop: `1px solid ${COLOR.line}` }}>
-                    <td style={td}>{r.away}</td>
+                    <td style={td}>{show(r.away)}</td>
                     <td style={{ ...td, color: COLOR.mut, textAlign: 'center' }}>{r.label}</td>
-                    <td style={td}>{r.home}</td>
+                    <td style={td}>{show(r.home)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -257,21 +252,21 @@ export function GameScreen() {
       </Panel>
 
       <SectionHeader title="Leaders" />
-      {leaders.length === 0 ? (
+      {game.lines.length === 0 ? (
         <EmptyState title="No yardage recorded" />
       ) : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }}>
-            {leaders.map(({ line, player, total }) => (
+            {game.lines.map((line) => (
               <ListRow
                 key={line.playerId}
-                title={player?.name ?? line.playerId}
+                title={line.name}
                 subtitle={[
                   line.passYards > 0 ? `${String(line.passYards)} pass` : '',
                   line.rushYards > 0 ? `${String(line.rushYards)} rush` : '',
-                  line.receivingYards > 0 ? `${String(line.receivingYards)} rec` : '',
+                  line.recYards > 0 ? `${String(line.recYards)} rec` : '',
                 ].filter(Boolean).join(' · ')}
-                trailing={<span style={{ color: COLOR.amber, fontSize: 13 }}>{total}</span>}
+                trailing={<span style={{ color: COLOR.amber, fontSize: 13 }}>{line.passYards + line.rushYards + line.recYards}</span>}
                 navigable
                 onSelect={() => { nav.push('player', { id: line.playerId }); }}
               />

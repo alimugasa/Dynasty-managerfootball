@@ -10,6 +10,12 @@ Two layers, versioned independently because they change for different reasons.
 `engine_version` is recorded and never migrated: it explains a result, it does
 not change one.
 
+The document lives in Postgres, in `save_documents`, through `PostgresSaveStore`
+(`supabase/functions/_shared/api/saveStore.ts`), which implements the same
+store interface the memory store does -- so every load goes through the one
+path: read, migrate, validate, deserialise. The relational tables are a
+projection of the document; see `docs/SCHEMA.md`.
+
 ## Forward only
 
 There is no downgrade path and there will not be one. An older build opening a

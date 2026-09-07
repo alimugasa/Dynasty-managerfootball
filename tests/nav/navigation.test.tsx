@@ -8,12 +8,45 @@
 // scroll offset. Everything else in the app is replaceable; this behaviour is
 // the thing the contract says a rewrite is most likely to destroy.
 
-import { describe, expect, it, beforeEach } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, beforeEach, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { App } from '../../src/App';
 import { SCREENS, rootFor } from '../../src/app/screens';
 import { resolveEntityRoute, type EntityRef } from '../../src/app/entity';
 import { TABS } from '../../src/app/TabBar';
+import { openPipe, type Pipe } from '../api/harness.ts';
+import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
+
+// The screens read from the API, so the app under test talks to the real shim
+// against the real database -- there is no in-memory path to render from. One
+// dynasty is created for the run and deleted after it.
+const PORT = 8793;
+const NAV_USER = '33333333-0000-0000-0000-00000000dead';
+let pipe: Pipe;
+let saveId = '';
+
+beforeAll(async () => {
+  pipe = await openPipe(PORT, NAV_USER);
+  vi.stubEnv('VITE_API_URL', `http://localhost:${String(PORT)}`);
+  await pipe.sql`delete from public.saves where user_id = ${NAV_USER}`;
+  const out = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Nav dynasty', teamId: 'BUF' });
+  saveId = out.saveId;
+}, 60_000);
+
+afterAll(async () => {
+  if (saveId !== '') await pipe.sql`delete from public.saves where id = ${saveId}`;
+  await pipe.close();
+  vi.unstubAllEnvs();
+});
+
+/** Waits for the roster's depth list, which arrives from the API. */
+async function depthList(): Promise<Element> {
+  return waitFor(() => {
+    const list = document.querySelector('[data-testid="depth-list"]');
+    if (list === null) throw new Error('roster depth list not rendered');
+    return list;
+  }, { timeout: 15_000 });
+}
 
 function tab(name: string): HTMLElement {
   return screen.getByRole('button', { name: new RegExp(`^${name}$`, 'i') });
@@ -22,9 +55,8 @@ function tab(name: string): HTMLElement {
 /** Opens the first player on the roster. The Office rows these tests used to
  *  push through opened placeholder screens; those were removed when the screens
  *  were wired to the game, so the drill-down here is a real one. */
-function openFirstPlayer(): void {
-  const list = document.querySelector('[data-testid="depth-list"]');
-  if (list === null) throw new Error('roster depth list not rendered');
+async function openFirstPlayer(): Promise<void> {
+  const list = await depthList();
   const row = list.querySelector('button');
   if (row === null) throw new Error('no player row to open');
   fireEvent.click(row);
@@ -83,12 +115,12 @@ describe('bottom navigation', () => {
     expect(tab('Team').getAttribute('aria-current')).toBeNull();
   });
 
-  it('replaces the root rather than growing the stack', () => {
+  it('replaces the root rather than growing the stack', async () => {
     render(<App />);
     // Drill in, then tap a tab. Tapping Office from inside a drill-down must
     // land at depth one, not depth three.
     fireEvent.click(tab('Roster'));
-    openFirstPlayer();
+    await openFirstPlayer();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
 
     fireEvent.click(tab('Office'));
@@ -101,8 +133,9 @@ describe('frame state', () => {
     render(<App />);
     fireEvent.click(tab('Roster'));
 
-    // Filter to corners, exactly as the contract's example does.
-    fireEvent.click(screen.getByRole('tab', { name: 'CB' }));
+    // Filter to corners, exactly as the contract's example does. The chips
+    // arrive with the save, so they are awaited.
+    fireEvent.click(await screen.findByRole('tab', { name: 'CB' }, { timeout: 15_000 }));
     expect(screen.getByRole('tab', { name: 'CB' }).getAttribute('aria-selected')).toBe('true');
 
     // Drill in and come back.
@@ -116,11 +149,11 @@ describe('frame state', () => {
   it('restores filter and sort when returning by back()', async () => {
     render(<App />);
     fireEvent.click(tab('Roster'));
-    fireEvent.click(screen.getByRole('tab', { name: 'CB' }));
+    fireEvent.click(await screen.findByRole('tab', { name: 'CB' }, { timeout: 15_000 }));
 
     // Drill into a player from the filtered roster, which is the contract's
     // canonical journey.
-    openFirstPlayer();
+    await openFirstPlayer();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
 
     await act(async () => {
@@ -137,10 +170,10 @@ describe('frame state', () => {
     expect(screen.getByRole('tab', { name: 'CB' }).getAttribute('aria-selected')).toBe('true');
   });
 
-  it('keeps two frames of one screen independent', () => {
+  it('keeps two frames of one screen independent', async () => {
     render(<App />);
     fireEvent.click(tab('League'));
-    fireEvent.click(screen.getByRole('tab', { name: 'American' }));
+    fireEvent.click(await screen.findByRole('tab', { name: 'American' }, { timeout: 15_000 }));
     expect(screen.getByRole('tab', { name: 'American' }).getAttribute('aria-selected')).toBe('true');
 
     fireEvent.click(tab('League'));
@@ -150,11 +183,11 @@ describe('frame state', () => {
 });
 
 describe('back affordance', () => {
-  it('is absent at the root and present after a push', () => {
+  it('is absent at the root and present after a push', async () => {
     render(<App />);
     expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
     fireEvent.click(tab('Roster'));
-    openFirstPlayer();
+    await openFirstPlayer();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
   });
 });

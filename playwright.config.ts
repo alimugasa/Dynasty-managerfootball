@@ -19,7 +19,16 @@ const constrained = existsSync(PREBUILT)
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 20_000,
-  webServer: { command: 'npm run dev', port: 5173, reuseExistingServer: true },
+  // Two servers: the shim on 8787, which needs DATABASE_URL from the
+  // environment and refuses to start without it (there is no in-memory path
+  // to fall back to), and the app pointed at it.
+  webServer: [
+    { command: 'npm run dev:api', port: 8787, reuseExistingServer: true, timeout: 30_000 },
+    {
+      command: 'npm run dev', port: 5173, reuseExistingServer: true,
+      env: { VITE_API_URL: 'http://localhost:8787' },
+    },
+  ],
   use: { baseURL: 'http://localhost:5173' },
   projects: [
     { name: '320', use: { ...devices['Desktop Chrome'], viewport: { width: 320, height: 700 }, ...constrained } },

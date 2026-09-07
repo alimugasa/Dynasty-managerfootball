@@ -6,10 +6,10 @@
 // so the browser imports careerWorld directly and hands it bundled CSVs.
 
 import { readSeedCsv } from '../lib/seedCsv.ts';
-import { loadCareerWorld, type SeedReader } from './careerWorld.ts';
+import { loadCareerWorld, type SeedReader } from '../../supabase/functions/_shared/engine/careerWorld.ts';
 import type { League } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 
-export { FIRST_SEASON } from './careerWorld.ts';
+export { FIRST_SEASON } from '../../supabase/functions/_shared/engine/careerWorld.ts';
 export type { SeedReader };
 
 export function loadCareerLeague(read: SeedReader = readSeedCsv): League {

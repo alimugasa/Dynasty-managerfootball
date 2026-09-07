@@ -36,6 +36,12 @@ const CORS = {
   'Access-Control-Allow-Origin': ORIGIN,
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'content-type, x-dev-user',
+  // One socket per request. Node closes an idle keep-alive socket after five
+  // seconds, and a browser that reuses it at that instant gets a connection
+  // reset on a POST it will not retry -- a week that silently did not play.
+  // Development traffic is a handful of requests; the extra handshakes are
+  // nothing, and the failure mode is gone.
+  'Connection': 'close',
 };
 
 function readBody(req: IncomingMessage): Promise<string> {

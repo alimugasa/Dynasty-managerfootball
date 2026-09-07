@@ -152,6 +152,28 @@ Trades, waivers, practice squads, franchise tags and compensatory picks have
 column support in `transactions` and `draft_picks` but no dedicated tables, for
 the same reason: the engine does not implement them yet.
 
+## The engine's state, and the projection
+
+Migration 0017 adds `save_documents`: one row per save holding the versioned
+save document (`supabase/functions/_shared/save/`) and the season's news
+ledger. It is the engine's own state and no client can read it -- RLS is
+forced and there is no SELECT policy, because the document carries every
+player's true potential. The handlers under `supabase/functions/_shared/api/`
+load it, run the engine, and rewrite the tables the client reads from it:
+`players`, `team_rosters`, `free_agents`, `player_contracts`, `contract_years`
+and `salary_cap` after anything that moves a roster; `game_results`,
+`player_game_stats`, `player_season_stats`, `standings`, `player_injuries` and
+`news` after every week; `league_history`, `player_season_grades`,
+`transactions`, `draft_picks`, `season_schedule`, `team_season_summary` and
+`player_career_totals` at rollover. The projection runs one way, so a row can
+never disagree with the document for longer than the transaction that wrote it.
+
+`player_game_stats` (also 0017) is one line per player per game, every column
+the engine emits and no defaults; `prune_player_game_stats(save, keep)` keeps
+the current season plus `keep` prior (default 3), the older seasons living on
+as `player_season_stats` totals. Rows written with `data_class = 'ENGINE'`
+are the engine's; the seed's are `GENERATED` and `MODELED`.
+
 ## Running the schema locally
 
 ```bash

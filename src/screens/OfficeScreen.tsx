@@ -1,104 +1,113 @@
-// Office: the news feed, cap position, and the season's history.
+// Office: the news feed, cap position, and the dynasty's history.
 
+import { useState } from 'react';
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
+import { useSave } from '../app/SaveProvider';
+import { useQuery } from '../hooks/useQuery';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
-import { ActionButton } from '../game/Button';
-import { useGame } from '../game/GameProvider';
-import { capFor, capLimit, recordOf, squadOf } from '../game/store';
+import { ActionButton } from '../components/ActionButton';
+import { Loading, NoDynasty, QueryError } from '../components/QueryState';
+import { NewDynasty } from './NewDynasty';
 import { Screen } from './Screen';
+import type { OfficeOut } from '../../supabase/functions/_shared/api/reads/office';
 
 const money = (n: number) => `${(n / 1e6).toFixed(1)}M`;
 
 export function OfficeScreen() {
   const nav = useNavigator();
-  const { state, restart } = useGame();
-  const squad = squadOf(state, state.userTeamId);
-  const sheet = capFor(state, state.userTeamId);
-
-  const feed = [...state.news].reverse();
-  const history = [...state.history]
-    .filter((h) => h.teamId === state.userTeamId)
-    .sort((a, b) => b.season - a.season);
+  const { save, loaded, loadError, clubsById, version, restart } = useSave();
+  const [picking, setPicking] = useState(false);
+  const q = useQuery<OfficeOut>('office', { saveId: save?.saveId ?? '' }, version, save !== null);
 
   return (
-    <Screen title="Office" subtitle={String(state.season)} screen="office">
-      <SectionHeader title="Salary cap" />
-      <StatTiles
-        stats={[
-          { label: 'Cap', value: money(capLimit(state.season)) },
-          { label: 'Committed', value: money(sheet.committed) },
-          {
-            label: 'Space',
-            value: money(sheet.available),
-            tone: sheet.available < 0 ? 'negative' : 'positive',
-          },
-        ]}
-      />
+    <Screen title="Office" subtitle={save === null ? '' : String(save.season)} screen="office">
+      {loadError !== null && <QueryError error={loadError} />}
+      {loaded && save === null && <NoDynasty />}
+      {save !== null && q.status === 'error' && <QueryError error={q.error} />}
+      {save !== null && q.status === 'loading' && <Loading label="Loading office" rows={8} />}
+      {save !== null && q.status === 'ready' && (
+        <>
+          <SectionHeader title="Salary cap" />
+          {q.data.cap === null ? (
+            <EmptyState title="No cap sheet for this season" />
+          ) : (
+            <StatTiles
+              stats={[
+                { label: 'Cap', value: money(q.data.cap.capLimit) },
+                { label: 'Committed', value: money(q.data.cap.committed) },
+                {
+                  label: 'Space',
+                  value: money(q.data.cap.available),
+                  tone: q.data.cap.available < 0 ? 'negative' : 'positive',
+                },
+              ]}
+            />
+          )}
 
-      <SectionHeader title="News" />
-      {feed.length === 0 ? (
-        <EmptyState
-          title="Nothing has happened yet"
-          detail="Stories appear as the season is played."
-        />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }} data-testid="news-feed">
-            {feed.slice(0, 40).map((item, i) => (
+          <SectionHeader title="News" />
+          {q.data.news.length === 0 ? (
+            <EmptyState title="Nothing has happened yet" detail="Stories appear as the season is played." />
+          ) : (
+            <Panel padded={false}>
+              <div style={{ padding: '0 12px' }} data-testid="news-feed">
+                {q.data.news.map((item) => (
+                  <ListRow
+                    key={item.newsId}
+                    title={item.headline}
+                    subtitle={`Wk ${String(item.week ?? '—')} · ${item.category.replace('_', ' ').toLowerCase()}`}
+                    {...(item.body === null ? {} : { trailing: <Caption>{String(item.importance)}</Caption> })}
+                  />
+                ))}
+              </div>
+            </Panel>
+          )}
+
+          <SectionHeader title="Dynasty history" />
+          {q.data.history.length === 0 ? (
+            <EmptyState title="No completed seasons yet" />
+          ) : (
+            <Panel padded={false}>
+              <div style={{ padding: '0 12px' }}>
+                {q.data.history.map((h) => (
+                  <ListRow
+                    key={h.season}
+                    title={String(h.season)}
+                    subtitle={clubsById.get(save.userTeamId)?.name ?? save.userTeamId}
+                    trailing={<Caption>{`${String(h.wins)}-${String(h.losses)}${h.ties > 0 ? `-${String(h.ties)}` : ''}`}</Caption>}
+                  />
+                ))}
+              </div>
+            </Panel>
+          )}
+
+          <SectionHeader title="Squad" />
+          <Panel padded={false}>
+            <div style={{ padding: '0 12px' }}>
               <ListRow
-                key={`${String(item.week)}-${String(i)}-${item.headline}`}
-                title={item.headline}
-                subtitle={`Wk ${String(item.week)} · ${item.category.replace('_', ' ').toLowerCase()}`}
-                {...(item.body === null
-                  ? {}
-                  : { trailing: <Caption>{String(item.importance)}</Caption> })}
+                title="Full roster and depth chart"
+                navigable
+                onSelect={() => { nav.replaceRoot('roster'); }}
               />
-            ))}
+            </div>
+          </Panel>
+
+          <div style={{ marginTop: 18 }}>
+            {picking ? (
+              <NewDynasty onPick={(teamId) => restart(teamId)} />
+            ) : (
+              <ActionButton onClick={() => { setPicking(true); }} tone="quiet" testId="restart">
+                Start a new dynasty
+              </ActionButton>
+            )}
+            <p style={{ margin: '8px 0 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
+              Deletes this dynasty on the server and starts another.
+            </p>
           </div>
-        </Panel>
+        </>
       )}
-
-      <SectionHeader title="Dynasty history" />
-      {history.length === 0 ? (
-        <EmptyState title="No completed seasons yet" />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            {history.map((h) => (
-              <ListRow
-                key={h.season}
-                title={String(h.season)}
-                subtitle={state.identities.get(h.teamId)?.name ?? h.teamId}
-                trailing={<Caption>{recordOf({ ...h, pointsFor: 0, pointsAgainst: 0, streak: 0 })}</Caption>}
-              />
-            ))}
-          </div>
-        </Panel>
-      )}
-
-      <SectionHeader title="Squad" />
-      <Panel padded={false}>
-        <div style={{ padding: '0 12px' }}>
-          <ListRow
-            title="Full roster and depth chart"
-            subtitle={`${String(squad.length)} players`}
-            navigable
-            onSelect={() => { nav.replaceRoot('roster'); }}
-          />
-        </div>
-      </Panel>
-
-      <div style={{ marginTop: 18 }}>
-        <ActionButton onClick={() => { restart(); }} tone="quiet" testId="restart">
-          Start a new dynasty
-        </ActionButton>
-        <p style={{ margin: '8px 0 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
-          Wipes the saved game in this browser.
-        </p>
-      </div>
     </Screen>
   );
 }

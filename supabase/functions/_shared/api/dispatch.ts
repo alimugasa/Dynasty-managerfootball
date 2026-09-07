@@ -9,11 +9,34 @@
 import { ApiError, unauthorized, type HandlerContext, type Handler } from './context.ts';
 import { health } from './health.ts';
 import { createSave } from './createSave.ts';
+import { simWeek } from './simWeek.ts';
+import { deleteSave } from './deleteSave.ts';
+import { advanceSeason } from './advanceSeason.ts';
+import { save } from './reads/save.ts';
+import { team } from './reads/team.ts';
+import { roster, setDepthChart } from './reads/roster.ts';
+import { league } from './reads/league.ts';
+import { schedule } from './reads/schedule.ts';
+import { game } from './reads/game.ts';
+import { office } from './reads/office.ts';
+import { player } from './reads/player.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   health,
   'create-save': createSave,
+  'sim-week': simWeek,
+  'advance-season': advanceSeason,
+  'delete-save': deleteSave,
+  save,
+  team,
+  roster,
+  'set-depth-chart': setDepthChart,
+  league,
+  schedule,
+  game,
+  office,
+  player,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 

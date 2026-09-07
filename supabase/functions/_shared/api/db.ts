@@ -11,6 +11,10 @@
 import postgres from 'postgres';
 
 export type Sql = ReturnType<typeof postgres>;
+/** What a handler's helpers take: the pool, or the transaction a handler
+ *  opened on it. Every write path runs inside one transaction so a failure
+ *  half-way through a week leaves the save exactly as it was. */
+export type Db = postgres.ISql;
 
 export interface DbConfig {
   /** A libpq-style URL, or omitted to use host/port/user/database below. */

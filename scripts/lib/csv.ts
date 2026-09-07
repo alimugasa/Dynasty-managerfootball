@@ -33,8 +33,4 @@ export function parseCsv(text: string): Record<string, string>[] {
     .map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
 }
 
-export function numberOrUndefined(v: string | undefined): number | undefined {
-  if (v === undefined || v === '') return undefined;
-  const parsed = Number(v);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
+export { numberOrUndefined } from '../../supabase/functions/_shared/engine/careerWorld.ts';

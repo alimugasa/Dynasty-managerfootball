@@ -22,7 +22,10 @@
     "perf:bench": "node scripts/perf/bench.ts",
     "dev:api": "node scripts/dev-api.ts",
     "db:seed": "node scripts/import-seed.ts",
-    "db:dev-user": "psql \"$DATABASE_URL\" -v uid=\"'${DEV_USER_ID:-00000000-0000-0000-0000-000000000001}'\" -f supabase/dev/dev_user.sql"
+    "db:dev-user": "psql \"$DATABASE_URL\" -v uid=\"'${DEV_USER_ID:-00000000-0000-0000-0000-000000000001}'\" -f supabase/dev/dev_user.sql",
+    "db:fresh": "scripts/db-fresh.sh",
+    "loop:check": "node scripts/loop-check.ts",
+    "walk": "node scripts/walk.ts"
   },
   "dependencies": {
     "postgres": "^3.4.9",

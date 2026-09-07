@@ -6,6 +6,20 @@ import { expect, test, type Page } from '@playwright/test';
 
 const TABS = ['Team', 'League', 'Schedule', 'Roster', 'Office'];
 
+/** A dynasty to look at. On a fresh database the development user has none,
+ *  and the Team tab offers the club list; picking one creates it on the
+ *  server. Every later test then finds a roster, a schedule and a table. */
+async function ensureDynasty(page: Page): Promise<void> {
+  // domcontentloaded: the load event waits on the font stylesheet, which a
+  // proxy that black-holes fonts.googleapis.com holds for the full timeout.
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  const clubs = page.getByTestId('club-list');
+  if (await clubs.count() === 0) return;
+  await clubs.locator('[role="button"], button').first().click();
+  await page.getByTestId('sim-week').waitFor({ timeout: 60_000 });
+}
+
 async function pageOverflow(page: Page): Promise<number> {
   return page.evaluate(() => {
     const el = document.documentElement;
@@ -14,6 +28,8 @@ async function pageOverflow(page: Page): Promise<number> {
 }
 
 test.describe('app shell', () => {
+  test.beforeEach(async ({ page }) => { await ensureDynasty(page); });
+
   test('shows all five destinations', async ({ page }) => {
     await page.goto('/');
     for (const label of TABS) {
