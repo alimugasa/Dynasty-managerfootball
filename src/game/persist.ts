@@ -14,8 +14,10 @@ import {
   deserialize, migrate, serialize, SAVE_SCHEMA_VERSION,
 } from '../../supabase/functions/_shared/save/index';
 import type { UnknownDocument } from '../../supabase/functions/_shared/save/index';
-import { loadIdentities, type GameState, type PlayedGame, type SeasonHistory, type Standing }
-  from './store';
+import {
+  createLedger, ledgerFromJson, ledgerToJson, loadIdentities,
+  type GameState, type LedgerJson, type PlayedGame, type SeasonHistory, type Standing,
+} from './store';
 import type { Fixture } from '../../supabase/functions/_shared/engine/season';
 import type { NewsItem } from '../../supabase/functions/_shared/engine/news/index';
 import type { PositionGroup } from '../../supabase/functions/_shared/engine/types';
@@ -34,6 +36,8 @@ interface StoredSession {
   readonly history: readonly SeasonHistory[];
   readonly depthChart: Readonly<Record<string, readonly string[]>>;
   readonly absence: readonly [string, number][];
+  /** Absent from sessions written before the ledger was persisted. */
+  readonly ledger?: LedgerJson;
   readonly seed: number;
 }
 
@@ -59,6 +63,7 @@ export function persist(state: GameState): void {
       history: state.history,
       depthChart: state.depthChart,
       absence: [...state.absence.entries()],
+      ledger: ledgerToJson(state.ledger),
       seed: state.seed,
     };
     localStorage.setItem(KEY, JSON.stringify(session));
@@ -99,6 +104,12 @@ export function loadSaved(): GameState | null {
       history: session.history,
       depthChart: session.depthChart as Record<PositionGroup, readonly string[]>,
       absence: new Map(session.absence),
+      // A session from before the ledger was stored starts the year's memory
+      // empty: that season may repeat a line it already ran, once. The
+      // alternative is refusing to load the dynasty, which is worse.
+      ledger: session.ledger === undefined
+        ? createLedger(league.season)
+        : ledgerFromJson(session.ledger),
       seed: session.seed,
     };
   } catch {

@@ -7,6 +7,7 @@
 // for it and no right to it.
 
 import { ApiError, badRequest, type Handler } from './context.ts';
+import { freshSeed62 } from '../seed.ts';
 
 export interface CreateSaveIn {
   readonly name: string;
@@ -17,17 +18,6 @@ export interface CreateSaveOut {
   readonly saveId: string;
   readonly season: number;
   readonly userTeamId: string;
-}
-
-/** A 62-bit positive integer that is never zero. Zero is the template's
- *  placeholder and create_save() refuses it. */
-function freshSeed(): bigint {
-  const bytes = new Uint8Array(8);
-  crypto.getRandomValues(bytes);
-  let seed = 0n;
-  for (const b of bytes) seed = (seed << 8n) | BigInt(b);
-  seed &= (1n << 62n) - 1n;
-  return seed === 0n ? 1n : seed;
 }
 
 export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
@@ -42,7 +32,7 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
   },
   run: async ({ sql, userId }, input) => {
     if (userId === null) throw new ApiError(401, 'unauthorized', 'no user');
-    const seed = freshSeed();
+    const seed = freshSeed62();
     const version = '0.1.0';
 
     let saveId: string;

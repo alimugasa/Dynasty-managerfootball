@@ -12,7 +12,7 @@ import { detectAll } from '../../supabase/functions/_shared/engine/news/detector
 import type { WeekInput } from '../../supabase/functions/_shared/engine/news/types';
 import { buildSchedule } from '../../supabase/functions/_shared/engine/season';
 import {
-  MissingUnitError, WEEKS, createRng, defaultDepthChart,
+  MissingUnitError, WEEKS, cloneLedger, createLedger, createRng, defaultDepthChart,
   generateWeeklyNews, runOffseason, simulateGame, teamStatesFor,
   type GameState, type NewsLedger, type PlayedGame, type Standing,
 } from './store';
@@ -99,12 +99,12 @@ export interface WeekOutcome {
 /**
  * Plays one week.
  *
- * The ledger is rebuilt from the season's published news each time rather than
- * held in state: it carries Sets and Maps, which do not survive the JSON round
- * trip that persistence uses, and a ledger that silently reset would break the
- * no-repeated-headlines guarantee the news engine exists to provide.
+ * The season's news ledger lives in the state and is copied before the week's
+ * stories are written to it, so the previous state is left as it was and the
+ * ledger persists with everything else. A ledger that reset on reload would
+ * break the no-repeated-headlines guarantee the news engine exists to provide.
  */
-export function simWeek(state: GameState, ledger: NewsLedger): WeekOutcome {
+export function simWeek(state: GameState): WeekOutcome {
   if (state.phase !== 'REGULAR_SEASON' || state.week > WEEKS) {
     return { state, abandoned: [] };
   }
@@ -168,6 +168,7 @@ export function simWeek(state: GameState, ledger: NewsLedger): WeekOutcome {
     }
   }
 
+  const ledger = cloneLedger(state.ledger);
   const news = [...state.news, ...newsFor(state, weekGames, results, standings, injuries, ledger)];
 
   for (const [playerId, remaining] of absence) {
@@ -183,6 +184,7 @@ export function simWeek(state: GameState, ledger: NewsLedger): WeekOutcome {
       standings,
       absence,
       news,
+      ledger,
       phase: state.week + 1 > WEEKS ? 'OFFSEASON' : 'REGULAR_SEASON',
     },
     abandoned,
@@ -258,25 +260,21 @@ function newsFor(
     awardRaces: [],
   };
 
-  return generateWeeklyNews(input, ledger, createRng(state.seed + state.week * 31));
+  // Its own stream, apart from the games'. The season term matters: without it
+  // week 5 of every year draws the same phrasings, which a ledger that resets
+  // each season would then let through as repeats.
+  return generateWeeklyNews(
+    input, ledger, createRng(state.seed + state.season * 1000 + state.week * 31));
 }
 
-/**
- * Plays every remaining week.
- *
- * Takes the season's ledger rather than making one. Minting a fresh ledger here
- * would let a headline already published in week 3 come round again in week 9
- * of the same season, which is exactly the guarantee the news engine exists to
- * provide -- and it would only show up when a player simmed a few weeks by hand
- * before pressing this.
- */
-export function simToEndOfSeason(state: GameState, ledger: NewsLedger): WeekOutcome {
+/** Plays every remaining week. */
+export function simToEndOfSeason(state: GameState): WeekOutcome {
   let current = state;
   const abandoned: string[] = [];
   let guard = 0;
   while (current.phase === 'REGULAR_SEASON' && current.week <= WEEKS && guard < WEEKS + 2) {
     guard += 1;
-    const outcome = simWeek(current, ledger);
+    const outcome = simWeek(current);
     current = outcome.state;
     abandoned.push(...outcome.abandoned);
   }
@@ -321,6 +319,8 @@ export function advanceToNextSeason(state: GameState): GameState {
       teamId: id, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, streak: 0,
     }])),
     news: [],
+    // A new year, a clean ledger: a good line coming back in 2031 is the design.
+    ledger: createLedger(state.league.season),
     history,
     absence: new Map(),
     userTeamId,

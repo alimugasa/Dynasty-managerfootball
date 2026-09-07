@@ -22,8 +22,10 @@ import {
 import type { League } from '../../supabase/functions/_shared/engine/offseason/league';
 import type { CareerPlayer } from '../../supabase/functions/_shared/engine/offseason/types';
 import {
-  createLedger, generateWeeklyNews, type NewsItem, type NewsLedger,
+  cloneLedger, createLedger, generateWeeklyNews, ledgerFromJson, ledgerToJson,
+  type LedgerJson, type NewsItem, type NewsLedger,
 } from '../../supabase/functions/_shared/engine/news/index';
+import { freshSeed32 } from '../../supabase/functions/_shared/seed';
 import { loadCareerWorld, FIRST_SEASON } from '../../scripts/drift-report/careerWorld';
 import { readBundledSeed } from './seed';
 
@@ -95,6 +97,8 @@ export interface GameState {
   readonly depthChart: Readonly<Record<PositionGroup, readonly string[]>>;
   /** Weeks each player still misses. */
   readonly absence: ReadonlyMap<string, number>;
+  /** Headlines already published this season, so none comes round twice. */
+  readonly ledger: NewsLedger;
   readonly seed: number;
 }
 
@@ -145,6 +149,8 @@ export function defaultDepthChart(
 
 export interface NewGameOptions {
   readonly userTeamId?: string;
+  /** For tests and reproductions only. A dynasty started by a player gets a
+   *  fresh random seed; two of them must never replay the same fifty years. */
   readonly seed?: number;
 }
 
@@ -153,7 +159,7 @@ export function newGame(options: NewGameOptions = {}): GameState {
   league.season = FIRST_SEASON;
   const identities = loadIdentities();
   const userTeamId = options.userTeamId ?? league.teamIds[0] ?? '';
-  const seed = options.seed ?? 20260907;
+  const seed = options.seed ?? freshSeed32();
 
   return {
     league,
@@ -169,6 +175,7 @@ export function newGame(options: NewGameOptions = {}): GameState {
     history: [],
     depthChart: defaultDepthChart(league, userTeamId),
     absence: new Map(),
+    ledger: createLedger(league.season),
     seed,
   };
 }
@@ -209,5 +216,5 @@ export function capLimit(season: number): number {
 }
 
 export { MissingUnitError, createRng, runOffseason, simulateGame, teamStatesFor };
-export { createLedger, generateWeeklyNews };
-export type { CareerPlayer, Fixture, League, NewsItem, NewsLedger, PositionGroup };
+export { cloneLedger, createLedger, generateWeeklyNews, ledgerFromJson, ledgerToJson };
+export type { CareerPlayer, Fixture, LedgerJson, League, NewsItem, NewsLedger, PositionGroup };

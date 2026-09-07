@@ -82,6 +82,7 @@ export function categoryCounts(
 
 export { createLedger, orderFeed, renderTemplate, TemplateSlotError, writeFact } from './render.ts';
 export type { NewsLedger } from './render.ts';
+export { cloneLedger, ledgerFromJson, ledgerToJson, type LedgerJson } from './ledger.ts';
 export {
   detectAll, detectAwardRaces, detectHotSeat, detectInjuries, detectMilestones,
   detectStreaks, detectUpsets, NEWS_RULES,

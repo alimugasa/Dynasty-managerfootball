@@ -1,13 +1,11 @@
 // Holds the game and hands it to the screens.
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   advanceToNextSeason, reorderDepth, simToEndOfSeason, simWeek,
 } from './actions';
-import {
-  WEEKS, createLedger, newGame, type GameState, type NewsLedger, type PositionGroup,
-} from './store';
+import { WEEKS, newGame, type GameState, type PositionGroup } from './store';
 import { clearSaved, loadSaved, persist } from './persist';
 
 export interface GameApi {
@@ -35,19 +33,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // One ledger per season, held outside state: it carries Sets and Maps that do
-  // not survive persistence, and the no-repeated-headlines guarantee depends on
-  // it spanning the whole year rather than one week.
-  const ledger = useRef<{ season: number; value: NewsLedger }>({
-    season: state.season, value: createLedger(state.season),
-  });
-  const ledgerFor = (season: number): NewsLedger => {
-    if (ledger.current.season !== season) {
-      ledger.current = { season, value: createLedger(season) };
-    }
-    return ledger.current.value;
-  };
-
   const commit = useCallback((next: GameState, abandoned: readonly string[]) => {
     setState(next);
     persist(next);
@@ -62,20 +47,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
     notice,
     simWeek: () => {
       setBusy(true);
-      const outcome = simWeek(state, ledgerFor(state.season));
+      const outcome = simWeek(state);
       commit(outcome.state, outcome.abandoned);
       setBusy(false);
     },
     simSeason: () => {
       setBusy(true);
-      const outcome = simToEndOfSeason(state, ledgerFor(state.season));
+      const outcome = simToEndOfSeason(state);
       commit(outcome.state, outcome.abandoned);
       setBusy(false);
     },
     nextSeason: () => {
       setBusy(true);
       const next = advanceToNextSeason(state);
-      ledger.current = { season: next.season, value: createLedger(next.season) };
       commit(next, []);
       setBusy(false);
     },
@@ -87,7 +71,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     restart: (teamId) => {
       clearSaved();
       const fresh = newGame(teamId === undefined ? {} : { userTeamId: teamId });
-      ledger.current = { season: fresh.season, value: createLedger(fresh.season) };
       setState(fresh);
       persist(fresh);
       setNotice(null);
