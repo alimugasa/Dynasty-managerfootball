@@ -9,9 +9,9 @@ import {
   CalendarIcon, LeagueIcon, OfficeIcon, RosterIcon, ShieldIcon,
 } from '../../src/components/icons';
 import type { PositionGroup } from '../../supabase/functions/_shared/engine/types';
-import {
-  advanceSeason, newDynasty, reorder, simWeek, type Game,
-} from './host';
+import { newDynasty, reorder, simWeek, type Game } from './host';
+import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
+import { OffseasonScreen } from './offseason';
 import { clear, persist, restore } from './persist';
 import { clubs as allClubs } from './world';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
@@ -44,6 +44,7 @@ export function App() {
   const [group, setGroup] = useState('QB');
   const [conference, setConference] = useState('all');
   const [week, setWeek] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => { if (game !== null) persist(game); }, [game]);
 
@@ -79,13 +80,26 @@ export function App() {
     setBusy(null);
   };
 
-  const runOffseason = (): void => {
+  /** One step of the winter, or the rest of it in one go. */
+  const winter = (all: boolean): void => {
     if (game === null) return;
-    setBusy('Running the offseason…');
+    setBusy(all ? 'Running the offseason…' : 'Working…');
     setTimeout(() => {
-      setGame(advanceSeason(game));
-      setTab('team'); setDrill(null); setBusy(null);
+      const next = all ? runWinter(game) : stepWinter(game);
+      setGame(next);
+      setNotice(null);
+      if (next.phase === 'REGULAR_SEASON') { setTab('team'); setDrill(null); }
+      setBusy(null);
     }, 30);
+  };
+
+  /** A move the manager makes himself. The engine refuses what it must, and
+   *  what it says is shown either way. */
+  const move = (make: (g: Game) => MoveResult): void => {
+    if (game === null) return;
+    const result = make(game);
+    setGame(result.game);
+    setNotice(result.detail);
   };
 
   const shell = (title: string, subtitle: string, body: React.ReactNode): React.ReactElement => (
@@ -166,9 +180,11 @@ export function App() {
 
   const club = game.clubs.get(game.userTeamId);
   const screen = drill?.screen ?? tab;
-  const title = screen === 'team' ? (club?.nickname ?? 'Team') : (TITLES[screen] ?? 'Dynasty');
-  const subtitle = `${String(game.season)} · ${game.phase === 'OFFSEASON'
-    ? 'Season complete'
+  const title = screen === 'team'
+    ? (isWinter(game.phase) ? 'Offseason' : club?.nickname ?? 'Team')
+    : (TITLES[screen] ?? 'Dynasty');
+  const subtitle = `${String(game.season)} · ${isWinter(game.phase)
+    ? PHASE_LABEL[game.phase]
     : game.phase === 'PLAYOFFS'
       ? 'Playoffs'
       : `Week ${String(game.week)} of ${String(game.weeks)}`}`;
@@ -185,14 +201,26 @@ export function App() {
             : <BoxScore game={game} id={drill.id} open={open} />)
     : (
       <>
-        {tab === 'team' && (
+        {tab === 'team' && isWinter(game.phase) && (
+          <OffseasonScreen
+            game={game}
+            open={open}
+            phase={game.phase}
+            busy={busy}
+            notice={notice}
+            onStep={() => { winter(false); }}
+            onRunAll={() => { winter(true); }}
+            onMove={move}
+          />
+        )}
+        {tab === 'team' && !isWinter(game.phase) && (
           <TeamScreen
             game={game}
             open={open}
             busy={busy}
             onWeek={() => { void runWeeks(false); }}
             onSeason={() => { void runWeeks(true); }}
-            onOffseason={runOffseason}
+            onOffseason={() => { winter(false); }}
             onBracket={() => { open('playoffs', ''); }}
           />
         )}

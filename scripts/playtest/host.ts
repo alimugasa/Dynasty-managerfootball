@@ -10,26 +10,29 @@
 import { createRng } from '../../supabase/functions/_shared/engine/rng.ts';
 import { simulateGame } from '../../supabase/functions/_shared/engine/simulateGame.ts';
 import { teamStatesFor, teamStateFor } from '../../supabase/functions/_shared/engine/careerBridge.ts';
-import { permuteSchedule, type Fixture } from '../../supabase/functions/_shared/engine/season.ts';
+import type { Fixture } from '../../supabase/functions/_shared/engine/season.ts';
 import {
   MissingUnitError, POSITION_GROUPS,
   type PlayerStatLine, type PositionGroup, type TeamBoxScore, type TeamState,
 } from '../../supabase/functions/_shared/engine/types.ts';
 import {
-  capRules, capSheet, runOffseason, type CapSheet, type CareerPlayer, type League,
+  capRules, capSheet, settleSeason, type CapSheet, type CareerPlayer, type League,
 } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import { retirementReason } from '../../supabase/functions/_shared/engine/offseason/retirement.ts';
 import {
   cloneLedger, createLedger, type NewsItem, type NewsLedger,
 } from '../../supabase/functions/_shared/engine/news/index.ts';
-import { gameStream, offseasonStream, scheduleStream } from '../../supabase/functions/_shared/api/save.ts';
+import { gameStream } from '../../supabase/functions/_shared/api/save.ts';
 import { weekNews, type Absence } from './news.ts';
 import {
   playoffOutcomes, playRound, seedField, type PlayoffGame,
 } from './postseason.ts';
 import { coachRecords } from './carousel.ts';
+import { streams } from './winter.ts';
 import { seasonAwards } from './awards.ts';
-import type { AwardResult } from '../../supabase/functions/_shared/engine/offseason/index.ts';
+import type {
+  AwardResult, UserOffer,
+} from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import { ROLE_LABEL } from '../../supabase/functions/_shared/engine/offseason/coaches.ts';
 import type { Seed } from '../../supabase/functions/_shared/engine/playoffs.ts';
 import { freshSeed32 } from '../../supabase/functions/_shared/seed.ts';
@@ -65,6 +68,9 @@ export interface Move {
   readonly detail: string;
 }
 
+/** The five steps of a winter. The same names the server's saves.phase uses. */
+export type WinterPhase = 'OFFSEASON' | 'RETIREMENTS' | 'DRAFT' | 'FREE_AGENCY' | 'CAMP';
+
 export interface Game {
   readonly league: League;
   readonly clubs: ReadonlyMap<string, Club>;
@@ -73,7 +79,7 @@ export interface Game {
   readonly season: number;
   readonly week: number;
   readonly weeks: number;
-  readonly phase: 'REGULAR_SEASON' | 'PLAYOFFS' | 'OFFSEASON';
+  readonly phase: 'REGULAR_SEASON' | 'PLAYOFFS' | WinterPhase;
   readonly schedule: readonly Fixture[];
   readonly results: readonly PlayedGame[];
   readonly standings: ReadonlyMap<string, Standing>;
@@ -87,6 +93,11 @@ export interface Game {
   readonly history: readonly SeasonRecord[];
   /** Every season's awards and all-league teams, newest last. */
   readonly awards: readonly AwardResult[];
+  /** Offers made and not yet taken to market. */
+  readonly offers: readonly UserOffer[];
+  /** The draft order, fixed when the draft opens, and the pick it waits on. */
+  readonly draftOrder: readonly string[];
+  readonly nextPick: number;
   /** What the last offseason did to the club you manage. */
   readonly moves: readonly Move[];
   readonly abandoned: readonly string[];
@@ -95,10 +106,10 @@ export interface Game {
 const emptyStanding = (teamId: string): Standing =>
   ({ teamId, wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0, streak: 0 });
 
-const freshTable = (teamIds: readonly string[]): Map<string, Standing> =>
+export const freshTable = (teamIds: readonly string[]): Map<string, Standing> =>
   new Map(teamIds.map((id) => [id, emptyStanding(id)]));
 
-function chartFor(league: League, teamId: string): Record<PositionGroup, readonly string[]> {
+export function chartFor(league: League, teamId: string): Record<PositionGroup, readonly string[]> {
   return teamStateFor(teamId, league.players,
     { fronts: league.fronts, coaches: league.coaches }).depthChart;
 }
@@ -114,7 +125,8 @@ export function newDynasty(userTeamId: string): Game {
     phase: 'REGULAR_SEASON', schedule, results: [], seeds: [], playoffs: [],
     standings: freshTable(league.teamIds), news: [], ledger: createLedger(league.season),
     absence: openingAbsences(), depthChart: chartFor(league, userTeamId),
-    history: [], awards: [], moves: [], abandoned: [],
+    history: [], awards: [], offers: [], draftOrder: [], nextPick: 1,
+    moves: [], abandoned: [],
   };
 }
 
@@ -231,7 +243,14 @@ export function ranking(standings: ReadonlyMap<string, Standing>): Standing[] {
   });
 }
 
-export function advanceSeason(game: Game): Game {
+/**
+ * Step one of the winter: the season is closed and the league settles.
+ *
+ * Grades, development, retirements, contracts running out, the coaching
+ * carousel and the vote. Nobody has signed anywhere yet, and the manager's
+ * out-of-contract players are waiting for him.
+ */
+export function settleWinter(game: Game): Game {
   const table = ranking(game.standings);
   const mine = table.findIndex((s) => s.teamId === game.userTeamId);
   const finished = playoffOutcomes(game);
@@ -242,13 +261,19 @@ export function advanceSeason(game: Game): Game {
     if (player.teamId === champion && !player.retired) player.accolades.rings += 1;
   }
 
+  // Games missed, from the lines a player actually produced -- and, for the
+  // positions that produce none, from the injuries recorded against him.
   const played = new Map<string, number>();
   for (const g of game.results) {
     for (const line of g.players) played.set(line.playerId, (played.get(line.playerId) ?? 0) + 1);
   }
+  const gamesInSeason = game.weeks - 1;
   for (const player of game.league.players) {
     if (player.teamId === null || player.retired) continue;
-    player.gamesMissedSeason = Math.max(0, game.weeks - (played.get(player.id) ?? game.weeks));
+    const lines = played.get(player.id);
+    player.gamesMissedSeason = lines === undefined
+      ? Math.min(gamesInSeason, game.absence.get(player.id) ?? 0)
+      : Math.max(0, gamesInSeason - lines);
     player.gamesMissedCareer += player.gamesMissedSeason;
   }
 
@@ -256,11 +281,12 @@ export function advanceSeason(game: Game): Game {
   const season = game.season;
   const headBefore = game.league.coaches.find(
     (c) => c.teamId === game.userTeamId && c.role === 'HEAD_COACH')?.id ?? null;
-  const result = runOffseason(game.league, createRng(offseasonStream(game.seed, season)),
-    { records: coachRecords(game) });
+  const settled = settleSeason(
+    game.league, createRng(streams.settle(game.seed, season)), { records: coachRecords(game) });
+
   // Voted on the season just played, before development moves anyone's rating
   // again. An award is a career fact: it goes on the player.
-  const voted = seasonAwards({ ...game, season }, result.grades);
+  const voted = seasonAwards({ ...game, season }, settled.grades);
   const byId = new Map(game.league.players.map((p) => [p.id, p]));
   for (const award of voted.awards) {
     const winner = award.winner.playerId === null ? undefined : byId.get(award.winner.playerId);
@@ -272,44 +298,19 @@ export function advanceSeason(game: Game): Game {
     if (player !== undefined) player.accolades.allLeague += 1;
   }
 
-  const mineNow = (p: CareerPlayer): boolean => p.teamId === game.userTeamId;
   const moves: Move[] = [];
-  for (const p of result.draft.picks) {
-    if (p.teamId !== game.userTeamId) continue;
-    const player = game.league.players.find((x) => x.id === p.prospectId);
-    moves.push({
-      season, kind: 'DRAFTED', name: player?.name ?? p.prospectId,
-      detail: `Round ${String(p.round)}, pick ${String(p.overall)} · ${p.group} · ${String(Math.round(player?.ability ?? 0))} ovr`,
-    });
-  }
-  for (const s of result.freeAgency.signings) {
-    if (s.teamId !== game.userTeamId) continue;
-    const player = game.league.players.find((x) => x.id === s.playerId);
-    moves.push({
-      season, kind: 'SIGNED', name: player?.name ?? s.playerId,
-      detail: `${String(s.years)} yrs · ${(s.aav / 1e6).toFixed(1)}M · ${String(s.bids)} bids`,
-    });
-  }
-  for (const p of result.retired) {
+  for (const p of settled.retired) {
     if (before.get(p.id) !== game.userTeamId) continue;
     moves.push({
       season, kind: retirementReason(p) === 'RETIREMENT' ? 'RETIRED' : 'OUT OF THE LEAGUE',
       name: p.name, detail: `${p.group} · age ${String(Math.round(p.age))}`,
     });
   }
-  for (const r of result.released) {
-    if (r.teamId !== game.userTeamId) continue;
-    const player = game.league.players.find((x) => x.id === r.playerId);
-    moves.push({
-      season, kind: 'RELEASED', name: player?.name ?? r.playerId,
-      detail: r.reason === 'QUOTA' ? 'Cut to the roster limit' : 'Cut to the cap',
-    });
+  for (const p of settled.expired) {
+    if (before.get(p.id) !== game.userTeamId) continue;
+    moves.push({ season, kind: 'OUT OF CONTRACT', name: p.name, detail: `${p.group} · deal ran out` });
   }
-  for (const p of result.expired) {
-    if (before.get(p.id) !== game.userTeamId || mineNow(p)) continue;
-    moves.push({ season, kind: 'LEFT', name: p.name, detail: `${p.group} · deal ran out` });
-  }
-  for (const m of result.coaches.moves) {
+  for (const m of settled.coaches.moves) {
     if (m.teamId !== game.userTeamId && m.fromTeamId !== game.userTeamId) continue;
     moves.push({
       season, kind: m.kind === 'FIRED' ? 'COACH FIRED' : m.kind === 'RETIRED' ? 'COACH RETIRED'
@@ -332,26 +333,16 @@ export function advanceSeason(game: Game): Game {
     }
   }
 
-  const teamIds = game.league.teamIds;
-  // Next year keeps this year's shape -- 17 games, 18 weeks, the byes where
-  // they were -- with the clubs renamed by a seeded permutation.
-  const schedule = permuteSchedule(
-    game.schedule, teamIds, createRng(scheduleStream(game.seed, game.league.season)));
-  const userTeamId = teamIds.includes(game.userTeamId) ? game.userTeamId : (teamIds[0] ?? '');
-
   return {
     ...game,
-    season: game.league.season, week: 1, phase: 'REGULAR_SEASON',
-    schedule, results: [], seeds: [], playoffs: [], standings: freshTable(teamIds),
-    news: [], ledger: createLedger(game.league.season),
-    absence: new Map(), userTeamId, depthChart: chartFor(game.league, userTeamId),
+    phase: 'RETIREMENTS',
+    awards: [...game.awards, voted],
     history: [...game.history, {
       season, wins: closing.wins, losses: closing.losses, ties: closing.ties,
       rank: mine + 1, championId: champion ?? '',
       playoffResult: finished.get(game.userTeamId) ?? 'MISSED',
     }],
-    awards: [...game.awards, voted],
-    moves, abandoned: [],
+    moves,
   };
 }
 

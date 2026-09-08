@@ -31,7 +31,8 @@ and offers the list again.
 | Sim to the end | **Team** → *Sim to end of season* (one request per week, stops at the bracket) |
 | Play a playoff round | **Team** → *Play the Opening Round*, then one button per round |
 | Follow the bracket | **Team** or **League** → *See the bracket*, or **Schedule** → the round chips |
-| Run the offseason | **Team** → *Run offseason → next year* (appears once the final is played) |
+| Play the offseason | **Team** → *Play the offseason* (appears once the final is played) |
+| Skip the offseason | **Team** → *Simulate it → next year*, or *Let the staff handle the rest* at any step |
 | Play year two | **Team** → *Sim week 1* again |
 
 The depth chart is load-bearing, not decoration: the order you set is stored in
@@ -154,6 +155,32 @@ The record book updates as seasons are played, single-season and career.
 Office → *Season recap* shows the champion, the awards, the first team, your
 own year and the records that fell.
 
+## The offseason you play
+
+Five steps, and a button at every one of them to hand the rest to your staff.
+
+| Step | What you decide |
+|---|---|
+| **Season review** | Nothing. Closing the season grades everyone, ages the league, retires who is finished, runs the carousel and votes on the awards. |
+| **Contracts** | Re-sign your own out-of-contract players, release anyone, trade with another club. |
+| **The draft** | It runs pick by pick and stops on yours. You take a player off your own scouts' board. |
+| **Free agency** | Put offers in. They go to market with every other club's. |
+| **Camp** | Nothing. Every club cuts to fifty-three and the calendar is drawn. |
+
+Every price is the engine's. A player's re-signing ask is his market value
+weighted by how much he cares about money, so a loyal player takes a discount
+and a mercenary does not. Cutting someone costs the dead money his deal
+carries. A club considering a trade wants more value than it gives, will not
+take on salary it cannot fit, and says which of the two it is. An offer in
+free agency competes with every other club's by the same rule -- money, need,
+the club's standing, the player's own character -- so you can be outbid, and
+you can overpay.
+
+Each step is one request that ends with the league written back, so the
+browser can be closed between any two of them. What you have decided but not
+yet committed -- your offers, the draft order, the pick the draft is waiting on
+-- lives beside the save document rather than in it.
+
 ## What is stubbed or missing
 
 Honestly, and in the order you will notice it:
@@ -161,6 +188,10 @@ Honestly, and in the order you will notice it:
 - **You cannot hire or fire a coach yourself.** The carousel runs itself, your
   club included: it fires your head coach when the seat gets hot enough and
   hires the best candidate for you. Choosing your own staff is not built.
+- **Trades are players for players.** Draft picks cannot be traded yet, and no
+  club offers you a deal of its own: you propose, they answer.
+- **No in-season moves.** Signing, cutting and trading are offseason work; once
+  the season starts the roster is what you take into it.
 - **The seed's day-to-day injuries are honoured; its long-term list is not
   yet.** The 195 day-to-day rows are dated to week 0 at create time, so a
   player listed as out for n weeks misses the first n-1. The 114 IR/PUP/NFI

@@ -78,6 +78,9 @@ and scout the draft, and a carousel fires and hires them every winter
 Awards, all-league teams and the record book are voted and kept every year
 (`docs/PLAYING.md`).
 
-**Does not exist yet:** in-season signing, cutting and trading; choosing your own
-staff; directing your own draft and free agency. The offseason runs itself, your
-club included.
+The offseason is played: re-sign your own, cut, trade, draft from your scouts'
+board and bid in free agency, or hand any of it back to your staff
+(`docs/PLAYING.md`).
+
+**Does not exist yet:** in-season signing, cutting and trading; trading draft
+picks; choosing your own coaching staff.

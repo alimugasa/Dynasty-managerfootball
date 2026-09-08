@@ -34,6 +34,9 @@ interface Stored {
   readonly depthChart: Game['depthChart'];
   readonly history: Game['history'];
   readonly awards: Game['awards'];
+  readonly offers: Game['offers'];
+  readonly draftOrder: Game['draftOrder'];
+  readonly nextPick: number;
   readonly moves: Game['moves'];
 }
 
@@ -54,6 +57,7 @@ export function persist(game: Game): void {
       standings: [...game.standings.entries()], news: game.news,
       ledger: ledgerToJson(game.ledger), absence: [...game.absence.entries()],
       depthChart: game.depthChart, history: game.history, awards: game.awards,
+      offers: game.offers, draftOrder: game.draftOrder, nextPick: game.nextPick,
       moves: game.moves,
     };
     localStorage.setItem(KEY, JSON.stringify(stored));
@@ -85,8 +89,12 @@ export function restore(): Game | null {
       standings: new Map(stored.standings.map(([id, s]) => [id, { ...s }])),
       news: stored.news, ledger: ledgerFromJson(stored.ledger),
       absence: new Map(stored.absence), depthChart: stored.depthChart,
-      history: stored.history, awards: stored.awards ?? [], moves: stored.moves,
-      abandoned: [],
+      history: stored.history, awards: stored.awards ?? [],
+      // A dynasty stored before the offseason could be played reopens with
+      // nothing in flight, which is what it had.
+      offers: stored.offers ?? [], draftOrder: stored.draftOrder ?? [],
+      nextPick: stored.nextPick ?? 1,
+      moves: stored.moves, abandoned: [],
     };
   } catch {
     clear();

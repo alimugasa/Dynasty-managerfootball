@@ -45,4 +45,4 @@ Two deliberate differences, both stated on screen where they show:
   product writes them to `news` under the `PLAYOFFS` phase.
 
 Everything else the rig lacks, the product lacks too: no in-season signing, no
-awards, an offseason that runs itself.
+trading of draft picks, no choosing your own staff.
