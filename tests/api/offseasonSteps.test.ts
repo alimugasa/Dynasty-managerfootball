@@ -11,6 +11,7 @@ import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { OffseasonOut } from '../../supabase/functions/_shared/api/reads/offseason';
 import type { StepOutcome } from '../../supabase/functions/_shared/api/steps';
 import type { MoveOutcome, TradeOutcome } from '../../supabase/functions/_shared/api/moves';
+import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 const PORT = 8799;
 const TEAM = 'BUF';
@@ -44,13 +45,26 @@ describe('an offseason played through', () => {
   it('opens on the season just played, with nothing to decide yet', async () => {
     const out = await read();
     expect(out.phase).toBe('OFFSEASON');
-    expect(out.label).toBe('Season review');
+    expect(out.label).toBe('Season over');
     expect(out.expiring).toEqual([]);
     expect(out.roster.length).toBeGreaterThan(40);
     expect(out.capLimit).toBeGreaterThan(0);
   });
 
-  it('settles the season and hands you your out-of-contract players', async () => {
+  it('ends the season on the awards, then the year, then the work', async () => {
+    const voted = await step();
+    expect(voted.phase).toBe('AWARDS');
+    expect(voted.summary).toBe('The votes are in');
+    // The ceremony reads the vote that was just taken.
+    const ceremony = await pipe.api.call<RecapOut>('recap', { saveId, season });
+    expect(ceremony.awards.length).toBe(5);
+    expect(ceremony.honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST').length).toBeGreaterThan(20);
+
+    const year = await step();
+    expect(year.phase).toBe('RECAP');
+    expect(year.summary).toContain(String(season));
+    expect((await read()).label).toBe('The year in review');
+
     const outcome = await step();
     expect(outcome.phase).toBe('RETIREMENTS');
     expect(outcome.summary).toContain('out of contract');

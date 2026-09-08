@@ -30,11 +30,13 @@ const streams = {
 };
 
 export const WINTER_PHASES: readonly WinterPhase[] = [
-  'OFFSEASON', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP',
+  'OFFSEASON', 'AWARDS', 'RECAP', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP',
 ];
 
 export const PHASE_LABEL: Readonly<Record<WinterPhase, string>> = {
-  OFFSEASON: 'Season review',
+  OFFSEASON: 'Season over',
+  AWARDS: 'The awards',
+  RECAP: 'The year in review',
   RETIREMENTS: 'Contracts',
   DRAFT: 'The draft',
   FREE_AGENCY: 'Free agency',
@@ -43,6 +45,8 @@ export const PHASE_LABEL: Readonly<Record<WinterPhase, string>> = {
 
 export const PHASE_ACTION: Readonly<Record<WinterPhase, string>> = {
   OFFSEASON: 'Close the season',
+  AWARDS: 'The year in review',
+  RECAP: 'Start the offseason',
   RETIREMENTS: 'Open the draft',
   DRAFT: 'Advance the draft',
   FREE_AGENCY: 'Open the market',
@@ -249,6 +253,11 @@ function breakCamp(game: Game): Game {
  */
 export function stepWinter(game: Game): Game {
   if (game.phase === 'OFFSEASON') return settleWinter(game);
+  // Two stops that change nothing: the vote has been taken and the book is
+  // written, and a season that ends in a contract list has nowhere to say who
+  // won anything.
+  if (game.phase === 'AWARDS') return { ...game, phase: 'RECAP' };
+  if (game.phase === 'RECAP') return { ...game, phase: 'RETIREMENTS' };
   if (game.phase === 'RETIREMENTS') {
     const order = strengthOrder(game.league, buildIndex(game.league.teamIds, game.league.players));
     return { ...game, phase: 'DRAFT', draftOrder: [...order], nextPick: 1 };

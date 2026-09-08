@@ -14,12 +14,14 @@ import type { League, UserOffer } from '../engine/offseason/index.ts';
 import type { TransactionCounts } from './project/transactions.ts';
 
 export const OFFSEASON_PHASES = [
-  'OFFSEASON', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP',
+  'OFFSEASON', 'AWARDS', 'RECAP', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP',
 ] as const;
 export type OffseasonPhase = (typeof OFFSEASON_PHASES)[number];
 
 export const PHASE_LABEL: Readonly<Record<OffseasonPhase, string>> = {
-  OFFSEASON: 'Season review',
+  OFFSEASON: 'Season over',
+  AWARDS: 'The awards',
+  RECAP: 'The year in review',
   RETIREMENTS: 'Contracts',
   DRAFT: 'The draft',
   FREE_AGENCY: 'Free agency',
@@ -29,6 +31,8 @@ export const PHASE_LABEL: Readonly<Record<OffseasonPhase, string>> = {
 /** What each step's button says, and what pressing it does next. */
 export const PHASE_ACTION: Readonly<Record<OffseasonPhase, string>> = {
   OFFSEASON: 'Close the season',
+  AWARDS: 'The year in review',
+  RECAP: 'Start the offseason',
   RETIREMENTS: 'Open the draft',
   DRAFT: 'Advance the draft',
   FREE_AGENCY: 'Open the market',
@@ -53,13 +57,15 @@ export interface OffseasonState {
   /** Settled totals carried to the end, so camp can report the whole winter. */
   readonly counts: readonly TransactionCounts[];
   readonly retired: number;
+  /** Deals that ran out, for the summary the contract step opens with. */
+  readonly expired: number;
   readonly coachesFired: number;
   readonly headCoachBefore: string | null;
 }
 
 export const EMPTY_STATE: OffseasonState = {
   offers: [], draftOrder: [], nextPick: 1, counts: [],
-  retired: 0, coachesFired: 0, headCoachBefore: null,
+  retired: 0, expired: 0, coachesFired: 0, headCoachBefore: null,
 };
 
 export async function readState(db: Db, saveId: string): Promise<OffseasonState> {

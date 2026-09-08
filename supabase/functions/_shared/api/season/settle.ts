@@ -10,7 +10,7 @@ import type { Db } from '../db.ts';
 import { awardStream, rngSeed32, seasonWeeks, type SaveRow } from '../save.ts';
 import { positionsFor, projectWorld } from '../project/index.ts';
 import { coachSeasons, logCoachMoves, writeCoachHistory } from '../project/coachHistory.ts';
-import { awardCandidates, coachCandidates, writeAwards } from '../project/awards.ts';
+import { awardCandidates, coachCandidates, refreshRecords, writeAwards } from '../project/awards.ts';
 import { logTransactions, snapshotPlayers, type TransactionCounts } from '../project/transactions.ts';
 import { createRng } from '../../engine/rng.ts';
 import { closeSeason, seasonRecords } from './close.ts';
@@ -181,6 +181,13 @@ export async function settleSeasonStage(
     const player = byId.get(honour.playerId);
     if (player !== undefined) player.accolades.allLeague += 1;
   }
+
+  // The book, before anyone is asked to look at it. A season's totals are
+  // final the moment the season is, so the career table and the record book
+  // are rebuilt here rather than at camp -- which is three steps later, and
+  // after the year has already been shown to the manager.
+  await db`select public.refresh_player_career_totals(${saveId}::uuid)`;
+  await refreshRecords(db, saveId);
 
   return {
     settle, records, transactions,

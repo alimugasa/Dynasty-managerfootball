@@ -17,11 +17,15 @@ import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import { ContractsPanel, DraftPanel, MarketPanel, TradePanel, money } from './offseasonPanels';
+import { AwardsPanel, YearPanel } from './seasonPanels';
+import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 import type { OffseasonOut } from '../../supabase/functions/_shared/api/reads/offseason';
 
 /** What each step is for, in one line, so the button is never a mystery. */
 const EXPLAIN: Readonly<Record<string, string>> = {
   OFFSEASON: 'The season is over. Closing it grades everyone, ages the league, retires who is finished and votes on the year.',
+  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the club won.',
+  RECAP: 'The year, in full: who took it, what your club did, and which records fell.',
   RETIREMENTS: 'Your out-of-contract players are free to leave. Keep the ones you want, cut what you cannot afford, and trade if you can find a partner.',
   DRAFT: 'The draft runs pick by pick. It stops when your turn comes and waits for you.',
   FREE_AGENCY: 'Put offers in. They go to market with every other club\'s, and the player decides.',
@@ -43,6 +47,11 @@ export function OffseasonScreen() {
     'offseason',
     { saveId: save?.saveId ?? '', ...(partner === '' ? {} : { teamId: partner }) },
     version, save !== null);
+  // The season just closed, for the two steps that show it. Asked for only on
+  // those steps: the draft has no use for a ballot.
+  const showing = q.status === 'ready' && (q.data.phase === 'AWARDS' || q.data.phase === 'RECAP');
+  const year = useQuery<RecapOut>(
+    'recap', { saveId: save?.saveId ?? '' }, version, save !== null && showing);
   const club = save === null ? undefined : clubsById.get(save.userTeamId);
 
   const move = (route: string, input: Record<string, unknown>): void => {
@@ -68,11 +77,27 @@ export function OffseasonScreen() {
       {q.status === 'ready' && q.data.label !== '' && (
         <>
           <StatTiles
-            stats={[
+            stats={showing && year.status === 'ready' ? [
+              // A ceremony is about the season, not about your cap sheet.
+              { label: 'Season', value: String(year.data.season) },
+              {
+                label: 'Champions',
+                value: year.data.championTeamId === null
+                  ? '—' : clubsById.get(year.data.championTeamId)?.nickname ?? year.data.championTeamId,
+              },
+              {
+                label: 'You finished',
+                value: year.data.you === null
+                  ? '—'
+                  : `${String(year.data.you.wins)}-${String(year.data.you.losses)}${year.data.you.ties > 0 ? `-${String(year.data.you.ties)}` : ''}`,
+              },
+            ] : [
               { label: 'Cap room', value: money(q.data.capRoom), tone: q.data.capRoom < 0 ? 'negative' : 'positive' },
               { label: 'Squad', value: String(q.data.roster.length) },
               // The third tile is whatever this step is about.
-              q.data.phase === 'RETIREMENTS'
+              q.data.phase === 'AWARDS' || q.data.phase === 'RECAP'
+                ? { label: 'Season', value: String(q.data.season) }
+                : q.data.phase === 'RETIREMENTS'
                 ? { label: 'Out of contract', value: String(q.data.expiring.length) }
                 : q.data.phase === 'DRAFT'
                   ? { label: 'On the board', value: String(q.data.board.length) }
@@ -137,6 +162,36 @@ export function OffseasonScreen() {
                 </div>
               </Panel>
             </>
+          )}
+
+          {showing && year.status === 'error' && <QueryError error={year.error} />}
+          {showing && year.status === 'loading' && <Loading label="Loading the season" rows={6} />}
+          {showing && year.status === 'ready' && (
+            q.data.phase === 'AWARDS'
+              ? (
+                <AwardsPanel
+                  data={year.data}
+                  nickname={(id) => (id === null ? '' : clubsById.get(id)?.nickname ?? id)}
+                  clubName={(id) => (id === null ? '' : clubsById.get(id)?.name ?? id)}
+                  colours={(id) => ({
+                    primary: (id === null ? undefined : clubsById.get(id)?.primary) ?? '#28353F',
+                    secondary: (id === null ? undefined : clubsById.get(id)?.secondary) ?? '#8698A8',
+                  })}
+                  open={(screen, params) => { nav.push(screen, params); }}
+                />
+              )
+              : (
+                <YearPanel
+                  data={year.data}
+                  nickname={(id) => (id === null ? '' : clubsById.get(id)?.nickname ?? id)}
+                  clubName={(id) => (id === null ? '' : clubsById.get(id)?.name ?? id)}
+                  colours={(id) => ({
+                    primary: (id === null ? undefined : clubsById.get(id)?.primary) ?? '#28353F',
+                    secondary: (id === null ? undefined : clubsById.get(id)?.secondary) ?? '#8698A8',
+                  })}
+                  open={(screen, params) => { nav.push(screen, params); }}
+                />
+              )
           )}
 
           {q.data.phase === 'RETIREMENTS' && (

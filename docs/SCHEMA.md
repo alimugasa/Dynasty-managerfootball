@@ -135,6 +135,7 @@ Integer 0/1 flags become real booleans throughout, so that
 | `honours` | 50 a season | both all-league teams, drawn from everyone graded |
 | `league_records` | 15 | single-season and career bests, updated as seasons are played |
 | `save_documents.offseason` | 1 while a winter is being played | offers, draft order, the pick it waits on; null otherwise (0023) |
+| `saves.phase` | — | a season runs REGULAR_SEASON → PLAYOFFS → OFFSEASON → AWARDS → RECAP → RETIREMENTS → DRAFT → FREE_AGENCY → CAMP (0024) |
 | `draft_picks.made_by_user` | — | true for a pick the manager made himself |
 | `draft_classes` | ~260 | |
 | `coach_history` | ~130 | |

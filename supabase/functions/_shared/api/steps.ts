@@ -36,24 +36,43 @@ export interface StepOutcome {
   readonly summary: string;
 }
 
-/** Settles the season and opens the contract phase. */
+/** Settles the season, and the votes are counted. */
 async function stepSettle(db: Db, save: SaveRow): Promise<StepOutcome> {
   const { league } = await loadEngineState(db, save.id);
   const settled = await settleSeasonStage(db, save, league);
-  await saveLeague(db, save, league, 'RETIREMENTS');
+  await saveLeague(db, save, league, 'AWARDS');
   await writeState(db, save.id, {
     ...EMPTY_STATE,
     counts: [settled.transactions],
     retired: settled.settle.retired.length,
+    expired: settled.settle.expired.length,
     coachesFired: settled.coachesFired,
     headCoachBefore: settled.headCoachBefore,
   });
-  await touchSave(db, save.id, { phase: 'RETIREMENTS' });
+  await touchSave(db, save.id, { phase: 'AWARDS' });
   return {
-    phase: 'RETIREMENTS', season: save.season, waitingOnPick: null, seasonStarted: null,
-    summary: `${String(settled.settle.retired.length)} retired, `
-      + `${String(settled.settle.expired.length)} out of contract, `
-      + `${String(settled.coachesFired)} head coaches let go`,
+    phase: 'AWARDS', season: save.season, waitingOnPick: null, seasonStarted: null,
+    summary: 'The votes are in',
+  };
+}
+
+/**
+ * The awards, then the year, then the work.
+ *
+ * Neither step touches the league: the vote was taken when the season was
+ * closed and the book was written when the final was played. They are stops
+ * on the way, because a season that ends in a list of contract decisions has
+ * nowhere to say who won anything.
+ */
+async function stepShow(db: Db, save: SaveRow, next: 'RECAP' | 'RETIREMENTS'): Promise<StepOutcome> {
+  await touchSave(db, save.id, { phase: next });
+  const state = await readState(db, save.id);
+  return {
+    phase: next, season: save.season, waitingOnPick: null, seasonStarted: null,
+    summary: next === 'RECAP'
+      ? `${String(save.season)} in full`
+      : `${String(state.retired)} retired, ${String(state.expired)} out of contract, `
+        + `${String(state.coachesFired)} head coaches let go`,
   };
 }
 
@@ -136,6 +155,8 @@ async function stepCamp(db: Db, save: SaveRow): Promise<StepOutcome> {
 export async function stepOffseason(db: Db, save: SaveRow): Promise<StepOutcome> {
   const phase = requireOffseason(save);
   if (phase === 'OFFSEASON') return stepSettle(db, save);
+  if (phase === 'AWARDS') return stepShow(db, save, 'RECAP');
+  if (phase === 'RECAP') return stepShow(db, save, 'RETIREMENTS');
   if (phase === 'RETIREMENTS') return stepOpenDraft(db, save);
   if (phase === 'DRAFT') return stepDraft(db, save);
   if (phase === 'FREE_AGENCY') return stepMarket(db, save);

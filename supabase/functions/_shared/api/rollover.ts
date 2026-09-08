@@ -26,7 +26,6 @@ import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts'
 import {
   defaultDepthChart, projectWorld, seedStandings, writeDepthChart,
 } from './project/index.ts';
-import { refreshRecords } from './project/awards.ts';
 import {
   draftedMap, logTransactions, recordDraft, snapshotPlayers,
   type PlayerBefore, type TransactionCounts,
@@ -138,11 +137,10 @@ export async function campStageOn(
   await writeDepthChart(db, saveId, save.user_team_id, defaultDepthChart(league, save.user_team_id));
 
   await touchSave(db, saveId, { season: league.season, week: 1, phase: 'REGULAR_SEASON' });
-  await db`select public.refresh_player_career_totals(${saveId}::uuid)`;
-  // After the career totals are rebuilt, not before: a career record is a
-  // maximum over them, and reading them a step early would miss the season
-  // that has just been added.
-  await refreshRecords(db, saveId);
+  // The career totals and the record book were rebuilt when the season was
+  // settled, which is when they stopped changing. Only the pruning belongs
+  // here: it drops the oldest per-game lines, and it must come after anything
+  // that reads them.
   await db`select public.prune_player_game_stats(${saveId}::uuid, ${GAME_LINE_RETENTION})`;
 
   const now = new Date().toISOString();

@@ -2,7 +2,6 @@
 // each. The same panels the product shows, drawn from the same engine numbers
 // rather than from rows.
 
-import { useState } from 'react';
 import { COLOR } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
@@ -13,14 +12,17 @@ import {
   type CareerPlayer,
 } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import {
-  capRoom, draftPick, makeOffer, PHASE_ACTION, proposeTrade, release, reSign,
-  type MoveResult,
+  capRoom, draftPick, makeOffer, PHASE_ACTION, release, reSign, type MoveResult,
 } from './winter';
 import type { Game, WinterPhase } from './host';
+import { SeasonSection } from './ceremony';
+import { TradeSection } from './trade';
 import { money, type ScreenProps as Props } from './common';
 
 const EXPLAIN: Readonly<Record<WinterPhase, string>> = {
   OFFSEASON: 'The season is over. Closing it grades everyone, ages the league, retires who is finished and votes on the year.',
+  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the club won.',
+  RECAP: 'The year, in full: who took it, what your club did, and how you finished.',
   RETIREMENTS: 'Your out-of-contract players are free to leave. Keep the ones you want, and cut what you cannot afford.',
   DRAFT: 'The draft runs pick by pick. It stops when your turn comes and waits for you.',
   FREE_AGENCY: 'Put offers in. They go to market with every other club\'s, and the player decides.',
@@ -34,108 +36,6 @@ interface OffProps extends Props {
   readonly onStep: () => void;
   readonly onRunAll: () => void;
   readonly onMove: (make: (g: Game) => MoveResult) => void;
-}
-
-/**
- * Trades: one of yours for one of theirs.
- *
- * The values are the engine's, the same numbers the other club weighs, so a
- * refusal shows you the gap you asked them to swallow.
- */
-function TradeSection(
-  { game, busy, onMove }: {
-    readonly game: Game; readonly busy: boolean;
-    readonly onMove: (make: (g: Game) => MoveResult) => void;
-  },
-) {
-  const [partner, setPartner] = useState<string>('');
-  const [mine, setMine] = useState<string | null>(null);
-  const [theirs, setTheirs] = useState<string | null>(null);
-  const rules = capRules(game.league.season);
-  const value = (id: string | null): number => {
-    const p = game.league.players.find((x) => x.id === id);
-    return p === undefined ? 0 : tradeValue(p, rules);
-  };
-  const squad = rosterOf(game.league, game.userTeamId)
-    .sort((a, b) => tradeValue(b, rules) - tradeValue(a, rules)).slice(0, 20);
-  const theirSquad = partner === '' ? [] : rosterOf(game.league, partner)
-    .sort((a, b) => tradeValue(b, rules) - tradeValue(a, rules)).slice(0, 20);
-  const row = (p: CareerPlayer, chosen: boolean, pick: () => void, label: string) => (
-    <ListRow
-      key={p.id}
-      title={p.name}
-      subtitle={`${p.group} · ${String(Math.round(p.age))} · value ${String(tradeValue(p, rules))}`}
-      trailing={
-        <ActionButton onClick={pick} disabled={busy} tone="quiet" compact>
-          {chosen ? 'On the table' : label}
-        </ActionButton>
-      }
-    />
-  );
-
-  return (
-    <>
-      <SectionHeader title="Trade" />
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '2px 0 8px' }}>
-        {game.league.teamIds.filter((id) => id !== game.userTeamId).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => { setPartner(id); setTheirs(null); }}
-            style={{
-              flexShrink: 0, padding: '6px 10px', borderRadius: 999, cursor: 'pointer',
-              border: `1px solid ${id === partner ? COLOR.amber : COLOR.line2}`,
-              background: 'transparent', fontSize: 12,
-              color: id === partner ? COLOR.amber : COLOR.mut,
-            }}
-          >
-            {game.clubs.get(id)?.nickname ?? id}
-          </button>
-        ))}
-      </div>
-
-      <Panel>
-        <div style={{ color: COLOR.mut, fontSize: 12, lineHeight: 1.5 }}>
-          You give <span style={{ color: COLOR.tx }}>{value(mine) || 'nobody'}</span>
-          {' · '}they give <span style={{ color: COLOR.tx }}>{value(theirs) || 'nobody'}</span>
-        </div>
-        <div style={{ marginTop: 8 }}>
-          <ActionButton
-            onClick={() => {
-              const give = mine;
-              const get = theirs;
-              if (give === null || get === null) return;
-              onMove((g) => proposeTrade(g, partner, [give], [get]));
-              setMine(null); setTheirs(null);
-            }}
-            disabled={busy || mine === null || theirs === null}
-          >
-            Propose the trade
-          </ActionButton>
-        </div>
-      </Panel>
-
-      <SectionHeader title="You give" />
-      <Panel padded={false}>
-        <div style={{ padding: '0 12px' }}>
-          {squad.map((p) => row(p, p.id === mine,
-            () => { setMine(p.id === mine ? null : p.id); }, 'Offer'))}
-        </div>
-      </Panel>
-
-      <SectionHeader title={`You get${partner === '' ? '' : ` · ${game.clubs.get(partner)?.nickname ?? partner}`}`} />
-      {theirSquad.length === 0 ? (
-        <EmptyState title="Pick a club" detail="Choose who you want to trade with." />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            {theirSquad.map((p) => row(p, p.id === theirs,
-              () => { setTheirs(p.id === theirs ? null : p.id); }, 'Ask'))}
-          </div>
-        </Panel>
-      )}
-    </>
-  );
 }
 
 export function OffseasonScreen({
@@ -161,10 +61,25 @@ export function OffseasonScreen({
   const line = (p: CareerPlayer): string =>
     `${p.group} · ${String(Math.round(p.age))} · ${String(Math.round(p.ability + p.mental))} ovr`;
   const committed = game.offers.reduce((a, o) => a + o.aav, 0);
+  const last = game.history[game.history.length - 1];
 
   return (
     <>
-      <StatTiles stats={[
+      <StatTiles stats={phase === 'AWARDS' || phase === 'RECAP' ? [
+        // A ceremony is about the season, not about your cap sheet.
+        { label: 'Season', value: String(last?.season ?? game.season) },
+        {
+          label: 'Champions',
+          value: last === undefined || last.championId === ''
+            ? '—' : game.clubs.get(last.championId)?.nickname ?? last.championId,
+        },
+        {
+          label: 'You finished',
+          value: last === undefined
+            ? '—'
+            : `${String(last.wins)}-${String(last.losses)}${last.ties > 0 ? `-${String(last.ties)}` : ''}`,
+        },
+      ] : [
         { label: 'Cap room', value: money(room), tone: room < 0 ? 'negative' : 'positive' },
         { label: 'Squad', value: String(squad.length) },
         phase === 'RETIREMENTS'
@@ -256,6 +171,10 @@ export function OffseasonScreen({
             </div>
           </Panel>
         </>
+      )}
+
+      {(phase === 'AWARDS' || phase === 'RECAP') && (
+        <SeasonSection game={game} phase={phase} open={open} />
       )}
 
       {phase === 'RETIREMENTS' && (

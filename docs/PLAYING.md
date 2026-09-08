@@ -31,6 +31,7 @@ and offers the list again.
 | Sim to the end | **Team** → *Sim to end of season* (one request per week, stops at the bracket) |
 | Play a playoff round | **Team** → *Play the Opening Round*, then one button per round |
 | Follow the bracket | **Team** or **League** → *See the bracket*, or **Schedule** → the round chips |
+| See the awards | **Team** → *Play the offseason*, then *Close the season* |
 | Play the offseason | **Team** → *Play the offseason* (appears once the final is played) |
 | Skip the offseason | **Team** → *Simulate it → next year*, or *Let the staff handle the rest* at any step |
 | Play year two | **Team** → *Sim week 1* again |
@@ -151,9 +152,14 @@ The coaching award goes for beating what the roster promised, not for the best
 record. An award goes onto the player, where the market reads it: reputation
 follows accolades, so a winner is paid like one the following spring.
 
-The record book updates as seasons are played, single-season and career.
-Office → *Season recap* shows the champion, the awards, the first team, your
-own year and the records that fell.
+The record book updates as seasons are played, single-season and career. It is
+rebuilt when the season is settled rather than at camp, because that is when a
+season's totals stop changing -- and because the year in review is shown three
+steps before camp.
+
+A season ends on the ceremony: the awards, one card each with the margin it was
+won by, and then the year. Office → *Season recap* is the archive, and answers
+for any season the dynasty has played.
 
 ## The offseason you play
 
@@ -161,7 +167,9 @@ Five steps, and a button at every one of them to hand the rest to your staff.
 
 | Step | What you decide |
 |---|---|
-| **Season review** | Nothing. Closing the season grades everyone, ages the league, retires who is finished, runs the carousel and votes on the awards. |
+| **Season over** | Nothing. Closing the season grades everyone, ages the league, retires who is finished, runs the carousel and votes on the awards. |
+| **The awards** | Nothing. Five awards, each with the vote share it was won by and the player it was won from, then the all-league first team. |
+| **The year in review** | Nothing. The champion, your own season, and the records that fell. |
 | **Contracts** | Re-sign your own out-of-contract players, release anyone, trade with another club. |
 | **The draft** | It runs pick by pick and stops on yours. You take a player off your own scouts' board. |
 | **Free agency** | Put offers in. They go to market with every other club's. |

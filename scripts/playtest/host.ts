@@ -69,7 +69,8 @@ export interface Move {
 }
 
 /** The five steps of a winter. The same names the server's saves.phase uses. */
-export type WinterPhase = 'OFFSEASON' | 'RETIREMENTS' | 'DRAFT' | 'FREE_AGENCY' | 'CAMP';
+export type WinterPhase =
+  | 'OFFSEASON' | 'AWARDS' | 'RECAP' | 'RETIREMENTS' | 'DRAFT' | 'FREE_AGENCY' | 'CAMP';
 
 export interface Game {
   readonly league: League;
@@ -335,7 +336,7 @@ export function settleWinter(game: Game): Game {
 
   return {
     ...game,
-    phase: 'RETIREMENTS',
+    phase: 'AWARDS',
     awards: [...game.awards, voted],
     history: [...game.history, {
       season, wins: closing.wins, losses: closing.losses, ties: closing.ties,
