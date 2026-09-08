@@ -71,6 +71,10 @@ handler, the full postseason — fourteen clubs, four rounds, a champion in
 `league_history` — and the offseason that rolls into the next year
 (`docs/PLAYING.md`).
 
+Coaching staffs are real: the seed's coaches call the plays, develop the players
+and scout the draft, and a carousel fires and hires them every winter
+(`docs/PLAYING.md`).
+
 **Does not exist yet:** in-season signing, cutting and trading; awards, honours and
-the record book; the hiring flow and a coaching model. The offseason runs itself,
-your club included.
+the record book; choosing your own staff. The offseason runs itself, your club
+included.

@@ -106,10 +106,40 @@ A week takes about 200 ms on the server; the offseason about a second.
 `player_game_stats` is retained for the current season plus three
 (`prune_player_game_stats`, migration 0017).
 
+## The staff
+
+Every club employs the seed's own coaches: a head coach, two coordinators and
+the position room, each with the seed's attributes. They are not decoration.
+The offensive coordinator's play-calling is what the engine reads on third and
+four; the head coach's game and clock management are what it reads at the end
+of a half; the room's development rating decides how fast that club's young
+players close on their potential, and its evaluation decides how well the club
+reads a draft class.
+
+Development is redistributed, never created: the multiplier is centred on the
+league's own mean, so a league of good staffs does not inflate everyone. That
+is what keeps the forty-season talent-drift check flat with staffs on.
+
+Every winter the carousel runs. A club judges its head coach against what its
+roster said it should win rather than against .500, so a rebuild can survive a
+losing season and a contender cannot. Nobody is fired in his first year, no
+more than a quarter of the league turns over in one winter, coaches retire
+with age, and vacancies are filled from one pool -- the most attractive club
+hiring first, promoting a coordinator where the coordinator is the best
+candidate. New coaches enter each year, named from the league's own names, so
+a fifty-season dynasty never runs out. It all lands in `coach_history`,
+`transactions` (COACH_HIRE, COACH_FIRE, COACH_RETIRE, COACH_PROMOTE) and the
+hot-seat stories in the news feed.
+
+Office → *Coaching staff* shows your room, its rating and where it ranks.
+
 ## What is stubbed or missing
 
 Honestly, and in the order you will notice it:
 
+- **You cannot hire or fire a coach yourself.** The carousel runs itself, your
+  club included: it fires your head coach when the seat gets hot enough and
+  hires the best candidate for you. Choosing your own staff is not built.
 - **No award or honours screen.** The champion is recorded and the bracket is
   playable, but there is no most-valuable-player vote, no all-league team and
   no record book yet. `player_season_grades` is written; nothing reads it.

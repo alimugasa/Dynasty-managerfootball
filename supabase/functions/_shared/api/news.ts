@@ -2,12 +2,11 @@
 //
 // The inputs are built from what actually happened -- the lines just written,
 // the totals just rolled up, the table just recomputed -- not from a parallel
-// tally kept in memory. Two inputs the engine has no model for stay empty and
-// are named as such: there are no coaches in the career model, and no award
-// races have been defined.
+// tally kept in memory. One input the engine has no model for stays empty and
+// is named as such: no award races have been defined.
 
 import type { Db } from './db.ts';
-import type { League } from '../engine/offseason/index.ts';
+import { expectedWins, type League } from '../engine/offseason/index.ts';
 import type { PlayerStatLine, TeamState } from '../engine/types.ts';
 import { STARTERS } from '../engine/types.ts';
 import type { NewsItem, WeekInput } from '../engine/news/types.ts';
@@ -44,6 +43,10 @@ function rating(league: League, teamId: string): number {
 }
 
 export async function buildWeekNews(db: Db, saveId: string, f: WeekFacts): Promise<WeekInput> {
+  // The league's mean roster strength, which every club's expectation is
+  // measured against.
+  const meanRating = f.league.teamIds.reduce((a, id) => a + rating(f.league, id), 0)
+    / Math.max(1, f.league.teamIds.length);
   const identities = await db<IdentityRow[]>`
     select team_id, metro_area, nickname from public.teams where save_id = ${saveId}`;
   const nameOf = new Map(identities.map((t) => [t.team_id, t]));
@@ -111,9 +114,28 @@ export async function buildWeekNews(db: Db, saveId: string, f: WeekFacts): Promi
         weeksOut: injury.weeksOut, starter: isStarter(injury.teamId, injury.playerId),
       }];
     }),
-    // No coach model in the career engine; no award races defined. Empty is
-    // the truth, and the categories those detectors feed stay silent.
-    coaches: [],
+    // Every head coach in the league, against what his roster promised. The
+    // expectation is pro-rated to the games played, because the detector
+    // compares it with the wins a club has in week nine, not with a full
+    // season's.
+    coaches: f.league.coaches.flatMap((coach) => {
+      if (coach.retired || coach.teamId === null || coach.role !== 'HEAD_COACH') return [];
+      const standing = f.standings.get(coach.teamId);
+      if (standing === undefined) return [];
+      const played = standing.wins + standing.losses + standing.ties;
+      if (played === 0) return [];
+      const games = Math.max(1, f.weeks - 1);
+      const full = expectedWins(rating(f.league, coach.teamId), meanRating, games);
+      return [{
+        coachId: coach.id, name: coach.name, teamId: coach.teamId,
+        wins: standing.wins, losses: standing.losses,
+        expectedWins: (full * played) / games,
+        seasonsWithTeam: Math.max(1, Math.round(coach.yearsWithTeam)),
+        hotSeat: coach.hotSeat,
+      }];
+    }),
+    // No award races defined; that category stays silent rather than
+    // inventing a race nobody is running.
     awardRaces: [],
   };
 }

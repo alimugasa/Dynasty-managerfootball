@@ -9,6 +9,7 @@ import {
 import { buildSchedule } from '../../supabase/functions/_shared/engine/season.ts';
 import { simulateGame } from '../../supabase/functions/_shared/engine/simulateGame.ts';
 import { teamStatesFor } from '../../supabase/functions/_shared/engine/careerBridge.ts';
+import { buildTeam } from './fixtures.ts';
 import { primePipeline, runOffseason } from '../../supabase/functions/_shared/engine/offseason/population.ts';
 import { loadCareerLeague } from '../../scripts/drift-report/careerLeague.ts';
 import { readSeedCsv } from '../../scripts/lib/seedCsv.ts';
@@ -245,5 +246,28 @@ describe('twenty seasons of real football', () => {
     }
     expect(champions.length).toBe(20);
     expect(champions.every((c) => league.teamIds.includes(c))).toBe(true);
+  });
+});
+
+describe('a knockout cannot end level', () => {
+  it('plays another overtime period until one club leads', () => {
+    // Two identical clubs, which is the case most likely to produce a tie.
+    const home = buildTeam({ id: 'HOM', abbreviation: 'HOM', baseRating: 70 });
+    const away = buildTeam({ id: 'AWY', abbreviation: 'AWY', baseRating: 70 });
+    for (let seed = 1; seed <= 200; seed += 1) {
+      const result = simulateGame(home, away, createRng(seed), { allowTie: false });
+      expect(result.homeScore, `seed ${String(seed)} ended level`).not.toBe(result.awayScore);
+    }
+  });
+
+  it('still allows a regular-season tie', () => {
+    const home = buildTeam({ id: 'HOM', abbreviation: 'HOM', baseRating: 70 });
+    const away = buildTeam({ id: 'AWY', abbreviation: 'AWY', baseRating: 70 });
+    let ties = 0;
+    for (let seed = 1; seed <= 200; seed += 1) {
+      const result = simulateGame(home, away, createRng(seed), { allowTie: true });
+      if (result.homeScore === result.awayScore) ties += 1;
+    }
+    expect(ties).toBeGreaterThan(0);
   });
 });

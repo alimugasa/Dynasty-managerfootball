@@ -27,6 +27,8 @@ import { weekNews, type Absence } from './news.ts';
 import {
   playoffOutcomes, playRound, seedField, type PlayoffGame,
 } from './postseason.ts';
+import { coachRecords } from './carousel.ts';
+import { ROLE_LABEL } from '../../supabase/functions/_shared/engine/offseason/coaches.ts';
 import type { Seed } from '../../supabase/functions/_shared/engine/playoffs.ts';
 import { freshSeed32 } from '../../supabase/functions/_shared/seed.ts';
 import { clubs, newLeague, openingAbsences, openingSchedule, type Club } from './world.ts';
@@ -248,7 +250,10 @@ export function advanceSeason(game: Game): Game {
 
   const before = new Map(game.league.players.map((p) => [p.id, p.teamId]));
   const season = game.season;
-  const result = runOffseason(game.league, createRng(offseasonStream(game.seed, season)));
+  const headBefore = game.league.coaches.find(
+    (c) => c.teamId === game.userTeamId && c.role === 'HEAD_COACH')?.id ?? null;
+  const result = runOffseason(game.league, createRng(offseasonStream(game.seed, season)),
+    { records: coachRecords(game) });
 
   const mineNow = (p: CareerPlayer): boolean => p.teamId === game.userTeamId;
   const moves: Move[] = [];
@@ -286,6 +291,28 @@ export function advanceSeason(game: Game): Game {
   for (const p of result.expired) {
     if (before.get(p.id) !== game.userTeamId || mineNow(p)) continue;
     moves.push({ season, kind: 'LEFT', name: p.name, detail: `${p.group} · deal ran out` });
+  }
+  for (const m of result.coaches.moves) {
+    if (m.teamId !== game.userTeamId && m.fromTeamId !== game.userTeamId) continue;
+    moves.push({
+      season, kind: m.kind === 'FIRED' ? 'COACH FIRED' : m.kind === 'RETIRED' ? 'COACH RETIRED'
+        : m.kind === 'PROMOTED' ? 'COACH PROMOTED' : 'COACH HIRED',
+      name: m.name,
+      detail: m.kind === 'FIRED'
+        ? `Let go${m.record === null ? '' : ` after ${m.record}`}`
+        : m.role === null ? 'Left the staff' : ROLE_LABEL[m.role],
+    });
+  }
+  const headAfter = game.league.coaches.find(
+    (c) => c.teamId === game.userTeamId && c.role === 'HEAD_COACH')?.id ?? null;
+  if (headBefore !== headAfter && headAfter !== null) {
+    const hired = game.league.coaches.find((c) => c.id === headAfter);
+    if (hired !== undefined) {
+      moves.push({
+        season, kind: 'NEW HEAD COACH', name: hired.name,
+        detail: `${String(Math.round(hired.ability))} overall · ${String(Math.round(hired.experience))} seasons coaching`,
+      });
+    }
   }
 
   const teamIds = game.league.teamIds;

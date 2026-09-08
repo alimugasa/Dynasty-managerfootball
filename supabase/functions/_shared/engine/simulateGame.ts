@@ -191,7 +191,10 @@ export function simulateGame(
 
   // ------------------------------------------------------------------ main loop
   let guard = 0;
-  const maxPlays = 800;
+  // Enough for a full game and, in a knockout, for the overtime periods a
+  // level game keeps playing. Reaching it means the loop is not advancing,
+  // which is a defect and is reported rather than returned as a scoreline.
+  const maxPlays = allowTie ? 800 : 1600;
 
   while (guard < maxPlays) {
     guard += 1;
@@ -213,7 +216,17 @@ export function simulateGame(
         kickoffTo(rng.chance(0.5) ? 'home' : 'away');
         continue;
       }
-      if (state.quarter >= 5) break;
+      if (state.quarter >= 5) {
+        // A knockout cannot end level. One overtime period is not a rule the
+        // engine can enforce -- two clubs can trade field goals -- so another
+        // period is played, and another, until one of them leads. A regular
+        // -season game stops after the one period and is allowed its tie.
+        if (allowTie || state.homeScore !== state.awayScore) break;
+        state.quarter += 1;
+        state.clock = CALIBRATION.clock.overtimeSeconds;
+        kickoffTo(rng.chance(0.5) ? 'home' : 'away');
+        continue;
+      }
       state.quarter += 1;
       state.clock = CALIBRATION.clock.quarterSeconds;
       continue;
@@ -348,6 +361,15 @@ export function simulateGame(
       state.down += 1;
       state.distance -= gained;
     }
+  }
+
+  // A knockout that reached the play cap still level has not been decided by
+  // football, and there is no honest scoreline to return for it. Reported
+  // rather than resolved by a coin the game never tossed.
+  if (!allowTie && state.homeScore === state.awayScore) {
+    throw new Error(
+      `A knockout between ${homeTeam.id} and ${awayTeam.id} was still level after `
+      + `${String(maxPlays)} plays`);
   }
 
   return buildBoxScore(

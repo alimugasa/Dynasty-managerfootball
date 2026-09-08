@@ -9,6 +9,7 @@ import { OFFSEASON } from './calibration.ts';
 import { deadMoneyIfCut, capSheet, expireContracts, cutAppeal } from './contracts.ts';
 import { developAll, NEUTRAL_CONTEXT, type DevelopmentContext } from './development.ts';
 import { developmentContext, playingTimeFrom } from './coaches.ts';
+import { runCarousel, type CarouselResult, type CoachRecord } from './carousel.ts';
 import { STARTERS } from '../types.ts';
 import { developProspects, generateClass, namePalette, type IntakeConfig } from './draftClass.ts';
 import { runDraft, strengthOrder, type DraftResult } from './draft.ts';
@@ -197,14 +198,36 @@ export interface OffseasonResult {
   readonly expired: readonly CareerPlayer[];
   /** Players cut by the compliance pass, drafted rookies included. */
   readonly released: readonly Release[];
+  /** Who was fired, hired, promoted or retired on the coaching staffs. */
+  readonly coaches: CarouselResult;
+}
+
+export interface OffseasonInput {
+  /** Development context, when a caller wants to override the staffs'. */
+  readonly context?: DevelopmentContext;
+  readonly intake?: IntakeConfig;
+  /**
+   * What each club's season was, for the coaching carousel. A caller with no
+   * records -- a drift run, a population report -- gets ageing, retirements
+   * and hiring, and no firings: there is no evidence to fire anyone on.
+   */
+  readonly records?: ReadonlyMap<string, CoachRecord>;
 }
 
 export function runOffseason(
   league: League,
   rng: Rng,
-  context?: DevelopmentContext,
-  intake: IntakeConfig = OFFSEASON.intake,
+  options: OffseasonInput | DevelopmentContext = {},
+  intakeArg?: IntakeConfig,
 ): OffseasonResult {
+  // Callers written before the offseason took records pass a development
+  // context positionally. Both shapes are accepted rather than one being
+  // silently ignored.
+  const input: OffseasonInput = 'playingTime' in options
+    ? { context: options, ...(intakeArg === undefined ? {} : { intake: intakeArg }) }
+    : { ...options, ...(intakeArg === undefined ? {} : { intake: intakeArg }) };
+  const context = input.context;
+  const intake = input.intake ?? OFFSEASON.intake;
   const rules = capRules(league.season);
   // Who develops a player: his club's staff, and how much he plays. A league
   // carrying no coaches -- a save written before staffs existed -- develops
@@ -221,6 +244,10 @@ export function runOffseason(
   const grades = gradeSeason(active, rng, league.season);
 
   const outcomes = developAll(league.players, development, rng);
+  // The carousel runs after development and before the draft, which is the
+  // order it happens in: the staff that coached the season is the staff the
+  // season is credited to, and the staff that drafts is the new one.
+  const coaches = runCarousel(league, input.records ?? new Map(), rng);
   const retired = retireAll(league.players, rng, league.season);
   const expired = expireContracts(league.players);
   const released: Release[] = [];
@@ -265,6 +292,7 @@ export function runOffseason(
     freeAgency,
     expired,
     released,
+    coaches,
   };
 }
 

@@ -128,6 +128,9 @@ Integer 0/1 flags become real booleans throughout, so that
 | `season_schedule.playoff_round` | — | `OPENING`, `QUARTERFINAL`, `CONFERENCE_FINAL`, `LEAGUE_FINAL` (0020) |
 | `standings.conference_seed` | 14 a season | 1-7 per conference, NULL for the eighteen who missed |
 | `league_history.playoff_result` | 32 a season | written when the final is played, not by the offseason |
+| `coaches` / `coach_attributes` | ~500 | the engine's staffs, rewritten after every offseason |
+| `team_coaching_staff` | one per employed coach | the job he holds; deleted and rewritten, because a fired coach has a row to lose |
+| `coach_history` | ~480 a season | what each coach did that year and what became of him |
 | `draft_classes` | ~260 | |
 | `coach_history` | ~130 | |
 | `honours` | ~105 | |

@@ -15,8 +15,13 @@ export {
 } from './grading.ts';
 export { buildIndex, type RosterIndex } from './rosterIndex.ts';
 export {
-  enforceCompliance, primePipeline, runOffseason, type OffseasonResult,
+  enforceCompliance, primePipeline, runOffseason,
+  type OffseasonInput, type OffseasonResult,
 } from './population.ts';
+export {
+  CAROUSEL, expectedWins, generateCoach, retirementChance, runCarousel, seatAfter,
+  type CarouselResult, type CoachMove, type CoachMoveKind, type CoachRecord,
+} from './carousel.ts';
 export {
   freeAgents, meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosteredPlayers,
   rosterOf, rosterValue, ROSTER_QUOTA, ROSTER_SIZE, OFFSEASON_QUOTA,

@@ -110,7 +110,11 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         }
       }),
       nextSeason: () => act('Running offseason…', async () => {
-        await api().call<SeasonOutcome>('advance-season', { saveId: need() });
+        const out = await api().call<SeasonOutcome>('advance-season', { saveId: need() });
+        // The one offseason outcome a manager must not miss.
+        if (out.newHeadCoach) {
+          setNotice('Your club has a new head coach. See Office → Coaching staff.');
+        }
       }),
       setDepthChart: (group, order) => act('Saving…', async () => {
         await api().call('set-depth-chart', { saveId: need(), group, order });

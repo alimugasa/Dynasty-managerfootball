@@ -20,6 +20,8 @@ import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts'
 import {
   defaultDepthChart, positionsFor, projectWorld, seedStandings, writeDepthChart,
 } from './project/index.ts';
+import { coachSeasons, logCoachMoves, writeCoachHistory } from './project/coachHistory.ts';
+import { expectedWins, type CoachRecord, type League } from '../engine/offseason/index.ts';
 import {
   draftedMap, logTransactions, recordDraft, snapshotPlayers, type TransactionCounts,
 } from './project/transactions.ts';
@@ -43,6 +45,47 @@ export interface SeasonOutcome {
   readonly signed: number;
   /** Rows written to transactions, by kind. */
   readonly transactions: TransactionCounts;
+  /** Head coaches who lost their job this winter. */
+  readonly coachesFired: number;
+  /** True when the club you manage changed head coach. */
+  readonly newHeadCoach: boolean;
+}
+
+/**
+ * What each club's season was, as the carousel judges it: the record it
+ * actually had against what its roster said it should have had.
+ *
+ * The expectation is the roster's, not the club's history: a club that
+ * stripped down and won four is not judged against the eleven it won two
+ * years ago. Roster strength is the mean of a club's best 24 abilities, the
+ * same measure the news feed calls a club's rating.
+ */
+async function seasonRecords(
+  db: Db, saveId: string, season: number, league: League, weeks: number,
+): Promise<Map<string, CoachRecord>> {
+  const rows = await db<{
+    team_id: string; wins: number; losses: number; ties: number; playoff_result: string | null;
+  }[]>`
+    select st.team_id, st.wins, st.losses, st.ties, h.playoff_result
+      from public.standings st
+      left join public.league_history h
+        on h.save_id = st.save_id and h.season = st.season and h.team_id = st.team_id
+     where st.save_id = ${saveId} and st.season = ${season}`;
+  const rating = (teamId: string): number => {
+    const top = league.players
+      .filter((p) => p.teamId === teamId && !p.retired)
+      .map((p) => p.ability).sort((a, b) => b - a).slice(0, 24);
+    return top.reduce((a, b) => a + b, 0) / Math.max(1, top.length);
+  };
+  const ratings = new Map(league.teamIds.map((id) => [id, rating(id)]));
+  const values = [...ratings.values()];
+  const mean = values.reduce((a, b) => a + b, 0) / Math.max(1, values.length);
+  return new Map(rows.map((r) => [r.team_id, {
+    wins: r.wins, losses: r.losses, ties: r.ties,
+    expectedWins: expectedWins(ratings.get(r.team_id) ?? mean, mean, weeks - 1),
+    champion: r.playoff_result === 'CHAMPION',
+    madePlayoffs: r.playoff_result !== null && r.playoff_result !== 'MISSED',
+  }]));
 }
 
 /** The table's final line into league_history. The row already exists --
@@ -139,7 +182,20 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
 
   const before = snapshotPlayers(league);
   const positions = await positionsFor(db, saveId);
-  const result = runOffseason(league, createRng(offseasonStream(seed32, season)));
+  // The staffs as the season ended, so a coach fired in the next paragraph
+  // still has the season he coached attached to him.
+  const staffBefore = league.coaches
+    .filter((c) => !c.retired && c.teamId !== null)
+    .map((c) => ({ coachId: c.id, name: c.name, teamId: c.teamId, role: c.role }));
+  const records = await seasonRecords(db, saveId, season, league, weeks);
+  const playoffResults = new Map(
+    (await db<{ team_id: string; playoff_result: string | null }[]>`
+      select team_id, playoff_result from public.league_history
+       where save_id = ${saveId} and season = ${season}`)
+      .flatMap((r) => (r.playoff_result === null ? [] : [[r.team_id, r.playoff_result] as const])));
+  const headBefore = league.coaches.find(
+    (c) => c.teamId === save.user_team_id && c.role === 'HEAD_COACH')?.id ?? null;
+  const result = runOffseason(league, createRng(offseasonStream(seed32, season)), { records });
   if (league.season !== season + 1) {
     throw new Error(`Offseason left the league at ${String(league.season)}, expected ${String(season + 1)}`);
   }
@@ -164,6 +220,10 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
   await recordDraft(db, saveId, league, result.draft);
   const transactions = await logTransactions(db, saveId, season, league, before, result);
 
+  await writeCoachHistory(db, saveId, season,
+    coachSeasons(staffBefore, result.coaches.moves, records, playoffResults));
+  await logCoachMoves(db, saveId, season, league, result.coaches.moves);
+
   await writeSchedule(db, saveId, league.season, league.teamIds, seed32);
   await seedStandings(db, saveId, league.season, league.teamIds);
   await writeDepthChart(db, saveId, save.user_team_id, defaultDepthChart(league, save.user_team_id));
@@ -182,10 +242,14 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
   }));
   await writeLedger(db, saveId, createLedger(league.season));
 
+  const headAfter = league.coaches.find(
+    (c) => c.teamId === save.user_team_id && c.role === 'HEAD_COACH')?.id ?? null;
   return {
     season: league.season, week: 1, phase: 'REGULAR_SEASON',
     retired: result.retired.length, drafted: result.draft.picks.length,
     signed: (transactions['FREE_AGENT_SIGNING'] ?? 0) + (transactions['RE_SIGNING'] ?? 0),
     transactions,
+    coachesFired: result.coaches.moves.filter((m) => m.kind === 'FIRED').length,
+    newHeadCoach: headBefore !== headAfter,
   };
 }
