@@ -12,3 +12,10 @@ test-results/
 # Python bytecode from the frozen reference engine
 __pycache__/
 *.pyc
+
+# The play-test build: generated from legacy/seed and the engine by
+# `node scripts/playtest/build.ts`. The sources are tracked; the 900KB output
+# and the packed world are not.
+scripts/playtest/dist/
+scripts/playtest/playtest.html
+scripts/playtest/world.json

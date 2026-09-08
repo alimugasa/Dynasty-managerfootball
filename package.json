@@ -25,7 +25,8 @@
     "db:dev-user": "psql \"$DATABASE_URL\" -v uid=\"'${DEV_USER_ID:-00000000-0000-0000-0000-000000000001}'\" -f supabase/dev/dev_user.sql",
     "db:fresh": "scripts/db-fresh.sh",
     "loop:check": "node scripts/loop-check.ts",
-    "walk": "node scripts/walk.ts"
+    "walk": "node scripts/walk.ts",
+    "playtest": "node scripts/playtest/seed.ts && node scripts/playtest/build.ts"
   },
   "dependencies": {
     "postgres": "^3.4.9",
