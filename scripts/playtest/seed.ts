@@ -17,6 +17,11 @@ const SEED = join(process.cwd(), 'legacy', 'seed');
 const KEEP: Readonly<Record<string, readonly string[]>> = {
   teams: ['team_id', 'metro_area', 'nickname', 'division_id', 'conference_id',
     'primary_color', 'secondary_color', 'market_size'],
+  // The league names its own conferences and divisions. The rig shows those
+  // names rather than deriving labels from the ids, exactly as the server's
+  // league read does.
+  league_conferences: ['conference_id', 'name'],
+  league_divisions: ['division_id', 'conference_id', 'name'],
   players: ['player_id', 'display_name', 'team_id', 'position', 'position_group',
     'age', 'experience_years', 'overall_rating', 'potential_rating'],
   player_attributes: ['player_id', 'work_ethic', 'durability', 'football_iq'],

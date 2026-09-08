@@ -85,6 +85,14 @@ Screens register filters and sort order through `useUiState` rather than
 the unmounted screen; state held on the frame does not. Two frames of the same
 screen keep their UI state independently.
 
+Sorting is one shared control, `SortControl`, and it is never a tappable column
+header: on a phone a standings column is thirty pixels wide, a precise tap is
+hard, and a header that sorts one table while it navigates on another teaches
+the reader nothing reliable. The control takes fields with labels and reports
+the selection; the screen does the sorting. Direction is one separate tap, and
+a field may declare itself `fixed` when it has no direction to reverse -- the
+league's own standing being the case that matters.
+
 The stack is split across two contexts. `Navigator` holds the imperative methods
 and is stable for the life of the provider; `NavigationState` holds the current
 frame and changes on every push, pop and filter tap. A component reading only

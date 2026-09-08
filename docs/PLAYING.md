@@ -27,6 +27,10 @@ and offers the list again.
 | Sim a week | **Team** tab → *Sim week N* |
 | Read the box score | **Team** → *Last result* row, or **Schedule** → any played fixture |
 | Standings and leaders | **League** tab |
+| Split the table | **League** → *League* / *Conference* / *Division* |
+| Sort the table | **League** → the sort chips, then the ▼/▲ pill to reverse |
+| Read a leaderboard | **League** → *Leaders* → side of the ball, then a board |
+| Playoff leaders | **League** → *Leaders* → **PLAYOFFS** |
 | Read the news | **Office** tab → News |
 | Sim to the end | **Team** → *Sim to end of season* (one request per week, stops at the bracket) |
 | Play a playoff round | **Team** → *Play the Opening Round*, then one button per round |
@@ -65,6 +69,37 @@ picks up exactly where it was. Playoff production is written under
 `competition = 'PLAYOFF'` and never joins the regular season's totals or the
 table. When the final is played, every club's line goes into `league_history`
 with its seed and how far it got, and the champion's players each gain a ring.
+
+## The table, and who leads it
+
+Two splits sit on the League screen and they are not the same split.
+
+The **table** splits by where a club sits: the whole league, its two
+conferences, or its eight divisions, under the names the league itself gives
+them (`league_conferences` and `league_divisions`, not labels the screen made
+up). It arrives in the league's own order -- win percentage, then points
+difference -- and that order is the standing. Sorting it by any column is a
+view of the same rows and never a different league position, which is why
+*League order* is a sort field of its own rather than a hidden default. Sorting
+is the explicit control above the table rather than tappable column headers,
+for the reason in `docs/PROMPT-BOOK.md` prompt 0061: a standings column on a
+phone is thirty pixels wide. The sort is stable, so equal values keep the
+league's order between them and the same sort applied twice gives the same
+rows in the same places.
+
+The **leaders** split by what a player leads in and by competition. Twelve
+boards, ten deep, over three sides of the ball: passing yards, passing
+touchdowns, rushing yards, rushing touchdowns, receiving yards, receiving
+touchdowns and receptions; sacks, interceptions and tackles; field goals and
+punting yards. Each row carries the games its number was made in, so a leader
+on four playoff games is not read as one on seventeen. A regular-season board
+and a playoff board are separate records and are never summed -- the toggle
+asks a different question of the same read, and the `REGULAR` / `PLAYOFF` split
+in `player_season_stats` is what makes summing them impossible rather than
+merely discouraged.
+
+There is no playoff table, only a bracket, so the table does not change when
+the leaders do.
 
 ## Where the game runs
 

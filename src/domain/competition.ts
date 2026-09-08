@@ -31,3 +31,13 @@ export const COMPETITION_LABEL: Record<Competition, string> = {
   REGULAR_SEASON: 'REGULAR SEASON',
   PLAYOFFS: 'PLAYOFFS',
 };
+
+/**
+ * What the tables call these. The database stores REGULAR and PLAYOFF; the
+ * domain names them in full because a screen label has room to. One mapping,
+ * here, so that no screen invents its own spelling of a wire value.
+ */
+export const COMPETITION_PARAM: Record<Competition, 'REGULAR' | 'PLAYOFF'> = {
+  REGULAR_SEASON: 'REGULAR',
+  PLAYOFFS: 'PLAYOFF',
+};

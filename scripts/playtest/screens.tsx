@@ -7,9 +7,15 @@ import { ListRow } from '../../src/components/ListRow';
 import { StatTiles } from '../../src/components/StatTiles';
 import { TeamMark } from '../../src/components/TeamMark';
 import { ChipRow } from '../../src/components/ChipRow';
-import { TableScroll } from '../../src/components/TableScroll';
 import { ActionButton } from '../../src/components/ActionButton';
 import { ranking, squad } from './host';
+import { boardsFor, leagueGroups, tableFor } from './leaders';
+import { CompetitionToggle } from '../../src/components/CompetitionToggle';
+import { COMPETITION_PARAM, type Competition } from '../../src/domain/competition';
+import {
+  DEFAULT_SORT, LEAGUE_ORDER, LeadersPanel, SPLIT_CHIPS, StandingsPanel,
+  type Sort, type Split,
+} from '../../src/screens/leaguePanels';
 import { nextRound, ROUND_LABEL, type PlayoffRound } from './postseason';
 import { ordinal, record, type ScreenProps as Props } from './common';
 
@@ -204,40 +210,25 @@ function lastRoundSurvivor(game: Props['game']): boolean {
 }
 
 export function LeagueScreen(
-  { game, open, conference, setConference }:
-  Props & { conference: string; setConference: (key: string) => void },
+  { game, open, ui, setUi }:
+  Props & { ui: Readonly<Record<string, string>>; setUi: (key: string, value: string) => void },
 ) {
-  const rows = ranking(game.standings).filter((s) => conference === 'all'
-    || game.clubs.get(s.teamId)?.conferenceId === conference);
-  const seedOf = new Map(game.seeds.map((s) => [s.teamId, s.seed]));
+  // The same two panels the product renders, from the same shapes: the rig
+  // builds what the league read returns instead of asking a server for it.
+  const competition: Competition = ui['leaderComp'] === 'PLAYOFFS' ? 'PLAYOFFS' : 'REGULAR_SEASON';
+  const rows = tableFor(game);
+  const groups = leagueGroups();
+  const boards = boardsFor(game, COMPETITION_PARAM[competition]);
+  const played = competition === 'PLAYOFFS' ? game.playoffs.length : game.results.length;
+  const sortKey = ui['leagueSort'] ?? '';
+  const sort: Sort = sortKey === ''
+    ? DEFAULT_SORT
+    : { key: sortKey.slice(1) as Sort['key'], dir: sortKey.startsWith('-') ? 'desc' : 'asc' };
   const champion = game.seeds.length === 0 ? null : nextRound(game).champion;
-  const totals = new Map<string, { pass: number; rush: number; rec: number }>();
-  for (const g of game.results) {
-    for (const line of g.players) {
-      const t = totals.get(line.playerId) ?? { pass: 0, rush: 0, rec: 0 };
-      t.pass += line.passYards; t.rush += line.rushYards; t.rec += line.receivingYards;
-      totals.set(line.playerId, t);
-    }
-  }
-  const byId = new Map(game.league.players.map((p) => [p.id, p]));
-  const leader = (key: 'pass' | 'rush' | 'rec') => [...totals.entries()]
-    .map(([id, t]) => ({ id, value: t[key], player: byId.get(id) }))
-    .filter((e) => e.value > 0 && e.player !== undefined)
-    .sort((a, b) => b.value - a.value)[0];
-
-  const th = { textAlign: 'left' as const, color: COLOR.mut, fontSize: 11, padding: '6px 8px', whiteSpace: 'nowrap' as const };
-  const td = { color: COLOR.tx, fontSize: 13, padding: '6px 8px', whiteSpace: 'nowrap' as const };
+  const nameOf = (id: string): string => game.clubs.get(id)?.nickname ?? id;
 
   return (
     <>
-      <div style={{ marginTop: 8 }}>
-        <ChipRow
-          chips={[{ key: 'all', label: 'All' }, { key: 'AC', label: 'American' }, { key: 'NC', label: 'National' }]}
-          value={conference}
-          onChange={setConference}
-          label="Conference"
-        />
-      </div>
       {game.seeds.length > 0 && (
         <>
           <SectionHeader title="Postseason" />
@@ -257,61 +248,51 @@ export function LeagueScreen(
       )}
 
       <SectionHeader title="Standings" />
-      <Panel padded={false}>
-        <div style={{ padding: 12 }}>
-          <TableScroll>
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-              <thead>
-                <tr>
-                  <th style={th}>Club</th><th style={th}>W-L</th><th style={th}>GP</th>
-                  <th style={th}>PF</th><th style={th}>PA</th><th style={th}>Diff</th>
-                  <th style={th}>Sd</th>
-                </tr>
-              </thead>
-              <tbody data-testid="standings-body">
-                {rows.map((s) => (
-                  <tr key={s.teamId} style={{ borderTop: `1px solid ${COLOR.line}` }}>
-                    <td style={{ ...td, color: s.teamId === game.userTeamId ? COLOR.amber : COLOR.tx }}>
-                      {game.clubs.get(s.teamId)?.nickname ?? s.teamId}
-                    </td>
-                    <td style={td}>{record(s)}</td>
-                    <td style={td}>{s.wins + s.losses + s.ties}</td>
-                    <td style={td}>{s.pointsFor}</td>
-                    <td style={td}>{s.pointsAgainst}</td>
-                    <td style={td}>{s.pointsFor - s.pointsAgainst}</td>
-                    <td style={{ ...td, color: seedOf.get(s.teamId) === undefined ? COLOR.dim : COLOR.amber }}>
-                      {seedOf.get(s.teamId) ?? '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableScroll>
-        </div>
-      </Panel>
+      <div style={{ marginBottom: 8 }}>
+        <ChipRow
+          chips={SPLIT_CHIPS}
+          value={ui['leagueSplit'] ?? 'CONFERENCE'}
+          onChange={(key) => { setUi('leagueSplit', key); }}
+          label="Standings split"
+        />
+      </div>
+      <StandingsPanel
+        rows={rows}
+        conferences={groups.conferences}
+        divisions={groups.divisions}
+        split={(ui['leagueSplit'] ?? 'CONFERENCE') as Split}
+        sort={sort}
+        onSort={(next) => {
+          setUi('leagueSort', next.key === LEAGUE_ORDER ? '' : `${next.dir === 'desc' ? '-' : '+'}${next.key}`);
+        }}
+        userTeamId={game.userTeamId}
+        nameOf={nameOf}
+      />
 
       <SectionHeader title="Leaders" />
-      {game.results.length === 0 ? (
-        <EmptyState title="No games played yet" detail="Leaders appear once a week has been simulated." />
+      <div style={{ marginBottom: 8 }}>
+        <CompetitionToggle
+          value={competition}
+          onChange={(c) => { setUi('leaderComp', c); }}
+        />
+      </div>
+      {played === 0 ? (
+        <EmptyState
+          title="No games played yet"
+          detail={competition === 'PLAYOFFS'
+            ? 'Leaders appear once the bracket has been played.'
+            : 'Leaders appear once a week has been simulated.'}
+        />
       ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            {([['pass', 'Passing'], ['rush', 'Rushing'], ['rec', 'Receiving']] as const).map(([key, label]) => {
-              const top = leader(key);
-              if (top === undefined) return null;
-              return (
-                <ListRow
-                  key={key}
-                  title={top.player?.name ?? top.id}
-                  subtitle={`${label} · ${top.player?.group ?? ''}`}
-                  trailing={<span style={{ color: COLOR.amber, fontSize: 13 }}>{String(top.value)} yds</span>}
-                  navigable
-                  onSelect={() => { open('player', top.id); }}
-                />
-              );
-            })}
-          </div>
-        </Panel>
+        <LeadersPanel
+          boards={boards}
+          boardKey={ui['leaderBoard'] ?? 'passYards'}
+          onBoard={(key) => { setUi('leaderBoard', key); }}
+          side={ui['leaderSide'] ?? 'OFFENCE'}
+          onSide={(next) => { setUi('leaderSide', next); }}
+          nameOf={nameOf}
+          onSelect={(playerId) => { open('player', playerId); }}
+        />
       )}
     </>
   );

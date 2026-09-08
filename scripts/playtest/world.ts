@@ -47,6 +47,31 @@ export function clubs(): Map<string, Club> {
   return out;
 }
 
+/** A conference or a division, by the name the league gives it. Mirrors
+ *  LeagueGroup in the server's league read. */
+export interface Group {
+  readonly id: string;
+  readonly name: string;
+  readonly conferenceId: string | null;
+}
+
+export function conferences(): Group[] {
+  return table('league_conferences')
+    .map((row) => ({ id: row['conference_id'] ?? '', name: row['name'] ?? '', conferenceId: null }))
+    .filter((g) => g.id !== '')
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+export function divisions(): Group[] {
+  return table('league_divisions')
+    .map((row) => ({
+      id: row['division_id'] ?? '', name: row['name'] ?? '',
+      conferenceId: row['conference_id'] ?? '',
+    }))
+    .filter((g) => g.id !== '')
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
 /** The seed's own first-season schedule: 272 games over 18 weeks, with byes. */
 export function openingSchedule(): Fixture[] {
   return table('season_schedule')

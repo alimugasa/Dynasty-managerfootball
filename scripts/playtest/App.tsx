@@ -42,7 +42,9 @@ export function App() {
   const [drill, setDrill] = useState<Drill | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [group, setGroup] = useState('QB');
-  const [conference, setConference] = useState('all');
+  // The league screen's split, sort, competition and board, held on the frame
+  // the way the product holds them in navigation state.
+  const [leagueUi, setLeagueUi] = useState<Record<string, string>>({});
   const [week, setWeek] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -225,7 +227,12 @@ export function App() {
           />
         )}
         {tab === 'league' && (
-          <LeagueScreen game={game} open={open} conference={conference} setConference={setConference} />
+          <LeagueScreen
+            game={game}
+            open={open}
+            ui={leagueUi}
+            setUi={(key, value) => { setLeagueUi((prev) => ({ ...prev, [key]: value })); }}
+          />
         )}
         {tab === 'schedule' && (
           <ScheduleScreen game={game} open={open} week={week} setWeek={setWeek} />

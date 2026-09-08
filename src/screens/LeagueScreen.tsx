@@ -1,35 +1,45 @@
-// League: standings and leaders.
+// League: the table, split how you want it, and who leads it in what.
+//
+// Two splits are on this screen and they are not the same split. The table is
+// split by where a club sits -- league, conference, division -- because that is
+// how the league is organised. The leaders are split by competition, because a
+// seventeen-game regular season and a four-game playoff run are separate
+// records that are never summed (src/domain/competition.ts). The table has no
+// competition control: there is no playoff table, only a bracket.
 
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
-import { ChipRow, type Chip } from '../components/ChipRow';
-import { TableScroll } from '../components/TableScroll';
+import { CompetitionToggle } from '../components/CompetitionToggle';
+import { ChipRow } from '../components/ChipRow';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { useUiState } from '../app/useUiState';
+import { COMPETITION_PARAM, type Competition } from '../domain/competition';
 import { Screen } from './Screen';
+import {
+  DEFAULT_SORT, LEAGUE_ORDER, LeadersPanel, SPLIT_CHIPS, StandingsPanel,
+  type Sort, type Split,
+} from './leaguePanels';
 import type { LeagueOut } from '../../supabase/functions/_shared/api/reads/league';
-
-const CONFERENCES: readonly Chip[] = [
-  { key: 'all', label: 'All' },
-  { key: 'AC', label: 'American' },
-  { key: 'NC', label: 'National' },
-];
-
-const recordOf = (s: { wins: number; losses: number; ties: number }): string =>
-  `${String(s.wins)}-${String(s.losses)}${s.ties > 0 ? `-${String(s.ties)}` : ''}`;
 
 export function LeagueScreen() {
   const nav = useNavigator();
-  const [conference, setConference] = useUiState('conference', 'all');
+  const [split, setSplit] = useUiState<string>('leagueSplit', 'CONFERENCE');
+  const [sort, setSort] = useUiState<Sort>('leagueSort', DEFAULT_SORT);
+  const [competition, setCompetition] = useUiState<Competition>('leaderComp', 'REGULAR_SEASON');
+  const [side, setSide] = useUiState<string>('leaderSide', 'OFFENCE');
+  const [boardKey, setBoardKey] = useUiState<string>('leaderBoard', 'passYards');
   const { save, loaded, loadError, clubsById, version } = useSave();
-  const q = useQuery<LeagueOut>('league', { saveId: save?.saveId ?? '' }, version, save !== null);
+  const q = useQuery<LeagueOut>(
+    'league',
+    { saveId: save?.saveId ?? '', competition: COMPETITION_PARAM[competition] },
+    version, save !== null,
+  );
 
-  const th = { textAlign: 'left' as const, color: COLOR.mut, fontSize: 11, padding: '6px 8px', whiteSpace: 'nowrap' as const };
-  const td = { color: COLOR.tx, fontSize: 13, padding: '6px 8px', whiteSpace: 'nowrap' as const };
+  const nameOf = (teamId: string): string => clubsById.get(teamId)?.nickname ?? teamId;
 
   return (
     <Screen title="League" subtitle={save === null ? '' : String(save.season)} screen="league">
@@ -37,10 +47,6 @@ export function LeagueScreen() {
       {loaded && save === null && <NoDynasty />}
       {save !== null && (
         <>
-          <div style={{ marginTop: 8 }}>
-            <ChipRow chips={CONFERENCES} value={conference} onChange={setConference} label="Conference" />
-          </div>
-
           {q.status === 'ready' && q.data.standings.some((r) => r.seed !== null) && (
             <>
               <SectionHeader title="Postseason" />
@@ -64,64 +70,47 @@ export function LeagueScreen() {
           {q.status === 'loading' && <Loading label="Loading standings" rows={8} />}
           {q.status === 'ready' && (
             <>
-              <Panel padded={false}>
-                <div style={{ padding: 12 }}>
-                  <TableScroll>
-                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                      <thead>
-                        <tr>
-                          <th style={th}>Club</th><th style={th}>W-L</th><th style={th}>GP</th>
-                          <th style={th}>PF</th><th style={th}>PA</th><th style={th}>Diff</th>
-                          <th style={th}>Sd</th>
-                        </tr>
-                      </thead>
-                      <tbody data-testid="standings-body">
-                        {q.data.standings
-                          .filter((s) => conference === 'all' || s.conferenceId === conference)
-                          .map((s) => (
-                            <tr key={s.teamId} style={{ borderTop: `1px solid ${COLOR.line}` }}>
-                              <td style={{ ...td, color: s.teamId === save.userTeamId ? COLOR.amber : COLOR.tx }}>
-                                {clubsById.get(s.teamId)?.nickname ?? s.teamId}
-                              </td>
-                              <td style={td}>{recordOf(s)}</td>
-                              <td style={td}>{s.played}</td>
-                              <td style={td}>{s.pointsFor}</td>
-                              <td style={td}>{s.pointsAgainst}</td>
-                              <td style={td}>{s.pointsFor - s.pointsAgainst}</td>
-                              <td style={{ ...td, color: s.seed === null ? COLOR.dim : COLOR.amber }}>
-                                {s.seed ?? '—'}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </TableScroll>
-                </div>
-              </Panel>
+              <div style={{ marginBottom: 8 }}>
+                <ChipRow chips={SPLIT_CHIPS} value={split} onChange={setSplit} label="Standings split" />
+              </div>
+              <StandingsPanel
+                rows={q.data.standings}
+                conferences={q.data.conferences}
+                divisions={q.data.divisions}
+                split={split as Split}
+                sort={sort}
+                onSort={setSort}
+                userTeamId={save.userTeamId}
+                nameOf={nameOf}
+                onSelect={(teamId) => { nav.push('team', { id: teamId }); }}
+              />
+              <p style={{ margin: '6px 2px 0', color: COLOR.dim, fontSize: 11 }}>
+                {sort.key === LEAGUE_ORDER
+                  ? 'Ordered by the league: win percentage, then points difference.'
+                  : 'Sorted by one column. League order restores the standing.'}
+              </p>
 
               <SectionHeader title="Leaders" />
+              <div style={{ marginBottom: 8 }}>
+                <CompetitionToggle value={competition} onChange={setCompetition} />
+              </div>
               {q.data.gamesPlayed === 0 ? (
-                <EmptyState title="No games played yet" detail="Leaders appear once a week has been simulated." />
+                <EmptyState
+                  title="No games played yet"
+                  detail={competition === 'PLAYOFFS'
+                    ? 'Leaders appear once the bracket has been played.'
+                    : 'Leaders appear once a week has been simulated.'}
+                />
               ) : (
-                <Panel padded={false}>
-                  <div style={{ padding: '0 12px' }}>
-                    {([['pass', 'Passing'], ['rush', 'Rushing'], ['rec', 'Receiving']] as const)
-                      .map(([key, label]) => {
-                        const top = q.data.leaders[key][0];
-                        if (top === undefined) return null;
-                        return (
-                          <ListRow
-                            key={key}
-                            title={top.name}
-                            subtitle={`${label} · ${top.group}`}
-                            trailing={<span style={{ color: COLOR.amber, fontSize: 13 }}>{String(top.value)} yds</span>}
-                            navigable
-                            onSelect={() => { nav.push('player', { id: top.playerId }); }}
-                          />
-                        );
-                      })}
-                  </div>
-                </Panel>
+                <LeadersPanel
+                  boards={q.data.boards}
+                  boardKey={boardKey}
+                  onBoard={setBoardKey}
+                  side={side}
+                  onSide={setSide}
+                  nameOf={nameOf}
+                  onSelect={(playerId) => { nav.push('player', { id: playerId }); }}
+                />
               )}
             </>
           )}

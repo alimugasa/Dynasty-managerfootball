@@ -104,8 +104,11 @@ await page.getByRole('button', { name: 'Back' }).click();
 
 // Standings.
 await tab(page, 'League').click();
-await page.getByTestId('standings-body').waitFor();
-out(`standings rows: ${String(await page.locator('[data-testid="standings-body"] tr').count())}; leaders: ${(await page.getByText(/Passing ·/).count())} passing`);
+// One tbody per group: the table splits by conference by default, so this is
+// two of them, and eight under the division split.
+await page.getByTestId('standings-body').first().waitFor();
+await page.getByTestId('leader-board').waitFor();
+out(`standings rows: ${String(await page.locator('[data-testid="standings-body"] tr').count())}; leaderboard rows: ${String(await page.locator('[data-testid="leader-board"] > *').count())}`);
 
 // News.
 await tab(page, 'Office').click();

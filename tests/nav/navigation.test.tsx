@@ -173,12 +173,17 @@ describe('frame state', () => {
   it('keeps two frames of one screen independent', async () => {
     render(<App />);
     fireEvent.click(tab('League'));
-    fireEvent.click(await screen.findByRole('tab', { name: 'American' }, { timeout: 15_000 }));
-    expect(screen.getByRole('tab', { name: 'American' }).getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(await screen.findByRole('tab', { name: 'Division' }, { timeout: 15_000 }));
+    expect(screen.getByRole('tab', { name: 'Division' }).getAttribute('aria-selected')).toBe('true');
 
     fireEvent.click(tab('League'));
     // A second frame of the same screen starts clean rather than inheriting.
-    expect(screen.getByRole('tab', { name: 'All' }).getAttribute('aria-selected')).toBe('true');
+    // The control comes back with the table, so it is awaited rather than
+    // assumed to be on screen the instant the tab is tapped.
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Conference' }).getAttribute('aria-selected')).toBe('true');
+      expect(screen.getByRole('tab', { name: 'Division' }).getAttribute('aria-selected')).toBe('false');
+    }, { timeout: 15_000 });
   });
 });
 
