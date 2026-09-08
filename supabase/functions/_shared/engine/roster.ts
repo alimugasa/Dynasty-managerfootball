@@ -49,8 +49,13 @@ export function createRuntime(team: TeamState): TeamRuntime {
  * MissingUnitError still reports it rather than inventing a body.
  */
 const EMERGENCY_FALLBACK: Partial<Record<PositionGroup, PositionGroup>> = {
-  TE: 'WR', WR: 'TE', RB: 'WR',
+  QB: 'RB', OL: 'TE', TE: 'WR', WR: 'TE', RB: 'WR',
   EDGE: 'DT', DT: 'EDGE', LB: 'S', S: 'CB', CB: 'S',
+  // The punter kicks and the kicker punts. A club whose only specialist is
+  // hurt plays the game with the other one doing both jobs, badly, rather
+  // than forfeiting it: eight of 272 games a season were going unplayed for
+  // a missing kicker, and a season with 15-game clubs in it has no table.
+  K: 'P', P: 'K',
 };
 
 /** Out-of-position players are worse at the job. */

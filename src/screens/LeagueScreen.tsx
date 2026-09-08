@@ -52,7 +52,7 @@ export function LeagueScreen() {
                     <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                       <thead>
                         <tr>
-                          <th style={th}>Club</th><th style={th}>W-L</th>
+                          <th style={th}>Club</th><th style={th}>W-L</th><th style={th}>GP</th>
                           <th style={th}>PF</th><th style={th}>PA</th><th style={th}>Diff</th>
                         </tr>
                       </thead>
@@ -65,6 +65,7 @@ export function LeagueScreen() {
                                 {clubsById.get(s.teamId)?.nickname ?? s.teamId}
                               </td>
                               <td style={td}>{recordOf(s)}</td>
+                              <td style={td}>{s.played}</td>
                               <td style={td}>{s.pointsFor}</td>
                               <td style={td}>{s.pointsAgainst}</td>
                               <td style={td}>{s.pointsFor - s.pointsAgainst}</td>

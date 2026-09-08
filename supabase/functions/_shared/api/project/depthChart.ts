@@ -15,7 +15,7 @@ import { ENGINE_DATA_CLASS, positionsFor } from './players.ts';
 const UNIT_OF: Readonly<Record<PositionGroup, string>> = {
   QB: 'Offense', RB: 'Offense', WR: 'Offense', TE: 'Offense', OL: 'Offense',
   EDGE: 'Defense', DT: 'Defense', LB: 'Defense', CB: 'Defense', S: 'Defense',
-  K: 'Special Teams', P: 'Special Teams',
+  K: 'Special Teams', P: 'Special Teams', LS: 'Special Teams',
 };
 
 export type DepthChart = Readonly<Record<PositionGroup, readonly string[]>>;

@@ -13,7 +13,7 @@ import type { PositionGroup } from '../types.ts';
 export const PEAK_AGE: Readonly<Record<PositionGroup, number>> = {
   QB: 29, RB: 25, WR: 27, TE: 27, OL: 29,
   EDGE: 27, DT: 28, LB: 27, CB: 26, S: 27,
-  K: 32, P: 32,
+  K: 32, P: 32, LS: 32,
 };
 
 /** Rating points lost per year once past peak, before the age ramp. Running
@@ -21,14 +21,14 @@ export const PEAK_AGE: Readonly<Record<PositionGroup, number>> = {
 export const DECLINE_RATE: Readonly<Record<PositionGroup, number>> = {
   QB: 1.1, RB: 2.85, WR: 1.75, TE: 1.55, OL: 1.2,
   EDGE: 1.7, DT: 1.55, LB: 1.8, CB: 2.3, S: 1.8,
-  K: 0.7, P: 0.7,
+  K: 0.7, P: 0.7, LS: 0.7,
 };
 
 /** Hard ceiling on ability by group. */
 export const POSITION_CEILING: Readonly<Record<PositionGroup, number>> = {
   QB: 99, RB: 94, WR: 98, TE: 95, OL: 97,
   EDGE: 98, DT: 96, LB: 95, CB: 97, S: 95,
-  K: 87, P: 85,
+  K: 87, P: 85, LS: 80,
 };
 
 /** How much accumulated experience can add on the mental side, by group. A
@@ -36,7 +36,7 @@ export const POSITION_CEILING: Readonly<Record<PositionGroup, number>> = {
  *  not get much back for it. */
 export const MENTAL_CAP: Readonly<Record<PositionGroup, number>> = {
   QB: 7, OL: 5, S: 4, LB: 4, TE: 3.5,
-  RB: 2.5, WR: 2.5, EDGE: 2.5, DT: 2.5, CB: 2.5, K: 2.5, P: 2.5,
+  RB: 2.5, WR: 2.5, EDGE: 2.5, DT: 2.5, CB: 2.5, K: 2.5, P: 2.5, LS: 2.5,
 };
 
 export const OFFSEASON = {

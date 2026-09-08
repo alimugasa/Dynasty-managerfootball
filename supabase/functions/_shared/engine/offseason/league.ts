@@ -5,11 +5,12 @@ import { POSITION_GROUPS, type PositionGroup } from '../types.ts';
 import type { TeamFront } from './frontOffice.ts';
 import type { CareerPlayer, Prospect } from './types.ts';
 
-/** Roster shape, 53 players. Fixed so supply and demand stay aligned and a club
- *  cannot answer a shortage at one position by carrying eleven of another. */
+/** Roster shape, 53 players: the seed's own composition of a 53, long snapper
+ *  included. Fixed so supply and demand stay aligned and a club cannot answer
+ *  a shortage at one position by carrying eleven of another. */
 export const ROSTER_QUOTA: Readonly<Record<PositionGroup, number>> = {
-  QB: 3, RB: 4, WR: 7, TE: 3, OL: 10,
-  EDGE: 4, DT: 4, LB: 6, CB: 6, S: 4, K: 1, P: 1,
+  QB: 2, RB: 4, WR: 6, TE: 3, OL: 10,
+  EDGE: 5, DT: 5, LB: 5, CB: 6, S: 4, K: 1, P: 1, LS: 1,
 };
 
 export const ROSTER_SIZE = POSITION_GROUPS.reduce((n, g) => n + ROSTER_QUOTA[g], 0);
@@ -25,7 +26,7 @@ export const ROSTER_SIZE = POSITION_GROUPS.reduce((n, g) => n + ROSTER_QUOTA[g],
  */
 export const OFFSEASON_QUOTA: Readonly<Record<PositionGroup, number>> = {
   QB: 5, RB: 7, WR: 11, TE: 5, OL: 16,
-  EDGE: 7, DT: 7, LB: 10, CB: 10, S: 7, K: 2, P: 2,
+  EDGE: 7, DT: 7, LB: 10, CB: 10, S: 7, K: 2, P: 2, LS: 2,
 };
 
 export const OFFSEASON_ROSTER_LIMIT =

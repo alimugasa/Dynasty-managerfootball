@@ -47,7 +47,7 @@ export const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
   QB: 'QB', RB: 'RB', FB: 'RB', WR: 'WR', TE: 'TE',
   OT: 'OL', OG: 'OL', C: 'OL',
   EDGE: 'EDGE', DT: 'DT', LB: 'LB', CB: 'CB', S: 'S',
-  K: 'K', P: 'P',
+  K: 'K', P: 'P', LS: 'LS',
 };
 
 export const FIRST_SEASON = 2026;

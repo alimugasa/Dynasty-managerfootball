@@ -13,7 +13,7 @@ import {
 const DEPTH: Readonly<Record<PositionGroup, number>> = {
   QB: 3, RB: 4, WR: 6, TE: 3, OL: 9,
   EDGE: 4, DT: 4, LB: 6, CB: 6, S: 4,
-  K: 1, P: 1,
+  K: 1, P: 1, LS: 1,
 };
 
 export interface TeamSpec {
@@ -36,7 +36,7 @@ export function buildTeam(spec: TeamSpec): TeamState {
   const players: EnginePlayer[] = [];
   const depthChart: Record<PositionGroup, string[]> = {
     QB: [], RB: [], WR: [], TE: [], OL: [],
-    EDGE: [], DT: [], LB: [], CB: [], S: [], K: [], P: [],
+    EDGE: [], DT: [], LB: [], CB: [], S: [], K: [], P: [], LS: [],
   };
 
   for (const group of POSITION_GROUPS) {

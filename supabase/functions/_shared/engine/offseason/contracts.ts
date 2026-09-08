@@ -17,7 +17,7 @@ import type { CareerPlayer, PlayerContract } from './types.ts';
 export const MAX_AAV_SHARE: Readonly<Record<PositionGroup, number>> = {
   QB: 0.205, EDGE: 0.136, WR: 0.119, OL: 0.086, DT: 0.096,
   CB: 0.089, LB: 0.073, S: 0.07, TE: 0.066, RB: 0.053,
-  K: 0.022, P: 0.014,
+  K: 0.022, P: 0.014, LS: 0.008,
 };
 
 /** Where paid ability starts. Below this a player is on the minimum. */

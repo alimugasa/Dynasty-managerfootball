@@ -63,7 +63,7 @@ describe('leaving the league', () => {
 
 describe('pursuits', () => {
   const needs = (over: Partial<TeamNeeds>): TeamNeeds => ({
-    QB: 0, RB: 0, WR: 0, TE: 0, OL: 0, EDGE: 0, DT: 0, LB: 0, CB: 0, S: 0, K: 0, P: 0, ...over,
+    QB: 0, RB: 0, WR: 0, TE: 0, OL: 0, EDGE: 0, DT: 0, LB: 0, CB: 0, S: 0, K: 0, P: 0, LS: 0, ...over,
   });
 
   it('is the top few needs, not every group with any need', () => {

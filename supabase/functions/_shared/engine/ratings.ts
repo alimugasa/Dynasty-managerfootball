@@ -33,6 +33,8 @@ const DEPTH_WEIGHTS: Readonly<Record<PositionGroup, readonly number[]>> = {
   S: [0.55, 0.45],
   K: [1],
   P: [1],
+  // Never built into a unit; listed so the table is total over the groups.
+  LS: [1],
 };
 
 /**

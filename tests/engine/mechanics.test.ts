@@ -242,11 +242,26 @@ describe('injuries', () => {
 });
 
 describe('missing data is reported, never invented', () => {
-  it('throws when a team has no quarterback at all', () => {
+  it('plays a back at quarterback when every quarterback is out, and says so in the box score', () => {
+    // A club is never sent home over one position. The deepest back takes the
+    // snaps, at the out-of-position penalty, and the line shows who it was.
     const team = buildTeam({ id: 'NQB', abbreviation: 'NQB', seed: 91 });
     const stripped: TeamState = {
       ...team,
       depthChart: { ...team.depthChart, QB: [] },
+    };
+    const opponent = buildTeam({ id: 'ANY', abbreviation: 'ANY', seed: 92 });
+    const result = simulateGame(stripped, opponent, createRng(1));
+    const passer = result.players.find((l) => l.teamId === 'NQB' && l.passAttempts > 0);
+    expect(passer).toBeDefined();
+    expect(team.players.find((p) => p.id === passer?.playerId)?.group).toBe('RB');
+  });
+
+  it('throws when neither a group nor its fallback has anyone', () => {
+    const team = buildTeam({ id: 'NQB', abbreviation: 'NQB', seed: 91 });
+    const stripped: TeamState = {
+      ...team,
+      depthChart: { ...team.depthChart, QB: [], RB: [] },
     };
     const opponent = buildTeam({ id: 'ANY', abbreviation: 'ANY', seed: 92 });
     expect(() => simulateGame(stripped, opponent, createRng(1)))

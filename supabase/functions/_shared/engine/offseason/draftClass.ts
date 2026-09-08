@@ -61,8 +61,11 @@ export function gammaDeviate(rng: Rng, shape: number, scale: number): number {
  * turns over.
  */
 export const CLASS_COMPOSITION: Readonly<Record<PositionGroup, number>> = {
-  QB: 3, RB: 7, WR: 8, TE: 4, OL: 11,
-  EDGE: 5, DT: 5, LB: 7, CB: 9, S: 5, K: 2, P: 2,
+  // Sized to ROSTER_QUOTA: a class that supplies four edge rushers' worth
+  // of demand into a league that carries five leaves a club a body short
+  // once the pool runs dry, which it did in year sixteen of a forty-year run.
+  QB: 3, RB: 7, WR: 7, TE: 4, OL: 11,
+  EDGE: 6, DT: 6, LB: 6, CB: 9, S: 5, K: 2, P: 2, LS: 2,
 };
 
 /**

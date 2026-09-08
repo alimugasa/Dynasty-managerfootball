@@ -20,6 +20,7 @@ const GROUPS: readonly Chip[] = [
   { key: 'TE', label: 'TE' }, { key: 'OL', label: 'OL' }, { key: 'EDGE', label: 'Edge' },
   { key: 'DT', label: 'DT' }, { key: 'LB', label: 'LB' }, { key: 'CB', label: 'CB' },
   { key: 'S', label: 'S' }, { key: 'K', label: 'K' }, { key: 'P', label: 'P' },
+  { key: 'LS', label: 'LS' },
 ];
 
 export function RosterScreen() {

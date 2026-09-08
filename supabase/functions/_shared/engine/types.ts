@@ -8,17 +8,19 @@
 export type PositionGroup =
   | 'QB' | 'RB' | 'WR' | 'TE' | 'OL'
   | 'EDGE' | 'DT' | 'LB' | 'CB' | 'S'
-  | 'K' | 'P';
+  | 'K' | 'P' | 'LS';
 
 export const POSITION_GROUPS: readonly PositionGroup[] = [
-  'QB', 'RB', 'WR', 'TE', 'OL', 'EDGE', 'DT', 'LB', 'CB', 'S', 'K', 'P',
+  'QB', 'RB', 'WR', 'TE', 'OL', 'EDGE', 'DT', 'LB', 'CB', 'S', 'K', 'P', 'LS',
 ] as const;
 
 /** How many of each group are on the field for a base snap. */
 export const STARTERS: Readonly<Record<PositionGroup, number>> = {
   QB: 1, RB: 1, WR: 3, TE: 1, OL: 5,
   EDGE: 2, DT: 2, LB: 3, CB: 3, S: 2,
-  K: 1, P: 1,
+  // The long snapper is on the roster and never asked for by a play: the
+  // game model has no long snap. Zero here means no unit is built around him.
+  K: 1, P: 1, LS: 0,
 };
 
 /** `overall` is required. Every other rating is an optional refinement: when a

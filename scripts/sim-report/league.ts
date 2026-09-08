@@ -29,7 +29,7 @@ const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
  *  which is an offseason roster; a club that plays a game dresses far fewer. */
 const ACTIVE: Readonly<Record<PositionGroup, number>> = {
   QB: 3, RB: 4, WR: 6, TE: 3, OL: 9,
-  EDGE: 4, DT: 4, LB: 6, CB: 6, S: 4, K: 1, P: 1,
+  EDGE: 4, DT: 4, LB: 6, CB: 6, S: 4, K: 1, P: 1, LS: 1,
 };
 
 /** Detailed attributes are sparse in the seed and position-specific. Anything

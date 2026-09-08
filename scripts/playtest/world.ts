@@ -59,17 +59,11 @@ export function openingSchedule(): Fixture[] {
     .sort((a, b) => a.week - b.week);
 }
 
-/**
- * Who starts the season hurt.
- *
- * The seed's day-to-day list only, as the server does it: its IR and PUP
- * players are on the 53 with nobody behind them, and with no in-season signing
- * a club whose only kicker is on that list cannot field a side at all.
- */
+/** Who starts the season hurt: the seed's whole injury list, as the server
+ *  dates it. A club whose only kicker is on it plays with the punter kicking. */
 export function openingAbsences(): Map<string, number> {
   const out = new Map<string, number>();
   for (const row of table('player_injuries')) {
-    if (row['designation'] !== 'DAY_TO_DAY') continue;
     const weeks = Number(row['weeks_out_estimate']);
     const id = row['player_id'] ?? '';
     if (id === '' || !Number.isFinite(weeks) || weeks < 2) continue;

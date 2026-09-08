@@ -49,21 +49,20 @@ describe('the loop against Postgres', () => {
          where save_id = ${id} and week = 1 order by game_id`;
       return rows.map((r) => `${r.game_id}:${String(r.home_score)}-${String(r.away_score)}`).join(' ');
     };
-    // A fixture no side can be fielded for is reported, never invented: the
-    // seed's day-to-day list can leave a club without its only kicker in
-    // week one, and that game stays unplayed.
-    expect(weekA.played + weekA.abandoned.length).toBe(16);
-    expect(weekA.played).toBeGreaterThanOrEqual(12);
-    expect(await countRows(pipe.sql, 'game_results', a)).toBe(weekA.played);
+    // Every fixture is played. A club whose only kicker is hurt kicks with
+    // its punter rather than forfeiting.
+    expect(weekA.abandoned).toEqual([]);
+    expect(weekA.played).toBe(16);
+    expect(await countRows(pipe.sql, 'game_results', a)).toBe(16);
     expect(await scores(a)).not.toBe(await scores(b));
   }, 60_000);
 
   it('writes a week whole: lines, totals, table, injuries, stories, and the save', async () => {
     const [a] = saves as [string, string];
     const lines = await countRows(pipe.sql, 'player_game_stats', a);
-    expect(lines).toBeGreaterThan(300);
+    expect(lines).toBeGreaterThan(500);
     expect(await countRows(pipe.sql, 'player_season_stats', a)).toBe(lines);
-    expect(await countRows(pipe.sql, 'standings', a, 'and wins + losses + ties = 1')).toBeGreaterThanOrEqual(24);
+    expect(await countRows(pipe.sql, 'standings', a, 'and wins + losses + ties = 1')).toBe(32);
     expect(await countRows(pipe.sql, 'news', a, 'and week = 1')).toBeGreaterThan(0);
     const [save] = await pipe.sql<{ week: number; phase: string }[]>`
       select week, phase from public.saves where id = ${a}`;

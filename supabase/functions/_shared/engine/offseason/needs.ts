@@ -13,14 +13,14 @@ import type { CareerPlayer } from './types.ts';
  *  against the starters, not against the whole roster. */
 export const STARTERS: Readonly<Record<PositionGroup, number>> = {
   QB: 1, RB: 1, WR: 3, TE: 1, OL: 5,
-  EDGE: 2, DT: 2, LB: 3, CB: 3, S: 2, K: 1, P: 1,
+  EDGE: 2, DT: 2, LB: 3, CB: 3, S: 2, K: 1, P: 1, LS: 1,
 };
 
 /** Positional value: what a club will pay to be good here. A quarterback moves
  *  a season more than a punter does, and boards have to say so. */
 export const POSITION_VALUE: Readonly<Record<PositionGroup, number>> = {
   QB: 1.0, EDGE: 0.8, OL: 0.66, CB: 0.68, WR: 0.62, DT: 0.55,
-  S: 0.4, TE: 0.38, LB: 0.35, RB: 0.28, K: 0.12, P: 0.1,
+  S: 0.4, TE: 0.38, LB: 0.35, RB: 0.28, K: 0.12, P: 0.1, LS: 0.05,
 };
 
 /** The rating a starting group is measured against. Above this there is no

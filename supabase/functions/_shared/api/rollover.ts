@@ -15,7 +15,7 @@
 
 import type { Db } from './db.ts';
 import { badRequest } from './context.ts';
-import { offseasonStream, rngSeed32, seasonWeeks, touchSave, type SaveRow } from './save.ts';
+import { offseasonStream, rngSeed32, scheduleStream, seasonWeeks, touchSave, type SaveRow } from './save.ts';
 import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts';
 import {
   defaultDepthChart, positionsFor, projectWorld, seedStandings, writeDepthChart,
@@ -24,7 +24,7 @@ import {
   draftedMap, logTransactions, recordDraft, snapshotPlayers, type TransactionCounts,
 } from './project/transactions.ts';
 import { createRng } from '../engine/rng.ts';
-import { buildSchedule } from '../engine/season.ts';
+import { permuteSchedule } from '../engine/season.ts';
 import { runOffseason } from '../engine/offseason/population.ts';
 import { createLedger } from '../engine/news/index.ts';
 import { serialize } from '../save/index.ts';
@@ -62,9 +62,20 @@ async function closeSeason(db: Db, saveId: string, season: number, meanOverall: 
   await db`select public.refresh_team_season_summary(${saveId}::uuid, ${season})`;
 }
 
-async function writeSchedule(db: Db, saveId: string, season: number, teamIds: readonly string[], weeks: number): Promise<void> {
-  const fixtures = buildSchedule(teamIds, weeks).filter(
-    (f) => f.homeTeamId !== '__BYE__' && f.awayTeamId !== '__BYE__');
+/** The shape of the season just played: the same games, weeks and byes with
+ *  the clubs renamed by a seeded permutation, so every year is 17 games over
+ *  18 weeks like the seed's, and not the byeless 18 the round-robin makes. */
+async function writeSchedule(
+  db: Db, saveId: string, season: number, teamIds: readonly string[], seed32: number,
+): Promise<void> {
+  const shape = await db<{ week: number; home_team_id: string; away_team_id: string }[]>`
+    select week, home_team_id, away_team_id from public.season_schedule
+     where save_id = ${saveId} and season = ${season - 1} and competition = 'REGULAR'
+     order by week, game_id`;
+  if (shape.length === 0) throw new Error(`No ${String(season - 1)} schedule to shape ${String(season)} from`);
+  const fixtures = permuteSchedule(
+    shape.map((r) => ({ week: r.week, homeTeamId: r.home_team_id, awayTeamId: r.away_team_id })),
+    teamIds, createRng(scheduleStream(seed32, season)));
   const perWeek = new Map<number, number>();
   const ids = fixtures.map((f) => {
     const n = (perWeek.get(f.week) ?? 0) + 1;
@@ -137,7 +148,7 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
   await recordDraft(db, saveId, league, result.draft);
   const transactions = await logTransactions(db, saveId, season, league, before, result);
 
-  await writeSchedule(db, saveId, league.season, league.teamIds, weeks);
+  await writeSchedule(db, saveId, league.season, league.teamIds, seed32);
   await seedStandings(db, saveId, league.season, league.teamIds);
   await writeDepthChart(db, saveId, save.user_team_id, defaultDepthChart(league, save.user_team_id));
 

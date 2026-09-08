@@ -91,6 +91,41 @@ function withoutInjured(team: TeamState, out: ReadonlySet<string>): TeamState {
 const emptyRecord = (): TeamRecord =>
   ({ wins: 0, losses: 0, ties: 0, pointsFor: 0, pointsAgainst: 0 });
 
+/**
+ * Next year's schedule from this year's shape.
+ *
+ * A league's calendar has a shape -- how many games, where the byes fall, who
+ * is home when -- and the seed's is 17 games over 18 weeks with byes in the
+ * middle. The circle method above makes 18 games in 18 weeks with no byes,
+ * which is a different competition. So a later season keeps the shape and
+ * changes the names: every club is mapped to another by a seeded permutation,
+ * and the fixtures come out with the same weeks and the same home/away
+ * pattern under different opponents. The same seed gives the same calendar.
+ */
+export function permuteSchedule(
+  shape: readonly Fixture[], teamIds: readonly string[], rng: Rng,
+): Fixture[] {
+  const from = [...new Set(shape.flatMap((f) => [f.homeTeamId, f.awayTeamId]))].sort();
+  const to = [...teamIds].sort();
+  if (from.length !== to.length) {
+    throw new Error(
+      `A schedule for ${String(from.length)} clubs cannot be reshaped for ${String(to.length)}`);
+  }
+  // Fisher-Yates over the seeded stream.
+  for (let i = to.length - 1; i > 0; i -= 1) {
+    const j = rng.int(0, i);
+    const a = to[i];
+    const b = to[j];
+    if (a !== undefined && b !== undefined) { to[i] = b; to[j] = a; }
+  }
+  const map = new Map(from.map((id, i) => [id, to[i] ?? id]));
+  return shape.map((f) => ({
+    week: f.week,
+    homeTeamId: map.get(f.homeTeamId) ?? f.homeTeamId,
+    awayTeamId: map.get(f.awayTeamId) ?? f.awayTeamId,
+  }));
+}
+
 export interface SeasonOptions {
   readonly weeks?: number;
   /** Called with each finished game, for a caller that wants to persist them.

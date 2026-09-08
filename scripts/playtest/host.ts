@@ -10,7 +10,7 @@
 import { createRng } from '../../supabase/functions/_shared/engine/rng.ts';
 import { simulateGame } from '../../supabase/functions/_shared/engine/simulateGame.ts';
 import { teamStatesFor, teamStateFor } from '../../supabase/functions/_shared/engine/careerBridge.ts';
-import { buildSchedule, type Fixture } from '../../supabase/functions/_shared/engine/season.ts';
+import { permuteSchedule, type Fixture } from '../../supabase/functions/_shared/engine/season.ts';
 import {
   MissingUnitError, POSITION_GROUPS, STARTERS,
   type PlayerStatLine, type PositionGroup, type TeamBoxScore, type TeamState,
@@ -24,7 +24,7 @@ import {
   type NewsItem, type NewsLedger,
 } from '../../supabase/functions/_shared/engine/news/index.ts';
 import type { WeekInput } from '../../supabase/functions/_shared/engine/news/types.ts';
-import { gameStream, newsStream, offseasonStream } from '../../supabase/functions/_shared/api/save.ts';
+import { gameStream, newsStream, offseasonStream, scheduleStream } from '../../supabase/functions/_shared/api/save.ts';
 import { freshSeed32 } from '../../supabase/functions/_shared/seed.ts';
 import { clubs, newLeague, openingAbsences, openingSchedule, type Club } from './world.ts';
 
@@ -343,8 +343,10 @@ export function advanceSeason(game: Game): Game {
   }
 
   const teamIds = game.league.teamIds;
-  const schedule = buildSchedule(teamIds, game.weeks)
-    .filter((f) => f.homeTeamId !== '__BYE__' && f.awayTeamId !== '__BYE__');
+  // Next year keeps this year's shape -- 17 games, 18 weeks, the byes where
+  // they were -- with the clubs renamed by a seeded permutation.
+  const schedule = permuteSchedule(
+    game.schedule, teamIds, createRng(scheduleStream(game.seed, game.league.season)));
   const userTeamId = teamIds.includes(game.userTeamId) ? game.userTeamId : (teamIds[0] ?? '');
 
   return {

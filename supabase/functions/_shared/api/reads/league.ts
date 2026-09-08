@@ -10,6 +10,7 @@ export interface LeagueIn { readonly saveId: string }
 export interface TableRow {
   readonly teamId: string; readonly conferenceId: string;
   readonly wins: number; readonly losses: number; readonly ties: number;
+  readonly played: number;
   readonly pointsFor: number; readonly pointsAgainst: number;
 }
 
@@ -61,7 +62,8 @@ export const league: Handler<LeagueIn, LeagueOut> = {
     return {
       standings: table.map((r) => ({
         teamId: r.team_id, conferenceId: r.conference_id, wins: r.wins, losses: r.losses,
-        ties: r.ties, pointsFor: r.points_for, pointsAgainst: r.points_against,
+        ties: r.ties, played: r.wins + r.losses + r.ties,
+        pointsFor: r.points_for, pointsAgainst: r.points_against,
       })),
       leaders: { pass: await leaders('pass_yards'), rush: await leaders('rush_yards'), rec: await leaders('rec_yards') },
       gamesPlayed: Number(n),

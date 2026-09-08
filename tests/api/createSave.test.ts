@@ -55,25 +55,22 @@ describe('create-save', () => {
     expect(doc?.season).toBe(out.season);
     expect(doc?.players).toBeGreaterThan(2000);
     expect(Number(doc?.pipeline)).toBe(4);
-    // 52 engine players and the seed's long snapper on every roster; the
-    // snapper is not the engine's, so his roster and contract rows are the
-    // seed's own and survive the projection.
+    // 53 on every roster, the long snapper included: the seed's own 53.
     expect(await count('team_rosters')).toBe(32 * 53);
     expect(await count('team_rosters', "and position = 'LS'")).toBe(32);
     const [rostered] = await sql<{ n: number }[]>`
       select count(*)::int as n from jsonb_array_elements(
         (select document->'players' from public.save_documents where save_id = ${out.saveId})) p
        where p->>'teamId' is not null`;
-    expect(rostered?.n).toBe(32 * 52);
-    expect(await count('free_agents', "and position <> 'LS'")).toBe((doc?.players ?? 0) - 32 * 52);
-    expect(await count('player_contracts', "and data_class = 'ENGINE'")).toBe(32 * 52);
-    // The seed's day-to-day injuries are dated to the season's start, so the
-    // week runner honours them; its long-term list waits for in-season signing.
-    expect(await count('player_injuries', "and designation = 'DAY_TO_DAY' and injured_season is null")).toBe(0);
-    expect(await count('player_injuries', "and designation <> 'DAY_TO_DAY' and injured_season is not null")).toBe(0);
+    expect(rostered?.n).toBe(32 * 53);
+    expect(await count('free_agents')).toBe((doc?.players ?? 0) - 32 * 53);
+    expect(await count('player_contracts', "and data_class = 'ENGINE'")).toBe(32 * 53);
+    // The seed's whole injury list is dated to the season's start, so the
+    // week runner honours it.
+    expect(await count('player_injuries', 'and injured_season is null')).toBe(0);
     expect(await count('salary_cap')).toBe(32);
     expect(await count('standings', 'and wins = 0 and losses = 0')).toBe(32);
-    expect(await count('team_depth_charts', "and team_id = 'BUF'")).toBe(52);
+    expect(await count('team_depth_charts', "and team_id = 'BUF'")).toBe(53);
     expect(await count('players')).toBe(await count('players', '')); // no player row lost
     const [status] = await sql<{ phase: string; week: number }[]>`
       select phase, week from public.saves where id = ${out.saveId}`;

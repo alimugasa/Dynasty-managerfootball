@@ -62,6 +62,10 @@ export const newsStream = (seed32: number, season: number, week: number): number
   seed32 + season * 1000 + week * 31;
 export const offseasonStream = (seed32: number, season: number): number =>
   seed32 + season;
+/** Who plays whom next year: its own stream, so a change to the offseason
+ *  never reshuffles the calendar. */
+export const scheduleStream = (seed32: number, season: number): number =>
+  seed32 + season * 1000 + 999;
 
 /** How long the season is, read from its schedule rather than assumed. */
 export async function seasonWeeks(db: Db, saveId: string, season: number): Promise<number> {
