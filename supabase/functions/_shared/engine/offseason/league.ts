@@ -2,6 +2,7 @@
 // the offseason orchestration alike, so it holds no logic that depends on them.
 
 import { POSITION_GROUPS, type PositionGroup } from '../types.ts';
+import type { CareerCoach } from './coaches.ts';
 import type { TeamFront } from './frontOffice.ts';
 import type { CareerPlayer, Prospect } from './types.ts';
 
@@ -38,6 +39,10 @@ export interface League {
   readonly fronts: Map<string, TeamFront>;
   /** Every player still in the game, rostered or not. */
   players: CareerPlayer[];
+  /** Every coach still in the game, employed or not. A league loaded from a
+   *  save written before staffs existed carries none, and the engine falls
+   *  back to league-average coaching until one is hired. */
+  coaches: CareerCoach[];
   /** Classes not yet drafted, keyed by their draft year. */
   pipeline: Map<number, Prospect[]>;
   /** Money still owed to released players, by club. */

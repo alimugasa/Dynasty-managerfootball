@@ -8,6 +8,8 @@
 import { OFFSEASON } from './calibration.ts';
 import { deadMoneyIfCut, capSheet, expireContracts, cutAppeal } from './contracts.ts';
 import { developAll, NEUTRAL_CONTEXT, type DevelopmentContext } from './development.ts';
+import { developmentContext, playingTimeFrom } from './coaches.ts';
+import { STARTERS } from '../types.ts';
 import { developProspects, generateClass, namePalette, type IntakeConfig } from './draftClass.ts';
 import { runDraft, strengthOrder, type DraftResult } from './draft.ts';
 import { runFreeAgency, type FreeAgencyResult } from './freeAgency.ts';
@@ -200,10 +202,17 @@ export interface OffseasonResult {
 export function runOffseason(
   league: League,
   rng: Rng,
-  context: DevelopmentContext = NEUTRAL_CONTEXT,
+  context?: DevelopmentContext,
   intake: IntakeConfig = OFFSEASON.intake,
 ): OffseasonResult {
   const rules = capRules(league.season);
+  // Who develops a player: his club's staff, and how much he plays. A league
+  // carrying no coaches -- a save written before staffs existed -- develops
+  // everyone at the league rate, which is what it did before they existed.
+  const development = context ?? (league.coaches.length === 0
+    ? NEUTRAL_CONTEXT
+    : developmentContext(
+      league.coaches, league.teamIds, playingTimeFrom(league.players, STARTERS)));
 
   // Dead money is carried for the season it was incurred and then written off.
   league.deadMoney.clear();
@@ -211,7 +220,7 @@ export function runOffseason(
   const active = league.players.filter((p) => !p.retired && p.teamId !== null);
   const grades = gradeSeason(active, rng, league.season);
 
-  const outcomes = developAll(league.players, context, rng);
+  const outcomes = developAll(league.players, development, rng);
   const retired = retireAll(league.players, rng, league.season);
   const expired = expireContracts(league.players);
   const released: Release[] = [];

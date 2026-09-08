@@ -14,7 +14,9 @@ import type { CareerPlayer, Prospect } from '../engine/offseason/types.ts';
 import type { TeamFront } from '../engine/offseason/frontOffice.ts';
 import type { PositionGroup } from '../engine/types.ts';
 import { POSITION_GROUPS } from '../engine/types.ts';
-import type { SavedPlayer, SavedProspect, SaveDocument } from './types.ts';
+import type { SavedCoach, SavedPlayer, SavedProspect, SaveDocument } from './types.ts';
+import { COACH_ROLES, COACH_TREES, type CareerCoach, type CoachRole, type CoachTree }
+  from '../engine/offseason/coaches.ts';
 
 export class SaveCorruptError extends Error {
   readonly path: string;
@@ -53,6 +55,44 @@ function group(value: unknown, path: string): PositionGroup {
     throw new SaveCorruptError(path, `"${g}" is not a position group`);
   }
   return g as PositionGroup;
+}
+
+function loadCoach(raw: SavedCoach, i: number): CareerCoach {
+  const at = `coaches[${String(i)}]`;
+  const role = raw.role === null ? null : str(raw.role, `${at}.role`);
+  if (role !== null && !(COACH_ROLES as readonly string[]).includes(role)) {
+    throw new SaveCorruptError(`${at}.role`, `"${role}" is not a coaching job`);
+  }
+  const tree = str(raw.tree, `${at}.tree`);
+  if (!(COACH_TREES as readonly string[]).includes(tree)) {
+    throw new SaveCorruptError(`${at}.tree`, `"${tree}" is not a coaching tree`);
+  }
+  return {
+    id: str(raw.id, `${at}.id`),
+    name: str(raw.name, `${at}.name`),
+    teamId: raw.teamId === null ? null : str(raw.teamId, `${at}.teamId`),
+    role: role as CoachRole | null,
+    tree: tree as CoachTree,
+    age: num(raw.age, `${at}.age`),
+    experience: num(raw.experience, `${at}.experience`),
+    yearsWithTeam: num(raw.yearsWithTeam, `${at}.yearsWithTeam`),
+    seasonsAsHeadCoach: num(raw.seasonsAsHeadCoach, `${at}.seasonsAsHeadCoach`),
+    playCalling: num(raw.playCalling, `${at}.playCalling`),
+    gameManagement: num(raw.gameManagement, `${at}.gameManagement`),
+    clockManagement: num(raw.clockManagement, `${at}.clockManagement`),
+    aggressiveness: num(raw.aggressiveness, `${at}.aggressiveness`),
+    development: num(raw.development, `${at}.development`),
+    evaluation: num(raw.evaluation, `${at}.evaluation`),
+    leadership: num(raw.leadership, `${at}.leadership`),
+    ability: num(raw.ability, `${at}.ability`),
+    reputation: num(raw.reputation, `${at}.reputation`),
+    careerWins: num(raw.careerWins, `${at}.careerWins`),
+    careerLosses: num(raw.careerLosses, `${at}.careerLosses`),
+    careerTies: num(raw.careerTies, `${at}.careerTies`),
+    rings: num(raw.rings, `${at}.rings`),
+    hotSeat: num(raw.hotSeat, `${at}.hotSeat`),
+    retired: bool(raw.retired, `${at}.retired`),
+  };
 }
 
 function loadPlayer(raw: SavedPlayer, i: number): CareerPlayer {
@@ -145,6 +185,12 @@ export function deserialize(document: SaveDocument): LoadedSave {
   }
 
   const players = document.players.map(loadPlayer);
+  const coaches = (document.coaches ?? []).map(loadCoach);
+  for (const coach of coaches) {
+    if (coach.teamId !== null && !known.has(coach.teamId)) {
+      throw new SaveCorruptError(`coaches["${coach.id}"]`, 'employed by a club not in the league');
+    }
+  }
 
   const pipeline = new Map<number, Prospect[]>();
   for (const [year, list] of Object.entries(document.pipeline)) {
@@ -166,7 +212,7 @@ export function deserialize(document: SaveDocument): LoadedSave {
   }
 
   return {
-    league: { teamIds, fronts, players, pipeline, deadMoney, season },
+    league: { teamIds, fronts, players, coaches, pipeline, deadMoney, season },
     document,
   };
 }

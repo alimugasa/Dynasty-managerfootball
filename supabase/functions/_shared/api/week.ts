@@ -158,7 +158,8 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
   const out = await absentPlayers(db, saveId, season, week);
 
   const teams = withUserDepthChart(
-    teamStatesFor(league.teamIds, league.players, { fronts: league.fronts }),
+    teamStatesFor(league.teamIds, league.players,
+      { fronts: league.fronts, coaches: league.coaches }),
     save.user_team_id, chart);
   const rng = createRng(gameStream(seed32, season, week));
   const games = await playFixtures(

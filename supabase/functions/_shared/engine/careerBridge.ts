@@ -19,6 +19,9 @@
 
 import type { CareerPlayer } from './offseason/types.ts';
 import type { TeamFront } from './offseason/frontOffice.ts';
+import {
+  coachingStateFor, LEAGUE_AVERAGE_RATING, type CareerCoach,
+} from './offseason/coaches.ts';
 import { POSITION_GROUPS, type EnginePlayer, type PositionGroup, type TeamState }
   from './types.ts';
 
@@ -44,10 +47,12 @@ function toEnginePlayer(p: CareerPlayer): EnginePlayer {
 }
 
 export interface BridgeOptions {
-  /** Front offices, used only for coaching quality. A club with no front gets
-   *  league-average coaching rather than an exception: a missing front office
-   *  should not stop a game being played. */
+  /** Front offices. Kept for the clubs a caller builds by hand; the coaching
+   *  a club gets comes from its staff where one is passed. */
   readonly fronts?: ReadonlyMap<string, TeamFront>;
+  /** The league's coaches. A club with no staff gets league-average coaching
+   *  rather than an exception: a missing staff should not stop a game. */
+  readonly coaches?: readonly CareerCoach[];
 }
 
 /**
@@ -69,8 +74,20 @@ export function teamStateFor(
     depthChart[group] = ranked.filter((p) => p.group === group).map((p) => p.id);
   }
 
+  // Who calls the plays and manages the clock. Before staffs existed this was
+  // the front office standing in for a coach; now it is the coach, and the
+  // stand-in is what a club without one falls back to.
   const front = options.fronts?.get(teamId);
-  const coachRating = front === undefined ? 55 : (front.scouting + front.prestige) / 2;
+  const standIn = front === undefined
+    ? LEAGUE_AVERAGE_RATING : (front.scouting + front.prestige) / 2;
+  const staffed = options.coaches !== undefined
+    && options.coaches.some((c) => !c.retired && c.teamId === teamId);
+  const coaching = staffed
+    ? coachingStateFor(options.coaches ?? [], teamId)
+    : {
+      playCalling: standIn, gameManagement: standIn,
+      clockManagement: standIn, aggressiveness: 50,
+    };
 
   return {
     id: teamId,
@@ -83,12 +100,7 @@ export function teamStateFor(
       fourthDownAggression: 50,
       tempo: 50,
     },
-    coaching: {
-      playCalling: coachRating,
-      gameManagement: coachRating,
-      clockManagement: coachRating,
-      aggressiveness: 50,
-    },
+    coaching,
   };
 }
 

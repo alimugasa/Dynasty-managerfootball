@@ -118,7 +118,7 @@ const PLAYOFF_RESULT: Readonly<Record<string, string>> = {
   CHAMPION: 'Champions',
 };
 
-export function OfficeScreen({ game, onRestart }: Props & { onRestart: () => void }) {
+export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () => void }) {
   const sheet = capFor(game, game.userTeamId);
   const feed = [...game.news].reverse();
   return (
@@ -148,6 +148,18 @@ export function OfficeScreen({ game, onRestart }: Props & { onRestart: () => voi
           </Panel>
         </>
       )}
+
+      <SectionHeader title="The club" />
+      <Panel padded={false}>
+        <div style={{ padding: '0 12px' }}>
+          <ListRow
+            title="Coaching staff"
+            subtitle="Who calls the plays and develops your players"
+            navigable
+            onSelect={() => { open('staff', ''); }}
+          />
+        </div>
+      </Panel>
 
       <SectionHeader title="News" />
       {feed.length === 0 ? (

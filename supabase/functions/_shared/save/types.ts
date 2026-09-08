@@ -14,6 +14,7 @@
 import type {
   CareerPlayer, FaPersonality, PlayerContract, Prospect,
 } from '../engine/offseason/types.ts';
+import type { CareerCoach, CoachRole, CoachTree } from '../engine/offseason/coaches.ts';
 import type { TeamFront } from '../engine/offseason/frontOffice.ts';
 import type { PositionGroup } from '../engine/types.ts';
 
@@ -84,6 +85,33 @@ export interface SavedProspect {
   readonly footballIq: number;
 }
 
+export interface SavedCoach {
+  readonly id: string;
+  readonly name: string;
+  readonly teamId: string | null;
+  readonly role: CoachRole | null;
+  readonly tree: CoachTree;
+  readonly age: number;
+  readonly experience: number;
+  readonly yearsWithTeam: number;
+  readonly seasonsAsHeadCoach: number;
+  readonly playCalling: number;
+  readonly gameManagement: number;
+  readonly clockManagement: number;
+  readonly aggressiveness: number;
+  readonly development: number;
+  readonly evaluation: number;
+  readonly leadership: number;
+  readonly ability: number;
+  readonly reputation: number;
+  readonly careerWins: number;
+  readonly careerLosses: number;
+  readonly careerTies: number;
+  readonly rings: number;
+  readonly hotSeat: number;
+  readonly retired: boolean;
+}
+
 /** Money owed to released players, by the season the charge was incurred.
  *  A single number could not survive a save reloaded mid-offseason: the engine
  *  writes a charge off at the end of the season it belongs to, and a reload
@@ -97,6 +125,9 @@ export interface SaveDocument {
   readonly teamIds: readonly string[];
   readonly fronts: Readonly<Record<string, TeamFront>>;
   readonly players: readonly SavedPlayer[];
+  /** Every coach in the game, employed or not. Empty in a save written before
+   *  format 4, which the server rehydrates from the save's own coach rows. */
+  readonly coaches: readonly SavedCoach[];
   /** Draft classes not yet drafted, keyed by draft year. */
   readonly pipeline: Readonly<Record<string, readonly SavedProspect[]>>;
   readonly deadMoney: SavedDeadMoney;
@@ -108,4 +139,4 @@ export type UnknownDocument = Record<string, unknown> & { version?: unknown };
 
 /** Runtime types the document maps onto, re-exported so a caller does not have
  *  to reach into the engine to name what load() returns. */
-export type { CareerPlayer, PlayerContract, Prospect, TeamFront };
+export type { CareerCoach, CareerPlayer, PlayerContract, Prospect, TeamFront };

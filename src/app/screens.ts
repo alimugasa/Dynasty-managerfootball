@@ -12,9 +12,10 @@ import { OfficeScreen } from '../screens/OfficeScreen';
 import { RosterScreen } from '../screens/RosterScreen';
 import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { TeamScreen } from '../screens/TeamScreen';
+import { StaffScreen } from '../screens/StaffScreen';
 import {
   CoachScreen, CollegeScreen, DraftPickScreen, GameScreen, PlayerScreen,
-  ScoutingScreen, StaffScreen, TransactionsScreen,
+  ScoutingScreen, TransactionsScreen,
 } from '../screens/EntityScreens';
 
 export interface ScreenDef {

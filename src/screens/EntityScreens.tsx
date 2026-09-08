@@ -304,16 +304,6 @@ export function ScoutingScreen() {
   );
 }
 
-export function StaffScreen() {
-  return (
-    <Screen title="Staff" screen="staff">
-      <SkeletonRegion label="Loading coaching staff">
-        <SkeletonRows rows={6} />
-      </SkeletonRegion>
-    </Screen>
-  );
-}
-
 export function TransactionsScreen() {
   return (
     <Screen title="Transactions" screen="transactions">

@@ -13,6 +13,13 @@ export function requireString(raw: Raw, key: string): string {
   return value.trim();
 }
 
+export function optionalString(raw: Raw, key: string): string | undefined {
+  const value = raw[key];
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string' || value.trim() === '') throw badRequest(`${key} must be a name`);
+  return value.trim();
+}
+
 export function optionalInt(raw: Raw, key: string): number | undefined {
   const value = raw[key];
   if (value === undefined || value === null) return undefined;

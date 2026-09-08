@@ -69,7 +69,8 @@ async function playTenSeasons(): Promise<RunResult> {
     const season = league.season;
 
     // ------------------------------------------------------ play it
-    const teams = teamStatesFor(league.teamIds, league.players, { fronts: league.fronts });
+    const teams = teamStatesFor(league.teamIds, league.players,
+      { fronts: league.fronts, coaches: league.coaches });
     const result = simulateSeason(season, teams, 20260907 + i * 7919);
     gamesPlayed += result.gamesPlayed;
     abandoned += result.abandoned;

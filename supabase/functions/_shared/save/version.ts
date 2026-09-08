@@ -13,7 +13,7 @@
 // A test asserts that all three agree, so a bump without a step fails the build
 // rather than failing on a player's save file.
 
-export const SAVE_SCHEMA_VERSION = 3;
+export const SAVE_SCHEMA_VERSION = 4;
 
 /** The oldest version the loader can still upgrade. Raising this abandons
  *  saves, so it moves only when a step becomes impossible to write. */
@@ -36,6 +36,13 @@ export const VERSION_LOG: readonly VersionNote[] = [
     version: 3,
     summary: 'Added previousTeamId to players. Free-agency loyalty reads it, and '
       + 'a v2 save loaded without it made every player a first-time free agent.',
+  },
+  {
+    version: 4,
+    summary: 'Added coaches: the staffs that call the plays and develop the '
+      + 'players. A v3 save has none, and the step adds an empty list rather '
+      + 'than inventing a staff; the server rehydrates it from the save\'s own '
+      + 'coach rows on the next load.',
   },
 ];
 

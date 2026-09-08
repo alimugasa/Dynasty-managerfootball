@@ -74,6 +74,19 @@ export const MIGRATIONS: readonly MigrationStep[] = [
       };
     },
   },
+  {
+    from: 3,
+    summary: 'coaches: added, empty. A v3 save has no staffs to carry forward.',
+    run: (document) => {
+      // There is nothing in a v3 document to derive a staff from: it holds
+      // players and clubs, and a coach is neither. An empty list is the honest
+      // value -- the engine reads league-average coaching for a club with no
+      // staff, which is exactly the behaviour the save was played under -- and
+      // it is what the server sees when it rehydrates the staffs from the
+      // save's own coach rows, which this step cannot reach.
+      return { ...document, coaches: [], version: 4 };
+    },
+  },
 ];
 
 export class MigrationError extends Error {

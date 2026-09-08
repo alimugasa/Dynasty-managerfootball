@@ -48,5 +48,11 @@ export type {
 } from './types.ts';
 export { capRules, defaultFront, type CapRules, type TeamFront } from './frontOffice.ts';
 export {
+  COACH_ROLES, COACH_TREES, coachingStateFor, coachInRole, developmentContext,
+  developmentRating, employed, evaluationRating, headCoachOf, LEAGUE_AVERAGE_RATING,
+  playingTimeFrom, ROLE_LABEL, staffOf, staffRating, unemployed,
+  type CareerCoach, type CoachRole, type CoachTree,
+} from './coaches.ts';
+export {
   POSITION_VALUE, STARTERS, saturated, teamNeeds, type TeamNeeds,
 } from './needs.ts';

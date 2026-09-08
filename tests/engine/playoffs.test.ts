@@ -190,7 +190,8 @@ describe('twenty seasons of real football', () => {
     const champions: string[] = [];
 
     for (let year = 0; year < 20; year += 1) {
-      const states = teamStatesFor(league.teamIds, league.players, { fronts: league.fronts });
+      const states = teamStatesFor(league.teamIds, league.players,
+        { fronts: league.fronts, coaches: league.coaches });
       const results: Result[] = [];
       const rec = new Map<string, ClubRecord>(league.teamIds.map((id) => [id, club(id, {
         conferenceId: confOf.get(id) ?? '', divisionId: divOf.get(id) ?? '',

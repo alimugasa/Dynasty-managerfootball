@@ -15,7 +15,9 @@
 
 import type { PositionGroup } from './types.ts';
 import {
-  FA_PERSONALITIES, type CareerPlayer, type FaPersonality, type League, type TeamFront,
+  evaluationRating, FA_PERSONALITIES,
+  type CareerCoach, type CareerPlayer, type CoachRole, type CoachTree,
+  type FaPersonality, type League, type TeamFront,
 } from './offseason/index.ts';
 
 /** A cell as a number, or undefined when it is empty or not numeric. Never
@@ -52,6 +54,80 @@ export const GROUP_OF: Readonly<Record<string, PositionGroup>> = {
 
 export const FIRST_SEASON = 2026;
 
+/** The seed's role names, mapped onto the jobs the engine models. Everything
+ *  the seed lists that is not a head coach or a coordinator is a position
+ *  coach: a real person with a career, and the pool coordinators come from. */
+const ROLE_OF: Readonly<Record<string, CoachRole>> = {
+  'Head Coach': 'HEAD_COACH',
+  'Offensive Coordinator': 'OFFENSIVE_COORDINATOR',
+  'Defensive Coordinator': 'DEFENSIVE_COORDINATOR',
+  'Special Teams Coordinator': 'SPECIAL_TEAMS',
+};
+
+const TREE_OF: Readonly<Record<string, CoachTree>> = {
+  Offensive: 'OFFENSE',
+  Defensive: 'DEFENSE',
+  'Special Teams': 'SPECIAL_TEAMS',
+  'Front Office': 'FRONT_OFFICE',
+};
+
+/** The staffs, as the engine models them: the seed's coaches with the seed's
+ *  own attributes, the jobs it assigns them, and the years it says they have
+ *  been there. A coach the seed lists without a club is already in the pool. */
+export function loadCoaches(
+  coachRows: readonly Record<string, string>[],
+  attrRows: readonly Record<string, string>[],
+  staffRows: readonly Record<string, string>[],
+  known: ReadonlySet<string>,
+): CareerCoach[] {
+  const attrsById = new Map<string, Record<string, string>>();
+  for (const row of attrRows) attrsById.set(row['coach_id'] ?? '', row);
+  const staffById = new Map<string, Record<string, string>>();
+  for (const row of staffRows) staffById.set(row['coach_id'] ?? '', row);
+
+  const out: CareerCoach[] = [];
+  for (const row of coachRows) {
+    const id = row['coach_id'] ?? '';
+    if (id === '') continue;
+    const rawTeam = row['team_id'] ?? '';
+    const teamId = known.has(rawTeam) ? rawTeam : null;
+    const attrs = attrsById.get(id);
+    const attr = (column: string, fallback: number): number =>
+      numberOrUndefined(attrs?.[column]) ?? fallback;
+    const overall = numberOrUndefined(row['overall_rating']) ?? 55;
+    out.push({
+      id,
+      name: row['display_name'] ?? id,
+      teamId,
+      role: teamId === null ? null : (ROLE_OF[row['role'] ?? ''] ?? 'POSITION_COACH'),
+      tree: TREE_OF[row['coaching_tree'] ?? ''] ?? 'OFFENSE',
+      age: numberOrUndefined(row['age']) ?? 45,
+      experience: numberOrUndefined(row['years_experience']) ?? 5,
+      yearsWithTeam: numberOrUndefined(staffById.get(id)?.['years_with_team']) ?? 0,
+      // The seed says whether a coach has held the chair before, not for how
+      // long. One season is the least that claim can mean, and claiming more
+      // would invent a record he has not got.
+      seasonsAsHeadCoach: (row['prior_head_coach'] ?? '0') === '1'
+        || (row['role'] ?? '') === 'Head Coach' ? 1 : 0,
+      playCalling: attr('play_calling', overall),
+      gameManagement: attr('game_management', overall),
+      clockManagement: attr('clock_management', overall),
+      aggressiveness: attr('aggressiveness', 50),
+      development: attr('player_development', overall),
+      evaluation: attr('talent_evaluation', overall),
+      leadership: attr('leadership', overall),
+      ability: overall,
+      reputation: overall,
+      // The seed carries no coaching records, and a record cannot be derived
+      // from a rating. A coach's ledger starts the day the dynasty does.
+      careerWins: 0, careerLosses: 0, careerTies: 0, rings: 0,
+      hotSeat: numberOrUndefined(row['hot_seat_rating']) ?? 30,
+      retired: false,
+    });
+  }
+  return out;
+}
+
 /** How the loader gets a table. Injectable so the browser build can hand it
  *  bundled CSV strings instead of a filesystem, and run the same loader rather
  *  than a second one that drifts from it. */
@@ -64,6 +140,7 @@ export function loadCareerWorld(read: SeedReader): League {
   const ownerRows = read('owners');
   const coachRows = read('coaches');
   const coachAttrRows = read('coach_attributes');
+  const staffRows = read('team_coaching_staff');
   const rosterRows = read('team_rosters');
   const contractRows = read('player_contracts');
 
@@ -79,20 +156,7 @@ export function loadCareerWorld(read: SeedReader): League {
   const ownerByTeam = new Map<string, Record<string, string>>();
   for (const row of ownerRows) ownerByTeam.set(row['team_id'] ?? '', row);
 
-  const coachAttrById = new Map<string, Record<string, string>>();
-  for (const row of coachAttrRows) coachAttrById.set(row['coach_id'] ?? '', row);
-
-  const evaluatorByTeam = new Map<string, number>();
-  for (const row of coachRows) {
-    const teamId = row['team_id'] ?? '';
-    if (teamId === '') continue;
-    const evaluation = numberOrUndefined(
-      coachAttrById.get(row['coach_id'] ?? '')?.['talent_evaluation'],
-    );
-    if (evaluation === undefined) continue;
-    const best = evaluatorByTeam.get(teamId);
-    if (best === undefined || evaluation > best) evaluatorByTeam.set(teamId, evaluation);
-  }
+  const coaches = loadCoaches(coachRows, coachAttrRows, staffRows, known);
 
   const fronts = new Map<string, TeamFront>();
   for (const row of teamRows) {
@@ -103,7 +167,9 @@ export function loadCareerWorld(read: SeedReader): League {
     const marketSize = numberOrUndefined(row['market_size']) ?? 5;
     fronts.set(teamId, {
       id: teamId,
-      scouting: evaluatorByTeam.get(teamId) ?? 60,
+      // How well this club reads a prospect is its staff's, not a constant:
+      // the head coach and whoever on the staff evaluates talent best.
+      scouting: evaluationRating(coaches, teamId),
       spending,
       winNow: numberOrUndefined(owner?.['win_now_bias']) ?? 0.5,
       // Standing a player is buying into. Market size is the seed's own proxy.
@@ -197,7 +263,7 @@ export function loadCareerWorld(read: SeedReader): League {
   // roster, which is the engine's decision to make in the offseason, not the
   // loader's to make silently.
   return {
-    teamIds, fronts, players, pipeline: new Map(),
+    teamIds, fronts, players, coaches, pipeline: new Map(),
     deadMoney: new Map(), season: FIRST_SEASON,
   };
 }

@@ -7,6 +7,7 @@
 // relational tables are the projection the client reads.
 
 import type { Db } from './db.ts';
+import { loadCoaches } from '../engine/careerWorld.ts';
 import {
   load, type LoadResult, type SaveDocument, type SaveStore, type UnknownDocument,
 } from '../save/index.ts';
@@ -69,9 +70,34 @@ export interface EngineState extends LoadResult {
   readonly ledger: NewsLedger;
 }
 
+/**
+ * The staffs a save written before format 4 has no record of.
+ *
+ * The migration step cannot reach them: it sees the document alone. They are
+ * not invented here either -- they are read from this save's own coach rows,
+ * cloned from the template when the dynasty was created, which is exactly
+ * where a save created today gets them. A save whose rows are gone gets no
+ * staff and league-average coaching, and says so by holding none.
+ */
+async function rehydrateCoaches(db: Db, saveId: string, league: LoadResult['league']): Promise<void> {
+  if (league.coaches.length > 0) return;
+  const read = async (table: string, key: string): Promise<Record<string, string>[]> => {
+    const rows = await db<Record<string, unknown>[]>`
+      select * from public.${db(table)} where save_id = ${saveId} order by ${db(key)}`;
+    return rows.map((row) => Object.fromEntries(
+      Object.entries(row).map(([k, v]) => [k, v === null || v === undefined ? '' : String(v)])));
+  };
+  league.coaches = loadCoaches(
+    await read('coaches', 'coach_id'),
+    await read('coach_attributes', 'coach_id'),
+    await read('team_coaching_staff', 'coach_id'),
+    new Set(league.teamIds));
+}
+
 /** The league and the ledger, through the migration chain. */
 export async function loadEngineState(db: Db, saveId: string): Promise<EngineState> {
   const loaded = await load(new PostgresSaveStore(db), saveId);
+  await rehydrateCoaches(db, saveId, loaded.league);
   const ledger = await readLedger(db, saveId);
   return { ...loaded, ledger };
 }

@@ -19,7 +19,7 @@
 import { capSheet } from '../engine/offseason/contracts.ts';
 import { capRules } from '../engine/offseason/frontOffice.ts';
 import { OFFSEASON_ROSTER_LIMIT } from '../engine/offseason/league.ts';
-import type { SaveDocument, SavedPlayer } from './types.ts';
+import type { SaveDocument, SavedCoach, SavedPlayer } from './types.ts';
 
 export interface Violation {
   readonly kind: 'NULL' | 'ORPHAN' | 'CAP';
@@ -36,8 +36,34 @@ const REQUIRED_NUMBERS: readonly (keyof SavedPlayer)[] = [
   'gamesMissedCareer', 'gamesMissedSeason', 'allLeague', 'awards', 'rings',
 ];
 
+/** The same rule for a coach: a rating that is not a number is a corrupt
+ *  save, not a coach who happens to be average. */
+const REQUIRED_COACH_NUMBERS: readonly (keyof SavedCoach)[] = [
+  'age', 'experience', 'yearsWithTeam', 'seasonsAsHeadCoach',
+  'playCalling', 'gameManagement', 'clockManagement', 'aggressiveness',
+  'development', 'evaluation', 'leadership', 'ability', 'reputation',
+  'careerWins', 'careerLosses', 'careerTies', 'rings', 'hotSeat',
+];
+
 function checkNulls(document: SaveDocument): Violation[] {
   const out: Violation[] = [];
+
+  for (const c of document.coaches) {
+    for (const field of REQUIRED_COACH_NUMBERS) {
+      const value = c[field];
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        out.push({ kind: 'NULL', where: `coach ${c.id}.${String(field)}`,
+          detail: `is ${JSON.stringify(value)}` });
+      }
+    }
+    if (c.id === '' || c.name === '') {
+      out.push({ kind: 'NULL', where: `coach ${c.id}`, detail: 'blank id or name' });
+    }
+    if (c.teamId !== null && c.role === null) {
+      out.push({ kind: 'NULL', where: `coach ${c.id}.role`,
+        detail: 'employed by a club with no job' });
+    }
+  }
 
   for (const p of document.players) {
     for (const field of REQUIRED_NUMBERS) {

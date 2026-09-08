@@ -3,11 +3,13 @@
 export { projectPlayers, positionsFor, ENGINE_DATA_CLASS, type PlayerProjectionContext } from './players.ts';
 export { projectContracts, projectSalaryCap } from './contracts.ts';
 export { defaultDepthChart, readDepthChart, writeDepthChart, type DepthChart } from './depthChart.ts';
+export { projectCoaches } from './coaches.ts';
 
 import type { Db } from '../db.ts';
 import type { League } from '../../engine/offseason/index.ts';
 import { projectPlayers, type PlayerProjectionContext } from './players.ts';
 import { projectContracts } from './contracts.ts';
+import { projectCoaches } from './coaches.ts';
 
 /** Players, rosters, free agents, contracts and the cap sheet, in that order:
  *  contracts reference players, and the cap sheet reads contracts. */
@@ -16,6 +18,7 @@ export async function projectWorld(
 ): Promise<void> {
   await projectPlayers(db, saveId, league, ctx);
   await projectContracts(db, saveId, league);
+  await projectCoaches(db, saveId, league);
 }
 
 /** A season's opening table: every club at 0-0-0. Explicit zeros, because at

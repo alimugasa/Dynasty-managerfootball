@@ -21,7 +21,8 @@ const UNIT_OF: Readonly<Record<PositionGroup, string>> = {
 export type DepthChart = Readonly<Record<PositionGroup, readonly string[]>>;
 
 export function defaultDepthChart(league: League, teamId: string): DepthChart {
-  return teamStateFor(teamId, league.players, { fronts: league.fronts }).depthChart;
+  return teamStateFor(teamId, league.players,
+    { fronts: league.fronts, coaches: league.coaches }).depthChart;
 }
 
 export async function writeDepthChart(

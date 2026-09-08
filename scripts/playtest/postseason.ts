@@ -100,7 +100,8 @@ export function playRound(game: Game): Game {
     return { ...game, phase: 'OFFSEASON' };
   }
   const rng = createRng(gameStream(game.seed, game.season, game.week));
-  const teams = teamStatesFor(game.league.teamIds, game.league.players, { fronts: game.league.fronts });
+  const teams = teamStatesFor(game.league.teamIds, game.league.players,
+    { fronts: game.league.fronts, coaches: game.league.coaches });
   const playoffs = [...game.playoffs];
   const weekGames: PlayedGame[] = [];
   const injuries: Absence[] = [];

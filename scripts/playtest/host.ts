@@ -93,7 +93,8 @@ const freshTable = (teamIds: readonly string[]): Map<string, Standing> =>
   new Map(teamIds.map((id) => [id, emptyStanding(id)]));
 
 function chartFor(league: League, teamId: string): Record<PositionGroup, readonly string[]> {
-  return teamStateFor(teamId, league.players, { fronts: league.fronts }).depthChart;
+  return teamStateFor(teamId, league.players,
+    { fronts: league.fronts, coaches: league.coaches }).depthChart;
 }
 
 export function newDynasty(userTeamId: string): Game {
@@ -156,7 +157,8 @@ export function simWeek(game: Game): Game {
   if (game.phase !== 'REGULAR_SEASON') return game;
   const rng = createRng(gameStream(game.seed, game.season, game.week));
   const teams = withUserChart(
-    teamStatesFor(game.league.teamIds, game.league.players, { fronts: game.league.fronts }), game);
+    teamStatesFor(game.league.teamIds, game.league.players,
+      { fronts: game.league.fronts, coaches: game.league.coaches }), game);
   const out = new Set(game.absence.keys());
   const standings = new Map([...game.standings].map(([id, s]) => [id, { ...s }]));
   const absence = new Map(game.absence);

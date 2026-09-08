@@ -83,9 +83,15 @@ export function OfficeScreen() {
             </Panel>
           )}
 
-          <SectionHeader title="Squad" />
+          <SectionHeader title="The club" />
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }}>
+              <ListRow
+                title="Coaching staff"
+                subtitle="Who calls the plays and develops your players"
+                navigable
+                onSelect={() => { nav.push('staff'); }}
+              />
               <ListRow
                 title="Full roster and depth chart"
                 navigable

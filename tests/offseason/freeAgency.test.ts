@@ -175,8 +175,14 @@ describe('the market', () => {
   });
 
   it('pays a money-first player more than a loyal one', () => {
+    // Pooled over three leagues rather than measured on one. The effect is a
+    // few points of premium, and one league's 200 signings per personality is
+    // not enough to see it: the same assertion on a single seed flips on
+    // sampling noise, which makes it a test of the seed rather than of the
+    // market.
+    const pooled = [20260907, 11, 4242].flatMap((seed) => signingsOver(4, seed));
     const paidBy = (personality: FaPersonality): number =>
-      mean(signings.filter((s) => s.personality === personality).map((s) => s.premium));
+      mean(pooled.filter((s) => s.personality === personality).map((s) => s.premium));
     expect(paidBy('MAX_MONEY')).toBeGreaterThan(paidBy('LOYALTY'));
   });
 

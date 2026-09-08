@@ -9,10 +9,11 @@
 
 import type { League } from '../engine/offseason/league.ts';
 import type { CareerPlayer, Prospect } from '../engine/offseason/types.ts';
+import type { CareerCoach } from '../engine/offseason/coaches.ts';
 import type { TeamFront } from '../engine/offseason/frontOffice.ts';
 import { SAVE_SCHEMA_VERSION } from './version.ts';
 import type {
-  SavedDeadMoney, SavedPlayer, SavedProspect, SaveDocument, SaveMeta,
+  SavedCoach, SavedDeadMoney, SavedPlayer, SavedProspect, SaveDocument, SaveMeta,
 } from './types.ts';
 
 function savePlayer(p: CareerPlayer): SavedPlayer {
@@ -47,6 +48,20 @@ function savePlayer(p: CareerPlayer): SavedPlayer {
       signedSeason: p.contract.signedSeason,
     },
     previousTeamId: p.previousTeamId,
+  };
+}
+
+function saveCoach(c: CareerCoach): SavedCoach {
+  return {
+    id: c.id, name: c.name, teamId: c.teamId, role: c.role, tree: c.tree,
+    age: c.age, experience: c.experience, yearsWithTeam: c.yearsWithTeam,
+    seasonsAsHeadCoach: c.seasonsAsHeadCoach,
+    playCalling: c.playCalling, gameManagement: c.gameManagement,
+    clockManagement: c.clockManagement, aggressiveness: c.aggressiveness,
+    development: c.development, evaluation: c.evaluation, leadership: c.leadership,
+    ability: c.ability, reputation: c.reputation,
+    careerWins: c.careerWins, careerLosses: c.careerLosses, careerTies: c.careerTies,
+    rings: c.rings, hotSeat: c.hotSeat, retired: c.retired,
   };
 }
 
@@ -96,6 +111,7 @@ export function serialize(league: League, options: SerializeOptions): SaveDocume
     teamIds: [...league.teamIds],
     fronts,
     players: league.players.map(savePlayer),
+    coaches: league.coaches.map(saveCoach),
     pipeline,
     deadMoney,
   };
