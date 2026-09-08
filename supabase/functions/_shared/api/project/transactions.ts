@@ -9,7 +9,7 @@
 import type { Db } from '../db.ts';
 import type { League, CareerPlayer, PlayerContract } from '../../engine/offseason/index.ts';
 import type { DraftResult } from '../../engine/offseason/draft.ts';
-import type { OffseasonResult } from '../../engine/offseason/population.ts';
+import type { FreeAgencyResult, Release } from '../../engine/offseason/index.ts';
 import { contractIdFor } from './contracts.ts';
 import { retirementReason } from '../../engine/offseason/retirement.ts';
 import { ENGINE_DATA_CLASS } from './players.ts';
@@ -79,11 +79,35 @@ interface Tx {
 
 export interface TransactionCounts { readonly [kind: string]: number }
 
+/**
+ * What the engine reported, as rows.
+ *
+ * A stage of the offseason reports only its own moves, so every field is
+ * optional and an absent one means "this stage did not do that" rather than
+ * "nothing happened". The one-shot path passes the whole result; a stepped
+ * offseason passes the draft after the draft and the signings after the
+ * market, with `before` snapshotted at the start of that stage.
+ */
+export interface ReportedMoves {
+  readonly retired?: readonly CareerPlayer[];
+  readonly expired?: readonly CareerPlayer[];
+  readonly draft?: DraftResult;
+  readonly freeAgency?: FreeAgencyResult;
+  readonly released?: readonly Release[];
+}
+
 /** Returns the rows logged, by kind. */
 export async function logTransactions(
   db: Db, saveId: string, season: number, league: League,
-  before: ReadonlyMap<string, PlayerBefore>, result: OffseasonResult,
+  before: ReadonlyMap<string, PlayerBefore>, moves: ReportedMoves,
 ): Promise<TransactionCounts> {
+  const result = {
+    retired: moves.retired ?? [],
+    expired: moves.expired ?? [],
+    draft: moves.draft ?? { picks: [], undrafted: [], signedUndrafted: 0, paused: null, onBoard: [] },
+    freeAgency: moves.freeAgency ?? { signings: [], unsigned: 0 },
+    released: moves.released ?? [],
+  };
   const clubs = league.teamIds.length;
   const rows: Tx[] = [];
   const byId = new Map(league.players.map((p) => [p.id, p]));

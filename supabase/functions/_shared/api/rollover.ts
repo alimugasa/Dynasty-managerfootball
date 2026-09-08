@@ -1,43 +1,50 @@
 // The offseason, on the server.
 //
-// The season just played is closed out -- its table into league_history, the
-// engine's grades into player_season_grades, the summaries refreshed -- then
-// the engine runs its offseason (development, retirement, the draft, the
-// market, compliance) and the new world is projected: every roster, contract
-// and cap sheet rewritten, a schedule for the new year, an opening table, the
-// managed club's depth chart rebuilt from the roster it now has. One
-// transaction.
+// Four stages, in the order they happen: the season is closed and settled, the
+// draft is held, the market opens, camp cuts everyone to the limit and the
+// calendar turns over. Each one is a function here, and there are two ways
+// through them.
 //
-// The transaction log is a diff of the league before and after, joined to
-// what the engine reports (picks, signings, retirements). It names what the
-// engine did; it does not guess a kind for a move the engine did not report
-// (an expired contract is not a release, and is not logged as one).
+//   advance-season      runs all four in one call. What a test, a report and a
+//                       manager in a hurry use.
+//   the stepped path    runs one at a time, saving between them, so a manager
+//                       can make his own picks and offers (offseason.ts).
+//
+// One implementation, two orders of arrival: a decision the stepped path
+// exposes is a parameter the one-shot leaves empty, never a second copy of the
+// same football.
+//
+// The transaction log is the engine's own report of what it did, joined to a
+// diff of the league taken at the start of that stage. It names what happened;
+// it does not guess a kind for a move the engine did not report (an expired
+// contract is not a release, and is not logged as one).
 
 import type { Db } from './db.ts';
 import { badRequest } from './context.ts';
-import {
-  awardStream, offseasonStream, rngSeed32, scheduleStream, seasonWeeks, touchSave, type SaveRow,
-} from './save.ts';
+import { rngSeed32, touchSave, type SaveRow } from './save.ts';
 import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts';
 import {
-  defaultDepthChart, positionsFor, projectWorld, seedStandings, writeDepthChart,
+  defaultDepthChart, projectWorld, seedStandings, writeDepthChart,
 } from './project/index.ts';
-import { coachSeasons, logCoachMoves, writeCoachHistory } from './project/coachHistory.ts';
+import { refreshRecords } from './project/awards.ts';
 import {
-  awardCandidates, coachCandidates, refreshRecords, writeAwards,
-} from './project/awards.ts';
-import { runAwards } from '../engine/offseason/index.ts';
-import { expectedWins, type CoachRecord, type League } from '../engine/offseason/index.ts';
-import {
-  draftedMap, logTransactions, recordDraft, snapshotPlayers, type TransactionCounts,
+  draftedMap, logTransactions, recordDraft, snapshotPlayers,
+  type PlayerBefore, type TransactionCounts,
 } from './project/transactions.ts';
+export { settleSeasonStage, type SettleOutcome } from './season/settle.ts';
+import { settleSeasonStage } from './season/settle.ts';
 import { createRng } from '../engine/rng.ts';
-import { permuteSchedule } from '../engine/season.ts';
-import { runOffseason } from '../engine/offseason/population.ts';
+import { writeSchedule } from './season/close.ts';
+import { OFFSEASON_STREAMS } from './season/streams.ts';
+import {
+  buildIndex, campStage, draftStage, marketStage,
+  type DraftResult, type DraftStageOptions, type FreeAgencyResult,
+  type League, type UserOffer,
+} from '../engine/offseason/index.ts';
 import { createLedger } from '../engine/news/index.ts';
+import { isOffseasonPhase, OFFSEASON_PHASES, readState } from './phases.ts';
 import { serialize } from '../save/index.ts';
 import { ENGINE_VERSION } from './createSave.ts';
-import { ENGINE_DATA_CLASS } from './project/players.ts';
 
 /** Seasons of per-game lines kept beside the current one. See 0017. */
 export const GAME_LINE_RETENTION = 3;
@@ -58,240 +65,73 @@ export interface SeasonOutcome {
 }
 
 /**
- * What each club's season was, as the carousel judges it: the record it
- * actually had against what its roster said it should have had.
+ * What the winter did, in the numbers camp reports at the end of it.
  *
- * The expectation is the roster's, not the club's history: a club that
- * stripped down and won four is not judged against the eleven it won two
- * years ago. Roster strength is the mean of a club's best 24 abilities, the
- * same measure the news feed calls a club's rating.
+ * Carried rather than recomputed because a stepped offseason settles in one
+ * request and breaks camp in another: by then the settle stage's own result is
+ * three requests out of memory, and the totals are all camp needs from it.
  */
-async function seasonRecords(
-  db: Db, saveId: string, season: number, league: League, weeks: number,
-): Promise<Map<string, CoachRecord>> {
-  const rows = await db<{
-    team_id: string; wins: number; losses: number; ties: number; playoff_result: string | null;
-  }[]>`
-    select st.team_id, st.wins, st.losses, st.ties, h.playoff_result
-      from public.standings st
-      left join public.league_history h
-        on h.save_id = st.save_id and h.season = st.season and h.team_id = st.team_id
-     where st.save_id = ${saveId} and st.season = ${season}`;
-  const rating = (teamId: string): number => {
-    const top = league.players
-      .filter((p) => p.teamId === teamId && !p.retired)
-      .map((p) => p.ability).sort((a, b) => b - a).slice(0, 24);
-    return top.reduce((a, b) => a + b, 0) / Math.max(1, top.length);
-  };
-  const ratings = new Map(league.teamIds.map((id) => [id, rating(id)]));
-  const values = [...ratings.values()];
-  const mean = values.reduce((a, b) => a + b, 0) / Math.max(1, values.length);
-  return new Map(rows.map((r) => [r.team_id, {
-    wins: r.wins, losses: r.losses, ties: r.ties,
-    expectedWins: expectedWins(ratings.get(r.team_id) ?? mean, mean, weeks - 1),
-    champion: r.playoff_result === 'CHAMPION',
-    madePlayoffs: r.playoff_result !== null && r.playoff_result !== 'MISSED',
-  }]));
+export interface WinterTotals {
+  readonly retired: number;
+  readonly coachesFired: number;
+  readonly headCoachBefore: string | null;
 }
 
-/** The table's final line into league_history. The row already exists --
- *  the final wrote it, with the seed and the playoff result -- so only the
- *  record and the roster's mean are set here. */
-async function closeSeason(db: Db, saveId: string, season: number, meanOverall: Map<string, number>): Promise<void> {
-  await db`
-    insert into public.league_history (
-      save_id, season, team_id, wins, losses, ties, points_for, points_against, mean_overall)
-    select st.save_id, st.season, st.team_id, st.wins, st.losses, st.ties,
-           st.points_for, st.points_against, u.mean_overall
-      from public.standings st
-      left join unnest(${[...meanOverall.keys()]}::text[], ${[...meanOverall.values()]}::numeric[])
-        as u(team_id, mean_overall) on u.team_id = st.team_id
-     where st.save_id = ${saveId} and st.season = ${season}
-    on conflict (save_id, season, team_id) do update
-      set wins = excluded.wins, losses = excluded.losses, ties = excluded.ties,
-          points_for = excluded.points_for, points_against = excluded.points_against,
-          mean_overall = excluded.mean_overall`;
-  await db`select public.refresh_team_season_summary(${saveId}::uuid, ${season})`;
-}
-
-/** The shape of the season just played: the same games, weeks and byes with
- *  the clubs renamed by a seeded permutation, so every year is 17 games over
- *  18 weeks like the seed's, and not the byeless 18 the round-robin makes. */
-async function writeSchedule(
-  db: Db, saveId: string, season: number, teamIds: readonly string[], seed32: number,
-): Promise<void> {
-  const shape = await db<{ week: number; home_team_id: string; away_team_id: string }[]>`
-    select week, home_team_id, away_team_id from public.season_schedule
-     where save_id = ${saveId} and season = ${season - 1} and competition = 'REGULAR'
-     order by week, game_id`;
-  if (shape.length === 0) throw new Error(`No ${String(season - 1)} schedule to shape ${String(season)} from`);
-  const fixtures = permuteSchedule(
-    shape.map((r) => ({ week: r.week, homeTeamId: r.home_team_id, awayTeamId: r.away_team_id })),
-    teamIds, createRng(scheduleStream(seed32, season)));
-  const perWeek = new Map<number, number>();
-  const ids = fixtures.map((f) => {
-    const n = (perWeek.get(f.week) ?? 0) + 1;
-    perWeek.set(f.week, n);
-    return `G${String(season)}W${String(f.week).padStart(2, '0')}${String(n).padStart(3, '0')}`;
-  });
-  await db`
-    insert into public.season_schedule (
-      save_id, game_id, season, week, competition, home_team_id, away_team_id, status, data_class)
-    select ${saveId}, u.game_id, ${season}, u.week, 'REGULAR', u.home, u.away, 'SCHEDULED',
-           ${ENGINE_DATA_CLASS}
-      from unnest(${ids}::text[], ${fixtures.map((f) => f.week)}::int[],
-                  ${fixtures.map((f) => f.homeTeamId)}::text[],
-                  ${fixtures.map((f) => f.awayTeamId)}::text[]) as u(game_id, week, home, away)`;
-}
-
-export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcome> {
+/** Stage two: the draft, in full or up to the manager's next pick. */
+export async function draftStageOn(
+  db: Db, save: SaveRow, league: League, options: DraftStageOptions = {},
+): Promise<{ draft: DraftResult; transactions: TransactionCounts }> {
   const { id: saveId, season } = save;
-  if (save.phase !== 'OFFSEASON') {
-    throw badRequest(`The ${String(season)} season is not complete (${save.phase.toLowerCase().replace('_', ' ')}, week ${String(save.week)})`);
-  }
-  const weeks = await seasonWeeks(db, saveId, season);
-  const { league } = await loadEngineState(db, saveId);
   const seed32 = rngSeed32(save.rng_seed);
-
-  // Games missed carry onto the player so the offseason's injury-driven
-  // decline has something to read.
-  //
-  // Two sources, because one is not enough. A player who produced a stat line
-  // is counted from his lines against his club's games -- not against the
-  // weeks in the season, which would charge every healthy starter for his
-  // club's bye. A player whose position produces no line at all -- every
-  // offensive lineman, every long snapper -- is counted from the injuries
-  // recorded against him instead. Counting him from lines said he had missed
-  // the entire season, every season, and quietly accelerated the decline of
-  // every lineman in the league.
-  const appearances = await db<{ player_id: string; n: string }[]>`
-    select player_id, count(*) as n from public.player_game_stats
-     where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
-     group by player_id`;
-  const linesBy = new Map(appearances.map((r) => [r.player_id, Number(r.n)]));
-  const clubGames = new Map((await db<{ team_id: string; n: string }[]>`
-    select team_id, count(*) as n from (
-      select home_team_id as team_id from public.season_schedule
-       where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
-      union all
-      select away_team_id from public.season_schedule
-       where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
-    ) g group by team_id`).map((r) => [r.team_id, Number(r.n)]));
-  const missedByInjury = new Map((await db<{ player_id: string; missed: number }[]>`
-    select player_id,
-           greatest(0, least(weeks_out_estimate - 1, ${weeks} - injured_week))::int as missed
-      from public.player_injuries
-     where save_id = ${saveId} and injured_season = ${season}`)
-    .map((r) => [r.player_id, r.missed]));
-  for (const p of league.players) {
-    if (p.teamId === null || p.retired) continue;
-    const games = clubGames.get(p.teamId) ?? weeks - 1;
-    const lines = linesBy.get(p.id);
-    p.gamesMissedSeason = lines === undefined
-      ? Math.min(games, missedByInjury.get(p.id) ?? 0)
-      : Math.max(0, games - lines);
-    p.gamesMissedCareer += p.gamesMissedSeason;
-  }
-  const gamesPlayed = new Map(league.players.map((p) => {
-    const games = p.teamId === null ? weeks - 1 : clubGames.get(p.teamId) ?? weeks - 1;
-    return [p.id, Math.max(0, games - p.gamesMissedSeason)];
-  }));
-
-  // The champion's players carry a ring into the offseason -- the one
-  // accolade the career model counts. Read from the book the final wrote.
-  const [champion] = await db<{ team_id: string }[]>`
-    select team_id from public.league_history
-     where save_id = ${saveId} and season = ${season} and playoff_result = 'CHAMPION'`;
-  if (champion === undefined) {
-    throw new Error(`The ${String(season)} season has no champion in league_history; the final was not played`);
-  }
-  for (const p of league.players) {
-    if (p.teamId === champion.team_id && !p.retired) p.accolades.rings += 1;
-  }
-
-  const meanOverall = new Map<string, number>();
-  for (const teamId of league.teamIds) {
-    const squad = league.players.filter((p) => p.teamId === teamId && !p.retired);
-    meanOverall.set(teamId, Math.round(
-      (squad.reduce((a, p) => a + p.ability, 0) / Math.max(1, squad.length)) * 100) / 100);
-  }
-  await closeSeason(db, saveId, season, meanOverall);
-
   const before = snapshotPlayers(league);
-  const positions = await positionsFor(db, saveId);
-  // The staffs as the season ended, so a coach fired in the next paragraph
-  // still has the season he coached attached to him.
-  const staffBefore = league.coaches
-    .filter((c) => !c.retired && c.teamId !== null)
-    .map((c) => ({ coachId: c.id, name: c.name, teamId: c.teamId, role: c.role }));
-  const records = await seasonRecords(db, saveId, season, league, weeks);
-  const playoffResults = new Map(
-    (await db<{ team_id: string; playoff_result: string | null }[]>`
-      select team_id, playoff_result from public.league_history
-       where save_id = ${saveId} and season = ${season}`)
-      .flatMap((r) => (r.playoff_result === null ? [] : [[r.team_id, r.playoff_result] as const])));
-  const headBefore = league.coaches.find(
-    (c) => c.teamId === save.user_team_id && c.role === 'HEAD_COACH')?.id ?? null;
-  const result = runOffseason(league, createRng(offseasonStream(seed32, season)), { records });
-  if (league.season !== season + 1) {
-    throw new Error(`Offseason left the league at ${String(league.season)}, expected ${String(season + 1)}`);
-  }
-
-  await db`
-    insert into public.player_season_grades (
-      save_id, season, competition, player_id, team_id, position, snaps, grade, grade_z)
-    select ${saveId}, ${season}, 'REGULAR', u.player_id, u.team_id, u.position, null, u.grade, u.grade_z
-      from unnest(${result.grades.map((g) => g.playerId)}::text[],
-                  ${result.grades.map((g) => before.get(g.playerId)?.teamId ?? null)}::text[],
-                  ${result.grades.map((g) => positions.get(g.playerId)?.position ?? null)}::text[],
-                  ${result.grades.map((g) => Math.min(100, Math.max(0, g.grade)))}::numeric[],
-                  ${result.grades.map((g) => g.gradeZ)}::numeric[])
-        as u(player_id, team_id, position, grade, grade_z)
-    on conflict (save_id, season, competition, player_id) do update
-      set grade = excluded.grade, grade_z = excluded.grade_z, team_id = excluded.team_id`;
-
-  // Players first, then the picks that reference them.
+  const draft = draftStage(
+    league,
+    createRng(OFFSEASON_STREAMS.draft(seed32, season, options.startAt ?? 1)),
+    options);
   await projectWorld(db, saveId, league, {
-    previousIds: new Set(before.keys()), drafted: draftedMap(result.draft), retired: result.retired,
+    previousIds: new Set(before.keys()), drafted: draftedMap(draft),
   });
-  await recordDraft(db, saveId, league, result.draft);
-  const transactions = await logTransactions(db, saveId, season, league, before, result);
+  await recordDraft(db, saveId, league, draft);
+  const transactions = await logTransactions(db, saveId, season, league, before, { draft });
+  return { draft, transactions };
+}
 
-  await writeCoachHistory(db, saveId, season,
-    coachSeasons(staffBefore, result.coaches.moves, records, playoffResults));
-  await logCoachMoves(db, saveId, season, league, result.coaches.moves);
+/** Stage three: the market, with the manager's offers in it. */
+export async function marketStageOn(
+  db: Db, save: SaveRow, league: League, offers: readonly UserOffer[] = [],
+): Promise<{ market: FreeAgencyResult; transactions: TransactionCounts }> {
+  const { id: saveId, season } = save;
+  const seed32 = rngSeed32(save.rng_seed);
+  const before = snapshotPlayers(league);
+  const market = marketStage(league, createRng(OFFSEASON_STREAMS.market(seed32, season)), offers);
+  await projectWorld(db, saveId, league, { previousIds: new Set(before.keys()) });
+  const transactions = await logTransactions(db, saveId, season, league, before, {
+    freeAgency: market,
+  });
+  return { market, transactions };
+}
 
-  // The vote, on the season that was just played: its grades, its box scores,
-  // its records. Its own stream, so a change to the offseason never moves a
-  // ballot.
-  const awards = runAwards(
-    season,
-    await awardCandidates(db, saveId, season, league, result.grades, gamesPlayed),
-    coachCandidates(staffBefore, records),
-    weeks - 1,
-    createRng(awardStream(seed32, season)));
-  // The club a winner played for during the season, not the one he may have
-  // moved to in the offseason that has just run.
-  const teamDuringSeason = new Map<string, string>();
-  for (const [id, p] of before) {
-    if (p.teamId !== null) teamDuringSeason.set(id, p.teamId);
+/**
+ * Stage four: camp, and the year turns over.
+ *
+ * Every roster is made legal, the unsigned are pruned, and the new season gets
+ * a calendar, an opening table and a depth chart. This is the stage that moves
+ * the save into September, so it is also the one that writes the document.
+ */
+export async function campStageOn(
+  db: Db, save: SaveRow, league: League, winter: WinterTotals,
+  earlier: readonly TransactionCounts[],
+): Promise<SeasonOutcome> {
+  const { id: saveId, season } = save;
+  const seed32 = rngSeed32(save.rng_seed);
+  const before = snapshotPlayers(league);
+  const released = campStage(league, createRng(OFFSEASON_STREAMS.camp(seed32, season)));
+  if (league.season !== season + 1) {
+    throw new Error(`The offseason left the league at ${String(league.season)}, expected ${String(season + 1)}`);
   }
-  await writeAwards(db, saveId, awards, teamDuringSeason);
 
-  // An award is a career fact, not a screen: it goes on the player, where the
-  // market reads it. Applied after the offseason's own development, so it
-  // moves what he is thought to be worth from next season rather than
-  // retroactively.
-  const byId = new Map(league.players.map((p) => [p.id, p]));
-  for (const award of awards.awards) {
-    const winner = award.winner.playerId === null ? undefined : byId.get(award.winner.playerId);
-    if (winner !== undefined) winner.accolades.awards += 1;
-  }
-  for (const honour of awards.honours) {
-    if (honour.team !== 'ALL_LEAGUE_FIRST') continue;
-    const player = byId.get(honour.playerId);
-    if (player !== undefined) player.accolades.allLeague += 1;
-  }
+  await projectWorld(db, saveId, league, { previousIds: new Set(before.keys()) });
+  const campCounts = await logTransactions(db, saveId, season, league, before, { released });
 
   await writeSchedule(db, saveId, league.season, league.teamIds, seed32);
   await seedStandings(db, saveId, league.season, league.teamIds);
@@ -314,15 +154,74 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
     },
   }));
   await writeLedger(db, saveId, createLedger(league.season));
+  await db`update public.save_documents set offseason = null where save_id = ${saveId}`;
 
+  const transactions: Record<string, number> = {};
+  for (const counts of [...earlier, campCounts]) {
+    for (const [kind, n] of Object.entries(counts)) transactions[kind] = (transactions[kind] ?? 0) + n;
+  }
   const headAfter = league.coaches.find(
     (c) => c.teamId === save.user_team_id && c.role === 'HEAD_COACH')?.id ?? null;
   return {
     season: league.season, week: 1, phase: 'REGULAR_SEASON',
-    retired: result.retired.length, drafted: result.draft.picks.length,
+    retired: winter.retired,
+    drafted: transactions['DRAFT_SELECTION'] ?? 0,
     signed: (transactions['FREE_AGENT_SIGNING'] ?? 0) + (transactions['RE_SIGNING'] ?? 0),
     transactions,
-    coachesFired: result.coaches.moves.filter((m) => m.kind === 'FIRED').length,
-    newHeadCoach: headBefore !== headAfter,
+    coachesFired: winter.coachesFired,
+    newHeadCoach: winter.headCoachBefore !== headAfter,
   };
 }
+
+/**
+ * The rest of the offseason, in one call.
+ *
+ * From the end of a season it runs the whole winter. From the middle of one a
+ * manager has been playing -- he has re-signed two players and does not want
+ * to sit through the draft -- it runs the stages he has not reached yet, in
+ * the same order, with the decisions he has already made left standing. There
+ * is one way through an offseason; this is the impatient way of walking it.
+ */
+export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcome> {
+  if (!isOffseasonPhase(save.phase)) {
+    throw badRequest(
+      `The ${String(save.season)} season is not complete `
+      + `(${save.phase.toLowerCase().replace('_', ' ')}, week ${String(save.week)})`);
+  }
+  const from = OFFSEASON_PHASES.indexOf(save.phase);
+  const { league } = await loadEngineState(db, save.id);
+  const state = await readState(db, save.id);
+  const counts: TransactionCounts[] = [...state.counts];
+  let winter: WinterTotals = {
+    retired: state.retired,
+    coachesFired: state.coachesFired,
+    headCoachBefore: state.headCoachBefore,
+  };
+
+  if (from <= OFFSEASON_PHASES.indexOf('OFFSEASON')) {
+    const settled = await settleSeasonStage(db, save, league);
+    counts.push(settled.transactions);
+    winter = {
+      retired: settled.settle.retired.length,
+      coachesFired: settled.coachesFired,
+      headCoachBefore: settled.headCoachBefore,
+    };
+  }
+  if (from <= OFFSEASON_PHASES.indexOf('DRAFT')) {
+    // Whatever is left of the draft: from the top when it never opened, and
+    // from the pick it stopped at when the manager walked away mid-round.
+    const drafted = await draftStageOn(db, save, league, {
+      ...(state.draftOrder.length === 0 ? {} : { order: state.draftOrder }),
+      ...(from === OFFSEASON_PHASES.indexOf('DRAFT') ? { startAt: state.nextPick } : {}),
+    });
+    counts.push(drafted.transactions);
+  }
+  if (from <= OFFSEASON_PHASES.indexOf('FREE_AGENCY')) {
+    const market = await marketStageOn(db, save, league, state.offers);
+    counts.push(market.transactions);
+  }
+  return campStageOn(db, save, league, winter, counts);
+}
+
+export type { PlayerBefore };
+export { buildIndex };

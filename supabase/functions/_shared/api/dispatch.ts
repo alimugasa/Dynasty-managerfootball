@@ -22,6 +22,10 @@ import { game } from './reads/game.ts';
 import { office } from './reads/office.ts';
 import { staff } from './reads/staff.ts';
 import { recap } from './reads/recap.ts';
+import { offseason } from './reads/offseason.ts';
+import {
+  advanceOffseason, makeDraftPick, makeOffer, releasePlayer, reSignPlayer, tradeOffer,
+} from './handlers/offseasonMoves.ts';
 import { player } from './reads/player.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -42,6 +46,13 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   office,
   staff,
   recap,
+  offseason,
+  'advance-offseason': advanceOffseason,
+  're-sign': reSignPlayer,
+  release: releasePlayer,
+  'draft-pick': makeDraftPick,
+  offer: makeOffer,
+  trade: tradeOffer,
   player,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */

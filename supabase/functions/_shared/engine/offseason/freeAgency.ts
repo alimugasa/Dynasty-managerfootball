@@ -167,9 +167,25 @@ export function pursuits(needs: TeamNeeds): ReadonlySet<PositionGroup> {
  * what clubs believe, and the best-regarded player signs first whether or not he
  * is the best player available.
  */
+/**
+ * An offer a caller makes on behalf of a club it is playing.
+ *
+ * It joins the bidding rather than bypassing it: the player weighs it against
+ * every other bid by the same rule -- money, need, the club's standing, his
+ * own personality -- so a manager can be outbid, and can overpay.
+ */
+export interface UserOffer {
+  readonly playerId: string;
+  readonly teamId: string;
+  readonly aav: number;
+  readonly years: number;
+}
+
 export function runFreeAgency(
   league: League, index: RosterIndex, rules: CapRules, rng: Rng,
+  offers: readonly UserOffer[] = [],
 ): FreeAgencyResult {
+  const offerFor = new Map(offers.map((o) => [o.playerId, o]));
   const market = available(index).sort((a, b) => b.reputation - a.reputation);
   const signings: Signing[] = [];
 
@@ -218,6 +234,21 @@ export function runFreeAgency(
       bids.push({ teamId, money, need: needs[player.group] ?? 0, score: 0 });
     }
 
+    // The caller's own bid, if it made one on this player. It is checked
+    // against the same cap room every club is: an offer a club cannot afford
+    // is not a bid, it is a wish.
+    const mine = offerFor.get(player.id);
+    if (mine !== undefined) {
+      const room = spaceByTeam.get(mine.teamId) ?? 0;
+      const needs = needsByTeam.get(mine.teamId);
+      if (mine.aav <= room) {
+        bids.push({
+          teamId: mine.teamId, money: mine.aav,
+          need: needs?.[player.group] ?? 0, score: 0,
+        });
+      }
+    }
+
     if (bids.length === 0) continue;
 
     const bestMoney = bids.reduce((a, b) => (b.money > a ? b.money : a), 0);
@@ -233,7 +264,11 @@ export function runFreeAgency(
     if (winner === undefined) continue;
 
     // Younger players get longer deals; nobody signs for more than five years.
-    const years = clamp(rng.int(1, 4) + (player.age < 27 ? 1 : 0), 1, 5);
+    // A term the caller named is honoured, within the same bound.
+    const offered = winner.teamId === mine?.teamId ? mine.years : undefined;
+    const years = offered === undefined
+      ? clamp(rng.int(1, 4) + (player.age < 27 ? 1 : 0), 1, 5)
+      : clamp(offered, 1, 5);
     setTeam(index, player, winner.teamId);
     player.contract = veteranContract(winner.money, years, league.season);
 

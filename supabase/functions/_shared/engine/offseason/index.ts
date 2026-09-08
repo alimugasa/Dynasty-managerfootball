@@ -15,9 +15,10 @@ export {
 } from './grading.ts';
 export { buildIndex, type RosterIndex } from './rosterIndex.ts';
 export {
-  enforceCompliance, primePipeline, runOffseason,
-  type OffseasonInput, type OffseasonResult,
+  campStage, draftStage, marketStage, primePipeline, runOffseason, settleSeason,
+  type DraftStageOptions, type OffseasonInput, type OffseasonResult, type SettleResult,
 } from './population.ts';
+export { enforceCompliance, type Release } from './compliance.ts';
 export {
   CAROUSEL, expectedWins, generateCoach, retirementChance, runCarousel, seatAfter,
   type CarouselResult, type CoachMove, type CoachMoveKind, type CoachRecord,
@@ -35,11 +36,11 @@ export {
 } from './league.ts';
 export {
   addressedNeed, addressedTopNeed, buildBoard, DRAFT, rankOfNeed, runDraft, strengthOrder,
-  type DraftPick, type DraftResult,
+  type DraftChoices, type DraftOptions, type DraftPick, type DraftResult,
 } from './draft.ts';
 export {
   FREE_AGENCY, offerFrom, PERSONALITY_WEIGHTS, runFreeAgency, scoreOffer,
-  type Bid, type FreeAgencyResult, type Signing,
+  type Bid, type FreeAgencyResult, type Signing, type UserOffer,
 } from './freeAgency.ts';
 export {
   allocateScouting, SCOUTING, scoutClass, scoutProspect, scoutingSigma,
@@ -51,6 +52,10 @@ export {
   marketValue,
   MAX_AAV_SHARE, perceivedValue, rookieContract, veteranContract, type CapSheet,
 } from './contracts.ts';
+export {
+  evaluateTrade, reSignAsk, reSignContract, releaseCost, tradeValue, TRADE_MARGIN,
+  type TradeSide, type TradeVerdict,
+} from './deals.ts';
 export { FA_PERSONALITIES } from './types.ts';
 export type {
   CareerAccolades, CareerPlayer, DevelopmentOutcome, FaPersonality, OffseasonSummary,

@@ -81,6 +81,12 @@ export interface DraftResult {
   readonly picks: readonly DraftPick[];
   readonly undrafted: readonly CareerPlayer[];
   readonly signedUndrafted: number;
+  /** Set when the draft stopped for a caller's pick, naming the pick it is
+   *  waiting on. Null when the draft ran to the end. */
+  readonly paused: { readonly overall: number; readonly round: number; readonly teamId: string } | null;
+  /** Prospects still available, when it paused. Empty otherwise: a finished
+   *  draft leaves an undrafted list, not a board. */
+  readonly onBoard: readonly Prospect[];
 }
 
 interface BoardEntry {
@@ -126,6 +132,31 @@ export function buildBoard(
  * boards mid-draft would let later picks quietly benefit from information the
  * club never had.
  */
+/**
+ * How a caller takes part in the draft.
+ *
+ * A club named here picks for itself: the engine makes every other pick and
+ * stops when it reaches one of this club's that the caller has not already
+ * chosen. The draft is resumed by calling again with the same order and the
+ * overall it stopped at, which is why the order is passed in rather than
+ * recomputed -- a club's strength changes as the draft fills its holes, and an
+ * order recomputed halfway through would not be the order the first round was
+ * made in.
+ */
+export interface DraftChoices {
+  readonly teamId: string;
+  /** Overall pick number -> the prospect the caller took with it. */
+  readonly picks?: ReadonlyMap<number, string>;
+  /** Stop at this club's next unchosen pick instead of picking for it. */
+  readonly stopForUser?: boolean;
+}
+
+export interface DraftOptions {
+  /** Where to begin, 1-based. Defaults to the top of the draft. */
+  readonly startAt?: number;
+  readonly choices?: DraftChoices;
+}
+
 export function runDraft(
   league: League,
   index: RosterIndex,
@@ -133,10 +164,13 @@ export function runDraft(
   order: readonly string[],
   rules: CapRules,
   rng: Rng,
+  options: DraftOptions = {},
 ): DraftResult {
   if (prospects.length === 0) {
-    return { picks: [], undrafted: [], signedUndrafted: 0 };
+    return { picks: [], undrafted: [], signedUndrafted: 0, paused: null, onBoard: [] };
   }
+  const startAt = options.startAt ?? 1;
+  const choices = options.choices;
 
   // Truth, for measuring reaches after the fact. No club sees this.
   const trueRank = new Map<string, number>();
@@ -157,18 +191,37 @@ export function runDraft(
   const taken = new Set<string>();
   const picks: DraftPick[] = [];
 
-  for (let round = 1; round <= rules.draftRounds; round += 1) {
+  let paused: DraftResult['paused'] = null;
+  for (let round = 1; round <= rules.draftRounds && paused === null; round += 1) {
     for (let slot = 0; slot < order.length; slot += 1) {
       const teamId = order[slot];
       if (teamId === undefined) continue;
+      const overall = (round - 1) * order.length + slot + 1;
+      // Picks already made in an earlier call are skipped rather than made
+      // again: the players they brought in are already on the roster.
+      if (overall < startAt) continue;
       const board = boards.get(teamId);
       if (board === undefined) continue;
 
-      const entry = board.find((e) => !taken.has(e.prospect.id));
-      if (entry === undefined) continue;
+      const mine = choices !== undefined && choices.teamId === teamId;
+      const chosen = mine ? choices.picks?.get(overall) : undefined;
+      if (mine && chosen === undefined && choices.stopForUser === true) {
+        paused = { overall, round, teamId };
+        break;
+      }
+      const entry = chosen === undefined
+        ? board.find((e) => !taken.has(e.prospect.id))
+        : board.find((e) => e.prospect.id === chosen && !taken.has(e.prospect.id));
+      if (entry === undefined) {
+        // A caller naming a prospect who is gone, or not in this class, is a
+        // defect in the caller and is reported rather than quietly replaced
+        // with whoever the engine liked.
+        if (chosen !== undefined) {
+          throw new Error(`Pick ${String(overall)} names ${chosen}, who is not on the board`);
+        }
+        continue;
+      }
       taken.add(entry.prospect.id);
-
-      const overall = (round - 1) * order.length + slot + 1;
       const player = prospectToPlayer(entry.prospect);
       league.players.push(player);
       index.free.add(player);
@@ -194,6 +247,16 @@ export function runDraft(
     }
   }
 
+  // A draft that stopped for the caller keeps its class: the players nobody
+  // took are still on the board, and the undrafted free agents are only
+  // decided once the last pick has been made.
+  if (paused !== null) {
+    return {
+      picks, undrafted: [], signedUndrafted: 0, paused,
+      onBoard: prospects.filter((p) => !taken.has(p.id)),
+    };
+  }
+
   // Everyone else. Most never play; some catch on at the minimum.
   const undrafted: CareerPlayer[] = [];
   let signedUndrafted = 0;
@@ -213,7 +276,7 @@ export function runDraft(
     undrafted.push(player);
   }
 
-  return { picks, undrafted, signedUndrafted };
+  return { picks, undrafted, signedUndrafted, paused: null, onBoard: [] };
 }
 
 /**

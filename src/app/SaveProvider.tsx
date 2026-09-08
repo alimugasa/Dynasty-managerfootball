@@ -28,7 +28,13 @@ export interface SaveApi {
   readonly notice: string | null;
   simWeek: () => Promise<void>;
   simSeason: () => Promise<void>;
+  /** Runs the rest of the offseason in one call. */
   nextSeason: () => Promise<void>;
+  /** One step of an offseason played through. */
+  advanceOffseason: () => Promise<void>;
+  /** A move the manager makes himself. The server refuses what it must, and
+   *  what it says comes back as the notice. */
+  offseasonMove: (route: string, input: Record<string, unknown>) => Promise<void>;
   setDepthChart: (group: string, order: readonly string[]) => Promise<void>;
   startDynasty: (teamId: string, name: string) => Promise<void>;
   /** Deletes the current save and starts over on the given club. */
@@ -108,6 +114,18 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         if (abandoned.length > 0) {
           setNotice(`${String(abandoned.length)} game(s) could not be played: ${abandoned.join(', ')}`);
         }
+      }),
+      advanceOffseason: () => act('Working…', async () => {
+        const out = await api().call<{ summary: string; waitingOnPick: { round: number; overall: number } | null }>(
+          'advance-offseason', { saveId: need() });
+        setNotice(out.summary);
+      }),
+      offseasonMove: (route, input) => act('Working…', async () => {
+        const out = await api().call<{ done: boolean; detail: string }>(
+          route, { saveId: need(), ...input });
+        // Refusals and agreements both come back the same way: the server
+        // says what happened, and the screen shows it either way.
+        setNotice(out.detail);
       }),
       nextSeason: () => act('Running offseason…', async () => {
         const out = await api().call<SeasonOutcome>('advance-season', { saveId: need() });

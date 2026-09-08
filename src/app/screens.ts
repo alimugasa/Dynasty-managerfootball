@@ -14,6 +14,7 @@ import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { TeamScreen } from '../screens/TeamScreen';
 import { StaffScreen } from '../screens/StaffScreen';
 import { RecapScreen } from '../screens/RecapScreen';
+import { OffseasonScreen } from '../screens/OffseasonScreen';
 import {
   CoachScreen, CollegeScreen, DraftPickScreen, GameScreen, PlayerScreen,
   ScoutingScreen, TransactionsScreen,
@@ -38,6 +39,7 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   // Schedule's playoff weeks.
   playoffs: { title: 'Playoffs', Component: PlayoffsScreen, root: false },
   recap: { title: 'Season recap', Component: RecapScreen, root: false },
+  offseason: { title: 'Offseason', Component: OffseasonScreen, root: false },
 
   // Drill-downs. Every one of these is a resolveEntityRoute target.
   player: { title: 'Player', Component: PlayerScreen, root: false },

@@ -6,178 +6,32 @@
 // dynamics without simulating a single game.
 
 import { OFFSEASON } from './calibration.ts';
-import { deadMoneyIfCut, capSheet, expireContracts, cutAppeal } from './contracts.ts';
+import { expireContracts } from './contracts.ts';
+import { enforceCompliance, type Release } from './compliance.ts';
 import { developAll, NEUTRAL_CONTEXT, type DevelopmentContext } from './development.ts';
 import { developmentContext, playingTimeFrom } from './coaches.ts';
 import { runCarousel, type CarouselResult, type CoachRecord } from './carousel.ts';
 import { STARTERS } from '../types.ts';
 import { developProspects, generateClass, namePalette, type IntakeConfig } from './draftClass.ts';
-import { runDraft, strengthOrder, type DraftResult } from './draft.ts';
-import { runFreeAgency, type FreeAgencyResult } from './freeAgency.ts';
-import { capRules, type CapRules } from './frontOffice.ts';
+import {
+  runDraft, strengthOrder, type DraftOptions, type DraftResult,
+} from './draft.ts';
+import { runFreeAgency, type FreeAgencyResult, type UserOffer } from './freeAgency.ts';
+import { capRules } from './frontOffice.ts';
 import { gradeSeason } from './grading.ts';
 import {
-  meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosterOf, rosterValue,
+  meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosterOf,
   ROSTER_QUOTA, ROSTER_SIZE, type League,
 } from './league.ts';
-import {
-  bestAvailable, buildIndex, roster as indexedRoster, setTeam,
-  type RosterIndex,
-} from './rosterIndex.ts';
+import { buildIndex, type RosterIndex } from './rosterIndex.ts';
 import { retireAll } from './retirement.ts';
-import { POSITION_GROUPS } from '../types.ts';
 import type { Rng } from '../rng.ts';
-import type { CareerPlayer, OffseasonSummary, SeasonGrade } from './types.ts';
+import type {
+  CareerPlayer, DevelopmentOutcome, OffseasonSummary, SeasonGrade,
+} from './types.ts';
 
 export { ROSTER_QUOTA, ROSTER_SIZE, rosterOf, meanRosteredAbility, meanRosteredAge };
 export type { League };
-
-/** A player a club let go, and what it cost. Reported rather than left for a
- *  caller to infer from a before-and-after diff, which could not see a rookie
- *  drafted and cut in the same offseason. */
-export interface Release {
-  readonly playerId: string;
-  readonly teamId: string;
-  readonly deadMoney: number;
-  /** Why: one body too many in his group, or the money. */
-  readonly reason: 'QUOTA' | 'CAP';
-}
-
-function release(
-  league: League, index: RosterIndex, player: CareerPlayer, log: Release[],
-  reason: Release['reason'],
-): void {
-  const teamId = player.teamId;
-  if (teamId === null) return;
-  const dead = deadMoneyIfCut(player);
-  if (dead > 0) league.deadMoney.set(teamId, (league.deadMoney.get(teamId) ?? 0) + dead);
-  log.push({ playerId: player.id, teamId, deadMoney: dead, reason });
-  setTeam(index, player, null);
-  player.contract = null;
-}
-
-function signMinimum(
-  index: RosterIndex, player: CareerPlayer, teamId: string, rules: CapRules, season: number,
-): void {
-  setTeam(index, player, teamId);
-  player.contract = {
-    aav: rules.veteranMinimum, years: 1, yearsRemaining: 1,
-    guaranteed: 0, signedSeason: season,
-  };
-}
-
-/**
- * Make every roster legal.
- *
- * Runs after the draft and the market, so it is a tidying step rather than a
- * team-building one: clubs cut what they cannot carry and fill what they must,
- * at the minimum, from whoever is left. A club that drafted and signed well has
- * little for this pass to do.
- */
-export function enforceCompliance(
-  league: League, index: RosterIndex, rules: CapRules, released: Release[] = [],
-): number {
-  let moves = 0;
-
-  // Three league-wide passes, not one pass per club.
-  //
-  // Interleaving them means the first club fills its holes from a pool the last
-  // club has not yet released its surplus into. That left clubs a quarterback
-  // short while spare quarterbacks sat unsigned -- a shortage created purely by
-  // the order the clubs were visited in.
-
-  // 1. Everyone cuts down to quota, worst first.
-  for (const teamId of league.teamIds) {
-    for (const group of POSITION_GROUPS) {
-      const held = indexedRoster(index, teamId)
-        .filter((p) => p.group === group)
-        .sort((a, b) => rosterValue(b) - rosterValue(a));
-      for (const player of held.slice(ROSTER_QUOTA[group])) {
-        release(league, index, player, released, 'QUOTA');
-        moves += 1;
-      }
-    }
-  }
-
-  // 2 then 3, each once. Getting under the cap and filling the roster are not
-  // independent -- filling signs minimum-salary bodies, and a club that has cut
-  // its way to exactly zero goes straight back over when it signs eight of them
-  // -- so the cut pass reserves the room the fill pass is going to need.
-  //
-  // Reserving, rather than alternating cut and fill until they settle. That was
-  // tried and is much worse: every cut charges dead money, so a club that is
-  // over the cap cuts, becomes more over, and cuts again. Four alternating
-  // rounds turned one club into 183M of dead money and released the first
-  // overall pick. Cutting is not a fixed-point operation and must not be
-  // iterated as if it were.
-  moves += cutToCap(league, index, rules, released);
-  moves += fillRosters(league, index, rules);
-
-  return moves;
-}
-
-/** How many holes a club must still fill, and therefore how many minimum
- *  salaries the cap pass has to leave room for. */
-function holesAt(index: RosterIndex, teamId: string): number {
-  let holes = 0;
-  for (const group of POSITION_GROUPS) {
-    const held = indexedRoster(index, teamId).filter((p) => p.group === group).length;
-    holes += Math.max(0, ROSTER_QUOTA[group] - held);
-  }
-  return holes;
-}
-
-/** Everyone gets under the cap, with room for the bodies they still need. */
-function cutToCap(
-  league: League, index: RosterIndex, rules: CapRules, released: Release[],
-): number {
-  let moves = 0;
-  for (const teamId of league.teamIds) {
-    let guard = 0;
-    while (guard < 40) {
-      guard += 1;
-      const held = indexedRoster(index, teamId);
-      const sheet = capSheet(teamId, held, rules, league.deadMoney.get(teamId) ?? 0);
-      // The reservation. Only the largest 51 hits count, so a club already at
-      // 51 bodies pays nothing more to fill and reserves nothing.
-      const reserve = Math.max(0, Math.min(holesAt(index, teamId), 51 - held.length))
-        * rules.veteranMinimum;
-      if (sheet.available >= reserve) break;
-      // Cut whoever frees the most money per point of ability lost. Ranking on
-      // cap hit alone targets rookies, whose deals are guaranteed and therefore
-      // save nothing.
-      const worst = held
-        .filter((p) => (p.contract?.aav ?? 0) > rules.veteranMinimum)
-        .filter((p) => cutAppeal(p, rules) > 0)
-        .sort((a, b) => cutAppeal(b, rules) - cutAppeal(a, rules))[0];
-      if (worst === undefined) break;
-      release(league, index, worst, released, 'CAP');
-      moves += 1;
-    }
-  }
-
-  return moves;
-}
-
-/** Fill to quota. The best body available, not a random one: clubs are not
- *  stupid about the bottom of a roster, they are just poor. */
-function fillRosters(league: League, index: RosterIndex, rules: CapRules): number {
-  let moves = 0;
-  for (const teamId of league.teamIds) {
-    for (const group of POSITION_GROUPS) {
-      let held = indexedRoster(index, teamId).filter((p) => p.group === group).length;
-      while (held < ROSTER_QUOTA[group]) {
-        const best = bestAvailable(index, group);
-        if (best === undefined) break;
-        signMinimum(index, best, teamId, rules, league.season);
-        held += 1;
-        moves += 1;
-      }
-    }
-  }
-
-  return moves;
-}
 
 /** Unsigned players eventually leave the game rather than accumulating forever. */
 function pruneUnsigned(league: League): void {
@@ -214,6 +68,131 @@ export interface OffseasonInput {
   readonly records?: ReadonlyMap<string, CoachRecord>;
 }
 
+/** What settling the season produced. The stage before anyone is signed. */
+export interface SettleResult {
+  readonly grades: readonly SeasonGrade[];
+  readonly development: readonly DevelopmentOutcome[];
+  readonly retired: readonly CareerPlayer[];
+  /** Deals that ran out; the player is in the pool. */
+  readonly expired: readonly CareerPlayer[];
+  readonly coaches: CarouselResult;
+}
+
+/**
+ * The offseason in four stages, so it can be played rather than watched.
+ *
+ * One call runs them in order and is what a report or a test uses. The server
+ * calls them one at a time, saving the league between each, which is what
+ * makes it possible to stop at the draft and let someone pick.
+ *
+ * The stages are ordered by dependency, not by taste: development is what the
+ * grades are read against, the carousel judges the season that was just
+ * played, the draft needs the pool retirement and expiry created, and
+ * compliance can only run once the roster is whatever the draft and the market
+ * left it.
+ */
+export function settleSeason(
+  league: League, rng: Rng, input: OffseasonInput = {},
+): SettleResult {
+  const intake = input.intake ?? OFFSEASON.intake;
+  // Who develops a player: his club's staff, and how much he plays. A league
+  // carrying no coaches -- a save written before staffs existed -- develops
+  // everyone at the league rate, which is what it did before they existed.
+  const development = input.context ?? (league.coaches.length === 0
+    ? NEUTRAL_CONTEXT
+    : developmentContext(
+      league.coaches, league.teamIds, playingTimeFrom(league.players, STARTERS)));
+
+  // Dead money is carried for the season it was incurred and then written off.
+  league.deadMoney.clear();
+
+  const active = league.players.filter((p) => !p.retired && p.teamId !== null);
+  const grades = gradeSeason(active, rng, league.season);
+  const outcomes = developAll(league.players, development, rng);
+  // The carousel runs after development and before the draft, which is the
+  // order it happens in: the staff that coached the season is the staff the
+  // season is credited to, and the staff that drafts is the new one.
+  const coaches = runCarousel(league, input.records ?? new Map(), rng);
+  const retired = retireAll(league.players, rng, league.season);
+  const expired = expireContracts(league.players);
+
+  // The class several years out enters the pipeline; every class in it grows.
+  const incoming = league.season + intake.pipelineYears;
+  if (!league.pipeline.has(incoming)) {
+    league.pipeline.set(incoming, generateClass(rng, incoming, intake, namePalette(league.players)));
+  }
+  for (const cls of league.pipeline.values()) developProspects(cls, rng, intake);
+
+  return { grades, development: outcomes, retired, expired, coaches };
+}
+
+/**
+ * The draft.
+ *
+ * Built here, after retirement and expiry have already moved players off
+ * rosters directly. Those two run without an index -- they are callable on a
+ * bare player list -- so indexing before them would leave stale entries that
+ * setTeam could not clear, since it short-circuits when the club has not
+ * changed. Everything from this line on goes through setTeam.
+ */
+export interface DraftStageOptions extends DraftOptions {
+  /** The order picks are made in. Passed when resuming, because a club's
+   *  strength changes as the draft fills its holes and an order recomputed
+   *  halfway through would not be the one the first round was made in. */
+  readonly order?: readonly string[];
+  /**
+   * The roster index to work in. Passed when several stages run back to back
+   * so they share one, which is not an optimisation: an index carries the
+   * order free agents are considered in, and rebuilding it between the draft
+   * and the market reorders the pool and changes who signs where.
+   */
+  readonly index?: RosterIndex;
+}
+
+export function draftStage(
+  league: League, rng: Rng, options: DraftStageOptions = {},
+): DraftResult {
+  const rules = capRules(league.season);
+  const index = options.index ?? buildIndex(league.teamIds, league.players);
+  const declaring = league.pipeline.get(league.season) ?? [];
+  const order = options.order ?? strengthOrder(league, index);
+  const result = runDraft(league, index, declaring, order, rules, rng, {
+    ...(options.startAt === undefined ? {} : { startAt: options.startAt }),
+    ...(options.choices === undefined ? {} : { choices: options.choices }),
+  });
+  // A draft that paused keeps its class on the board for the next call; one
+  // that finished has consumed it.
+  if (result.paused === null) league.pipeline.delete(league.season);
+  else league.pipeline.set(league.season, [...result.onBoard]);
+  return result;
+}
+
+/** The market. A caller may add offers of its own; everything else is the
+ *  engine's clubs bidding against each other. */
+export function marketStage(
+  league: League, rng: Rng, offers: readonly UserOffer[] = [], sharedIndex?: RosterIndex,
+): FreeAgencyResult {
+  const rules = capRules(league.season);
+  const index = sharedIndex ?? buildIndex(league.teamIds, league.players);
+  return runFreeAgency(league, index, rules, rng, offers);
+}
+
+/** Camp: every roster made legal, the unsigned pruned, the year turned over. */
+export function campStage(
+  league: League, rng: Rng, sharedIndex?: RosterIndex,
+): readonly Release[] {
+  const rules = capRules(league.season);
+  const index = sharedIndex ?? buildIndex(league.teamIds, league.players);
+  const released: Release[] = [];
+  enforceCompliance(league, index, rules, released);
+  pruneUnsigned(league);
+  league.season += 1;
+  // The generator is taken so every stage has the same shape and a caller
+  // cannot pass streams in the wrong order without noticing.
+  void rng;
+  return released;
+}
+
 export function runOffseason(
   league: League,
   rng: Rng,
@@ -226,73 +205,33 @@ export function runOffseason(
   const input: OffseasonInput = 'playingTime' in options
     ? { context: options, ...(intakeArg === undefined ? {} : { intake: intakeArg }) }
     : { ...options, ...(intakeArg === undefined ? {} : { intake: intakeArg }) };
-  const context = input.context;
-  const intake = input.intake ?? OFFSEASON.intake;
-  const rules = capRules(league.season);
-  // Who develops a player: his club's staff, and how much he plays. A league
-  // carrying no coaches -- a save written before staffs existed -- develops
-  // everyone at the league rate, which is what it did before they existed.
-  const development = context ?? (league.coaches.length === 0
-    ? NEUTRAL_CONTEXT
-    : developmentContext(
-      league.coaches, league.teamIds, playingTimeFrom(league.players, STARTERS)));
 
-  // Dead money is carried for the season it was incurred and then written off.
-  league.deadMoney.clear();
-
-  const active = league.players.filter((p) => !p.retired && p.teamId !== null);
-  const grades = gradeSeason(active, rng, league.season);
-
-  const outcomes = developAll(league.players, development, rng);
-  // The carousel runs after development and before the draft, which is the
-  // order it happens in: the staff that coached the season is the staff the
-  // season is credited to, and the staff that drafts is the new one.
-  const coaches = runCarousel(league, input.records ?? new Map(), rng);
-  const retired = retireAll(league.players, rng, league.season);
-  const expired = expireContracts(league.players);
-  const released: Release[] = [];
-
-  // Built here, after retirement and expiry have already moved players off
-  // rosters directly. Those two run without an index -- they are callable on a
-  // bare player list -- so indexing before them would leave stale entries that
-  // setTeam could not clear, since it short-circuits when the club has not
-  // changed. Everything from this line on goes through setTeam.
+  const settled = settleSeason(league, rng, input);
+  // One index for the three stages that move players, exactly as the offseason
+  // held before it was split into stages someone can stop in the middle of.
   const index = buildIndex(league.teamIds, league.players);
-
-  // The class several years out enters the pipeline; every class in it grows.
-  const incoming = league.season + intake.pipelineYears;
-  if (!league.pipeline.has(incoming)) {
-    league.pipeline.set(incoming, generateClass(rng, incoming, intake, namePalette(league.players)));
-  }
-  for (const cls of league.pipeline.values()) developProspects(cls, rng, intake);
-
-  const declaring = league.pipeline.get(league.season) ?? [];
-  league.pipeline.delete(league.season);
-
-  const draft = runDraft(league, index, declaring, strengthOrder(league, index), rules, rng);
-  const freeAgency = runFreeAgency(league, index, rules, rng);
-  enforceCompliance(league, index, rules, released);
-  pruneUnsigned(league);
-  league.season += 1;
+  const draft = draftStage(league, rng, { index });
+  const freeAgency = marketStage(league, rng, [], index);
+  const released = campStage(league, rng, index);
 
   return {
     summary: {
       season: league.season - 1,
-      retired: retired.length,
+      retired: settled.retired.length,
       drafted: draft.picks.length,
-      developed: outcomes.length,
+      developed: settled.development.length,
       meanAbility: meanRosteredAbility(league),
       meanAge: meanRosteredAge(league),
-      breakouts: outcomes.filter((o) => o.breakout).length,
-      busts: outcomes.filter((o) => o.bust).length,
+      breakouts: settled.development.filter((o) => o.breakout).length,
+      busts: settled.development.filter((o) => o.bust).length,
     },
-    grades,
-    retired,
+    grades: settled.grades,
+    retired: settled.retired,
     draft,
     freeAgency,
-    expired,
+    expired: settled.expired,
     released,
-    coaches,
+    coaches: settled.coaches,
   };
 }
 

@@ -33,7 +33,8 @@ export function TeamScreen() {
   if (save === null) return <Screen title="Team" subtitle="New dynasty" screen="team"><NewDynasty /></Screen>;
 
   const identity = clubsById.get(save.userTeamId);
-  const done = save.phase === 'OFFSEASON';
+  const OFFSEASON_PHASES = ['OFFSEASON', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP'];
+  const done = OFFSEASON_PHASES.includes(save.phase);
   const inPlayoffs = save.phase === 'PLAYOFFS';
   const roundLabel = post.status === 'ready' ? post.data.nextLabel : null;
   const champion = post.status === 'ready' ? post.data.champion : null;
@@ -110,8 +111,16 @@ export function TeamScreen() {
       <div style={{ display: 'grid', gap: 8 }}>
         {done ? (
           <>
-            <ActionButton onClick={() => { void nextSeason(); }} disabled={busy !== null} testId="next-season">
-              {busy ?? `Run offseason → ${String(save.season + 1)}`}
+            <ActionButton onClick={() => { nav.push('offseason'); }} testId="play-offseason">
+              Play the offseason
+            </ActionButton>
+            <ActionButton
+              onClick={() => { void nextSeason(); }}
+              disabled={busy !== null}
+              tone="quiet"
+              testId="next-season"
+            >
+              {busy ?? `Simulate it → ${String(save.season + 1)}`}
             </ActionButton>
             <ActionButton
               onClick={() => { nav.push('recap'); }}
