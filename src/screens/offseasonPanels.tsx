@@ -209,3 +209,124 @@ export function MarketPanel({ data, busy, move }: MoveProps) {
     </>
   );
 }
+
+interface TradeProps extends MoveProps {
+  /** The club being looked at, and the two players on the table. */
+  readonly partnerId: string;
+  readonly setPartner: (teamId: string) => void;
+  readonly mine: string | null;
+  readonly theirs: string | null;
+  readonly select: (side: 'mine' | 'theirs', playerId: string | null) => void;
+  readonly clubs: readonly { readonly id: string; readonly nickname: string }[];
+}
+
+/**
+ * Trades: one of yours for one of theirs.
+ *
+ * The values shown are the engine's, the same numbers the other club is
+ * weighing, so a refusal is never a mystery -- you can see the gap you are
+ * asking them to swallow.
+ */
+export function TradePanel(
+  { data, busy, move, partnerId, setPartner, mine, theirs, select, clubs }: TradeProps,
+) {
+  const rowsMine = data.roster.slice(0, 25);
+  // Read once, and defensively: a server that has not been restarted since
+  // this panel was added sends no partner at all, and a screen that assumed
+  // the field was there took the whole offseason down with it.
+  const partner = data.partner ?? null;
+  const rowsTheirs = partner?.players ?? [];
+  const valueMine = rowsMine.find((p) => p.playerId === mine)?.tradeValue ?? 0;
+  const valueTheirs = rowsTheirs.find((p) => p.playerId === theirs)?.tradeValue ?? 0;
+
+  return (
+    <>
+      <SectionHeader title="Trade" />
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '2px 0 8px' }}>
+        {clubs.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => { setPartner(c.id); }}
+            style={{
+              flexShrink: 0, padding: '6px 10px', borderRadius: 999, cursor: 'pointer',
+              border: `1px solid ${c.id === partnerId ? COLOR.amber : COLOR.line2}`,
+              background: 'transparent',
+              color: c.id === partnerId ? COLOR.amber : COLOR.mut,
+              fontSize: 12,
+            }}
+          >
+            {c.nickname}
+          </button>
+        ))}
+      </div>
+
+      <Panel>
+        <div style={{ color: COLOR.mut, fontSize: 12, lineHeight: 1.5 }}>
+          You give <span style={{ color: COLOR.tx }}>{valueMine === 0 ? 'nobody' : String(valueMine)}</span>
+          {' · '}they give <span style={{ color: COLOR.tx }}>{valueTheirs === 0 ? 'nobody' : String(valueTheirs)}</span>
+        </div>
+        <div style={{ marginTop: 8 }}>
+          <ActionButton
+            onClick={() => {
+              move('trade', { teamId: partnerId, give: [mine], get: [theirs] });
+              select('mine', null);
+              select('theirs', null);
+            }}
+            disabled={busy || mine === null || theirs === null}
+          >
+            Propose the trade
+          </ActionButton>
+        </div>
+      </Panel>
+
+      <SectionHeader title="You give" />
+      <Panel padded={false}>
+        <div style={{ padding: '0 12px' }}>
+          {rowsMine.map((p) => (
+            <ListRow
+              key={p.playerId}
+              title={p.name}
+              subtitle={`${line(p)} · value ${String(p.tradeValue)}`}
+              trailing={
+                <ActionButton
+                  onClick={() => { select('mine', p.playerId === mine ? null : p.playerId); }}
+                  tone="quiet"
+                  compact
+                >
+                  {p.playerId === mine ? 'On the table' : 'Offer'}
+                </ActionButton>
+              }
+            />
+          ))}
+        </div>
+      </Panel>
+
+      <SectionHeader title={`You get${partner === null ? '' : ` · ${partner.teamId}`}`} />
+      {rowsTheirs.length === 0 ? (
+        <EmptyState title="Pick a club" detail="Choose who you want to trade with." />
+      ) : (
+        <Panel padded={false}>
+          <div style={{ padding: '0 12px' }}>
+            {rowsTheirs.map((p) => (
+              <ListRow
+                key={p.playerId}
+                title={p.name}
+                subtitle={`${line(p)} · value ${String(p.tradeValue)}`}
+                trailing={
+                  <ActionButton
+                    onClick={() => { select('theirs', p.playerId === theirs ? null : p.playerId); }}
+                    tone="quiet"
+                    compact
+                  >
+                    {p.playerId === theirs ? 'Asked for' : 'Ask'}
+                  </ActionButton>
+                }
+              />
+            ))}
+          </div>
+        </Panel>
+      )}
+    </>
+  );
+}

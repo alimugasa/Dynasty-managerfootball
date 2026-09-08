@@ -9,13 +9,14 @@ import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { useUiState } from '../app/useUiState';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
-import { ContractsPanel, DraftPanel, MarketPanel, money } from './offseasonPanels';
+import { ContractsPanel, DraftPanel, MarketPanel, TradePanel, money } from './offseasonPanels';
 import type { OffseasonOut } from '../../supabase/functions/_shared/api/reads/offseason';
 
 /** What each step is for, in one line, so the button is never a mystery. */
@@ -29,11 +30,19 @@ const EXPLAIN: Readonly<Record<string, string>> = {
 
 export function OffseasonScreen() {
   const nav = useNavigator();
+  // Who you are talking to, and the two players on the table. Frame state, so
+  // the back button brings the conversation back with the screen.
   const {
     save, loaded, loadError, clubsById, version, busy, notice,
     advanceOffseason, offseasonMove, nextSeason,
   } = useSave();
-  const q = useQuery<OffseasonOut>('offseason', { saveId: save?.saveId ?? '' }, version, save !== null);
+  const [partner, setPartner] = useUiState('tradeWith', '');
+  const [mine, setMine] = useUiState('tradeMine', '');
+  const [theirs, setTheirs] = useUiState('tradeTheirs', '');
+  const q = useQuery<OffseasonOut>(
+    'offseason',
+    { saveId: save?.saveId ?? '', ...(partner === '' ? {} : { teamId: partner }) },
+    version, save !== null);
   const club = save === null ? undefined : clubsById.get(save.userTeamId);
 
   const move = (route: string, input: Record<string, unknown>): void => {
@@ -131,7 +140,25 @@ export function OffseasonScreen() {
           )}
 
           {q.data.phase === 'RETIREMENTS' && (
-            <ContractsPanel data={q.data} busy={busy !== null} move={move} />
+            <>
+              <ContractsPanel data={q.data} busy={busy !== null} move={move} />
+              <TradePanel
+                data={q.data}
+                busy={busy !== null}
+                move={move}
+                partnerId={partner}
+                setPartner={setPartner}
+                mine={mine === '' ? null : mine}
+                theirs={theirs === '' ? null : theirs}
+                select={(side, playerId) => {
+                  if (side === 'mine') setMine(playerId ?? '');
+                  else setTheirs(playerId ?? '');
+                }}
+                clubs={clubsById === undefined ? [] : [...clubsById.values()]
+                  .filter((c) => c.id !== save?.userTeamId)
+                  .map((c) => ({ id: c.id, nickname: c.nickname }))}
+              />
+            </>
           )}
           {q.data.phase === 'DRAFT' && (
             <DraftPanel data={q.data} busy={busy !== null} move={move} />

@@ -8,7 +8,7 @@
 
 import type { Handler } from '../context.ts';
 import { ownedSave } from '../save.ts';
-import { rawOf, requireString } from '../parse.ts';
+import { optionalString, rawOf, requireString } from '../parse.ts';
 import { loadEngineState } from '../saveStore.ts';
 import { isOffseasonPhase, PHASE_ACTION, PHASE_LABEL, readState } from '../phases.ts';
 import {
@@ -16,7 +16,12 @@ import {
   type CareerPlayer,
 } from '../../engine/offseason/index.ts';
 
-export interface OffseasonIn { readonly saveId: string }
+export interface OffseasonIn {
+  readonly saveId: string;
+  /** A club to look at for a trade. Its roster comes back with the same
+   *  valuations yours does, which is what makes an offer comparable. */
+  readonly teamId?: string;
+}
 
 export interface OffseasonPlayer {
   readonly playerId: string;
@@ -60,6 +65,8 @@ export interface OffseasonOut {
   /** The board, when the draft is waiting on you. */
   readonly board: readonly ProspectOut[];
   readonly onTheClock: { readonly overall: number; readonly round: number } | null;
+  /** The club asked about, and what it has. Empty when none was asked about. */
+  readonly partner: { readonly teamId: string; readonly players: readonly OffseasonPlayer[] } | null;
   /** Picks made so far this draft, newest first. */
   readonly picks: readonly { readonly overall: number; readonly round: number; readonly teamId: string; readonly name: string; readonly yours: boolean }[];
 }
@@ -69,7 +76,11 @@ const BOARD_SHOWN = 30;
 
 export const offseason: Handler<OffseasonIn, OffseasonOut> = {
   auth: 'required',
-  parse: (raw) => ({ saveId: requireString(rawOf(raw), 'saveId') }),
+  parse: (raw) => {
+    const r = rawOf(raw);
+    const teamId = optionalString(r, 'teamId');
+    return { saveId: requireString(r, 'saveId'), ...(teamId === undefined ? {} : { teamId }) };
+  },
   run: async ({ sql, userId }, input) => {
     const s = await ownedSave(sql, userId, input.saveId);
     const { league } = await loadEngineState(sql, s.id);
@@ -147,6 +158,13 @@ export const offseason: Handler<OffseasonIn, OffseasonOut> = {
         aav: o.aav, years: o.years,
       })),
       board,
+      partner: input.teamId === undefined || input.teamId === s.user_team_id ? null : {
+        teamId: input.teamId,
+        players: rosterOf(league, input.teamId)
+          .sort((a, b) => tradeValue(b, rules) - tradeValue(a, rules))
+          .slice(0, 25)
+          .map((p) => asPlayer(p, null)),
+      },
       onTheClock: phase === 'DRAFT' && state.draftOrder.length > 0
         && state.draftOrder[(state.nextPick - 1) % state.draftOrder.length] === s.user_team_id
         ? {
