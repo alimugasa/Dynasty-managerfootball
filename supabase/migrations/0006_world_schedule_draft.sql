@@ -39,10 +39,12 @@ create table if not exists public.season_schedule (
   constraint season_schedule_status_check check (status in ('SCHEDULED','FINAL')),
   constraint season_schedule_competition_check check (competition in ('REGULAR','PLAYOFF')),
   constraint season_schedule_distinct_teams check (home_team_id <> away_team_id),
+  -- The league's own rounds. 0020 restates this constraint for databases
+  -- built before the vocabulary was settled; the two agree.
   constraint season_schedule_playoff_round_check check (
     (competition = 'REGULAR' and playoff_round is null) or
     (competition = 'PLAYOFF' and playoff_round in
-      ('WILD_CARD','DIVISIONAL','CONFERENCE','FINAL')))
+      ('OPENING','QUARTERFINAL','CONFERENCE_FINAL','LEAGUE_FINAL')))
 );
 
 create index if not exists season_schedule_week_idx

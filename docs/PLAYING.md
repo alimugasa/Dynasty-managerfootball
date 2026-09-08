@@ -28,14 +28,41 @@ and offers the list again.
 | Read the box score | **Team** → *Last result* row, or **Schedule** → any played fixture |
 | Standings and leaders | **League** tab |
 | Read the news | **Office** tab → News |
-| Sim to the end | **Team** → *Sim to end of season* (one request per week) |
-| Run the offseason | **Team** → *Run offseason → next year* (appears once the schedule is done) |
+| Sim to the end | **Team** → *Sim to end of season* (one request per week, stops at the bracket) |
+| Play a playoff round | **Team** → *Play the Opening Round*, then one button per round |
+| Follow the bracket | **Team** or **League** → *See the bracket*, or **Schedule** → the round chips |
+| Run the offseason | **Team** → *Run offseason → next year* (appears once the final is played) |
 | Play year two | **Team** → *Sim week 1* again |
 
 The depth chart is load-bearing, not decoration: the order you set is stored in
 `team_depth_charts` and is the order the engine fields next week. The season is
-the seed's schedule -- **18 weeks with byes, 272 games** -- for the first year;
-later years get a round-robin from `buildSchedule` (288 games over 18 weeks).
+the seed's schedule -- **18 weeks with byes, 272 games** -- and later years keep
+that shape, with the clubs renamed by a seeded permutation, so every year is 17
+games each over 18 weeks.
+
+## The postseason
+
+Fourteen clubs, seven from each conference: the four division winners seeded
+one to four by record, then the three best of the rest at five to seven. The
+top seed rests the opening round; the rest open 2v7, 3v6 and 4v5. Every round
+re-seeds -- the best surviving seed meets the worst -- and the higher seed
+hosts until the League Final, which is played on neutral ground. One loss and
+a club is out, so a playoff game cannot end level.
+
+The four rounds are the **Opening Round**, the **Quarterfinals**, the
+**Conference Final** and the **League Final**, played in weeks 19 to 22. Ties
+on record are broken in one fixed order: the games between the tied clubs,
+division record, conference record, point differential, and finally a coin
+drawn from the season's own stream, so the same season seeds the same table
+every time it is loaded.
+
+The bracket is never stored. It is derived from the seeds on `standings` and
+the playoff games in `game_results` every time it is asked for
+(`supabase/functions/_shared/engine/playoffs.ts`), so a save reopened mid-round
+picks up exactly where it was. Playoff production is written under
+`competition = 'PLAYOFF'` and never joins the regular season's totals or the
+table. When the final is played, every club's line goes into `league_history`
+with its seed and how far it got, and the champion's players each gain a ring.
 
 ## Where the game runs
 
@@ -60,9 +87,14 @@ counting rows in Postgres after every step) on a fresh database:
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | create | 0 | 0 | 0 | 32 | 0 | 0 | 448 | 0 | 0 | 0 | 0 | 272 | 3,066 |
 | sim week 1 | 16 | ~700 | ~700 | 32 | 8 | 0 | 448 | 0 | 0 | 0 | 0 | 272 | 3,066 |
-| sim to end of 2026 | 272 | ~11,750 | ~830 | 32 | ~144 | 0 | 448 | 0 | 0 | 0 | 0 | 272 | 3,066 |
-| offseason → 2027 | 272 | ~11,750 | ~830 | 64 | ~144 | ~1,100 | 672 | 32 | 1,696 | 32 | ~830 | 560 | ~3,400 |
-| sim week 1 of 2027 | 288 | ~12,450 | ~1,520 | 64 | ~152 | ~1,100 | 672 | 32 | 1,696 | 32 | ~830 | 560 | ~3,400 |
+| sim to end of 2026 | 272 | ~14,300 | ~1,190 | 32 | ~600 | 0 | 448 | 0 | 0 | 0 | 0 | 278 | 3,066 |
+| play the four rounds | 285 | ~15,000 | ~1,600 | 32 | ~620 | 0 | 448 | 32 | 0 | 0 | 0 | 285 | 3,066 |
+| offseason → 2027 | 285 | ~15,000 | ~1,600 | 64 | ~620 | ~2,800 | 672 | 32 | 1,696 | 46 | ~1,600 | 557 | ~3,400 |
+| sim week 1 of 2027 | 301 | ~15,850 | ~2,460 | 64 | ~640 | ~2,800 | 672 | 32 | 1,696 | 46 | ~1,600 | 557 | ~3,400 |
+
+Thirteen of those 285 games are the bracket, and the 32 `league_history` rows
+are written by the final rather than by the offseason: every club's line, its
+seed, and how far it got.
 
 Also at create: `team_rosters` 1,696 (32 × 53), `free_agents` 1,152,
 `player_contracts` 1,696, `contract_years` ~4,240, `salary_cap` 32, the managed
@@ -78,9 +110,9 @@ A week takes about 200 ms on the server; the offseason about a second.
 
 Honestly, and in the order you will notice it:
 
-- **No playoffs.** The last week ends the season and the offseason button
-  appears. The standings are the final word; there is no bracket, no champion.
-  `game_results.competition` is always `REGULAR`.
+- **No award or honours screen.** The champion is recorded and the bracket is
+  playable, but there is no most-valuable-player vote, no all-league team and
+  no record book yet. `player_season_grades` is written; nothing reads it.
 - **The seed's day-to-day injuries are honoured; its long-term list is not
   yet.** The 195 day-to-day rows are dated to week 0 at create time, so a
   player listed as out for n weeks misses the first n-1. The 114 IR/PUP/NFI

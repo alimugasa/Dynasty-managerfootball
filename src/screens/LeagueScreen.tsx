@@ -41,6 +41,24 @@ export function LeagueScreen() {
             <ChipRow chips={CONFERENCES} value={conference} onChange={setConference} label="Conference" />
           </div>
 
+          {q.status === 'ready' && q.data.standings.some((r) => r.seed !== null) && (
+            <>
+              <SectionHeader title="Postseason" />
+              <Panel padded={false}>
+                <div style={{ padding: '0 12px' }}>
+                  <ListRow
+                    title={q.data.champion === null
+                      ? 'The bracket is live'
+                      : `${clubsById.get(q.data.champion)?.name ?? q.data.champion} are champions`}
+                    subtitle={q.data.champion === null ? 'Fourteen clubs, four rounds' : String(save.season)}
+                    navigable
+                    onSelect={() => { nav.push('playoffs'); }}
+                  />
+                </div>
+              </Panel>
+            </>
+          )}
+
           <SectionHeader title="Standings" />
           {q.status === 'error' && <QueryError error={q.error} />}
           {q.status === 'loading' && <Loading label="Loading standings" rows={8} />}
@@ -54,6 +72,7 @@ export function LeagueScreen() {
                         <tr>
                           <th style={th}>Club</th><th style={th}>W-L</th><th style={th}>GP</th>
                           <th style={th}>PF</th><th style={th}>PA</th><th style={th}>Diff</th>
+                          <th style={th}>Sd</th>
                         </tr>
                       </thead>
                       <tbody data-testid="standings-body">
@@ -69,6 +88,9 @@ export function LeagueScreen() {
                               <td style={td}>{s.pointsFor}</td>
                               <td style={td}>{s.pointsAgainst}</td>
                               <td style={td}>{s.pointsFor - s.pointsAgainst}</td>
+                              <td style={{ ...td, color: s.seed === null ? COLOR.dim : COLOR.amber }}>
+                                {s.seed ?? '—'}
+                              </td>
                             </tr>
                           ))}
                       </tbody>

@@ -5,6 +5,7 @@ import { ownedSave } from '../save.ts';
 import { rawOf, requireString } from '../parse.ts';
 import { parseStreak } from '../project/standings.ts';
 import { POSITION_GROUPS } from '../../engine/types.ts';
+import { ROUND_LABEL, type PlayoffRound } from '../../engine/playoffs.ts';
 
 export interface TeamIn { readonly saveId: string }
 
@@ -17,6 +18,8 @@ export interface FixtureOut {
   readonly gameId: string; readonly week: number;
   readonly homeTeamId: string; readonly awayTeamId: string;
   readonly homeScore: number | null; readonly awayScore: number | null;
+  /** The round's name on a playoff fixture; null in the regular season. */
+  readonly round?: string | null;
 }
 
 export interface SquadRow {
@@ -58,20 +61,24 @@ export const team: Handler<TeamIn, TeamOut> = {
     const [{ n: squadSize } = { n: '0' }] = await sql<{ n: string }[]>`
       select count(*) as n from public.team_rosters where save_id = ${s.id} and team_id = ${teamId}`;
 
-    const [next] = await sql<{ game_id: string; week: number; home_team_id: string; away_team_id: string }[]>`
-      select game_id, week, home_team_id, away_team_id from public.season_schedule
+    const [next] = await sql<{
+      game_id: string; week: number; home_team_id: string; away_team_id: string; playoff_round: string | null;
+    }[]>`
+      select game_id, week, home_team_id, away_team_id, playoff_round from public.season_schedule
        where save_id = ${s.id} and season = ${s.season} and week = ${s.week}
          and (home_team_id = ${teamId} or away_team_id = ${teamId})`;
 
     const [last] = await sql<{
       game_id: string; week: number; home_team_id: string; away_team_id: string;
-      home_score: number; away_score: number;
+      home_score: number; away_score: number; playoff_round: string | null;
     }[]>`
-      select game_id, week, home_team_id, away_team_id, home_score, away_score
-        from public.game_results
-       where save_id = ${s.id} and season = ${s.season}
-         and (home_team_id = ${teamId} or away_team_id = ${teamId})
-       order by week desc limit 1`;
+      select g.game_id, g.week, g.home_team_id, g.away_team_id, g.home_score, g.away_score,
+             f.playoff_round
+        from public.game_results g
+        join public.season_schedule f on f.save_id = g.save_id and f.game_id = g.game_id
+       where g.save_id = ${s.id} and g.season = ${s.season}
+         and (g.home_team_id = ${teamId} or g.away_team_id = ${teamId})
+       order by g.week desc limit 1`;
 
     const squad = await sql<{ player_id: string; display_name: string; slot: string; age: number; overall_rating: number }[]>`
       select d.player_id, p.display_name, d.slot, p.age, p.overall_rating
@@ -94,10 +101,12 @@ export const team: Handler<TeamIn, TeamOut> = {
       next: next === undefined ? null : {
         gameId: next.game_id, week: next.week, homeTeamId: next.home_team_id,
         awayTeamId: next.away_team_id, homeScore: null, awayScore: null,
+        round: next.playoff_round === null ? null : (ROUND_LABEL[next.playoff_round as PlayoffRound] ?? next.playoff_round),
       },
       last: last === undefined ? null : {
         gameId: last.game_id, week: last.week, homeTeamId: last.home_team_id,
         awayTeamId: last.away_team_id, homeScore: last.home_score, awayScore: last.away_score,
+        round: last.playoff_round === null ? null : (ROUND_LABEL[last.playoff_round as PlayoffRound] ?? last.playoff_round),
       },
       squad: squad.map((r) => ({
         playerId: r.player_id, name: r.display_name, group: r.slot, age: r.age,

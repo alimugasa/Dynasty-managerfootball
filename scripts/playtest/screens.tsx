@@ -10,18 +10,29 @@ import { ChipRow } from '../../src/components/ChipRow';
 import { TableScroll } from '../../src/components/TableScroll';
 import { ActionButton } from '../../src/components/ActionButton';
 import { ranking, squad } from './host';
+import { nextRound, ROUND_LABEL, type PlayoffRound } from './postseason';
 import { ordinal, record, type ScreenProps as Props } from './common';
 
 
 export function TeamScreen(
-  { game, open, busy, onWeek, onSeason, onOffseason }:
-  Props & { busy: string | null; onWeek: () => void; onSeason: () => void; onOffseason: () => void },
+  { game, open, busy, onWeek, onSeason, onOffseason, onBracket }:
+  Props & {
+    busy: string | null; onWeek: () => void; onSeason: () => void;
+    onOffseason: () => void; onBracket: () => void;
+  },
 ) {
   const club = game.clubs.get(game.userTeamId);
   const standing = game.standings.get(game.userTeamId);
   const done = game.phase === 'OFFSEASON';
-  const mine = game.results.filter(
+  const inPlayoffs = game.phase === 'PLAYOFFS';
+  const { round, champion } = game.seeds.length === 0
+    ? { round: null, champion: null } : nextRound(game);
+  const roundLabel = round === null ? null : ROUND_LABEL[round];
+  const mine = [...game.results, ...game.playoffs].filter(
     (g) => g.homeTeamId === game.userTeamId || g.awayTeamId === game.userTeamId);
+  const alive = game.playoffs.length === 0
+    ? game.seeds.some((s) => s.teamId === game.userTeamId)
+    : lastRoundSurvivor(game);
   const last = mine[mine.length - 1];
   const next = game.schedule.find((f) => f.week === game.week
     && (f.homeTeamId === game.userTeamId || f.awayTeamId === game.userTeamId));
@@ -71,17 +82,36 @@ export function TeamScreen(
         </p>
       )}
 
-      <SectionHeader title={done ? 'Offseason' : 'Advance'} />
+      <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
       <div style={{ display: 'grid', gap: 8 }}>
         {done ? (
           <>
             <p style={{ margin: '0 0 2px', color: COLOR.mut, fontSize: 13, lineHeight: 1.5 }}>
               {String(game.season)} is over. You finished <strong style={{ color: COLOR.tx }}>{record(standing)}</strong>,
-              {' '}{ordinal(finish)} of {game.league.teamIds.length}. Best record:{' '}
-              <strong style={{ color: COLOR.amber }}>{nick(ranking(game.standings)[0]?.teamId ?? '')}</strong>.
+              {' '}{ordinal(finish)} of {game.league.teamIds.length}.{' '}
+              {champion === null ? '' : (
+                <>Champions: <strong style={{ color: COLOR.amber }}>{nick(champion)}</strong>.</>
+              )}
             </p>
             <ActionButton onClick={onOffseason} disabled={busy !== null} testId="next-season">
               {busy ?? `Run offseason → ${String(game.season + 1)}`}
+            </ActionButton>
+            <ActionButton onClick={onBracket} tone="quiet" testId="view-bracket">
+              See the bracket
+            </ActionButton>
+          </>
+        ) : inPlayoffs ? (
+          <>
+            <p style={{ margin: '0 0 2px', color: COLOR.mut, fontSize: 13, lineHeight: 1.5 }}>
+              {alive
+                ? <>You are in the bracket. {roundLabel ?? 'The next round'} is next.</>
+                : <>You did not make the fourteen. {roundLabel ?? 'The next round'} is next.</>}
+            </p>
+            <ActionButton onClick={onWeek} disabled={busy !== null} testId="sim-week">
+              {busy ?? `Play the ${roundLabel ?? 'next round'}`}
+            </ActionButton>
+            <ActionButton onClick={onBracket} tone="quiet" testId="view-bracket">
+              See the bracket
             </ActionButton>
           </>
         ) : (
@@ -96,11 +126,16 @@ export function TeamScreen(
         )}
       </div>
 
-      <SectionHeader title="This week" />
-      {next === undefined ? (
+      <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
+      {next === undefined || inPlayoffs ? (
         <EmptyState
-          title={done ? 'Regular season complete' : 'Bye week'}
+          title={done ? 'The season is over' : inPlayoffs
+            ? (alive ? 'Waiting on the bracket' : 'Your season is over')
+            : 'Bye week'}
           {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
+          {...(inPlayoffs
+            ? { detail: alive ? 'Play the round to see who you get.' : 'Play it out to see who takes it.' }
+            : {})}
         />
       ) : (
         <Panel padded={false}>
@@ -122,7 +157,7 @@ export function TeamScreen(
           <div style={{ padding: '0 12px' }}>
             <ListRow
               title={`${nick(last.awayTeamId)} ${String(last.awayScore)} — ${String(last.homeScore)} ${nick(last.homeTeamId)}`}
-              subtitle={`Week ${String(last.week)}${last.overtime ? ' · OT' : ''}`}
+              subtitle={`${roundOf(last) ?? `Week ${String(last.week)}`}${last.overtime ? ' · OT' : ''}`}
               navigable
               onSelect={() => { open('game', last.gameId); }}
             />
@@ -149,12 +184,30 @@ export function TeamScreen(
   );
 }
 
+/** The round's name when the game was a playoff game, else null. */
+function roundOf(game: { readonly gameId: string }): string | null {
+  const round = (game as { readonly round?: PlayoffRound }).round;
+  return round === undefined ? null : ROUND_LABEL[round];
+}
+
+/** Whether the club you manage won its latest playoff game. */
+function lastRoundSurvivor(game: Props['game']): boolean {
+  const mine = game.playoffs.filter(
+    (g) => g.homeTeamId === game.userTeamId || g.awayTeamId === game.userTeamId);
+  const latest = mine[mine.length - 1];
+  if (latest === undefined) return game.seeds.some((s) => s.teamId === game.userTeamId);
+  return latest.homeTeamId === game.userTeamId
+    ? latest.homeScore > latest.awayScore : latest.awayScore > latest.homeScore;
+}
+
 export function LeagueScreen(
   { game, open, conference, setConference }:
   Props & { conference: string; setConference: (key: string) => void },
 ) {
   const rows = ranking(game.standings).filter((s) => conference === 'all'
     || game.clubs.get(s.teamId)?.conferenceId === conference);
+  const seedOf = new Map(game.seeds.map((s) => [s.teamId, s.seed]));
+  const champion = game.seeds.length === 0 ? null : nextRound(game).champion;
   const totals = new Map<string, { pass: number; rush: number; rec: number }>();
   for (const g of game.results) {
     for (const line of g.players) {
@@ -182,6 +235,24 @@ export function LeagueScreen(
           label="Conference"
         />
       </div>
+      {game.seeds.length > 0 && (
+        <>
+          <SectionHeader title="Postseason" />
+          <Panel padded={false}>
+            <div style={{ padding: '0 12px' }}>
+              <ListRow
+                title={champion === null
+                  ? 'The bracket is live'
+                  : `${game.clubs.get(champion)?.name ?? champion} are champions`}
+                subtitle={champion === null ? 'Fourteen clubs, four rounds' : String(game.season)}
+                navigable
+                onSelect={() => { open('playoffs', ''); }}
+              />
+            </div>
+          </Panel>
+        </>
+      )}
+
       <SectionHeader title="Standings" />
       <Panel padded={false}>
         <div style={{ padding: 12 }}>
@@ -191,6 +262,7 @@ export function LeagueScreen(
                 <tr>
                   <th style={th}>Club</th><th style={th}>W-L</th><th style={th}>GP</th>
                   <th style={th}>PF</th><th style={th}>PA</th><th style={th}>Diff</th>
+                  <th style={th}>Sd</th>
                 </tr>
               </thead>
               <tbody data-testid="standings-body">
@@ -204,6 +276,9 @@ export function LeagueScreen(
                     <td style={td}>{s.pointsFor}</td>
                     <td style={td}>{s.pointsAgainst}</td>
                     <td style={td}>{s.pointsFor - s.pointsAgainst}</td>
+                    <td style={{ ...td, color: seedOf.get(s.teamId) === undefined ? COLOR.dim : COLOR.amber }}>
+                      {seedOf.get(s.teamId) ?? '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -243,21 +318,30 @@ export function ScheduleScreen(
   { game, open, week, setWeek }: Props & { week: string; setWeek: (key: string) => void },
 ) {
   const shown = Number(week) || Math.min(game.week, game.weeks);
-  const fixtures = game.schedule.filter((f) => f.week === shown);
-  const played = new Map(game.results.filter((g) => g.week === shown)
+  const playoffWeeks = [...new Map(game.playoffs.map((g) => [g.week, g.round])).entries()]
+    .sort((a, b) => a[0] - b[0]);
+  const bracketWeek = playoffWeeks.find(([w]) => w === shown)?.[1];
+  const fixtures = bracketWeek === undefined
+    ? game.schedule.filter((f) => f.week === shown)
+    : game.playoffs.filter((g) => g.week === shown)
+      .map((g) => ({ week: g.week, homeTeamId: g.homeTeamId, awayTeamId: g.awayTeamId }));
+  const played = new Map([...game.results, ...game.playoffs].filter((g) => g.week === shown)
     .map((g) => [`${g.homeTeamId}|${g.awayTeamId}`, g]));
   const nick = (id: string): string => game.clubs.get(id)?.nickname ?? id;
   return (
     <>
       <div style={{ marginTop: 8 }}>
         <ChipRow
-          chips={Array.from({ length: game.weeks }, (_, i) => ({ key: String(i + 1), label: `Wk ${String(i + 1)}` }))}
+          chips={[
+            ...Array.from({ length: game.weeks }, (_, i) => ({ key: String(i + 1), label: `Wk ${String(i + 1)}` })),
+            ...playoffWeeks.map(([w, round]) => ({ key: String(w), label: ROUND_LABEL[round] })),
+          ]}
           value={String(shown)}
           onChange={setWeek}
           label="Week"
         />
       </div>
-      <SectionHeader title={`Week ${String(shown)}`} />
+      <SectionHeader title={bracketWeek === undefined ? `Week ${String(shown)}` : ROUND_LABEL[bracketWeek]} />
       {fixtures.length === 0 ? <EmptyState title="No fixtures this week" /> : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }} data-testid="fixture-list">
@@ -267,7 +351,7 @@ export function ScheduleScreen(
               return (
                 <ListRow
                   key={`${f.homeTeamId}-${f.awayTeamId}`}
-                  title={`${nick(f.awayTeamId)} at ${nick(f.homeTeamId)}`}
+                  title={`${nick(f.awayTeamId)} ${bracketWeek === 'LEAGUE_FINAL' ? 'v' : 'at'} ${nick(f.homeTeamId)}`}
                   {...(mine ? { subtitle: 'Your club' } : {})}
                   trailing={game_ === undefined
                     ? <span style={{ color: COLOR.dim, fontSize: 12 }}>—</span>

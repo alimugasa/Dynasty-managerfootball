@@ -66,12 +66,18 @@ export const offseasonStream = (seed32: number, season: number): number =>
  *  never reshuffles the calendar. */
 export const scheduleStream = (seed32: number, season: number): number =>
   seed32 + season * 1000 + 999;
+/** The coin that breaks a tie nothing else can: its own stream, so the same
+ *  table seeds the same way however many times the save is opened. */
+export const postseasonStream = (seed32: number, season: number): number =>
+  seed32 + season * 1000 + 998;
 
-/** How long the season is, read from its schedule rather than assumed. */
+/** How long the regular season is, read from its schedule rather than
+ *  assumed. The playoff weeks that follow are not counted: they are written
+ *  as the bracket unfolds, and the client is told them separately. */
 export async function seasonWeeks(db: Db, saveId: string, season: number): Promise<number> {
   const [row] = await db<{ weeks: number | null }[]>`
     select max(week)::int as weeks from public.season_schedule
-     where save_id = ${saveId} and season = ${season}`;
+     where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'`;
   if (row?.weeks === null || row?.weeks === undefined) {
     throw new Error(`Save ${saveId} has no schedule for season ${String(season)}`);
   }

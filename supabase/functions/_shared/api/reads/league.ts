@@ -8,10 +8,13 @@ import { GROUP_OF } from '../../engine/careerWorld.ts';
 export interface LeagueIn { readonly saveId: string }
 
 export interface TableRow {
-  readonly teamId: string; readonly conferenceId: string;
+  readonly teamId: string; readonly conferenceId: string; readonly divisionId: string;
   readonly wins: number; readonly losses: number; readonly ties: number;
   readonly played: number;
   readonly pointsFor: number; readonly pointsAgainst: number;
+  /** 1-7 once the regular season has ended and the club is in; null otherwise. */
+  readonly seed: number | null;
+  readonly divisionWinner: boolean;
 }
 
 export interface LeaderRow {
@@ -22,6 +25,8 @@ export interface LeagueOut {
   readonly standings: readonly TableRow[];
   readonly leaders: { readonly pass: readonly LeaderRow[]; readonly rush: readonly LeaderRow[]; readonly rec: readonly LeaderRow[] };
   readonly gamesPlayed: number;
+  /** Set once the final has been played. */
+  readonly champion: string | null;
 }
 
 interface StatRow { player_id: string; display_name: string; position: string; value: number }
@@ -32,15 +37,20 @@ export const league: Handler<LeagueIn, LeagueOut> = {
   run: async ({ sql, userId }, input) => {
     const s = await ownedSave(sql, userId, input.saveId);
     const table = await sql<{
-      team_id: string; conference_id: string; wins: number; losses: number; ties: number;
+      team_id: string; conference_id: string; division_id: string;
+      wins: number; losses: number; ties: number;
       points_for: number; points_against: number;
+      conference_seed: number | null; playoff_status: string | null;
     }[]>`
-      select st.team_id, t.conference_id, st.wins, st.losses, st.ties,
-             st.points_for, st.points_against
+      select st.team_id, t.conference_id, t.division_id, st.wins, st.losses, st.ties,
+             st.points_for, st.points_against, st.conference_seed, st.playoff_status
         from public.standings st
         join public.teams t on t.save_id = st.save_id and t.team_id = st.team_id
        where st.save_id = ${s.id} and st.season = ${s.season}
        order by st.win_pct desc, (st.points_for - st.points_against) desc, st.team_id`;
+    const [champion] = await sql<{ team_id: string }[]>`
+      select team_id from public.league_history
+       where save_id = ${s.id} and season = ${s.season} and playoff_result = 'CHAMPION'`;
 
     const leaders = async (column: 'pass_yards' | 'rush_yards' | 'rec_yards'): Promise<LeaderRow[]> => {
       const rows = await sql<StatRow[]>`
@@ -57,16 +67,20 @@ export const league: Handler<LeagueIn, LeagueOut> = {
     };
 
     const [{ n } = { n: '0' }] = await sql<{ n: string }[]>`
-      select count(*) as n from public.game_results where save_id = ${s.id} and season = ${s.season}`;
+      select count(*) as n from public.game_results
+       where save_id = ${s.id} and season = ${s.season} and competition = 'REGULAR'`;
 
     return {
       standings: table.map((r) => ({
-        teamId: r.team_id, conferenceId: r.conference_id, wins: r.wins, losses: r.losses,
-        ties: r.ties, played: r.wins + r.losses + r.ties,
+        teamId: r.team_id, conferenceId: r.conference_id, divisionId: r.division_id,
+        wins: r.wins, losses: r.losses, ties: r.ties, played: r.wins + r.losses + r.ties,
         pointsFor: r.points_for, pointsAgainst: r.points_against,
+        seed: r.conference_seed,
+        divisionWinner: r.playoff_status === 'CLINCHED_DIVISION' || r.playoff_status === 'CLINCHED_BYE',
       })),
       leaders: { pass: await leaders('pass_yards'), rush: await leaders('rush_yards'), rec: await leaders('rec_yards') },
       gamesPlayed: Number(n),
+      champion: champion?.team_id ?? null,
     };
   },
 };

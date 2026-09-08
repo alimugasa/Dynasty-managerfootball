@@ -11,7 +11,8 @@ import { ChevronRightIcon } from './icons';
 
 interface Props {
   readonly leading?: ReactNode;
-  readonly title: string;
+  /** Usually a string; a node when part of the line carries its own colour. */
+  readonly title: ReactNode;
   readonly subtitle?: string;
   readonly trailing?: ReactNode;
   /** Shows a chevron, signalling that the row opens something. */

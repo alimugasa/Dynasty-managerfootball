@@ -12,7 +12,7 @@ import { simulateGame } from '../../supabase/functions/_shared/engine/simulateGa
 import { teamStatesFor, teamStateFor } from '../../supabase/functions/_shared/engine/careerBridge.ts';
 import { permuteSchedule, type Fixture } from '../../supabase/functions/_shared/engine/season.ts';
 import {
-  MissingUnitError, POSITION_GROUPS, STARTERS,
+  MissingUnitError, POSITION_GROUPS,
   type PlayerStatLine, type PositionGroup, type TeamBoxScore, type TeamState,
 } from '../../supabase/functions/_shared/engine/types.ts';
 import {
@@ -20,11 +20,14 @@ import {
 } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import { retirementReason } from '../../supabase/functions/_shared/engine/offseason/retirement.ts';
 import {
-  cloneLedger, createLedger, generateWeeklyNews,
-  type NewsItem, type NewsLedger,
+  cloneLedger, createLedger, type NewsItem, type NewsLedger,
 } from '../../supabase/functions/_shared/engine/news/index.ts';
-import type { WeekInput } from '../../supabase/functions/_shared/engine/news/types.ts';
-import { gameStream, newsStream, offseasonStream, scheduleStream } from '../../supabase/functions/_shared/api/save.ts';
+import { gameStream, offseasonStream, scheduleStream } from '../../supabase/functions/_shared/api/save.ts';
+import { weekNews, type Absence } from './news.ts';
+import {
+  playoffOutcomes, playRound, seedField, type PlayoffGame,
+} from './postseason.ts';
+import type { Seed } from '../../supabase/functions/_shared/engine/playoffs.ts';
 import { freshSeed32 } from '../../supabase/functions/_shared/seed.ts';
 import { clubs, newLeague, openingAbsences, openingSchedule, type Club } from './world.ts';
 
@@ -49,6 +52,8 @@ export interface Standing {
 export interface SeasonRecord {
   readonly season: number; readonly wins: number; readonly losses: number;
   readonly ties: number; readonly rank: number; readonly championId: string;
+  /** How the club you manage finished the postseason. */
+  readonly playoffResult: string;
 }
 
 export interface Move {
@@ -64,10 +69,13 @@ export interface Game {
   readonly season: number;
   readonly week: number;
   readonly weeks: number;
-  readonly phase: 'REGULAR_SEASON' | 'OFFSEASON';
+  readonly phase: 'REGULAR_SEASON' | 'PLAYOFFS' | 'OFFSEASON';
   readonly schedule: readonly Fixture[];
   readonly results: readonly PlayedGame[];
   readonly standings: ReadonlyMap<string, Standing>;
+  /** The fourteen, drawn when the regular season ends. Empty before that. */
+  readonly seeds: readonly Seed[];
+  readonly playoffs: readonly PlayoffGame[];
   readonly news: readonly NewsItem[];
   readonly ledger: NewsLedger;
   readonly absence: ReadonlyMap<string, number>;
@@ -96,7 +104,7 @@ export function newDynasty(userTeamId: string): Game {
     league, clubs: clubs(), userTeamId, seed,
     season: league.season, week: 1,
     weeks: schedule.reduce((n, f) => Math.max(n, f.week), 0),
-    phase: 'REGULAR_SEASON', schedule, results: [],
+    phase: 'REGULAR_SEASON', schedule, results: [], seeds: [], playoffs: [],
     standings: freshTable(league.teamIds), news: [], ledger: createLedger(league.season),
     absence: openingAbsences(), depthChart: chartFor(league, userTeamId),
     history: [], moves: [], abandoned: [],
@@ -144,6 +152,7 @@ function credit(standings: Map<string, Standing>, game: PlayedGame): void {
 }
 
 export function simWeek(game: Game): Game {
+  if (game.phase === 'PLAYOFFS') return playRound(game);
   if (game.phase !== 'REGULAR_SEASON') return game;
   const rng = createRng(gameStream(game.seed, game.season, game.week));
   const teams = withUserChart(
@@ -154,7 +163,7 @@ export function simWeek(game: Game): Game {
   const results = [...game.results];
   const weekGames: PlayedGame[] = [];
   const abandoned: string[] = [];
-  const injuries: { playerId: string; teamId: string; severity: string; weeksOut: number }[] = [];
+  const injuries: Absence[] = [];
 
   for (const fixture of game.schedule.filter((f) => f.week === game.week)) {
     const home = teams.get(fixture.homeTeamId);
@@ -188,89 +197,19 @@ export function simWeek(game: Game): Game {
   }
 
   const ledger = cloneLedger(game.ledger);
-  const news = [...game.news, ...weekNews(game, weekGames, results, standings, injuries, teams, ledger)];
+  const news = [...game.news, ...weekNews(
+    game, weekGames, results, standings, injuries, teams, ledger, 'REGULAR_SEASON')];
   for (const [id, left] of absence) {
     if (left <= 1) absence.delete(id); else absence.set(id, left - 1);
   }
 
-  return {
+  // The regular season over, the field is seeded and the bracket opens.
+  const ending = game.week + 1 > game.weeks;
+  const next: Game = {
     ...game, week: game.week + 1, results, standings, absence, news, ledger, abandoned,
-    phase: game.week + 1 > game.weeks ? 'OFFSEASON' : 'REGULAR_SEASON',
+    phase: ending ? 'PLAYOFFS' : 'REGULAR_SEASON',
   };
-}
-
-function weekNews(
-  game: Game, weekGames: readonly PlayedGame[], all: readonly PlayedGame[],
-  standings: ReadonlyMap<string, Standing>,
-  injuries: readonly { playerId: string; teamId: string; severity: string; weeksOut: number }[],
-  teams: ReadonlyMap<string, TeamState>, ledger: NewsLedger,
-): NewsItem[] {
-  const byId = new Map(game.league.players.map((p) => [p.id, p]));
-  const totals = new Map<string, { pass: number; rush: number; rec: number; sacks: number }>();
-  for (const g of all) {
-    for (const line of g.players) {
-      const t = totals.get(line.playerId) ?? { pass: 0, rush: 0, rec: 0, sacks: 0 };
-      t.pass += line.passYards; t.rush += line.rushYards;
-      t.rec += line.receivingYards; t.sacks += line.sacks;
-      totals.set(line.playerId, t);
-    }
-  }
-  const weekLines = new Map<string, PlayerStatLine>();
-  for (const g of weekGames) for (const line of g.players) weekLines.set(line.playerId, line);
-  const rating = (teamId: string): number => {
-    const top = game.league.players.filter((p) => p.teamId === teamId && !p.retired)
-      .map((p) => p.ability).sort((a, b) => b - a).slice(0, 24);
-    return top.reduce((a, b) => a + b, 0) / Math.max(top.length, 1);
-  };
-  const starter = (teamId: string, playerId: string): boolean => {
-    const player = byId.get(playerId);
-    const team = teams.get(teamId);
-    if (player === undefined || team === undefined) return false;
-    return (team.depthChart[player.group] ?? []).indexOf(playerId) < STARTERS[player.group];
-  };
-
-  const input: WeekInput = {
-    season: game.season, week: game.week, phase: 'REGULAR_SEASON', totalWeeks: game.weeks,
-    games: weekGames.map((g) => ({
-      gameId: g.gameId, week: g.week, homeTeamId: g.homeTeamId, awayTeamId: g.awayTeamId,
-      homeScore: g.homeScore, awayScore: g.awayScore, overtime: g.overtime,
-    })),
-    teams: game.league.teamIds.map((id) => {
-      const s = standings.get(id);
-      const club = game.clubs.get(id);
-      return {
-        teamId: id, name: club?.name ?? id, nickname: club?.nickname ?? id,
-        wins: s?.wins ?? 0, losses: s?.losses ?? 0, ties: s?.ties ?? 0,
-        streak: s?.streak ?? 0, rating: rating(id),
-      };
-    }),
-    players: [...weekLines.entries()].flatMap(([playerId, line]) => {
-      const p = byId.get(playerId);
-      const season = totals.get(playerId);
-      if (p === undefined || season === undefined) return [];
-      return [{
-        playerId, name: p.name, teamId: line.teamId, position: p.group,
-        gamePassYards: line.passYards, gameRushYards: line.rushYards,
-        gameRecYards: line.receivingYards,
-        gameTouchdowns: line.passTouchdowns + line.rushTouchdowns + line.receivingTouchdowns,
-        seasonPassYards: season.pass, seasonRushYards: season.rush,
-        seasonRecYards: season.rec, seasonSacks: season.sacks,
-      }];
-    }),
-    injuries: injuries.flatMap((injury) => {
-      const p = byId.get(injury.playerId);
-      if (p === undefined) return [];
-      return [{
-        playerId: injury.playerId, name: p.name, teamId: injury.teamId, position: p.group,
-        severity: injury.severity as 'minor' | 'shortTerm' | 'majorTerm' | 'seasonEnding',
-        weeksOut: injury.weeksOut, starter: starter(injury.teamId, injury.playerId),
-      }];
-    }),
-    // No coach model in the career engine, and no award races defined. Empty
-    // is the truth; those detectors stay silent, as they do on the server.
-    coaches: [], awardRaces: [],
-  };
-  return generateWeeklyNews(input, ledger, createRng(newsStream(game.seed, game.season, game.week)));
+  return ending ? { ...next, seeds: seedField(next) } : next;
 }
 
 /** Where a club finished, by the table the season ended on. */
@@ -287,8 +226,13 @@ export function ranking(standings: ReadonlyMap<string, Standing>): Standing[] {
 export function advanceSeason(game: Game): Game {
   const table = ranking(game.standings);
   const mine = table.findIndex((s) => s.teamId === game.userTeamId);
-  const champion = table[0];
+  const finished = playoffOutcomes(game);
+  const champion = [...finished.entries()].find(([, outcome]) => outcome === 'CHAMPION')?.[0] ?? null;
   const closing = game.standings.get(game.userTeamId) ?? emptyStanding(game.userTeamId);
+  // The one accolade the career model counts, and it is won on the field.
+  for (const player of game.league.players) {
+    if (player.teamId === champion && !player.retired) player.accolades.rings += 1;
+  }
 
   const played = new Map<string, number>();
   for (const g of game.results) {
@@ -352,12 +296,13 @@ export function advanceSeason(game: Game): Game {
   return {
     ...game,
     season: game.league.season, week: 1, phase: 'REGULAR_SEASON',
-    schedule, results: [], standings: freshTable(teamIds),
+    schedule, results: [], seeds: [], playoffs: [], standings: freshTable(teamIds),
     news: [], ledger: createLedger(game.league.season),
     absence: new Map(), userTeamId, depthChart: chartFor(game.league, userTeamId),
     history: [...game.history, {
       season, wins: closing.wins, losses: closing.losses, ties: closing.ties,
-      rank: mine + 1, championId: champion?.teamId ?? '',
+      rank: mine + 1, championId: champion ?? '',
+      playoffResult: finished.get(game.userTeamId) ?? 'MISSED',
     }],
     moves, abandoned: [],
   };

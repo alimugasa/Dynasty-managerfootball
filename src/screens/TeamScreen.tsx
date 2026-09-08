@@ -13,6 +13,7 @@ import { Loading, QueryError } from '../components/QueryState';
 import { NewDynasty } from './NewDynasty';
 import { Screen } from './Screen';
 import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
+import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
 
 const recordOf = (s: { wins: number; losses: number; ties: number } | null): string =>
   s === null ? '—' : `${String(s.wins)}-${String(s.losses)}${s.ties > 0 ? `-${String(s.ties)}` : ''}`;
@@ -21,6 +22,11 @@ export function TeamScreen() {
   const nav = useNavigator();
   const { save, loaded, loadError, clubsById, version, busy, notice, simWeek, simSeason, nextSeason } = useSave();
   const q = useQuery<TeamOut>('team', { saveId: save?.saveId ?? '' }, version, save !== null);
+  // The bracket is only asked for once there is one: through the regular
+  // season this stays unfetched.
+  const post = useQuery<PlayoffsOut>(
+    'playoffs', { saveId: save?.saveId ?? '' }, version,
+    save !== null && save.phase !== 'REGULAR_SEASON');
 
   if (loadError !== null) return <Screen title="Team" screen="team"><QueryError error={loadError} /></Screen>;
   if (!loaded) return <Screen title="Team" screen="team"><Loading label="Loading dynasty" /></Screen>;
@@ -28,6 +34,12 @@ export function TeamScreen() {
 
   const identity = clubsById.get(save.userTeamId);
   const done = save.phase === 'OFFSEASON';
+  const inPlayoffs = save.phase === 'PLAYOFFS';
+  const roundLabel = post.status === 'ready' ? post.data.nextLabel : null;
+  const champion = post.status === 'ready' ? post.data.champion : null;
+  const stillIn = post.status === 'ready'
+    && post.data.games.some((g) => g.homeScore === null
+      && (g.homeTeamId === save.userTeamId || g.awayTeamId === save.userTeamId));
   const nickname = (id: string): string => clubsById.get(id)?.nickname ?? id;
   const fullName = (id: string): string => clubsById.get(id)?.name ?? id;
   const ordinal = (n: number): string => {
@@ -41,7 +53,9 @@ export function TeamScreen() {
       title={identity?.nickname ?? 'Team'}
       subtitle={`${String(save.season)} · ${done
         ? `Season complete${q.status === 'ready' && q.data.rank !== null ? ` · finished ${ordinal(q.data.rank)} of 32` : ''}`
-        : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
+        : inPlayoffs
+          ? (roundLabel ?? 'Playoffs')
+          : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
       screen="team"
     >
       {q.status === 'error' && <QueryError error={q.error} />}
@@ -92,12 +106,30 @@ export function TeamScreen() {
         </p>
       )}
 
-      <SectionHeader title={done ? 'Offseason' : 'Advance'} />
+      <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
       <div style={{ display: 'grid', gap: 8 }}>
         {done ? (
-          <ActionButton onClick={() => { void nextSeason(); }} disabled={busy !== null} testId="next-season">
-            {busy ?? `Run offseason → ${String(save.season + 1)}`}
-          </ActionButton>
+          <>
+            <ActionButton onClick={() => { void nextSeason(); }} disabled={busy !== null} testId="next-season">
+              {busy ?? `Run offseason → ${String(save.season + 1)}`}
+            </ActionButton>
+            <ActionButton
+              onClick={() => { nav.push('playoffs'); }}
+              tone="quiet"
+              testId="view-bracket"
+            >
+              {champion === null ? 'See the bracket' : `See how ${nickname(champion)} won it`}
+            </ActionButton>
+          </>
+        ) : inPlayoffs ? (
+          <>
+            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
+              {busy ?? `Play the ${roundLabel ?? 'next round'}`}
+            </ActionButton>
+            <ActionButton onClick={() => { nav.push('playoffs'); }} tone="quiet" testId="view-bracket">
+              {stillIn ? 'See the bracket' : 'See the bracket · your club is out'}
+            </ActionButton>
+          </>
         ) : (
           <>
             <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
@@ -112,11 +144,12 @@ export function TeamScreen() {
 
       {q.status === 'ready' && (
         <>
-          <SectionHeader title="This week" />
+          <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
           {q.data.next === null ? (
             <EmptyState
-              title={done ? 'Regular season complete' : 'No fixture this week'}
+              title={done ? 'The season is over' : inPlayoffs ? 'Nothing to play this round' : 'No fixture this week'}
               {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
+              {...(inPlayoffs && !stillIn ? { detail: 'Your club is not in the bracket. Play it out to see who takes it.' } : {})}
             />
           ) : (
             <Panel padded={false}>
@@ -125,7 +158,7 @@ export function TeamScreen() {
                   title={q.data.next.homeTeamId === save.userTeamId
                     ? `vs ${fullName(q.data.next.awayTeamId)}`
                     : `at ${fullName(q.data.next.homeTeamId)}`}
-                  subtitle={`Week ${String(q.data.next.week)}`}
+                  subtitle={q.data.next.round ?? `Week ${String(q.data.next.week)}`}
                 />
               </div>
             </Panel>
@@ -139,7 +172,7 @@ export function TeamScreen() {
               <div style={{ padding: '0 12px' }}>
                 <ListRow
                   title={`${nickname(q.data.last.awayTeamId)} ${String(q.data.last.awayScore)} — ${String(q.data.last.homeScore)} ${nickname(q.data.last.homeTeamId)}`}
-                  subtitle={`Week ${String(q.data.last.week)}`}
+                  subtitle={q.data.last.round ?? `Week ${String(q.data.last.week)}`}
                   navigable
                   onSelect={() => { nav.push('game', { id: q.data.last?.gameId ?? '' }); }}
                 />

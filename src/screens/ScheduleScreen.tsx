@@ -22,8 +22,15 @@ export function ScheduleScreen() {
   const q = useQuery<ScheduleOut>(
     'schedule', { saveId: save?.saveId ?? '', week: shown }, version, save !== null);
 
-  const chips: readonly Chip[] = Array.from(
-    { length: weeks }, (_, i) => ({ key: String(i + 1), label: `Wk ${String(i + 1)}` }));
+  // The regular season's weeks are known from the start; a playoff week
+  // appears once the bracket has written it.
+  const playoffChips: readonly Chip[] = q.status === 'ready'
+    ? q.data.playoffWeeks.map((p) => ({ key: String(p.week), label: p.label }))
+    : [];
+  const chips: readonly Chip[] = [
+    ...Array.from({ length: weeks }, (_, i) => ({ key: String(i + 1), label: `Wk ${String(i + 1)}` })),
+    ...playoffChips,
+  ];
   const name = (id: string) => clubsById.get(id)?.nickname ?? id;
 
   return (
@@ -36,7 +43,10 @@ export function ScheduleScreen() {
             <ChipRow chips={chips} value={week} onChange={setWeek} label="Week" />
           </div>
 
-          <SectionHeader title={`Week ${String(shown)}`} />
+          <SectionHeader title={q.status === 'ready' && q.data.round !== null
+            ? (playoffChips.find((c) => c.key === String(shown))?.label ?? `Week ${String(shown)}`)
+            : `Week ${String(shown)}`}
+          />
           {q.status === 'error' && <QueryError error={q.error} />}
           {q.status === 'loading' && <Loading label="Loading fixtures" rows={8} />}
           {q.status === 'ready' && q.data.fixtures.length === 0 && <EmptyState title="No fixtures this week" />}
@@ -49,7 +59,7 @@ export function ScheduleScreen() {
                   return (
                     <ListRow
                       key={f.gameId}
-                      title={`${name(f.awayTeamId)} at ${name(f.homeTeamId)}`}
+                      title={`${name(f.awayTeamId)} ${q.data.round === 'LEAGUE_FINAL' ? 'v' : 'at'} ${name(f.homeTeamId)}`}
                       {...(involvesUser ? { subtitle: 'Your club' } : {})}
                       trailing={played
                         ? <span style={{ color: COLOR.tx, fontSize: 13 }}>{String(f.awayScore)}–{String(f.homeScore)}</span>

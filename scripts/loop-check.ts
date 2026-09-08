@@ -66,7 +66,18 @@ for (let season = 0; season < SEASONS; season += 1) {
     process.stdout.write(`week ${String(outcome.week - 1)}: ${String(Date.now() - t)}ms\n`);
     if (outcome.abandoned.length > 0) process.stdout.write(`week ${String(outcome.week - 1)} abandoned: ${outcome.abandoned.join(', ')}\n`);
   }
-  await counts(created.saveId, `after sim to end of season ${String(outcome.season)}`);
+  await counts(created.saveId, `after the regular season ${String(outcome.season)}`);
+  while (outcome.phase === 'PLAYOFFS') {
+    t = Date.now();
+    outcome = await api.call<WeekOutcome>('sim-week', { saveId: created.saveId });
+    process.stdout.write(`playoff week ${String(outcome.week - 1)}: played ${String(outcome.played)}, ${String(Date.now() - t)}ms${outcome.champion === null ? '' : ` -- champion ${outcome.champion}`}\n`);
+  }
+  await counts(created.saveId, `after the playoffs ${String(outcome.season)}`);
+  const book = await sql<{ team_id: string; conference_seed: number | null; playoff_result: string | null }[]>`
+    select team_id, conference_seed, playoff_result from public.league_history
+     where save_id = ${created.saveId} and season = ${outcome.season} and playoff_result <> 'MISSED'
+     order by conference_seed`;
+  process.stdout.write(`book: ${book.map((r) => `${r.team_id}#${String(r.conference_seed)}=${r.playoff_result ?? ''}`).join(' ')}\n`);
   if (season + 1 < SEASONS) {
     t = Date.now();
     const rolled = await api.call<Record<string, unknown>>('advance-season', { saveId: created.saveId });

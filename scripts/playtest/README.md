@@ -40,9 +40,9 @@ Two deliberate differences, both stated on screen where they show:
 - **The offseason list.** The rig shows what the offseason did to your club.
   The product writes those rows to `transactions` and has no screen for them
   yet; the rig is previewing that screen.
-- **Long snappers.** The engine has no position group for them, so the rig's
-  rosters are 52, where the product's are 53 (52 plus the seed's snapper,
-  who sits outside the engine).
+- **The bracket's news.** Both play the same four rounds from the same engine
+  module; the rig keeps the round's stories in the same feed, where the
+  product writes them to `news` under the `PLAYOFFS` phase.
 
-Everything else the rig lacks, the product lacks too: no playoffs, no
-in-season signing, an offseason that runs itself.
+Everything else the rig lacks, the product lacks too: no in-season signing, no
+awards, an offseason that runs itself.

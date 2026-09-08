@@ -66,6 +66,11 @@ the weekly news feed (`docs/NEWS.md`). Plus the Phase 1 scaffold: design tokens,
 domain interfaces, the entity routing seam, the missing-data boundary and
 architecture lint.
 
-**Does not exist yet:** the database connection and the save system — every screen
-still renders against fixtures, and no simulation output is persisted. Depth chart
-editing, the hiring flow and the week-advance loop that joins them are not built.
+Plus the server loop: a save in Postgres, depth-chart editing, a week played by a
+handler, the full postseason — fourteen clubs, four rounds, a champion in
+`league_history` — and the offseason that rolls into the next year
+(`docs/PLAYING.md`).
+
+**Does not exist yet:** in-season signing, cutting and trading; awards, honours and
+the record book; the hiring flow and a coaching model. The offseason runs itself,
+your club included.

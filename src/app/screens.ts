@@ -7,6 +7,7 @@
 
 import type { ComponentType } from 'react';
 import { LeagueScreen } from '../screens/LeagueScreen';
+import { PlayoffsScreen } from '../screens/PlayoffsScreen';
 import { OfficeScreen } from '../screens/OfficeScreen';
 import { RosterScreen } from '../screens/RosterScreen';
 import { ScheduleScreen } from '../screens/ScheduleScreen';
@@ -30,6 +31,10 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   schedule: { title: 'Schedule', Component: ScheduleScreen, root: true },
   roster: { title: 'Roster', Component: RosterScreen, root: true },
   office: { title: 'Office', Component: OfficeScreen, root: true },
+
+  // Reached from League, from Team while the bracket is live, and from the
+  // Schedule's playoff weeks.
+  playoffs: { title: 'Playoffs', Component: PlayoffsScreen, root: false },
 
   // Drill-downs. Every one of these is a resolveEntityRoute target.
   player: { title: 'Player', Component: PlayerScreen, root: false },

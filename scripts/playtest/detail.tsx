@@ -108,6 +108,16 @@ export function RosterScreen(
   );
 }
 
+/** How a season ended, in the league's own words. */
+const PLAYOFF_RESULT: Readonly<Record<string, string>> = {
+  MISSED: 'Missed the playoffs',
+  OPENING: 'Out in the opening round',
+  QUARTERFINAL: 'Out in the quarterfinals',
+  CONFERENCE_FINAL: 'Lost the conference final',
+  RUNNER_UP: 'Lost the league final',
+  CHAMPION: 'Champions',
+};
+
 export function OfficeScreen({ game, onRestart }: Props & { onRestart: () => void }) {
   const sheet = capFor(game, game.userTeamId);
   const feed = [...game.news].reverse();
@@ -165,7 +175,7 @@ export function OfficeScreen({ game, onRestart }: Props & { onRestart: () => voi
               <ListRow
                 key={h.season}
                 title={`${String(h.season)} · ${record(h)}`}
-                subtitle={`Finished ${ordinal(h.rank)} · best record ${game.clubs.get(h.championId)?.nickname ?? h.championId}`}
+                subtitle={`${PLAYOFF_RESULT[h.playoffResult] ?? 'Missed the playoffs'} · champions ${game.clubs.get(h.championId)?.nickname ?? h.championId}`}
                 trailing={<Caption>{ordinal(h.rank)}</Caption>}
               />
             ))}
@@ -251,7 +261,10 @@ export function PlayerScreen({ game, id }: { game: Game; id: string }) {
 }
 
 export function BoxScore({ game, id, open }: Props & { id: string }) {
-  const played: PlayedGame | undefined = game.results.find((g) => g.gameId === id);
+  // A playoff game is not in the season's results: the two competitions are
+  // kept apart, as they are in the database.
+  const played: PlayedGame | undefined = [...game.results, ...game.playoffs]
+    .find((g) => g.gameId === id);
   if (played === undefined) {
     return <EmptyState title="No such game" detail="It may belong to a season that has rolled over." />;
   }

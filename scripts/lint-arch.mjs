@@ -8,6 +8,10 @@ import { join, relative, extname } from 'node:path';
 const ROOT = process.cwd();
 const MAX_LINES = 400;
 const SCAN = ['src', 'scripts', 'tests', 'supabase/functions'];
+// The IP policy is checked more widely than the architecture: migrations,
+// docs, the seed and its fixtures ship the words the client shows.
+const IP_SCAN = [...SCAN, 'supabase/migrations', 'supabase/tests', 'docs', 'legacy', 'index.html', 'README.md', 'ARCHITECTURE.md'];
+const IP_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.css', '.sql', '.md', '.json', '.csv', '.html', '.txt']);
 const errors = [];
 
 // Real franchise nicknames and league marks. See docs/IP-POLICY.md.
@@ -17,13 +21,21 @@ const IP_DENY = [
   'chargers','bills','dolphins','jets','eagles','commanders','giants','bears',
   'lions','vikings','falcons','panthers','saints','buccaneers','cardinals',
   'rams','seahawks','nfl','super bowl','pro bowl','madden',
+  // Round and trophy names, which are another league's as much as its marks.
+  'wild card','wildcard','wild-card','wild_card','divisional round','lombardi','afc','nfc',
 ];
 
-function walk(dir, out = []) {
+// Allowed uses of a denied term, scoped to one file and one term with a
+// reason. Anything not listed here fails; adding a line here is a review.
+import { readFileSync as readAllow } from 'node:fs';
+const IP_ALLOW = JSON.parse(readAllow(join(ROOT, 'scripts', 'lint-arch.allow.json'), 'utf8'));
+
+function walk(dir, out = [], skipLegacy = true) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
-    if (name === 'node_modules' || name === 'dist' || name === 'legacy') continue;
-    if (statSync(p).isDirectory()) walk(p, out);
+    if (name === 'node_modules' || name === 'dist' || name === '.git') continue;
+    if (skipLegacy && name === 'legacy') continue;
+    if (statSync(p).isDirectory()) walk(p, out, skipLegacy);
     else out.push(p);
   }
   return out;
@@ -32,6 +44,15 @@ function walk(dir, out = []) {
 const files = SCAN.flatMap((d) => {
   try { return walk(join(ROOT, ...d.split('/'))); } catch { return []; }
 });
+
+const ipFiles = [...new Set(IP_SCAN.flatMap((d) => {
+  const p = join(ROOT, ...d.split('/'));
+  try { return statSync(p).isDirectory() ? walk(p, [], false) : [p]; } catch { return []; }
+}))].filter((p) => IP_EXTENSIONS.has(extname(p)))
+  // The denylist and its allowlist name the terms by definition; scanning
+  // them finds every term in them, every time.
+  .filter((p) => !['scripts/lint-arch.mjs', 'scripts/lint-arch.allow.json']
+    .includes(relative(ROOT, p).replace(/\\/g, '/')));
 
 // The simulation engine must stay a pure function of its inputs. A seed has to
 // reproduce a game exactly -- for a save file, for a golden test, for a bug
@@ -138,11 +159,23 @@ for (const file of files) {
     }
   }
 
-  // 7. IP policy
+}
+
+// 7. IP policy, over everything that ships a word: code, migrations, docs, the
+//    seed. A term is allowed only where scripts/lint-arch.allow.json names the
+//    file, the term and the reason.
+for (const file of ipFiles) {
+  const rel = relative(ROOT, file).replace(/\\/g, '/');
+  const text = readFileSync(file, 'utf8');
   const lower = (rel + '\n' + text).toLowerCase();
+  const allowed = new Set((IP_ALLOW[rel] ?? []).map((a) => a.term));
   for (const term of IP_DENY) {
-    if (new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(lower)) {
-      errors.push(`${rel}: contains "${term}" — violates docs/IP-POLICY.md.`);
+    if (allowed.has(term)) continue;
+    const re = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+    const m = re.exec(lower);
+    if (m !== null) {
+      const line = lower.slice(0, m.index).split('\n').length - 1;
+      errors.push(`${rel}:${line}: contains "${term}" — violates docs/IP-POLICY.md.`);
     }
   }
 }

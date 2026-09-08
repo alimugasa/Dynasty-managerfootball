@@ -45,6 +45,9 @@ export interface SeasonOutcome {
   readonly transactions: TransactionCounts;
 }
 
+/** The table's final line into league_history. The row already exists --
+ *  the final wrote it, with the seed and the playoff result -- so only the
+ *  record and the roster's mean are set here. */
 async function closeSeason(db: Db, saveId: string, season: number, meanOverall: Map<string, number>): Promise<void> {
   await db`
     insert into public.league_history (
@@ -95,7 +98,7 @@ async function writeSchedule(
 export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcome> {
   const { id: saveId, season } = save;
   if (save.phase !== 'OFFSEASON') {
-    throw badRequest(`The ${String(season)} season is not complete (week ${String(save.week)})`);
+    throw badRequest(`The ${String(season)} season is not complete (${save.phase.toLowerCase().replace('_', ' ')}, week ${String(save.week)})`);
   }
   const weeks = await seasonWeeks(db, saveId, season);
   const { league } = await loadEngineState(db, saveId);
@@ -105,12 +108,25 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
   // decline has something to read. Counted from the lines actually written.
   const played = await db<{ player_id: string; n: string }[]>`
     select player_id, count(*) as n from public.player_game_stats
-     where save_id = ${saveId} and season = ${season} group by player_id`;
+     where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
+     group by player_id`;
   const playedBy = new Map(played.map((r) => [r.player_id, Number(r.n)]));
   for (const p of league.players) {
     if (p.teamId === null || p.retired) continue;
     p.gamesMissedSeason = Math.max(0, weeks - (playedBy.get(p.id) ?? 0));
     p.gamesMissedCareer += p.gamesMissedSeason;
+  }
+
+  // The champion's players carry a ring into the offseason -- the one
+  // accolade the career model counts. Read from the book the final wrote.
+  const [champion] = await db<{ team_id: string }[]>`
+    select team_id from public.league_history
+     where save_id = ${saveId} and season = ${season} and playoff_result = 'CHAMPION'`;
+  if (champion === undefined) {
+    throw new Error(`The ${String(season)} season has no champion in league_history; the final was not played`);
+  }
+  for (const p of league.players) {
+    if (p.teamId === champion.team_id && !p.retired) p.accolades.rings += 1;
   }
 
   const meanOverall = new Map<string, number>();

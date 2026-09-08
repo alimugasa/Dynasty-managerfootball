@@ -25,6 +25,8 @@ interface Stored {
   readonly phase: Game['phase'];
   readonly schedule: Game['schedule'];
   readonly results: Game['results'];
+  readonly seeds: Game['seeds'];
+  readonly playoffs: Game['playoffs'];
   readonly standings: readonly (readonly [string, Standing])[];
   readonly news: Game['news'];
   readonly ledger: LedgerJson;
@@ -47,6 +49,7 @@ export function persist(game: Game): void {
       }),
       userTeamId: game.userTeamId, seed: game.seed, week: game.week, weeks: game.weeks,
       phase: game.phase, schedule: game.schedule, results: game.results,
+      seeds: game.seeds, playoffs: game.playoffs,
       standings: [...game.standings.entries()], news: game.news,
       ledger: ledgerToJson(game.ledger), absence: [...game.absence.entries()],
       depthChart: game.depthChart, history: game.history, moves: game.moves,
@@ -74,6 +77,9 @@ export function restore(): Game | null {
       league, clubs: clubs(), userTeamId: stored.userTeamId, seed: stored.seed,
       season: league.season, week: stored.week, weeks: stored.weeks, phase: stored.phase,
       schedule: stored.schedule, results: stored.results,
+      // A dynasty stored by a build without a postseason reopens with an
+      // empty bracket rather than a wrong one.
+      seeds: stored.seeds ?? [], playoffs: stored.playoffs ?? [],
       standings: new Map(stored.standings.map(([id, s]) => [id, { ...s }])),
       news: stored.news, ledger: ledgerFromJson(stored.ledger),
       absence: new Map(stored.absence), depthChart: stored.depthChart,

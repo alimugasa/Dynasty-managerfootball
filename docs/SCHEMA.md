@@ -125,6 +125,9 @@ Integer 0/1 flags become real booleans throughout, so that
 | `transactions` | ~1,200 | draft, free agency, releases |
 | `news` | ~300 | |
 | `game_results` | 285 | 272 regular + 13 playoff |
+| `season_schedule.playoff_round` | — | `OPENING`, `QUARTERFINAL`, `CONFERENCE_FINAL`, `LEAGUE_FINAL` (0020) |
+| `standings.conference_seed` | 14 a season | 1-7 per conference, NULL for the eighteen who missed |
+| `league_history.playoff_result` | 32 a season | written when the final is played, not by the offseason |
 | `draft_classes` | ~260 | |
 | `coach_history` | ~130 | |
 | `honours` | ~105 | |

@@ -11,10 +11,13 @@
 import type { Db } from '../db.ts';
 import type { GameResult, PlayerStatLine } from '../../engine/types.ts';
 
+export type Competition = 'REGULAR' | 'PLAYOFF';
+
 export interface PlayedGame {
   readonly gameId: string;
   readonly season: number;
   readonly week: number;
+  readonly competition: Competition;
   readonly result: GameResult;
 }
 
@@ -36,7 +39,7 @@ export async function insertGameResult(db: Db, saveId: string, g: PlayedGame): P
       away_third_down_conv, away_possession_seconds, away_drives,
       weather_wind, weather_cold, weather_precip)
     values (
-      ${saveId}, ${g.gameId}, ${g.season}, ${g.week}, 'REGULAR', ${r.homeTeamId}, ${r.awayTeamId},
+      ${saveId}, ${g.gameId}, ${g.season}, ${g.week}, ${g.competition}, ${r.homeTeamId}, ${r.awayTeamId},
       ${r.homeScore}, ${r.awayScore}, ${r.overtime},
       ${h.plays}, ${h.passAttempts}, ${h.completions}, ${h.passYards}, ${h.passTouchdowns},
       ${h.interceptionsThrown}, ${h.sacksAllowed}, ${h.rushes}, ${h.rushYards}, ${h.rushTouchdowns},
@@ -62,7 +65,7 @@ async function insertGameLines(
       pass_att, completions, pass_yards, pass_tds, interceptions, sacks_taken,
       rushes, rush_yards, rush_tds, targets, receptions, rec_yards, rec_tds,
       tackles, sacks, ints_caught, fg_made, fg_att, xp_made, xp_att, punts, punt_yards)
-    select ${saveId}, ${g.gameId}, ${g.season}, ${g.week}, 'REGULAR', u.player_id, u.team_id, null,
+    select ${saveId}, ${g.gameId}, ${g.season}, ${g.week}, ${g.competition}, u.player_id, u.team_id, null,
            u.pass_att, u.completions, u.pass_yards, u.pass_tds, u.interceptions, u.sacks_taken,
            u.rushes, u.rush_yards, u.rush_tds, u.targets, u.receptions, u.rec_yards, u.rec_tds,
            u.tackles, u.sacks, u.ints_caught, u.fg_made, u.fg_att, u.xp_made, u.xp_att,

@@ -17,6 +17,7 @@ import { team } from './reads/team.ts';
 import { roster, setDepthChart } from './reads/roster.ts';
 import { league } from './reads/league.ts';
 import { schedule } from './reads/schedule.ts';
+import { playoffs } from './reads/playoffs.ts';
 import { game } from './reads/game.ts';
 import { office } from './reads/office.ts';
 import { player } from './reads/player.ts';
@@ -34,6 +35,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'set-depth-chart': setDepthChart,
   league,
   schedule,
+  playoffs,
   game,
   office,
   player,

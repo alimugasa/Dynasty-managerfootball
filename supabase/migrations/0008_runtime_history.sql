@@ -143,8 +143,10 @@ create table if not exists public.league_history (
   primary key (save_id, season, team_id),
   foreign key (save_id, team_id)
     references public.teams (save_id, team_id) on delete cascade,
+  -- How far a club got, in the league's own words. 0020 restates this for
+  -- databases built before the vocabulary was settled.
   constraint league_history_result_check check (playoff_result is null or
-    playoff_result in ('MISSED','WILD_CARD','DIVISIONAL','CONFERENCE',
+    playoff_result in ('MISSED','OPENING','QUARTERFINAL','CONFERENCE_FINAL',
                        'RUNNER_UP','CHAMPION'))
 );
 

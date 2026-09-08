@@ -1,0 +1,54 @@
+{
+  "legacy/seed/players.csv": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "legacy/history/player_career_stats.csv": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "legacy/fixtures/snapshot-2031.json": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "legacy/ui/index.html": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "scripts/playtest/world.json": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's. Generated from the seed by scripts/playtest/seed.ts."
+    }
+  ],
+  "scripts/playtest/playtest.html": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's. Generated from the seed by scripts/playtest/build.ts."
+    }
+  ],
+  "legacy/ENGINE.md": [
+    {
+      "term": "nfl",
+      "reason": "Frozen reference documentation describing what the retired Python engine was calibrated against. Not shipped to a player and not a name in the game."
+    }
+  ],
+  "legacy/HISTORY.md": [
+    {
+      "term": "super bowl",
+      "reason": "Frozen build log recording a feature that was never built. Not shipped to a player and not a name in the game."
+    },
+    {
+      "term": "wild_card",
+      "reason": "Frozen build log quoting the schema value the project shipped with before 0020 named the rounds itself. A record of what was changed, not a name in the game."
+    }
+  ]
+}

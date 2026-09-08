@@ -18,6 +18,8 @@ export interface WeekFacts {
   readonly season: number;
   readonly week: number;
   readonly weeks: number;
+  /** REGULAR_SEASON or PLAYOFFS: the generator words a knockout differently. */
+  readonly phase: string;
   readonly league: League;
   /** The clubs as they took the field, depth charts included. */
   readonly teams: ReadonlyMap<string, TeamState>;
@@ -67,7 +69,7 @@ export async function buildWeekNews(db: Db, saveId: string, f: WeekFacts): Promi
   return {
     season: f.season,
     week: f.week,
-    phase: 'REGULAR_SEASON',
+    phase: f.phase,
     totalWeeks: f.weeks,
     games: f.played.map((g) => ({
       gameId: g.gameId, week: g.week,

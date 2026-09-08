@@ -15,6 +15,7 @@ import {
 import { clear, persist, restore } from './persist';
 import { clubs as allClubs } from './world';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
+import { BracketScreen } from './bracket';
 import { BoxScore, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
 
 const TABS = [
@@ -27,7 +28,7 @@ const TABS = [
 
 const TITLES: Readonly<Record<string, string>> = {
   team: 'Team', league: 'League', schedule: 'Schedule', roster: 'Roster',
-  office: 'Office', player: 'Player', game: 'Box score',
+  office: 'Office', player: 'Player', game: 'Box score', playoffs: 'Playoffs',
 };
 
 interface Drill { readonly screen: string; readonly id: string }
@@ -68,6 +69,8 @@ export function App() {
       await new Promise((resolve) => { setTimeout(resolve, 0); });
       next = simWeek(next);
       if (all && next.phase === 'REGULAR_SEASON') setBusy(`Simulating week ${String(next.week)}…`);
+      // "Sim to end of season" stops when the regular season does: the
+      // bracket is played a round at a time.
     } while (all && next.phase === 'REGULAR_SEASON');
     setGame(next);
     setBusy(null);
@@ -162,12 +165,17 @@ export function App() {
   const screen = drill?.screen ?? tab;
   const title = screen === 'team' ? (club?.nickname ?? 'Team') : (TITLES[screen] ?? 'Dynasty');
   const subtitle = `${String(game.season)} · ${game.phase === 'OFFSEASON'
-    ? 'Season complete' : `Week ${String(game.week)} of ${String(game.weeks)}`}`;
+    ? 'Season complete'
+    : game.phase === 'PLAYOFFS'
+      ? 'Playoffs'
+      : `Week ${String(game.week)} of ${String(game.weeks)}`}`;
 
   const body = drill !== null
     ? (drill.screen === 'player'
       ? <PlayerScreen game={game} id={drill.id} />
-      : <BoxScore game={game} id={drill.id} open={open} />)
+      : drill.screen === 'playoffs'
+        ? <BracketScreen game={game} open={open} />
+        : <BoxScore game={game} id={drill.id} open={open} />)
     : (
       <>
         {tab === 'team' && (
@@ -178,6 +186,7 @@ export function App() {
             onWeek={() => { void runWeeks(false); }}
             onSeason={() => { void runWeeks(true); }}
             onOffseason={runOffseason}
+            onBracket={() => { open('playoffs', ''); }}
           />
         )}
         {tab === 'league' && (
