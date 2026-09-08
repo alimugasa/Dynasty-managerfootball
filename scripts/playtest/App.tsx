@@ -17,6 +17,7 @@ import { clubs as allClubs } from './world';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
 import { BracketScreen } from './bracket';
 import { StaffScreen } from './staff';
+import { RecapScreen } from './recap';
 import { BoxScore, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
 
 const TABS = [
@@ -30,7 +31,7 @@ const TABS = [
 const TITLES: Readonly<Record<string, string>> = {
   team: 'Team', league: 'League', schedule: 'Schedule', roster: 'Roster',
   office: 'Office', player: 'Player', game: 'Box score', playoffs: 'Playoffs',
-  staff: 'Staff',
+  staff: 'Staff', recap: 'Season recap',
 };
 
 interface Drill { readonly screen: string; readonly id: string }
@@ -179,7 +180,9 @@ export function App() {
         ? <BracketScreen game={game} open={open} />
         : drill.screen === 'staff'
           ? <StaffScreen game={game} open={open} />
-          : <BoxScore game={game} id={drill.id} open={open} />)
+          : drill.screen === 'recap'
+            ? <RecapScreen game={game} open={open} />
+            : <BoxScore game={game} id={drill.id} open={open} />)
     : (
       <>
         {tab === 'team' && (

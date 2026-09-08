@@ -21,6 +21,7 @@ import { playoffs } from './reads/playoffs.ts';
 import { game } from './reads/game.ts';
 import { office } from './reads/office.ts';
 import { staff } from './reads/staff.ts';
+import { recap } from './reads/recap.ts';
 import { player } from './reads/player.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -40,6 +41,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   game,
   office,
   staff,
+  recap,
   player,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */

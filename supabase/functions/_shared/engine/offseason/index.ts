@@ -23,6 +23,11 @@ export {
   type CarouselResult, type CoachMove, type CoachMoveKind, type CoachRecord,
 } from './carousel.ts';
 export {
+  AWARD_CODES, AWARD_NAME, BALLOT_DEPTH, runAwards, selectHonours, voterScore,
+  type Award, type AwardCandidate, type AwardCode, type AwardResult, type Ballot,
+  type CoachCandidate, type Honour, type HonourTeam,
+} from './awards.ts';
+export {
   freeAgents, meanRosteredAbility, meanRosteredAge, prospectToPlayer, rosteredPlayers,
   rosterOf, rosterValue, ROSTER_QUOTA, ROSTER_SIZE, OFFSEASON_QUOTA,
   OFFSEASON_ROSTER_LIMIT,

@@ -66,6 +66,10 @@ export const offseasonStream = (seed32: number, season: number): number =>
  *  never reshuffles the calendar. */
 export const scheduleStream = (seed32: number, season: number): number =>
   seed32 + season * 1000 + 999;
+/** The end-of-year vote: its own stream, so a change to the offseason never
+ *  moves a ballot that was already cast. */
+export const awardStream = (seed32: number, season: number): number =>
+  seed32 + season * 1000 + 997;
 /** The coin that breaks a tie nothing else can: its own stream, so the same
  *  table seeds the same way however many times the save is opened. */
 export const postseasonStream = (seed32: number, season: number): number =>

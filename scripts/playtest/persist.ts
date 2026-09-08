@@ -33,6 +33,7 @@ interface Stored {
   readonly absence: readonly [string, number][];
   readonly depthChart: Game['depthChart'];
   readonly history: Game['history'];
+  readonly awards: Game['awards'];
   readonly moves: Game['moves'];
 }
 
@@ -52,7 +53,8 @@ export function persist(game: Game): void {
       seeds: game.seeds, playoffs: game.playoffs,
       standings: [...game.standings.entries()], news: game.news,
       ledger: ledgerToJson(game.ledger), absence: [...game.absence.entries()],
-      depthChart: game.depthChart, history: game.history, moves: game.moves,
+      depthChart: game.depthChart, history: game.history, awards: game.awards,
+      moves: game.moves,
     };
     localStorage.setItem(KEY, JSON.stringify(stored));
   } catch {
@@ -83,7 +85,8 @@ export function restore(): Game | null {
       standings: new Map(stored.standings.map(([id, s]) => [id, { ...s }])),
       news: stored.news, ledger: ledgerFromJson(stored.ledger),
       absence: new Map(stored.absence), depthChart: stored.depthChart,
-      history: stored.history, moves: stored.moves, abandoned: [],
+      history: stored.history, awards: stored.awards ?? [], moves: stored.moves,
+      abandoned: [],
     };
   } catch {
     clear();

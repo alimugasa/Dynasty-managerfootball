@@ -114,11 +114,11 @@ export function TeamScreen() {
               {busy ?? `Run offseason → ${String(save.season + 1)}`}
             </ActionButton>
             <ActionButton
-              onClick={() => { nav.push('playoffs'); }}
+              onClick={() => { nav.push('recap'); }}
               tone="quiet"
-              testId="view-bracket"
+              testId="view-recap"
             >
-              {champion === null ? 'See the bracket' : `See how ${nickname(champion)} won it`}
+              {champion === null ? 'Season recap' : `Season recap · ${nickname(champion)} champions`}
             </ActionButton>
           </>
         ) : inPlayoffs ? (

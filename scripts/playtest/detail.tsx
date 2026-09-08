@@ -153,6 +153,12 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }}>
           <ListRow
+            title="Season recap"
+            subtitle="Champions, awards, all-league"
+            navigable
+            onSelect={() => { open('recap', ''); }}
+          />
+          <ListRow
             title="Coaching staff"
             subtitle="Who calls the plays and develops your players"
             navigable

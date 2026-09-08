@@ -131,6 +131,9 @@ Integer 0/1 flags become real booleans throughout, so that
 | `coaches` / `coach_attributes` | ~500 | the engine's staffs, rewritten after every offseason |
 | `team_coaching_staff` | one per employed coach | the job he holds; deleted and rewritten, because a fired coach has a row to lose |
 | `coach_history` | ~480 a season | what each coach did that year and what became of him |
+| `awards` / `award_ballots` | 5 and 25 a season | the winner and the whole ballot behind him |
+| `honours` | 50 a season | both all-league teams, drawn from everyone graded |
+| `league_records` | 15 | single-season and career bests, updated as seasons are played |
 | `draft_classes` | ~260 | |
 | `coach_history` | ~130 | |
 | `honours` | ~105 | |

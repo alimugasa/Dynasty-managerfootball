@@ -4,6 +4,7 @@ export { projectPlayers, positionsFor, ENGINE_DATA_CLASS, type PlayerProjectionC
 export { projectContracts, projectSalaryCap } from './contracts.ts';
 export { defaultDepthChart, readDepthChart, writeDepthChart, type DepthChart } from './depthChart.ts';
 export { projectCoaches } from './coaches.ts';
+export { awardCandidates, coachCandidates, refreshRecords, writeAwards } from './awards.ts';
 
 import type { Db } from '../db.ts';
 import type { League } from '../../engine/offseason/index.ts';

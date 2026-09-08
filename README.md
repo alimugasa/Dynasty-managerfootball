@@ -75,6 +75,9 @@ Coaching staffs are real: the seed's coaches call the plays, develop the players
 and scout the draft, and a carousel fires and hires them every winter
 (`docs/PLAYING.md`).
 
-**Does not exist yet:** in-season signing, cutting and trading; awards, honours and
-the record book; choosing your own staff. The offseason runs itself, your club
-included.
+Awards, all-league teams and the record book are voted and kept every year
+(`docs/PLAYING.md`).
+
+**Does not exist yet:** in-season signing, cutting and trading; choosing your own
+staff; directing your own draft and free agency. The offseason runs itself, your
+club included.

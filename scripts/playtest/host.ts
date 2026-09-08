@@ -28,6 +28,8 @@ import {
   playoffOutcomes, playRound, seedField, type PlayoffGame,
 } from './postseason.ts';
 import { coachRecords } from './carousel.ts';
+import { seasonAwards } from './awards.ts';
+import type { AwardResult } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import { ROLE_LABEL } from '../../supabase/functions/_shared/engine/offseason/coaches.ts';
 import type { Seed } from '../../supabase/functions/_shared/engine/playoffs.ts';
 import { freshSeed32 } from '../../supabase/functions/_shared/seed.ts';
@@ -83,6 +85,8 @@ export interface Game {
   readonly absence: ReadonlyMap<string, number>;
   readonly depthChart: Readonly<Record<PositionGroup, readonly string[]>>;
   readonly history: readonly SeasonRecord[];
+  /** Every season's awards and all-league teams, newest last. */
+  readonly awards: readonly AwardResult[];
   /** What the last offseason did to the club you manage. */
   readonly moves: readonly Move[];
   readonly abandoned: readonly string[];
@@ -110,7 +114,7 @@ export function newDynasty(userTeamId: string): Game {
     phase: 'REGULAR_SEASON', schedule, results: [], seeds: [], playoffs: [],
     standings: freshTable(league.teamIds), news: [], ledger: createLedger(league.season),
     absence: openingAbsences(), depthChart: chartFor(league, userTeamId),
-    history: [], moves: [], abandoned: [],
+    history: [], awards: [], moves: [], abandoned: [],
   };
 }
 
@@ -254,6 +258,19 @@ export function advanceSeason(game: Game): Game {
     (c) => c.teamId === game.userTeamId && c.role === 'HEAD_COACH')?.id ?? null;
   const result = runOffseason(game.league, createRng(offseasonStream(game.seed, season)),
     { records: coachRecords(game) });
+  // Voted on the season just played, before development moves anyone's rating
+  // again. An award is a career fact: it goes on the player.
+  const voted = seasonAwards({ ...game, season }, result.grades);
+  const byId = new Map(game.league.players.map((p) => [p.id, p]));
+  for (const award of voted.awards) {
+    const winner = award.winner.playerId === null ? undefined : byId.get(award.winner.playerId);
+    if (winner !== undefined) winner.accolades.awards += 1;
+  }
+  for (const honour of voted.honours) {
+    if (honour.team !== 'ALL_LEAGUE_FIRST') continue;
+    const player = byId.get(honour.playerId);
+    if (player !== undefined) player.accolades.allLeague += 1;
+  }
 
   const mineNow = (p: CareerPlayer): boolean => p.teamId === game.userTeamId;
   const moves: Move[] = [];
@@ -333,6 +350,7 @@ export function advanceSeason(game: Game): Game {
       rank: mine + 1, championId: champion ?? '',
       playoffResult: finished.get(game.userTeamId) ?? 'MISSED',
     }],
+    awards: [...game.awards, voted],
     moves, abandoned: [],
   };
 }

@@ -87,6 +87,12 @@ export function OfficeScreen() {
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }}>
               <ListRow
+                title="Season recap"
+                subtitle="Champions, awards, all-league, the record book"
+                navigable
+                onSelect={() => { nav.push('recap'); }}
+              />
+              <ListRow
                 title="Coaching staff"
                 subtitle="Who calls the plays and develops your players"
                 navigable

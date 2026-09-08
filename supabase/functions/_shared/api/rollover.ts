@@ -15,12 +15,18 @@
 
 import type { Db } from './db.ts';
 import { badRequest } from './context.ts';
-import { offseasonStream, rngSeed32, scheduleStream, seasonWeeks, touchSave, type SaveRow } from './save.ts';
+import {
+  awardStream, offseasonStream, rngSeed32, scheduleStream, seasonWeeks, touchSave, type SaveRow,
+} from './save.ts';
 import { loadEngineState, PostgresSaveStore, writeLedger } from './saveStore.ts';
 import {
   defaultDepthChart, positionsFor, projectWorld, seedStandings, writeDepthChart,
 } from './project/index.ts';
 import { coachSeasons, logCoachMoves, writeCoachHistory } from './project/coachHistory.ts';
+import {
+  awardCandidates, coachCandidates, refreshRecords, writeAwards,
+} from './project/awards.ts';
+import { runAwards } from '../engine/offseason/index.ts';
 import { expectedWins, type CoachRecord, type League } from '../engine/offseason/index.ts';
 import {
   draftedMap, logTransactions, recordDraft, snapshotPlayers, type TransactionCounts,
@@ -148,17 +154,48 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
   const seed32 = rngSeed32(save.rng_seed);
 
   // Games missed carry onto the player so the offseason's injury-driven
-  // decline has something to read. Counted from the lines actually written.
-  const played = await db<{ player_id: string; n: string }[]>`
+  // decline has something to read.
+  //
+  // Two sources, because one is not enough. A player who produced a stat line
+  // is counted from his lines against his club's games -- not against the
+  // weeks in the season, which would charge every healthy starter for his
+  // club's bye. A player whose position produces no line at all -- every
+  // offensive lineman, every long snapper -- is counted from the injuries
+  // recorded against him instead. Counting him from lines said he had missed
+  // the entire season, every season, and quietly accelerated the decline of
+  // every lineman in the league.
+  const appearances = await db<{ player_id: string; n: string }[]>`
     select player_id, count(*) as n from public.player_game_stats
      where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
      group by player_id`;
-  const playedBy = new Map(played.map((r) => [r.player_id, Number(r.n)]));
+  const linesBy = new Map(appearances.map((r) => [r.player_id, Number(r.n)]));
+  const clubGames = new Map((await db<{ team_id: string; n: string }[]>`
+    select team_id, count(*) as n from (
+      select home_team_id as team_id from public.season_schedule
+       where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
+      union all
+      select away_team_id from public.season_schedule
+       where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'
+    ) g group by team_id`).map((r) => [r.team_id, Number(r.n)]));
+  const missedByInjury = new Map((await db<{ player_id: string; missed: number }[]>`
+    select player_id,
+           greatest(0, least(weeks_out_estimate - 1, ${weeks} - injured_week))::int as missed
+      from public.player_injuries
+     where save_id = ${saveId} and injured_season = ${season}`)
+    .map((r) => [r.player_id, r.missed]));
   for (const p of league.players) {
     if (p.teamId === null || p.retired) continue;
-    p.gamesMissedSeason = Math.max(0, weeks - (playedBy.get(p.id) ?? 0));
+    const games = clubGames.get(p.teamId) ?? weeks - 1;
+    const lines = linesBy.get(p.id);
+    p.gamesMissedSeason = lines === undefined
+      ? Math.min(games, missedByInjury.get(p.id) ?? 0)
+      : Math.max(0, games - lines);
     p.gamesMissedCareer += p.gamesMissedSeason;
   }
+  const gamesPlayed = new Map(league.players.map((p) => {
+    const games = p.teamId === null ? weeks - 1 : clubGames.get(p.teamId) ?? weeks - 1;
+    return [p.id, Math.max(0, games - p.gamesMissedSeason)];
+  }));
 
   // The champion's players carry a ring into the offseason -- the one
   // accolade the career model counts. Read from the book the final wrote.
@@ -224,12 +261,48 @@ export async function advanceSeason(db: Db, save: SaveRow): Promise<SeasonOutcom
     coachSeasons(staffBefore, result.coaches.moves, records, playoffResults));
   await logCoachMoves(db, saveId, season, league, result.coaches.moves);
 
+  // The vote, on the season that was just played: its grades, its box scores,
+  // its records. Its own stream, so a change to the offseason never moves a
+  // ballot.
+  const awards = runAwards(
+    season,
+    await awardCandidates(db, saveId, season, league, result.grades, gamesPlayed),
+    coachCandidates(staffBefore, records),
+    weeks - 1,
+    createRng(awardStream(seed32, season)));
+  // The club a winner played for during the season, not the one he may have
+  // moved to in the offseason that has just run.
+  const teamDuringSeason = new Map<string, string>();
+  for (const [id, p] of before) {
+    if (p.teamId !== null) teamDuringSeason.set(id, p.teamId);
+  }
+  await writeAwards(db, saveId, awards, teamDuringSeason);
+
+  // An award is a career fact, not a screen: it goes on the player, where the
+  // market reads it. Applied after the offseason's own development, so it
+  // moves what he is thought to be worth from next season rather than
+  // retroactively.
+  const byId = new Map(league.players.map((p) => [p.id, p]));
+  for (const award of awards.awards) {
+    const winner = award.winner.playerId === null ? undefined : byId.get(award.winner.playerId);
+    if (winner !== undefined) winner.accolades.awards += 1;
+  }
+  for (const honour of awards.honours) {
+    if (honour.team !== 'ALL_LEAGUE_FIRST') continue;
+    const player = byId.get(honour.playerId);
+    if (player !== undefined) player.accolades.allLeague += 1;
+  }
+
   await writeSchedule(db, saveId, league.season, league.teamIds, seed32);
   await seedStandings(db, saveId, league.season, league.teamIds);
   await writeDepthChart(db, saveId, save.user_team_id, defaultDepthChart(league, save.user_team_id));
 
   await touchSave(db, saveId, { season: league.season, week: 1, phase: 'REGULAR_SEASON' });
   await db`select public.refresh_player_career_totals(${saveId}::uuid)`;
+  // After the career totals are rebuilt, not before: a career record is a
+  // maximum over them, and reading them a step early would miss the season
+  // that has just been added.
+  await refreshRecords(db, saveId);
   await db`select public.prune_player_game_stats(${saveId}::uuid, ${GAME_LINE_RETENTION})`;
 
   const now = new Date().toISOString();

@@ -133,6 +133,27 @@ hot-seat stories in the news feed.
 
 Office → *Coaching staff* shows your room, its rating and where it ranks.
 
+## The end of the year
+
+When the final has been played the league votes. Five awards -- Player of the
+Year, Offensive and Defensive Player of the Year, Newcomer of the Year and
+Coach of the Year -- and two all-league teams, chosen from every player the
+engine graded rather than from the box scores alone, so an offensive lineman
+can be first team.
+
+A vote is a vote, not a maximum. Voters read the grade, what the position is
+worth, the production and what the club won, and they disagree by a few per
+cent, which decides a photo finish and never overturns a landslide. The whole
+ballot is kept: finishing second in 2031 is a line on a career.
+
+The coaching award goes for beating what the roster promised, not for the best
+record. An award goes onto the player, where the market reads it: reputation
+follows accolades, so a winner is paid like one the following spring.
+
+The record book updates as seasons are played, single-season and career.
+Office → *Season recap* shows the champion, the awards, the first team, your
+own year and the records that fell.
+
 ## What is stubbed or missing
 
 Honestly, and in the order you will notice it:
@@ -140,9 +161,6 @@ Honestly, and in the order you will notice it:
 - **You cannot hire or fire a coach yourself.** The carousel runs itself, your
   club included: it fires your head coach when the seat gets hot enough and
   hires the best candidate for you. Choosing your own staff is not built.
-- **No award or honours screen.** The champion is recorded and the bracket is
-  playable, but there is no most-valuable-player vote, no all-league team and
-  no record book yet. `player_season_grades` is written; nothing reads it.
 - **The seed's day-to-day injuries are honoured; its long-term list is not
   yet.** The 195 day-to-day rows are dated to week 0 at create time, so a
   player listed as out for n weeks misses the first n-1. The 114 IR/PUP/NFI

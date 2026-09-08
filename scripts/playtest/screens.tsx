@@ -99,6 +99,9 @@ export function TeamScreen(
             <ActionButton onClick={onBracket} tone="quiet" testId="view-bracket">
               See the bracket
             </ActionButton>
+            <ActionButton onClick={() => { open('recap', ''); }} tone="quiet" testId="view-recap">
+              Season recap
+            </ActionButton>
           </>
         ) : inPlayoffs ? (
           <>
