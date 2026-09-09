@@ -1,8 +1,13 @@
 // save: the dynasty the client is playing, and the clubs it can name.
+//
+// Which dynasty is the caller's to say. The menu opens a save by id; a client
+// that names none gets the one it touched most recently, which is the right
+// guess for a reload and never a substitute for the menu having asked.
 
 import type { Handler } from '../context.ts';
 import type { Db } from '../db.ts';
-import { latestSave, seasonWeeks } from '../save.ts';
+import { latestSave, ownedSave, seasonWeeks } from '../save.ts';
+import { optionalString, rawOf } from '../parse.ts';
 
 export interface Club {
   readonly id: string;
@@ -15,6 +20,11 @@ export interface Club {
   readonly secondary: string;
 }
 
+export interface SaveIn {
+  /** The save to open. Omitted means the most recently touched. */
+  readonly saveId?: string;
+}
+
 export interface SaveSummary {
   readonly saveId: string;
   readonly name: string;
@@ -23,6 +33,10 @@ export interface SaveSummary {
   readonly week: number;
   readonly phase: string;
   readonly weeks: number;
+  /** The save file it sits in. */
+  readonly slot: number | null;
+  /** Null on a save made before a GM was ever named; never a placeholder. */
+  readonly gmName: string | null;
 }
 
 export interface SaveOut {
@@ -49,11 +63,19 @@ export async function clubsOf(db: Db, saveId: string): Promise<Club[]> {
   }));
 }
 
-export const save: Handler<Record<string, never>, SaveOut> = {
+export const save: Handler<SaveIn, SaveOut> = {
   auth: 'required',
-  parse: () => ({}),
-  run: async ({ sql, userId }) => {
-    const row = userId === null ? null : await latestSave(sql, userId);
+  parse: (raw) => {
+    const saveId = optionalString(rawOf(raw), 'saveId');
+    return saveId === undefined ? {} : { saveId };
+  },
+  run: async ({ sql, userId }, input) => {
+    // A named save is checked for ownership; another user's id is "not found"
+    // rather than "forbidden", so the answer confirms nothing.
+    const row = userId === null ? null
+      : input.saveId === undefined
+        ? await latestSave(sql, userId)
+        : await ownedSave(sql, userId, input.saveId);
     if (row === null) {
       const [template] = await sql<{ id: string }[]>`select id from public.saves where is_template`;
       if (template === undefined) throw new Error('No template world has been imported');
@@ -64,6 +86,9 @@ export const save: Handler<Record<string, never>, SaveOut> = {
         saveId: row.id, name: row.name, userTeamId: row.user_team_id,
         season: row.season, week: row.week, phase: row.phase,
         weeks: await seasonWeeks(sql, row.id, row.season),
+        slot: row.slot,
+        gmName: row.gm_first_name === null || row.gm_last_name === null
+          ? null : `${row.gm_first_name} ${row.gm_last_name}`.trim(),
       },
       clubs: await clubsOf(sql, row.id),
     };

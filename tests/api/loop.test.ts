@@ -12,7 +12,6 @@ import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { RosterOut } from '../../supabase/functions/_shared/api/reads/roster';
 import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
 
-const PORT = 8792;
 const TEAM = 'BUF';
 // Its own user: the suites run in parallel, and create-save's suite clears
 // every save of the user it signs in as.
@@ -23,7 +22,7 @@ describe('the loop against Postgres', () => {
   const saves: string[] = [];
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, LOOP_USER);
+    pipe = await openPipe(LOOP_USER);
     for (const name of ['Loop A', 'Loop B']) {
       const out = await pipe.api.call<CreateSaveOut>('create-save', { name, teamId: TEAM });
       saves.push(out.saveId);
@@ -129,7 +128,7 @@ describe('the loop against Postgres', () => {
 
   it('hides one user\'s save from another', async () => {
     const [a] = saves as [string, string];
-    const other = await openPipe(PORT + 1, '22222222-0000-0000-0000-00000000dead');
+    const other = await openPipe('22222222-0000-0000-0000-00000000dead');
     try {
       await expect(other.api.call('team', { saveId: a })).rejects.toMatchObject({ status: 404 });
     } finally {

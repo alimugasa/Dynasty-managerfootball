@@ -10,14 +10,13 @@ import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createS
 import { guaranteedFlag, UnknownValue } from '../../supabase/functions/_shared/api/mappers';
 import { DEV_USER as USER, openPipe, TEMPLATE, type Pipe } from './harness.ts';
 
-const PORT = 8791;
 
 describe('create-save', () => {
   let pipe: Pipe;
   let sql: Pipe['sql'];
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT);
+    pipe = await openPipe();
     sql = pipe.sql;
     await sql`delete from public.saves where user_id = ${USER}`;
   });
@@ -87,7 +86,7 @@ describe('create-save', () => {
   }, 60_000);
 
   it('refuses without a user, and refuses an unknown club', async () => {
-    const anon = createApi({ apiUrl: `http://localhost:${String(PORT)}`, devUserId: '' });
+    const anon = createApi({ apiUrl: `http://localhost:${String(pipe.port)}`, devUserId: '' });
     // The shim falls back to DEV_USER_ID when the header is empty, so "no user"
     // is proven by a route that requires auth being reachable only with one:
     // here we assert the club check instead, which needs a user to reach.

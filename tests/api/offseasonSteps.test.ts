@@ -13,7 +13,6 @@ import type { StepOutcome } from '../../supabase/functions/_shared/api/steps';
 import type { MoveOutcome, TradeOutcome } from '../../supabase/functions/_shared/api/moves';
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
-const PORT = 8799;
 const TEAM = 'BUF';
 const USER = '99999999-0000-0000-0000-00000000dead';
 
@@ -26,7 +25,7 @@ describe('an offseason played through', () => {
   const step = (): Promise<StepOutcome> => pipe.api.call<StepOutcome>('advance-offseason', { saveId });
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, USER);
+    pipe = await openPipe(USER);
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Winter', teamId: TEAM });
     saveId = created.saveId;
     let phase = 'REGULAR_SEASON';

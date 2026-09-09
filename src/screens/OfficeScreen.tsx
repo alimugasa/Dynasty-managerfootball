@@ -1,6 +1,5 @@
 // Office: the news feed, cap position, and the dynasty's history.
 
-import { useState } from 'react';
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
@@ -10,7 +9,6 @@ import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
-import { NewDynasty } from './NewDynasty';
 import { Screen } from './Screen';
 import type { OfficeOut } from '../../supabase/functions/_shared/api/reads/office';
 
@@ -18,8 +16,7 @@ const money = (n: number) => `${(n / 1e6).toFixed(1)}M`;
 
 export function OfficeScreen() {
   const nav = useNavigator();
-  const { save, loaded, loadError, clubsById, version, restart } = useSave();
-  const [picking, setPicking] = useState(false);
+  const { save, loaded, loadError, clubsById, version, leaveSave } = useSave();
   const q = useQuery<OfficeOut>('office', { saveId: save?.saveId ?? '' }, version, save !== null);
 
   return (
@@ -107,15 +104,16 @@ export function OfficeScreen() {
           </Panel>
 
           <div style={{ marginTop: 18 }}>
-            {picking ? (
-              <NewDynasty onPick={(teamId) => restart(teamId)} />
-            ) : (
-              <ActionButton onClick={() => { setPicking(true); }} tone="quiet" testId="restart">
-                Start a new dynasty
-              </ActionButton>
-            )}
+            <ActionButton
+              onClick={() => { leaveSave(); }}
+              tone="quiet"
+              testId="to-menu"
+            >
+              Main menu
+            </ActionButton>
             <p style={{ margin: '8px 0 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
-              Deletes this dynasty on the server and starts another.
+              Closes this dynasty and returns to the save files. Nothing is deleted; the
+              server keeps it exactly where you left it.
             </p>
           </div>
         </>

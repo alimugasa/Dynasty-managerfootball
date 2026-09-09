@@ -12,6 +12,7 @@
 // not exist at all.
 
 import { ApiError, badRequest, type Handler } from './context.ts';
+import { optionalInt, optionalString, rawOf } from './parse.ts';
 import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
@@ -20,35 +21,81 @@ import { defaultDepthChart, projectWorld, seedStandings, writeDepthChart } from 
 import { createRng } from '../engine/rng.ts';
 import { primePipeline } from '../engine/offseason/population.ts';
 import { serialize } from '../save/index.ts';
+import type { Db } from './db.ts';
 
 export interface CreateSaveIn {
   readonly name: string;
   readonly teamId: string;
+  /** The save file the player picked. Omitted by callers with no menu behind
+   *  them (the tests, the seed scripts), which take the lowest free slot. */
+  readonly slot?: number;
+  /** Both names or neither. A save with neither reports that it has no GM
+   *  rather than being given a placeholder one. */
+  readonly gmFirstName?: string;
+  readonly gmLastName?: string;
 }
 
 export interface CreateSaveOut {
   readonly saveId: string;
   readonly season: number;
   readonly userTeamId: string;
+  readonly slot: number;
 }
 
 export const ENGINE_VERSION = '0.1.0';
 
+/** The first slot this player has nothing in. Used only when the caller names
+ *  no slot; the menu always names one. */
+async function lowestFreeSlot(db: Db, userId: string): Promise<number> {
+  const rows = await db<{ slot: number }[]>`
+    select slot from public.saves
+     where user_id = ${userId} and not is_template order by slot`;
+  const used = new Set(rows.map((r) => r.slot));
+  let slot = 1;
+  while (used.has(slot)) slot += 1;
+  return slot;
+}
+
 export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
   auth: 'required',
   parse: (raw) => {
-    const r = (raw ?? {}) as Partial<Record<string, unknown>>;
+    const r = rawOf(raw);
     const name = typeof r['name'] === 'string' ? r['name'].trim() : '';
     const teamId = typeof r['teamId'] === 'string' ? r['teamId'].trim() : '';
     if (name === '') throw badRequest('name is required');
     if (teamId === '') throw badRequest('teamId is required');
-    return { name, teamId };
+    const slot = optionalInt(r, 'slot');
+    if (slot !== undefined && slot < 1) throw badRequest('slot must be 1 or greater');
+    const gmFirstName = optionalString(r, 'gmFirstName');
+    const gmLastName = optionalString(r, 'gmLastName');
+    // Half a name is worse than none: it would put "Vance" on a slot screen
+    // with nothing in front of it and no way to tell whether the first name was
+    // lost or never given.
+    if ((gmFirstName === undefined) !== (gmLastName === undefined)) {
+      throw badRequest('a general manager needs both a first and a last name');
+    }
+    return {
+      name, teamId,
+      ...(slot === undefined ? {} : { slot }),
+      ...(gmFirstName === undefined ? {} : { gmFirstName }),
+      ...(gmLastName === undefined ? {} : { gmLastName }),
+    };
   },
   run: async ({ sql, userId }, input) => {
     if (userId === null) throw new ApiError(401, 'unauthorized', 'no user');
     const seed = freshSeed62();
 
     return sql.begin(async (tx) => {
+      // The slot is settled before the world is cloned: 25,000 rows copied and
+      // then rolled back is a slow way to say "that file is in use". The unique
+      // index is still what guarantees it -- two tabs claiming one slot at the
+      // same moment is a race this query cannot see, and the index can.
+      const slot = input.slot ?? await lowestFreeSlot(tx, userId);
+      const [taken] = await tx<{ id: string }[]>`
+        select id from public.saves
+         where user_id = ${userId} and not is_template and slot = ${slot}`;
+      if (taken !== undefined) throw badRequest(`save file ${String(slot)} is already in use`);
+
       let saveId: string;
       try {
         const [row] = await tx<{ id: string }[]>`
@@ -63,6 +110,13 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
         if (/team|template/i.test(message)) throw badRequest(message);
         throw error;
       }
+
+      await tx`
+        update public.saves
+           set slot = ${slot},
+               gm_first_name = ${input.gmFirstName ?? null},
+               gm_last_name = ${input.gmLastName ?? null}
+         where id = ${saveId}`;
 
       const save = await ownedSave(tx, userId, saveId);
       const seed32 = rngSeed32(save.rng_seed);
@@ -96,7 +150,7 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
       }));
       await touchSave(tx, saveId, { week: 1, phase: 'REGULAR_SEASON' });
 
-      return { saveId, season: save.season, userTeamId: input.teamId };
+      return { saveId, season: save.season, userTeamId: input.teamId, slot };
     });
   },
 };

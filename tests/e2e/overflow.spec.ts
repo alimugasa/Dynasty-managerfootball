@@ -2,7 +2,9 @@ import { expect, test } from '@playwright/test';
 
 // Page-level horizontal overflow is a defect at every width. Tables scrolling
 // inside their own containers is correct and is not what this asserts.
-for (const path of ['/', '/dev/components']) {
+// The start flow is included: it is the first thing anyone sees, and a menu
+// that scrolls sideways on a phone is a defect on the way in.
+for (const path of ['/', '/slots', '/gm', '/dev/components']) {
   test(`no page-level horizontal overflow at ${path}`, async ({ page }) => {
     await page.goto(path);
     const overflow = await page.evaluate(() => {

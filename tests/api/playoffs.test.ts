@@ -11,7 +11,6 @@ import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
 import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
 
-const PORT = 8794;
 const TEAM = 'BUF';
 const PLAYOFF_USER = '55555555-0000-0000-0000-00000000dead';
 
@@ -22,7 +21,7 @@ describe('the postseason against Postgres', () => {
   let champion = '';
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, PLAYOFF_USER);
+    pipe = await openPipe(PLAYOFF_USER);
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Bracket', teamId: TEAM });
     saveId = created.saveId;
     let outcome: WeekOutcome = { season: 0, week: 0, phase: 'REGULAR_SEASON', played: 0, abandoned: [], champion: null };

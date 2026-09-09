@@ -75,6 +75,26 @@ Accessibility: every placeholder is `aria-hidden`, and they sit inside a
 "loading roster" once, not a description of two dozen grey rectangles. The
 shimmer is removed under `prefers-reduced-motion`.
 
+## Getting in, and the boot flow
+
+Four screens sit outside the game: Home, the save files, the GM name and the
+club list. They are marked `boot` in the screen registry, which buys them two
+things. The bottom navigation does not render on them -- there is nothing to
+navigate to until a dynasty is open, and a bar of dead tabs under the main menu
+would be five promises the app cannot keep. And `rootFor` sends them back to
+Home rather than to Team, so Back from the club list lands on the menu instead
+of on a dashboard with no dynasty behind it.
+
+The stack is built once the app knows which save is open, not before: a frame
+pushed on a guess would leave a Back button pointing at a screen nobody visited.
+One effect, `OpenSaveRouter`, keeps the two in step afterwards -- opening a save
+leaves the boot flow, closing one returns to it -- so nothing that opens,
+creates or closes a save has to know the rule.
+
+The three answers a new game needs travel as navigation params, which is what
+makes Back work across them for free: leave the club list, come back, and the
+save file and the GM name are still on the frame.
+
 ## Navigation state
 
 A frame stores three things: screen identity, params, and UI state including

@@ -5,7 +5,9 @@
 // a failed read would be lying about the dynasty.
 
 import { COLOR } from '../app/tokens';
+import { useNavigator } from '../app/navigation';
 import { SkeletonRegion, SkeletonRows } from './Skeleton';
+import { ActionButton } from './ActionButton';
 import { EmptyState } from './Surface';
 
 export function Loading({ label, rows = 5 }: { readonly label: string; readonly rows?: number }) {
@@ -31,11 +33,21 @@ export function QueryError({ error }: { readonly error: Error }) {
   );
 }
 
+/** No save is open. Distinct from a failed read: nothing is broken, there is
+ *  simply nothing to look at until the player picks a save file. */
 export function NoDynasty() {
+  const nav = useNavigator();
   return (
-    <EmptyState
-      title="No dynasty yet"
-      detail="Pick a club on the Team tab to start one."
-    />
+    <>
+      <EmptyState
+        title="No dynasty open"
+        detail="Start a new game or load a save file from the main menu."
+      />
+      <div style={{ maxWidth: 260, margin: '0 auto' }}>
+        <ActionButton onClick={() => { nav.replaceRoot('home'); }} testId="to-menu">
+          Main menu
+        </ActionButton>
+      </div>
+    </>
   );
 }

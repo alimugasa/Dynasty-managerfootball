@@ -8,7 +8,6 @@ import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollove
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 import { STARTERS, POSITION_GROUPS } from '../../supabase/functions/_shared/engine/types';
 
-const PORT = 8797;
 const AWARDS_USER = '88888888-0000-0000-0000-00000000dead';
 
 describe('awards against Postgres', () => {
@@ -17,7 +16,7 @@ describe('awards against Postgres', () => {
   let season = 0;
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, AWARDS_USER);
+    pipe = await openPipe(AWARDS_USER);
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Awards', teamId: 'BUF' });
     saveId = created.saveId;
     let phase = 'REGULAR_SEASON';

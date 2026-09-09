@@ -9,8 +9,7 @@ import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { TeamMark } from '../components/TeamMark';
 import { ActionButton } from '../components/ActionButton';
-import { Loading, QueryError } from '../components/QueryState';
-import { NewDynasty } from './NewDynasty';
+import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
 import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
@@ -30,7 +29,7 @@ export function TeamScreen() {
 
   if (loadError !== null) return <Screen title="Team" screen="team"><QueryError error={loadError} /></Screen>;
   if (!loaded) return <Screen title="Team" screen="team"><Loading label="Loading dynasty" /></Screen>;
-  if (save === null) return <Screen title="Team" subtitle="New dynasty" screen="team"><NewDynasty /></Screen>;
+  if (save === null) return <Screen title="Team" screen="team"><NoDynasty /></Screen>;
 
   const identity = clubsById.get(save.userTeamId);
   const OFFSEASON_PHASES = ['OFFSEASON', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP'];

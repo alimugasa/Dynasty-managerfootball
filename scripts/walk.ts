@@ -52,16 +52,30 @@ page.on('requestfailed', (r) => { out(`REQUEST FAILED: ${r.method()} ${r.url()} 
 await page.goto(APP_URL);
 await page.getByRole('heading', { level: 1 }).waitFor();
 
-// A fresh start every walk: if a dynasty exists, the Office replaces it.
-if (await page.getByTestId('club-list').count() === 0) {
+// A fresh start every walk, through the front door. If a dynasty is already
+// open, the Office closes it first; then New Game, an empty save file, a GM
+// name and a club -- the same five taps a player makes.
+if (await page.getByTestId('new-game').count() === 0) {
   await tab(page, 'Office').click();
-  await page.getByTestId('restart').click();
-  await page.getByTestId('club-list').waitFor();
+  await page.getByTestId('to-menu').click();
+  await page.getByTestId('new-game').waitFor({ timeout: 30_000 });
 }
+await page.getByTestId('new-game').click();
+await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
+const emptyFile = page.locator('[data-empty-slot] button');
+if (await emptyFile.count() === 0) {
+  // Every file is in use. Clear the first one: this is a witness script and it
+  // starts from nothing by design.
+  await page.getByTestId('delete-1').click();
+  await page.getByTestId('delete-confirm-1').click();
+  await emptyFile.first().waitFor({ timeout: 30_000 });
+}
+await emptyFile.first().click();
+await page.getByTestId('gm-first').fill('Walk');
+await page.getByTestId('gm-last').fill('Manager');
+await page.getByTestId('gm-continue').click();
+await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
 await page.getByTestId('club-list').getByText(TEAM_NAME, { exact: true }).click();
-// The pick may have been made from the Office; the loop's buttons are on Team.
-await page.waitForFunction(() => document.querySelector('[data-testid="club-list"]') === null, undefined, { timeout: 60_000 });
-await tab(page, 'Team').click();
 await page.getByTestId('sim-week').waitFor({ timeout: 60_000 });
 out(`created a dynasty on ${TEAM_NAME}: ${await page.getByRole('heading', { level: 1 }).innerText()}`);
 await counts('after create');

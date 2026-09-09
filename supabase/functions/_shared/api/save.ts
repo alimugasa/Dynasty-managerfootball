@@ -15,10 +15,14 @@ export interface SaveRow {
   readonly rng_seed: string;
   readonly engine_version: string;
   readonly schema_version: number;
+  readonly slot: number | null;
+  readonly gm_first_name: string | null;
+  readonly gm_last_name: string | null;
 }
 
 const COLUMNS = `id, user_id, name, user_team_id, season, week, phase,
-                 rng_seed::text as rng_seed, engine_version, schema_version`;
+                 rng_seed::text as rng_seed, engine_version, schema_version,
+                 slot, gm_first_name, gm_last_name`;
 
 /**
  * The save, if this user owns it. Another user's save is "not found", not

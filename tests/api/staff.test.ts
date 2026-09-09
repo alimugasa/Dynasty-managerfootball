@@ -8,7 +8,6 @@ import type { StaffOut } from '../../supabase/functions/_shared/api/reads/staff'
 import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
 
-const PORT = 8795;
 const TEAM = 'BUF';
 const STAFF_USER = '66666666-0000-0000-0000-00000000dead';
 
@@ -17,7 +16,7 @@ describe('the coaching staff against Postgres', () => {
   let saveId = '';
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, STAFF_USER);
+    pipe = await openPipe(STAFF_USER);
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Staff', teamId: TEAM });
     saveId = created.saveId;
   }, 120_000);
@@ -79,7 +78,7 @@ describe('the carousel against Postgres', () => {
   let season = 0;
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT + 1, '77777777-0000-0000-0000-00000000dead');
+    pipe = await openPipe('77777777-0000-0000-0000-00000000dead');
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Carousel', teamId: TEAM });
     saveId = created.saveId;
     let phase = 'REGULAR_SEASON';

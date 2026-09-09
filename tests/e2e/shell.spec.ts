@@ -6,18 +6,42 @@ import { expect, test, type Page } from '@playwright/test';
 
 const TABS = ['Team', 'League', 'Schedule', 'Roster', 'Office'];
 
-/** A dynasty to look at. On a fresh database the development user has none,
- *  and the Team tab offers the club list; picking one creates it on the
- *  server. Every later test then finds a roster, a schedule and a table. */
+/**
+ * A dynasty to look at, opened through the front door.
+ *
+ * The app opens on the main menu until a save is open, and each test gets a
+ * fresh browser context -- so which save is open is forgotten between tests
+ * even though the save itself is not. That is why this loads before it
+ * creates: the first test to run walks the whole start flow, and every test
+ * after it opens what that one made rather than filling another save file.
+ */
 async function ensureDynasty(page: Page): Promise<void> {
   // domcontentloaded: the load event waits on the font stylesheet, which a
   // proxy that black-holes fonts.googleapis.com holds for the full timeout.
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.getByRole('heading', { level: 1 }).waitFor();
-  const clubs = page.getByTestId('club-list');
-  if (await clubs.count() === 0) return;
-  await clubs.locator('[role="button"], button').first().click();
-  await page.getByTestId('sim-week').waitFor({ timeout: 60_000 });
+  if (await page.getByTestId('new-game').count() === 0) return;
+
+  await page.getByTestId('load-game').click();
+  await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
+  const saved = page.getByTestId('slot-list').locator('[data-testid^="slot-"] button').first();
+  if (await saved.count() > 0) {
+    await saved.click();
+    await page.getByTestId('sim-week').waitFor({ timeout: 120_000 });
+    return;
+  }
+
+  // Nothing saved yet. Walk it: New Game, a save file, a GM, a club.
+  await page.goBack();
+  await page.getByTestId('new-game').click();
+  await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
+  await page.locator('[data-empty-slot] button').first().click();
+  await page.getByTestId('gm-first').fill('Test');
+  await page.getByTestId('gm-last').fill('Manager');
+  await page.getByTestId('gm-continue').click();
+  await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
+  await page.getByTestId('club-list').locator('button').first().click();
+  await page.getByTestId('sim-week').waitFor({ timeout: 120_000 });
 }
 
 async function pageOverflow(page: Page): Promise<number> {
@@ -28,7 +52,12 @@ async function pageOverflow(page: Page): Promise<number> {
 }
 
 test.describe('app shell', () => {
-  test.beforeEach(async ({ page }) => { await ensureDynasty(page); });
+  test.beforeEach(async ({ page }) => {
+    // Creating a dynasty clones a world: on a cold database the first test
+    // pays for it, and 20 seconds is a budget for assertions, not for that.
+    test.setTimeout(180_000);
+    await ensureDynasty(page);
+  });
 
   test('shows all five destinations', async ({ page }) => {
     await page.goto('/');

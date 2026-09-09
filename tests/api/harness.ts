@@ -5,6 +5,7 @@
 // fails, and the failure names what to set.
 
 import { spawn, type ChildProcess } from 'node:child_process';
+import { createServer } from 'node:net';
 import postgres from 'postgres';
 import { createApi, type ApiClient } from '../../src/data/client';
 import { parseDatabaseUrl } from '../../supabase/functions/_shared/api/db';
@@ -26,11 +27,36 @@ export interface Pipe {
   readonly sql: ReturnType<typeof postgres>;
   readonly api: ApiClient;
   readonly shim: ChildProcess;
+  /** The port this pipe's shim actually got. */
+  readonly port: number;
   close(): Promise<void>;
 }
 
-/** Starts the shim on `port` as `user`, connected to DATABASE_URL. */
-export async function openPipe(port: number, user: string = DEV_USER): Promise<Pipe> {
+/**
+ * A port nothing is listening on, from the operating system.
+ *
+ * Suites used to name their own ports, which held until there were enough of
+ * them running at once to collide -- with each other, and with a shim left
+ * running by hand during development. Asking for one is not racy in any way
+ * that matters here: the window between closing this listener and the shim
+ * binding is microseconds, inside a test process on a machine doing nothing
+ * else.
+ */
+async function freePort(): Promise<number> {
+  return new Promise<number>((resolve, reject) => {
+    const probe = createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const address = probe.address();
+      const port = typeof address === 'object' && address !== null ? address.port : 0;
+      probe.close(() => { if (port === 0) reject(new Error('no port')); else resolve(port); });
+    });
+  });
+}
+
+/** Starts the shim as `user`, on a port of its own, connected to DATABASE_URL. */
+export async function openPipe(user: string = DEV_USER): Promise<Pipe> {
+  const port = await freePort();
   const url = databaseUrl();
   const sql = postgres({ ...parseDatabaseUrl(url), max: 2 });
   await sql`insert into auth.users (id) values (${user}) on conflict (id) do nothing`;
@@ -52,7 +78,7 @@ export async function openPipe(port: number, user: string = DEV_USER): Promise<P
   });
 
   return {
-    sql, shim,
+    sql, shim, port,
     api: createApi({ apiUrl: `http://localhost:${String(port)}` }),
     close: async () => { shim.kill('SIGTERM'); await sql.end(); },
   };

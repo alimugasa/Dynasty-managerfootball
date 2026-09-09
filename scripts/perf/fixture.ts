@@ -92,8 +92,11 @@ export function main(): void {
   psql(db, `insert into auth.users (id) values ('${OWNER_ID}') on conflict do nothing`);
   psql(db, `insert into public.profiles (user_id, handle) values ('${OWNER_ID}', 'perf')
             on conflict do nothing`);
-  psql(db, `insert into public.saves (id, user_id, name, user_team_id, season, rng_seed, engine_version)
-            values ('${SAVE_ID}', '${OWNER_ID}', 'perf fixture', '${teamIds[0] ?? 'AAA'}', 2026, 1, 'perf')`);
+  // Slot 1: every player save sits in one (saves_slot_presence). The fixture
+  // has no GM name because nobody named one, and a placeholder would be a lie
+  // the slot screen would then print.
+  psql(db, `insert into public.saves (id, user_id, name, user_team_id, season, rng_seed, engine_version, slot)
+            values ('${SAVE_ID}', '${OWNER_ID}', 'perf fixture', '${teamIds[0] ?? 'AAA'}', 2026, 1, 'perf', 1)`);
 
   const conferences = [...new Set(teamRows.map((r) => r['conference_id'] ?? ''))].filter(Boolean);
   const divisions = [...new Set(teamRows.map((r) => r['division_id'] ?? ''))].filter(Boolean);

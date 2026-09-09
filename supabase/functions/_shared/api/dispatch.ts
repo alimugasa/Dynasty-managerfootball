@@ -13,6 +13,8 @@ import { simWeek } from './simWeek.ts';
 import { deleteSave } from './deleteSave.ts';
 import { advanceSeason } from './advanceSeason.ts';
 import { save } from './reads/save.ts';
+import { slots } from './reads/slots.ts';
+import { clubs } from './reads/clubs.ts';
 import { team } from './reads/team.ts';
 import { roster, setDepthChart } from './reads/roster.ts';
 import { league } from './reads/league.ts';
@@ -36,6 +38,8 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'advance-season': advanceSeason,
   'delete-save': deleteSave,
   save,
+  slots,
+  clubs,
   team,
   roster,
   'set-depth-chart': setDepthChart,

@@ -11,7 +11,6 @@ import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createS
 import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import { BOARD_DEPTH, type LeagueOut } from '../../supabase/functions/_shared/api/reads/league';
 
-const PORT = 8798;
 const TEAM = 'BUF';
 const LEAGUE_USER = '88888888-0000-0000-0000-00000000dead';
 
@@ -22,7 +21,7 @@ describe('the league read against Postgres', () => {
   let playoff: LeagueOut;
 
   beforeAll(async () => {
-    pipe = await openPipe(PORT, LEAGUE_USER);
+    pipe = await openPipe(LEAGUE_USER);
     const created = await pipe.api.call<CreateSaveOut>('create-save', { name: 'Leaders', teamId: TEAM });
     saveId = created.saveId;
     let outcome: WeekOutcome = {

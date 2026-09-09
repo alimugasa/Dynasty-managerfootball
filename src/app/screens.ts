@@ -6,6 +6,10 @@
 // registry is checked by test rather than by hope.
 
 import type { ComponentType } from 'react';
+import { HomeScreen } from '../screens/HomeScreen';
+import { SlotsScreen } from '../screens/SlotsScreen';
+import { CreateGmScreen } from '../screens/CreateGmScreen';
+import { SelectTeamScreen } from '../screens/SelectTeamScreen';
 import { LeagueScreen } from '../screens/LeagueScreen';
 import { PlayoffsScreen } from '../screens/PlayoffsScreen';
 import { OfficeScreen } from '../screens/OfficeScreen';
@@ -23,11 +27,23 @@ import {
 export interface ScreenDef {
   readonly title: string;
   readonly Component: ComponentType;
-  /** One of the five bottom-navigation destinations. */
+  /** A screen the stack can rest on: the five bottom-navigation destinations,
+   *  and the Home Screen the boot flow starts from. */
   readonly root: boolean;
+  /** Part of getting into a game rather than part of playing one. These render
+   *  without the bottom navigation -- there is nothing to navigate to yet --
+   *  and fall back to Home rather than to Team. */
+  readonly boot?: true;
 }
 
 export const SCREENS: Readonly<Record<string, ScreenDef>> = {
+  // Getting in: Home -> New Game or Load Game -> a save file -> a GM name ->
+  // a club -> the franchise dashboard. docs/PLAYING.md walks it.
+  home: { title: 'Dynasty Manager', Component: HomeScreen, root: true, boot: true },
+  slots: { title: 'Save files', Component: SlotsScreen, root: false, boot: true },
+  gm: { title: 'Create GM', Component: CreateGmScreen, root: false, boot: true },
+  pickTeam: { title: 'Select Team', Component: SelectTeamScreen, root: false, boot: true },
+
   // Bottom navigation.
   team: { title: 'Team', Component: TeamScreen, root: true },
   league: { title: 'League', Component: LeagueScreen, root: true },
@@ -54,14 +70,23 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   transactions: { title: 'Transactions', Component: TransactionsScreen, root: false },
 };
 
+/** Where a player with a dynasty open lands. */
 export const DEFAULT_SCREEN = 'team';
+
+/** Where a player with none lands: the front door. */
+export const HOME_SCREEN = 'home';
 
 export function screenFor(key: string): ScreenDef | undefined {
   return SCREENS[key];
 }
 
-/** The root a drill-down is opened on top of, so back() always has a home. */
+export const isBootScreen = (key: string): boolean => SCREENS[key]?.boot === true;
+
+/** The root a drill-down is opened on top of, so back() always has a home.
+ *  A boot screen falls back to Home, not to Team: Back from the club list
+ *  belongs on the menu, and Team has no dynasty behind it yet. */
 export function rootFor(key: string): string {
   const def = SCREENS[key];
-  return def?.root === true ? key : DEFAULT_SCREEN;
+  if (def?.root === true) return key;
+  return def?.boot === true ? HOME_SCREEN : DEFAULT_SCREEN;
 }

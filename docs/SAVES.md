@@ -170,6 +170,38 @@ bump can be retried.
 stamps the save, logs each step, is a no-op on a second run, refuses a save from
 a newer build, and cannot be invoked by a client.
 
+## Save files
+
+A save sits in a numbered slot the player chooses, and carries the name of the
+general manager who runs it. Both live on `public.saves` -- `slot`,
+`gm_first_name`, `gm_last_name` -- and not in the engine document, because the
+menu has to read them before anything is opened and opening a 12MB document per
+slot to print a record is not a menu.
+
+| | |
+|---|---|
+| Slots offered | three (`SLOT_COUNT`), plus any a save already sits beyond them |
+| One save per slot | `saves_user_slot`, a unique index on `(user_id, slot)` |
+| Every player save has a slot | `saves_slot_presence`, a **deferred** constraint trigger |
+| A GM has both names or neither | `saves_gm_name_pair` |
+
+The presence rule is a deferred constraint trigger rather than a `CHECK` because
+`create_save()` inserts the row and then clones the world under it, and the slot
+is written by the handler that called it. Postgres cannot defer a `CHECK`. The
+trigger re-reads the row rather than trusting `NEW`: a deferred trigger runs at
+commit but carries the row as the triggering statement left it, so `NEW.slot` is
+still the null the INSERT wrote.
+
+Nothing is invented for a save that predates this. Slots were backfilled in
+creation order -- a slot is an ordering the player chooses, not a fact about the
+world -- but GM names were left null, and the menu prints *No GM recorded*.
+
+`create-save` takes an optional `slot` (the lowest free one when omitted) and an
+optional GM name, and refuses a slot that is occupied before it clones anything.
+The `slots` read answers the menu from `saves`, `teams` and `standings` in one
+query; `save` opens the save it is given, or the most recently touched when it
+is given none.
+
 ## Where the pieces live
 
 | | |
@@ -180,6 +212,10 @@ a newer build, and cannot be invoked by a client.
 | The season loop | `supabase/functions/_shared/engine/season.ts` |
 | Integration test | `tests/save/integration.test.ts` |
 | Format tests | `tests/save/save.test.ts` |
+| Save files and the GM | `supabase/migrations/0025_save_slots.sql` |
+| The menu's read | `supabase/functions/_shared/api/reads/slots.ts` |
+| The start flow | `src/screens/HomeScreen.tsx` and the three after it |
+| Save-file tests | `tests/api/slots.test.ts`, `tests/startFlow.test.tsx` |
 
 `careerBridge.ts` and `season.ts` are new and were needed for the test to exist
 at all: nothing previously turned career state into a squad that could play, and

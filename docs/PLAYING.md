@@ -13,16 +13,49 @@ request to a handler under `supabase/functions/_shared/api/` and serialises the
 answer. Every handler is the same code the edge function
 (`supabase/functions/api/index.ts`) imports. The app talks to nothing else.
 
-On first open the Team tab lists the clubs; pick one and a dynasty is created
-on the server -- `create_save()` clones the template, the engine's state is built
-from the clone, and every roster, contract and cap sheet is written back. You
-manage whichever club you picked. Office → *Start a new dynasty* deletes it
-and offers the list again.
+## Getting in
+
+The app opens on a main menu with two options, and the way in is five taps:
+
+```
+Home  ->  New Game   ->  Save file  ->  Create GM  ->  Select Team  ->  Franchise dashboard
+      ->  Load Game  ->  Save file  ------------------------------->  Franchise dashboard
+```
+
+**New Game** asks for three things and nothing else: which of the three save
+files to start in, a first and last name for the general manager, and one of
+the thirty-two clubs. There is no difficulty, no traits, no avatar, no
+reputation and no start date, because a new game always opens at week 1 of the
+regular season -- `create-save` writes `week = 1, phase = 'REGULAR_SEASON'` and
+has no other setting.
+
+Picking the club is what creates the dynasty: `create_save()` clones the
+template world under a fresh server-side seed, the engine's state is built from
+the clone, and every roster, contract, cap sheet and opening table is written
+back. Then the franchise dashboard opens on it.
+
+**Load Game** shows the same three files. An occupied one shows its club and
+badge, the GM's name, the season and where in it the save is, the club's record
+and when it was last saved; an empty one says it is empty and is what New Game
+starts in. Deleting lives here too, behind a second tap, because three files
+with no way to clear one is a dead end.
+
+A save made before general managers were named says *No GM recorded* rather
+than being given a name it never had, and a save whose table has not been
+written yet shows a dash rather than 0-0.
+
+Which save is open is remembered in the browser, so a reload puts you back in
+the game rather than at the menu. It is remembered nowhere else: the save lives
+on the server, and opening the app on another device meets the menu. Office →
+*Main menu* closes the dynasty without deleting anything.
 
 ## The loop
 
 | Step | Where |
 |---|---|
+| Start a dynasty | **Home** → *New Game* → a save file → a GM name → a club |
+| Reopen one | **Home** → *Load Game* → the save file |
+| Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |
 | Sim a week | **Team** tab → *Sim week N* |
 | Read the box score | **Team** → *Last result* row, or **Schedule** → any played fixture |

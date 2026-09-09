@@ -11,12 +11,11 @@ import { SAVE_SCHEMA_VERSION } from '../../supabase/functions/_shared/save/versi
 import type { HealthOut } from '../../supabase/functions/_shared/api/health';
 import { openPipe, type Pipe } from './harness.ts';
 
-const PORT = 8790;
 
 describe('the api pipe', () => {
   let pipe: Pipe;
 
-  beforeAll(async () => { pipe = await openPipe(PORT); });
+  beforeAll(async () => { pipe = await openPipe(); });
   afterAll(async () => { await pipe.close(); });
 
   it('reaches Postgres through the shim and reads the real schema version', async () => {
