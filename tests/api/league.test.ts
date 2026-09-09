@@ -58,7 +58,7 @@ describe('the league read against Postgres', () => {
     expect(regular.boards.map((b) => b.key)).toEqual(playoff.boards.map((b) => b.key));
     expect(regular.boards.length).toBe(12);
     for (const board of regular.boards) {
-      expect(['OFFENCE', 'DEFENCE', 'KICKING']).toContain(board.side);
+      expect(['OFFENSE', 'DEFENSE', 'KICKING']).toContain(board.side);
       expect(board.unit.length).toBeGreaterThan(0);
       expect(board.rows.length).toBeLessThanOrEqual(BOARD_DEPTH);
     }

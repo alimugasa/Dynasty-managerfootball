@@ -21,12 +21,12 @@ import { money, type ScreenProps as Props } from './common';
 
 const EXPLAIN: Readonly<Record<WinterPhase, string>> = {
   OFFSEASON: 'The season is over. Closing it grades everyone, ages the league, retires who is finished and votes on the year.',
-  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the club won.',
-  RECAP: 'The year, in full: who took it, what your club did, and how you finished.',
+  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the team won.',
+  RECAP: 'The year, in full: who took it, what your team did, and how you finished.',
   RETIREMENTS: 'Your out-of-contract players are free to leave. Keep the ones you want, and cut what you cannot afford.',
   DRAFT: 'The draft runs pick by pick. It stops when your turn comes and waits for you.',
-  FREE_AGENCY: 'Put offers in. They go to market with every other club\'s, and the player decides.',
-  CAMP: 'Every club cuts to the limit, the calendar is drawn, and the season opens.',
+  FREE_AGENCY: 'Put offers in. They go to market with every other team\'s, and the player decides.',
+  CAMP: 'Every team cuts to the limit, the calendar is drawn, and the season opens.',
 };
 
 interface OffProps extends Props {
@@ -81,7 +81,7 @@ export function OffseasonScreen({
         },
       ] : [
         { label: 'Cap room', value: money(room), tone: room < 0 ? 'negative' : 'positive' },
-        { label: 'Squad', value: String(squad.length) },
+        { label: 'Roster', value: String(squad.length) },
         phase === 'RETIREMENTS'
           ? { label: 'Out of contract', value: String(expiring.length) }
           : phase === 'DRAFT'
@@ -148,7 +148,7 @@ export function OffseasonScreen({
             </Panel>
           )}
 
-          <SectionHeader title="Your squad" />
+          <SectionHeader title="Your roster" />
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }}>
               {squad.slice(0, 20).map((p) => (
@@ -284,7 +284,7 @@ export function OffseasonScreen({
           <SectionHeader title="Camp" />
           <EmptyState
             title="Nothing left to decide"
-            detail="Break camp: every club cuts to fifty-three and the season opens."
+            detail="Break camp: every team cuts to fifty-three and the season opens."
           />
         </>
       )}

@@ -24,17 +24,17 @@ import type { OffseasonOut } from '../../supabase/functions/_shared/api/reads/of
 /** What each step is for, in one line, so the button is never a mystery. */
 const EXPLAIN: Readonly<Record<string, string>> = {
   OFFSEASON: 'The season is over. Closing it grades everyone, ages the league, retires who is finished and votes on the year.',
-  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the club won.',
-  RECAP: 'The year, in full: who took it, what your club did, and which records fell.',
+  AWARDS: 'The votes are in. Five awards, decided by what the season actually was: the grade, the position, the production, and what the team won.',
+  RECAP: 'The year, in full: who took it, what your team did, and which records fell.',
   RETIREMENTS: 'Your out-of-contract players are free to leave. Keep the ones you want, cut what you cannot afford, and trade if you can find a partner.',
   DRAFT: 'The draft runs pick by pick. It stops when your turn comes and waits for you.',
-  FREE_AGENCY: 'Put offers in. They go to market with every other club\'s, and the player decides.',
-  CAMP: 'Every club cuts to the limit, the calendar is drawn, and the season opens.',
+  FREE_AGENCY: 'Put offers in. They go to market with every other team\'s, and the player decides.',
+  CAMP: 'Every team cuts to the limit, the calendar is drawn, and the season opens.',
 };
 
 export function OffseasonScreen() {
   const nav = useNavigator();
-  // Who you are talking to, and the two players on the table. Frame state, so
+  // Who you are talking to, and the two players in the deal. Frame state, so
   // the back button brings the conversation back with the screen.
   const {
     save, loaded, loadError, clubsById, version, busy, notice,
@@ -93,7 +93,7 @@ export function OffseasonScreen() {
               },
             ] : [
               { label: 'Cap room', value: money(q.data.capRoom), tone: q.data.capRoom < 0 ? 'negative' : 'positive' },
-              { label: 'Squad', value: String(q.data.roster.length) },
+              { label: 'Roster', value: String(q.data.roster.length) },
               // The third tile is whatever this step is about.
               q.data.phase === 'AWARDS' || q.data.phase === 'RECAP'
                 ? { label: 'Season', value: String(q.data.season) }
@@ -226,7 +226,7 @@ export function OffseasonScreen() {
               <SectionHeader title="Camp" />
               <EmptyState
                 title="Nothing left to decide"
-                detail="Break camp: every club cuts to fifty-three and the season opens."
+                detail="Break camp: every team cuts to fifty-three and the season opens."
               />
             </>
           )}

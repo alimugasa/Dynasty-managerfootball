@@ -174,7 +174,7 @@ export function TeamScreen(
         </Panel>
       )}
 
-      <SectionHeader title="Squad" />
+      <SectionHeader title="Roster" />
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }}>
           {[...roster].sort((a, b) => b.ability - a.ability).slice(0, 5).map((p) => (
@@ -238,7 +238,7 @@ export function LeagueScreen(
                 title={champion === null
                   ? 'The bracket is live'
                   : `${game.clubs.get(champion)?.name ?? champion} are champions`}
-                subtitle={champion === null ? 'Fourteen clubs, four rounds' : String(game.season)}
+                subtitle={champion === null ? 'Fourteen teams, four rounds' : String(game.season)}
                 navigable
                 onSelect={() => { open('playoffs', ''); }}
               />
@@ -288,7 +288,7 @@ export function LeagueScreen(
           boards={boards}
           boardKey={ui['leaderBoard'] ?? 'passYards'}
           onBoard={(key) => { setUi('leaderBoard', key); }}
-          side={ui['leaderSide'] ?? 'OFFENCE'}
+          side={ui['leaderSide'] ?? 'OFFENSE'}
           onSide={(next) => { setUi('leaderSide', next); }}
           nameOf={nameOf}
           onSelect={(playerId) => { open('player', playerId); }}
@@ -326,7 +326,7 @@ export function ScheduleScreen(
         />
       </div>
       <SectionHeader title={bracketWeek === undefined ? `Week ${String(shown)}` : ROUND_LABEL[bracketWeek]} />
-      {fixtures.length === 0 ? <EmptyState title="No fixtures this week" /> : (
+      {fixtures.length === 0 ? <EmptyState title="No games this week" /> : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }} data-testid="fixture-list">
             {fixtures.map((f) => {
@@ -336,7 +336,7 @@ export function ScheduleScreen(
                 <ListRow
                   key={`${f.homeTeamId}-${f.awayTeamId}`}
                   title={`${nick(f.awayTeamId)} ${bracketWeek === 'LEAGUE_FINAL' ? 'v' : 'at'} ${nick(f.homeTeamId)}`}
-                  {...(mine ? { subtitle: 'Your club' } : {})}
+                  {...(mine ? { subtitle: 'Your team' } : {})}
                   trailing={game_ === undefined
                     ? <span style={{ color: COLOR.dim, fontSize: 12 }}>—</span>
                     : <span style={{ color: COLOR.tx, fontSize: 13 }}>{game_.awayScore}–{game_.homeScore}</span>}

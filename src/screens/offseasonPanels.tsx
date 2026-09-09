@@ -28,7 +28,7 @@ export function ContractsPanel({ data, busy, move }: MoveProps) {
     <>
       <SectionHeader title="Out of contract" />
       {data.expiring.length === 0 ? (
-        <EmptyState title="Nobody is out of contract" detail="Your squad is under contract for next season." />
+        <EmptyState title="Nobody is out of contract" detail="Your roster is under contract for next season." />
       ) : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }} data-testid="expiring">
@@ -53,7 +53,7 @@ export function ContractsPanel({ data, busy, move }: MoveProps) {
         </Panel>
       )}
 
-      <SectionHeader title="Your squad" />
+      <SectionHeader title="Your roster" />
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }} data-testid="squad">
           {data.roster.slice(0, 20).map((p) => (
@@ -211,7 +211,7 @@ export function MarketPanel({ data, busy, move }: MoveProps) {
 }
 
 interface TradeProps extends MoveProps {
-  /** The club being looked at, and the two players on the table. */
+  /** The team being looked at, and the two players in the deal. */
   readonly partnerId: string;
   readonly setPartner: (teamId: string) => void;
   readonly mine: string | null;
@@ -294,7 +294,7 @@ export function TradePanel(
                   tone="quiet"
                   compact
                 >
-                  {p.playerId === mine ? 'On the table' : 'Offer'}
+                  {p.playerId === mine ? 'In the deal' : 'Offer'}
                 </ActionButton>
               }
             />
@@ -304,7 +304,7 @@ export function TradePanel(
 
       <SectionHeader title={`You get${partner === null ? '' : ` · ${partner.teamId}`}`} />
       {rowsTheirs.length === 0 ? (
-        <EmptyState title="Pick a club" detail="Choose who you want to trade with." />
+        <EmptyState title="Pick a team" detail="Choose who you want to trade with." />
       ) : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }}>

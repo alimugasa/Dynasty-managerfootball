@@ -59,7 +59,7 @@ export function TeamScreen() {
       screen="team"
     >
       {q.status === 'error' && <QueryError error={q.error} />}
-      {q.status === 'loading' && <Loading label="Loading club" />}
+      {q.status === 'loading' && <Loading label="Loading team" />}
       {q.status === 'ready' && (
         <>
           <Panel>
@@ -135,7 +135,7 @@ export function TeamScreen() {
               {busy ?? `Play the ${roundLabel ?? 'next round'}`}
             </ActionButton>
             <ActionButton onClick={() => { nav.push('playoffs'); }} tone="quiet" testId="view-bracket">
-              {stillIn ? 'See the bracket' : 'See the bracket · your club is out'}
+              {stillIn ? 'See the bracket' : 'See the bracket · your team is out'}
             </ActionButton>
           </>
         ) : (
@@ -155,9 +155,9 @@ export function TeamScreen() {
           <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
           {q.data.next === null ? (
             <EmptyState
-              title={done ? 'The season is over' : inPlayoffs ? 'Nothing to play this round' : 'No fixture this week'}
+              title={done ? 'The season is over' : inPlayoffs ? 'Nothing to play this round' : 'No game this week'}
               {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
-              {...(inPlayoffs && !stillIn ? { detail: 'Your club is not in the bracket. Play it out to see who takes it.' } : {})}
+              {...(inPlayoffs && !stillIn ? { detail: 'Your team is not in the bracket. Play it out to see who takes it.' } : {})}
             />
           ) : (
             <Panel padded={false}>
@@ -188,7 +188,7 @@ export function TeamScreen() {
             </Panel>
           )}
 
-          <SectionHeader title="Squad" />
+          <SectionHeader title="Roster" />
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }}>
               {q.data.squad.map((p) => (

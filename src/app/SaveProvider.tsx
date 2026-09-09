@@ -195,7 +195,7 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         const out = await api().call<SeasonOutcome>('advance-season', { saveId: need() });
         // The one offseason outcome a manager must not miss.
         if (out.newHeadCoach) {
-          setNotice('Your club has a new head coach. See Office → Coaching staff.');
+          setNotice('Your team has a new head coach. See Office → Coaching staff.');
         }
       }),
       setDepthChart: (group, order) => act('Saving…', async () => {

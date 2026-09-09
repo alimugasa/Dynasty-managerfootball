@@ -80,7 +80,7 @@ export function OfficeScreen() {
             </Panel>
           )}
 
-          <SectionHeader title="The club" />
+          <SectionHeader title="The franchise" />
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }}>
               <ListRow

@@ -75,6 +75,33 @@ Accessibility: every placeholder is `aria-hidden`, and they sit inside a
 "loading roster" once, not a description of two dozen grey rectangles. The
 shimmer is removed under `prefers-reduced-motion`.
 
+## The words on the screen
+
+This is an American football front office, and the interface says so. The
+vocabulary is fixed, because a screen that says "club" next to one that says
+"team" reads as two products:
+
+| Say | Not |
+|---|---|
+| team, franchise | club, side |
+| roster, depth chart | squad |
+| game | fixture, match |
+| standings | the table |
+| offense, defense | offence, defence |
+| vs | v |
+| GM, front office, coaching staff | manager, boss |
+
+**Team** is a specific team; **franchise** is the organisation across years --
+"The franchise" heads the Office section that leads to the record book and the
+staff, while a standings column is headed "Team". League, Conference, Division,
+Roster, Schedule, Staff, Office, Standings, Salary Cap, Depth Chart, Playoffs
+and Dynasty History are the screen names and stay exactly as they are.
+
+Internal names are not part of this. The `clubs` route, the `Club` type and
+`clubsById` predate the rule and are invisible; renaming them would touch the
+API surface and the play-test rig to change nothing anyone reads. What is on
+screen is what this section governs.
+
 ## Getting in, and the boot flow
 
 Four screens sit outside the game: Home, the save files, the GM name and the

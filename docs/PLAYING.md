@@ -24,18 +24,18 @@ Home  ->  New Game   ->  Save file  ->  Create GM  ->  Select Team  ->  Franchis
 
 **New Game** asks for three things and nothing else: which of the three save
 files to start in, a first and last name for the general manager, and one of
-the thirty-two clubs. There is no difficulty, no traits, no avatar, no
+the thirty-two teams. There is no difficulty, no traits, no avatar, no
 reputation and no start date, because a new game always opens at week 1 of the
 regular season -- `create-save` writes `week = 1, phase = 'REGULAR_SEASON'` and
 has no other setting.
 
-Picking the club is what creates the dynasty: `create_save()` clones the
+Picking the team is what creates the dynasty: `create_save()` clones the
 template world under a fresh server-side seed, the engine's state is built from
 the clone, and every roster, contract, cap sheet and opening table is written
 back. Then the franchise dashboard opens on it.
 
-**Load Game** shows the same three files. An occupied one shows its club and
-badge, the GM's name, the season and where in it the save is, the club's record
+**Load Game** shows the same three files. An occupied one shows its team and
+badge, the GM's name, the season and where in it the save is, the team's record
 and when it was last saved; an empty one says it is empty and is what New Game
 starts in. Deleting lives here too, behind a second tap, because three files
 with no way to clear one is a dead end.
@@ -53,12 +53,12 @@ on the server, and opening the app on another device meets the menu. Office →
 
 | Step | Where |
 |---|---|
-| Start a dynasty | **Home** → *New Game* → a save file → a GM name → a club |
+| Start a dynasty | **Home** → *New Game* → a save file → a GM name → a team |
 | Reopen one | **Home** → *Load Game* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |
 | Sim a week | **Team** tab → *Sim week N* |
-| Read the box score | **Team** → *Last result* row, or **Schedule** → any played fixture |
+| Read the box score | **Team** → *Last result* row, or **Schedule** → any played game |
 | Standings and leaders | **League** tab |
 | Split the table | **League** → *League* / *Conference* / *Division* |
 | Sort the table | **League** → the sort chips, then the ▼/▲ pill to reverse |
@@ -76,21 +76,21 @@ on the server, and opening the app on another device meets the menu. Office →
 The depth chart is load-bearing, not decoration: the order you set is stored in
 `team_depth_charts` and is the order the engine fields next week. The season is
 the seed's schedule -- **18 weeks with byes, 272 games** -- and later years keep
-that shape, with the clubs renamed by a seeded permutation, so every year is 17
+that shape, with the teams renamed by a seeded permutation, so every year is 17
 games each over 18 weeks.
 
 ## The postseason
 
-Fourteen clubs, seven from each conference: the four division winners seeded
+Fourteen teams, seven from each conference: the four division winners seeded
 one to four by record, then the three best of the rest at five to seven. The
 top seed rests the opening round; the rest open 2v7, 3v6 and 4v5. Every round
 re-seeds -- the best surviving seed meets the worst -- and the higher seed
 hosts until the League Final, which is played on neutral ground. One loss and
-a club is out, so a playoff game cannot end level.
+a team is out, so a playoff game cannot end level.
 
 The four rounds are the **Opening Round**, the **Quarterfinals**, the
 **Conference Final** and the **League Final**, played in weeks 19 to 22. Ties
-on record are broken in one fixed order: the games between the tied clubs,
+on record are broken in one fixed order: the games between the tied teams,
 division record, conference record, point differential, and finally a coin
 drawn from the season's own stream, so the same season seeds the same table
 every time it is loaded.
@@ -100,21 +100,21 @@ the playoff games in `game_results` every time it is asked for
 (`supabase/functions/_shared/engine/playoffs.ts`), so a save reopened mid-round
 picks up exactly where it was. Playoff production is written under
 `competition = 'PLAYOFF'` and never joins the regular season's totals or the
-table. When the final is played, every club's line goes into `league_history`
+table. When the final is played, every team's line goes into `league_history`
 with its seed and how far it got, and the champion's players each gain a ring.
 
-## The table, and who leads it
+## The standings, and who leads the league
 
 Two splits sit on the League screen and they are not the same split.
 
-The **table** splits by where a club sits: the whole league, its two
+The **standings** split by where a team sits: the whole league, its two
 conferences, or its eight divisions, under the names the league itself gives
 them (`league_conferences` and `league_divisions`, not labels the screen made
 up). It arrives in the league's own order -- win percentage, then points
-difference -- and that order is the standing. Sorting it by any column is a
+difference -- and that order is the standing. Sorting by any column is a
 view of the same rows and never a different league position, which is why
 *League order* is a sort field of its own rather than a hidden default. Sorting
-is the explicit control above the table rather than tappable column headers,
+is the explicit control above the standings rather than tappable column headers,
 for the reason in `docs/PROMPT-BOOK.md` prompt 0061: a standings column on a
 phone is thirty pixels wide. The sort is stable, so equal values keep the
 league's order between them and the same sort applied twice gives the same
@@ -131,8 +131,8 @@ asks a different question of the same read, and the `REGULAR` / `PLAYOFF` split
 in `player_season_stats` is what makes summing them impossible rather than
 merely discouraged.
 
-There is no playoff table, only a bracket, so the table does not change when
-the leaders do.
+There is no playoff standings table, only a bracket, so the standings do not
+change when the leaders do.
 
 ## Where the game runs
 
@@ -163,12 +163,12 @@ counting rows in Postgres after every step) on a fresh database:
 | sim week 1 of 2027 | 301 | ~15,850 | ~2,460 | 64 | ~640 | ~2,800 | 672 | 32 | 1,696 | 46 | ~1,600 | 557 | ~3,400 |
 
 Thirteen of those 285 games are the bracket, and the 32 `league_history` rows
-are written by the final rather than by the offseason: every club's line, its
+are written by the final rather than by the offseason: every team's line, its
 seed, and how far it got.
 
 Also at create: `team_rosters` 1,696 (32 × 53), `free_agents` 1,152,
 `player_contracts` 1,696, `contract_years` ~4,240, `salary_cap` 32, the managed
-club's 53 rows in `team_depth_charts`, and one `save_documents` row. Per-game
+team's 53 rows in `team_depth_charts`, and one `save_documents` row. Per-game
 lines carry the counts the engine emits and nothing else; `snaps`, starts,
 fumbles and the other columns it does not count are NULL.
 
@@ -178,23 +178,23 @@ A week takes about 200 ms on the server; the offseason about a second.
 
 ## The staff
 
-Every club employs the seed's own coaches: a head coach, two coordinators and
+Every team employs the seed's own coaches: a head coach, two coordinators and
 the position room, each with the seed's attributes. They are not decoration.
 The offensive coordinator's play-calling is what the engine reads on third and
 four; the head coach's game and clock management are what it reads at the end
-of a half; the room's development rating decides how fast that club's young
-players close on their potential, and its evaluation decides how well the club
+of a half; the room's development rating decides how fast that team's young
+players close on their potential, and its evaluation decides how well the team
 reads a draft class.
 
 Development is redistributed, never created: the multiplier is centred on the
 league's own mean, so a league of good staffs does not inflate everyone. That
 is what keeps the forty-season talent-drift check flat with staffs on.
 
-Every winter the carousel runs. A club judges its head coach against what its
+Every winter the carousel runs. A team judges its head coach against what its
 roster said it should win rather than against .500, so a rebuild can survive a
 losing season and a contender cannot. Nobody is fired in his first year, no
 more than a quarter of the league turns over in one winter, coaches retire
-with age, and vacancies are filled from one pool -- the most attractive club
+with age, and vacancies are filled from one pool -- the most attractive team
 hiring first, promoting a coordinator where the coordinator is the best
 candidate. New coaches enter each year, named from the league's own names, so
 a fifty-season dynasty never runs out. It all lands in `coach_history`,
@@ -212,7 +212,7 @@ engine graded rather than from the box scores alone, so an offensive lineman
 can be first team.
 
 A vote is a vote, not a maximum. Voters read the grade, what the position is
-worth, the production and what the club won, and they disagree by a few per
+worth, the production and what the team won, and they disagree by a few per
 cent, which decides a photo finish and never overturns a landslide. The whole
 ballot is kept: finishing second in 2031 is a line on a career.
 
@@ -238,18 +238,18 @@ Five steps, and a button at every one of them to hand the rest to your staff.
 | **Season over** | Nothing. Closing the season grades everyone, ages the league, retires who is finished, runs the carousel and votes on the awards. |
 | **The awards** | Nothing. Five awards, each with the vote share it was won by and the player it was won from, then the all-league first team. |
 | **The year in review** | Nothing. The champion, your own season, and the records that fell. |
-| **Contracts** | Re-sign your own out-of-contract players, release anyone, trade with another club. |
+| **Contracts** | Re-sign your own out-of-contract players, release anyone, trade with another team. |
 | **The draft** | It runs pick by pick and stops on yours. You take a player off your own scouts' board. |
-| **Free agency** | Put offers in. They go to market with every other club's. |
-| **Camp** | Nothing. Every club cuts to fifty-three and the calendar is drawn. |
+| **Free agency** | Put offers in. They go to market with every other team's. |
+| **Camp** | Nothing. Every team cuts to fifty-three and the calendar is drawn. |
 
 Every price is the engine's. A player's re-signing ask is his market value
 weighted by how much he cares about money, so a loyal player takes a discount
 and a mercenary does not. Cutting someone costs the dead money his deal
-carries. A club considering a trade wants more value than it gives, will not
+carries. A team considering a trade wants more value than it gives, will not
 take on salary it cannot fit, and says which of the two it is. An offer in
-free agency competes with every other club's by the same rule -- money, need,
-the club's standing, the player's own character -- so you can be outbid, and
+free agency competes with every other team's by the same rule -- money, need,
+the team's standing, the player's own character -- so you can be outbid, and
 you can overpay.
 
 Each step is one request that ends with the league written back, so the
@@ -262,34 +262,34 @@ yet committed -- your offers, the draft order, the pick the draft is waiting on
 Honestly, and in the order you will notice it:
 
 - **You cannot hire or fire a coach yourself.** The carousel runs itself, your
-  club included: it fires your head coach when the seat gets hot enough and
+  team included: it fires your head coach when the seat gets hot enough and
   hires the best candidate for you. Choosing your own staff is not built.
 - **Trades are players for players.** Draft picks cannot be traded yet, and no
-  club offers you a deal of its own: you propose, they answer.
+  team offers you a deal of its own: you propose, they answer.
 - **No in-season moves.** Signing, cutting and trading are offseason work; once
   the season starts the roster is what you take into it.
 - **The seed's day-to-day injuries are honoured; its long-term list is not
   yet.** The 195 day-to-day rows are dated to week 0 at create time, so a
   player listed as out for n weeks misses the first n-1. The 114 IR/PUP/NFI
   rows stay undated: the seed lists those players on the 53 with nobody
-  behind them -- nine clubs' only kicker or punter -- and until clubs can sign
+  behind them -- nine teams' only kicker or punter -- and until teams can sign
   a replacement in season, honouring them left 39 games with no side to field.
-  A club whose only kicker, punter or quarterback is day-to-day still loses
+  A team whose only kicker, punter or quarterback is day-to-day still loses
   that game to a red notice rather than a phantom: 8 of 272 games in the
   first three weeks of a measured season, none after week 3. The seed's 186 free agents enter the engine's
   pool.
 - **No in-season roster moves.** You cannot sign, cut, or trade during the
-  year. If your only kicker gets hurt, you play without one. Very rarely a club
+  year. If your only kicker gets hurt, you play without one. Very rarely a team
   cannot field a unit and the game is skipped -- the Team tab says so in a red
-  notice rather than inventing a scoreline, and the fixture stays `SCHEDULED`.
+  notice rather than inventing a scoreline, and the game stays `SCHEDULED`.
 - **The offseason runs itself.** Development, retirement, the draft, the market
-  and compliance happen when you press the button; the AI runs your club too.
+  and compliance happen when you press the button; the AI runs your team too.
   The engine drafts in its own strength order and trades nothing, so a template
-  `draft_picks` row for a later year is overwritten with the club that actually
+  `draft_picks` row for a later year is overwritten with the team that actually
   picked.
 - **The first offseason is busy, and that is the seed's.** The seed's own
   contracts are 1,342 one-year minimum deals, so about 900 expire at once and
-  the market signs about 950 players; clubs then cut about 160 to the roster
+  the market signs about 950 players; teams then cut about 160 to the roster
   limit. All of it is in `transactions` -- `CONTRACT_EXPIRY`,
   `FREE_AGENT_SIGNING`, `RE_SIGNING`, `RELEASE` with the reason and dead money,
   `DRAFT_SELECTION`, `RETIREMENT` and `WASHOUT` -- as the engine reported it.
@@ -297,9 +297,9 @@ Honestly, and in the order you will notice it:
   engine's hazard washes out fringe players at 25-29 and retires the rest at
   26-41; the log now says which is which. A washout is out of the league, not
   a free agent, and does not come back.
-- **Clubs pursue their top three needs in free agency,** plus any acute one,
+- **Teams pursue their top three needs in free agency,** plus any acute one,
   so a signing draws one to nineteen bids (mean about four) rather than all 32
-  clubs. Who signs where is different from before this rule.
+  teams. Who signs where is different from before this rule.
 - **Rookies have names**, drawn from the league's own first names and
   surnames, the same for the same seed.
 - **Sacks belong to the pass rush.** EDGE, then DT, then LB; corners get
@@ -308,7 +308,7 @@ Honestly, and in the order you will notice it:
   is the template's data; the engine drafts from its own pipeline, primed at
   create time. Reconciling the two is an open decision.
 - **Long snappers are on the roster and not in the sim.** The engine has no
-  position group for them, so the seed's 32 stay on their clubs' `team_rosters`
+  position group for them, so the seed's 32 stay on their teams' `team_rosters`
   and `player_contracts` rows as the seed wrote them, outside the engine's
   52-man squad and its cap sheet.
 - **No coaching or staff screens.** `CoachScreen`, `CollegeScreen`,
@@ -321,10 +321,10 @@ Honestly, and in the order you will notice it:
   them.
 - **News has no coach or award-race stories.** The engine has no coach model
   and no award races are defined; those detectors receive empty inputs.
-- **Seven clubs start over the cap, and that is the seed's too.** With its own
+- **Seven teams start over the cap, and that is the seed's too.** With its own
   53-man rosters under its own contracts: DET -69.4M, SF -18.6M, CAR -16.7M,
   KC -15.0M, PIT -12.8M, GB -10.1M, DEN -1.2M -- while the seed's `salary_cap`
-  table claims every club is under. Nothing is cut to hide it; the first
+  table claims every team is under. Nothing is cut to hide it; the first
   offseason's compliance pass resolves it (18 cap cuts league-wide) and the
   Office shows the negative space.
 - **The transport shim trusts `DEV_USER_ID`.** There is no auth server in

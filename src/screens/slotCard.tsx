@@ -1,6 +1,6 @@
 // One save file, as a card.
 //
-// A save has six things worth knowing before you open it -- club, GM, season,
+// A save has six things worth knowing before you open it -- team, GM, season,
 // week, record, when it was last saved -- and ListRow's one title and one
 // subtitle cannot carry them without truncating the record off the end. So the
 // card lays them out itself: identity on top, the three figures in a row
@@ -124,7 +124,7 @@ export function SlotCard({ slot, openable, onOpen }: Props) {
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
           >
-            {slot.teamName ?? slot.teamId ?? 'Club unavailable'}
+            {slot.teamName ?? slot.teamId ?? 'Team unavailable'}
           </span>
           <span
             style={{

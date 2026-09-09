@@ -109,7 +109,7 @@ export function permuteSchedule(
   const to = [...teamIds].sort();
   if (from.length !== to.length) {
     throw new Error(
-      `A schedule for ${String(from.length)} clubs cannot be reshaped for ${String(to.length)}`);
+      `A schedule for ${String(from.length)} teams cannot be reshaped for ${String(to.length)}`);
   }
   // Fisher-Yates over the seeded stream.
   for (let i = to.length - 1; i > 0; i -= 1) {

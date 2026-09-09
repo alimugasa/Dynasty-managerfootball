@@ -33,7 +33,7 @@ export const SPLIT_CHIPS: readonly Chip[] = [
   { key: 'DIVISION', label: 'Division' },
 ];
 
-export type SortKey = 'CLUB' | 'PCT' | 'PLAYED' | 'FOR' | 'AGAINST' | 'DIFF' | 'STREAK' | 'SEED';
+export type SortKey = 'TEAM' | 'PCT' | 'PLAYED' | 'FOR' | 'AGAINST' | 'DIFF' | 'STREAK' | 'SEED';
 
 /** The league's own order: win percentage, then points difference. That is the
  *  standing; every other order is a view of it, which is why it is a field of
@@ -67,7 +67,7 @@ const COLUMNS: readonly {
   readonly tone?: (r: TableRow) => string;
 }[] = [
   {
-    key: 'CLUB', head: 'Club', title: 'Club', width: 98,
+    key: 'TEAM', head: 'Team', title: 'Team', width: 98,
     sortBy: (r) => r.teamId, cell: () => null,
   },
   {
@@ -113,7 +113,7 @@ export function sortFor(key: string): Sort {
   if (key === LEAGUE_ORDER) return DEFAULT_SORT;
   const column = COLUMNS.find((c) => c.key === key);
   if (column === undefined) return DEFAULT_SORT;
-  return { key: column.key, dir: column.key === 'CLUB' ? 'asc' : 'desc' };
+  return { key: column.key, dir: column.key === 'TEAM' ? 'asc' : 'desc' };
 }
 
 export const reverse = (sort: Sort): Sort =>
@@ -166,7 +166,7 @@ const td = {
   whiteSpace: 'nowrap' as const, overflow: 'hidden' as const, textOverflow: 'ellipsis' as const,
 };
 
-/** The club column stays put while the rest of the table scrolls under it. A
+/** The team column stays put while the rest of the table scrolls under it. A
  *  row of numbers with no name against it is not a standing. */
 const PINNED = {
   position: 'sticky' as const, left: 0, zIndex: 1,

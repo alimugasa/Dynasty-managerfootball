@@ -22,7 +22,7 @@ export const BANKS: Readonly<Record<string, readonly string[]>> = {
   beat: ['beat', 'downed', 'saw off', 'got past', 'took down', 'upended'],
   stunned: ['stunned', 'shocked', 'ambushed', 'blindsided', 'floored'],
   surprise: ['surprise', 'shock', 'upset', 'turn-up'],
-  run: ['run', 'streak', 'stretch', 'sequence', 'roll'],
+  run: ['run', 'streak', 'stretch', 'tear', 'roll'],
   slide: ['slide', 'skid', 'rut', 'losing run', 'spiral'],
   rolling: ['rolling', 'humming', 'clicking', 'in gear', 'on song'],
   struggling: ['struggling', 'stuck', 'floundering', 'out of answers'],
@@ -47,17 +47,17 @@ export const BANKS: Readonly<Record<string, readonly string[]>> = {
  */
 export const TEMPLATES: Readonly<Record<string, readonly Template[]>> = {
   'upset.big': [
-    { id: 'ub1', headline: '{winner} {@stunned} {loser} {winScore}-{loseScore}', body: '{loser} arrived as the stronger side on paper and left with nothing. {winner} led for most of the afternoon.' },
+    { id: 'ub1', headline: '{winner} {@stunned} {loser} {winScore}-{loseScore}', body: '{loser} arrived as the stronger team on paper and left with nothing. {winner} led for most of the afternoon.' },
     { id: 'ub2', headline: '{@surprise} of the week as {winner} {@beat} {loser}', body: 'Few gave {winner} a chance. They won {winScore}-{loseScore} and were rarely troubled.' },
-    { id: 'ub3', headline: '{winner} tear up the form book against {loser}', body: 'A {winScore}-{loseScore} win nobody forecast. {loser} had no answer after the interval.' },
+    { id: 'ub3', headline: '{winner} throw out the form guide against {loser}', body: 'A {winScore}-{loseScore} win nobody forecast. {loser} had no answer after halftime.' },
     { id: 'ub4', headline: '{loser} come unstuck at {winner}', body: '{winner} won {winScore}-{loseScore}, and the margin flattered the visitors.' },
-    { id: 'ub5', headline: 'No respect for reputation: {winner} {@beat} {loser}', body: '{winner} took the game to a far better-rated side and won {winScore}-{loseScore}.' },
+    { id: 'ub5', headline: 'No respect for reputation: {winner} {@beat} {loser}', body: '{winner} took the game to a far better-rated team and won {winScore}-{loseScore}.' },
     { id: 'ub6', headline: '{winner} {winScore}, {loser} {loseScore}', body: 'The scoreline reads like a misprint. It is not. {winner} were the better team throughout.' },
     { id: 'ub7', headline: '{loser} humbled by {winner}', body: 'A {@sizeable} {@surprise}. {winner} won {winScore}-{loseScore} and deserved more.' },
-    { id: 'ub8', headline: '{winner} land the {@surprise} of the round', body: 'Down as heavy underdogs, {winner} beat {loser} {winScore}-{loseScore}.' },
+    { id: 'ub8', headline: '{winner} land the {@surprise} of the week', body: 'Down as heavy underdogs, {winner} beat {loser} {winScore}-{loseScore}.' },
   ],
   'upset.close': [
-    { id: 'uc1', headline: '{winner} edge {loser} {winScore}-{loseScore}', body: 'A narrow win against a side rated well above them.' },
+    { id: 'uc1', headline: '{winner} edge {loser} {winScore}-{loseScore}', body: 'A narrow win against a team rated well above them.' },
     { id: 'uc2', headline: '{winner} hold on against {loser}', body: 'It finished {winScore}-{loseScore}, and {loser} will feel they let one go.' },
     { id: 'uc3', headline: '{loser} slip up at {winner}', body: '{winner} did enough, winning {winScore}-{loseScore}.' },
     { id: 'uc4', headline: 'One score in it as {winner} {@beat} {loser}', body: 'A {winScore}-{loseScore} result that goes down as an {@surprise}.' },
@@ -91,7 +91,7 @@ export const TEMPLATES: Readonly<Record<string, readonly Template[]>> = {
   'milestone.season': [
     { id: 'ms1', headline: '{player} {@reached} {value} {statLabel} for the season', body: 'The {team} {position} gets there in week {week}.' },
     { id: 'ms2', headline: '{value} {statLabel} and counting for {player}', body: 'A marker passed in week {week} by the {team} {position}.' },
-    { id: 'ms3', headline: '{player} joins the {value} club', body: '{statLabel} for the season, with {remaining} games still to play.' },
+    { id: 'ms3', headline: '{player} hits the {value} mark', body: '{statLabel} for the season, with {remaining} games still to play.' },
     { id: 'ms4', headline: 'Milestone for {player}: {value} {statLabel}', body: 'The {team} {position} reached it in week {week}.' },
     { id: 'ms5', headline: '{player} moves through {value} {statLabel}', body: 'It has taken the {team} {position} {week} weeks.' },
     { id: 'ms6', headline: '{team} watch {player} pass {value} {statLabel}', body: 'A season that keeps building, with {remaining} to play.' },

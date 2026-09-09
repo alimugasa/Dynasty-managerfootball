@@ -52,7 +52,7 @@ export function SelectTeamScreen() {
       )}
 
       {q.status === 'error' && <QueryError error={q.error} />}
-      {q.status === 'loading' && <Loading label="Loading clubs" rows={8} />}
+      {q.status === 'loading' && <Loading label="Loading teams" rows={8} />}
       {q.status === 'ready' && ready && (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }} data-testid="club-list">

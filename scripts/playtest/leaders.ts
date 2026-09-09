@@ -22,16 +22,16 @@ const BOARDS: readonly {
   readonly side: LeaderBoard['side']; readonly unit: string;
   readonly of: (line: PlayerStatLine) => number;
 }[] = [
-  { key: 'passYards', label: 'Passing yards', side: 'OFFENCE', unit: 'yds', of: (l) => l.passYards },
-  { key: 'passTds', label: 'Passing touchdowns', side: 'OFFENCE', unit: 'td', of: (l) => l.passTouchdowns },
-  { key: 'rushYards', label: 'Rushing yards', side: 'OFFENCE', unit: 'yds', of: (l) => l.rushYards },
-  { key: 'rushTds', label: 'Rushing touchdowns', side: 'OFFENCE', unit: 'td', of: (l) => l.rushTouchdowns },
-  { key: 'recYards', label: 'Receiving yards', side: 'OFFENCE', unit: 'yds', of: (l) => l.receivingYards },
-  { key: 'recTds', label: 'Receiving touchdowns', side: 'OFFENCE', unit: 'td', of: (l) => l.receivingTouchdowns },
-  { key: 'receptions', label: 'Receptions', side: 'OFFENCE', unit: 'rec', of: (l) => l.receptions },
-  { key: 'sacks', label: 'Sacks', side: 'DEFENCE', unit: 'sk', of: (l) => l.sacks },
-  { key: 'interceptions', label: 'Interceptions', side: 'DEFENCE', unit: 'int', of: (l) => l.interceptions },
-  { key: 'tackles', label: 'Tackles', side: 'DEFENCE', unit: 'tkl', of: (l) => l.tackles },
+  { key: 'passYards', label: 'Passing yards', side: 'OFFENSE', unit: 'yds', of: (l) => l.passYards },
+  { key: 'passTds', label: 'Passing touchdowns', side: 'OFFENSE', unit: 'td', of: (l) => l.passTouchdowns },
+  { key: 'rushYards', label: 'Rushing yards', side: 'OFFENSE', unit: 'yds', of: (l) => l.rushYards },
+  { key: 'rushTds', label: 'Rushing touchdowns', side: 'OFFENSE', unit: 'td', of: (l) => l.rushTouchdowns },
+  { key: 'recYards', label: 'Receiving yards', side: 'OFFENSE', unit: 'yds', of: (l) => l.receivingYards },
+  { key: 'recTds', label: 'Receiving touchdowns', side: 'OFFENSE', unit: 'td', of: (l) => l.receivingTouchdowns },
+  { key: 'receptions', label: 'Receptions', side: 'OFFENSE', unit: 'rec', of: (l) => l.receptions },
+  { key: 'sacks', label: 'Sacks', side: 'DEFENSE', unit: 'sk', of: (l) => l.sacks },
+  { key: 'interceptions', label: 'Interceptions', side: 'DEFENSE', unit: 'int', of: (l) => l.interceptions },
+  { key: 'tackles', label: 'Tackles', side: 'DEFENSE', unit: 'tkl', of: (l) => l.tackles },
   { key: 'fieldGoals', label: 'Field goals', side: 'KICKING', unit: 'fg', of: (l) => l.fieldGoalsMade },
   { key: 'puntYards', label: 'Punting yards', side: 'KICKING', unit: 'yds', of: (l) => l.puntYards },
 ];

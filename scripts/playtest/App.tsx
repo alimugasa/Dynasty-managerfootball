@@ -152,11 +152,11 @@ export function App() {
 
   if (game === null) {
     const clubList = [...allClubs().values()];
-    return shell('New dynasty', 'Pick the club you manage', (
+    return shell('New dynasty', 'Pick the team you manage', (
       <>
-        <SectionHeader title="Choose your club" />
+        <SectionHeader title="Choose your team" />
         <p style={{ margin: '0 0 8px', color: COLOR.mut, fontSize: 12, lineHeight: 1.5 }}>
-          Thirty-two clubs, 3,066 players, the season the seed ships with. Your dynasty is
+          Thirty-two teams, 3,066 players, the season the seed ships with. Your dynasty is
           saved in this browser only.
         </p>
         <Panel padded={false}>

@@ -103,7 +103,7 @@ export function PlayoffsScreen() {
                         leading={<Seed n={s.seed} />}
                         title={clubsById.get(s.teamId)?.name ?? s.teamId}
                         subtitle={`${String(s.wins)}-${String(s.losses)}${s.ties > 0 ? `-${String(s.ties)}` : ''} · ${s.divisionWinner ? 'Division winner' : 'Wild seed'}${s.seed === 1 ? ' · rests the opening round' : ''}`}
-                        {...(s.teamId === save?.userTeamId ? { trailing: <span style={{ color: COLOR.amber, fontSize: 11 }}>YOUR CLUB</span> } : {})}
+                        {...(s.teamId === save?.userTeamId ? { trailing: <span style={{ color: COLOR.amber, fontSize: 11 }}>YOUR TEAM</span> } : {})}
                       />
                     ))}
                   </div>
@@ -150,11 +150,11 @@ function BracketRow(
       title={
         <span style={{ fontSize: 13 }}>
           {side(game.awayTeamId, game.awayScore, played && !homeWon)}
-          <span style={{ color: COLOR.dim }}>{game.neutralSite ? ' v ' : ' at '}</span>
+          <span style={{ color: COLOR.dim }}>{game.neutralSite ? ' vs ' : ' at '}</span>
           {side(game.homeTeamId, game.homeScore, homeWon)}
         </span>
       }
-      subtitle={`${game.neutralSite ? 'Neutral ground · seeds' : 'Seeds'} ${String(seed(game.awayTeamId))} v ${String(seed(game.homeTeamId))}`}
+      subtitle={`${game.neutralSite ? 'Neutral ground · seeds' : 'Seeds'} ${String(seed(game.awayTeamId))} vs ${String(seed(game.homeTeamId))}`}
       navigable={played}
       {...(played ? { onSelect: onOpen } : {})}
     />

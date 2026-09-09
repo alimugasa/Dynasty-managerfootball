@@ -149,7 +149,7 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
         </>
       )}
 
-      <SectionHeader title="The club" />
+      <SectionHeader title="The franchise" />
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }}>
           <ListRow

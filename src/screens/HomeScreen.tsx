@@ -36,7 +36,7 @@ export function HomeScreen() {
             textTransform: 'uppercase', color: COLOR.dim,
           }}
         >
-          Thirty-two clubs. One chair.
+          Thirty-two teams. One chair.
         </p>
         <ActionButton
           onClick={() => { nav.push('slots', { mode: 'new' }); }}

@@ -48,8 +48,8 @@ export function ScheduleScreen() {
             : `Week ${String(shown)}`}
           />
           {q.status === 'error' && <QueryError error={q.error} />}
-          {q.status === 'loading' && <Loading label="Loading fixtures" rows={8} />}
-          {q.status === 'ready' && q.data.fixtures.length === 0 && <EmptyState title="No fixtures this week" />}
+          {q.status === 'loading' && <Loading label="Loading the schedule" rows={8} />}
+          {q.status === 'ready' && q.data.fixtures.length === 0 && <EmptyState title="No games this week" />}
           {q.status === 'ready' && q.data.fixtures.length > 0 && (
             <Panel padded={false}>
               <div style={{ padding: '0 12px' }} data-testid="fixture-list">
@@ -59,8 +59,8 @@ export function ScheduleScreen() {
                   return (
                     <ListRow
                       key={f.gameId}
-                      title={`${name(f.awayTeamId)} ${q.data.round === 'LEAGUE_FINAL' ? 'v' : 'at'} ${name(f.homeTeamId)}`}
-                      {...(involvesUser ? { subtitle: 'Your club' } : {})}
+                      title={`${name(f.awayTeamId)} ${q.data.round === 'LEAGUE_FINAL' ? 'vs' : 'at'} ${name(f.homeTeamId)}`}
+                      {...(involvesUser ? { subtitle: 'Your team' } : {})}
                       trailing={played
                         ? <span style={{ color: COLOR.tx, fontSize: 13 }}>{String(f.awayScore)}–{String(f.homeScore)}</span>
                         : <span style={{ color: COLOR.dim, fontSize: 12 }}>—</span>}

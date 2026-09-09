@@ -101,7 +101,7 @@ async function playFixtures(
     const home = teams.get(f.home_team_id);
     const away = teams.get(f.away_team_id);
     if (home === undefined || away === undefined) {
-      throw new Error(`Fixture ${f.game_id} names a club the league does not hold`);
+      throw new Error(`Game ${f.game_id} names a team the league does not hold`);
     }
     let result;
     try {
@@ -110,11 +110,11 @@ async function playFixtures(
       });
     } catch (error) {
       if (error instanceof MissingUnitError && competition === 'REGULAR') {
-        games.abandoned.push(`${f.home_team_id} v ${f.away_team_id} (${error.group})`);
+        games.abandoned.push(`${f.home_team_id} vs ${f.away_team_id} (${error.group})`);
         continue;
       }
       if (error instanceof MissingUnitError) {
-        throw new Error(`Playoff fixture ${f.home_team_id} v ${f.away_team_id} cannot be played: no ${error.group}`);
+        throw new Error(`Playoff game ${f.home_team_id} vs ${f.away_team_id} cannot be played: no ${error.group}`);
       }
       throw error;
     }
@@ -152,7 +152,7 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
        and competition = ${competition}
      order by game_id`;
   if (competition === 'PLAYOFF' && fixtures.length === 0) {
-    throw new Error(`Week ${String(week)} of the ${String(season)} playoffs has no fixtures written`);
+    throw new Error(`Week ${String(week)} of the ${String(season)} playoffs has no games written`);
   }
   const chart = await readDepthChart(db, saveId, save.user_team_id);
   const out = await absentPlayers(db, saveId, season, week);

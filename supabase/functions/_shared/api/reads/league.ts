@@ -47,7 +47,7 @@ export interface LeaderRow {
 }
 
 /** Which side of the game a board belongs to, so the screen can split them. */
-export const LEADER_SIDES = ['OFFENCE', 'DEFENCE', 'KICKING'] as const;
+export const LEADER_SIDES = ['OFFENSE', 'DEFENSE', 'KICKING'] as const;
 export type LeaderSide = (typeof LEADER_SIDES)[number];
 
 /** A conference or a division, by its own name. The names are the league's,
@@ -88,16 +88,16 @@ const BOARDS: readonly {
   readonly key: string; readonly label: string; readonly side: LeaderSide;
   readonly unit: string; readonly column: string;
 }[] = [
-  { key: 'passYards', label: 'Passing yards', side: 'OFFENCE', unit: 'yds', column: 'pass_yards' },
-  { key: 'passTds', label: 'Passing touchdowns', side: 'OFFENCE', unit: 'td', column: 'pass_tds' },
-  { key: 'rushYards', label: 'Rushing yards', side: 'OFFENCE', unit: 'yds', column: 'rush_yards' },
-  { key: 'rushTds', label: 'Rushing touchdowns', side: 'OFFENCE', unit: 'td', column: 'rush_tds' },
-  { key: 'recYards', label: 'Receiving yards', side: 'OFFENCE', unit: 'yds', column: 'rec_yards' },
-  { key: 'recTds', label: 'Receiving touchdowns', side: 'OFFENCE', unit: 'td', column: 'rec_tds' },
-  { key: 'receptions', label: 'Receptions', side: 'OFFENCE', unit: 'rec', column: 'receptions' },
-  { key: 'sacks', label: 'Sacks', side: 'DEFENCE', unit: 'sk', column: 'sacks' },
-  { key: 'interceptions', label: 'Interceptions', side: 'DEFENCE', unit: 'int', column: 'ints_caught' },
-  { key: 'tackles', label: 'Tackles', side: 'DEFENCE', unit: 'tkl', column: 'tackles' },
+  { key: 'passYards', label: 'Passing yards', side: 'OFFENSE', unit: 'yds', column: 'pass_yards' },
+  { key: 'passTds', label: 'Passing touchdowns', side: 'OFFENSE', unit: 'td', column: 'pass_tds' },
+  { key: 'rushYards', label: 'Rushing yards', side: 'OFFENSE', unit: 'yds', column: 'rush_yards' },
+  { key: 'rushTds', label: 'Rushing touchdowns', side: 'OFFENSE', unit: 'td', column: 'rush_tds' },
+  { key: 'recYards', label: 'Receiving yards', side: 'OFFENSE', unit: 'yds', column: 'rec_yards' },
+  { key: 'recTds', label: 'Receiving touchdowns', side: 'OFFENSE', unit: 'td', column: 'rec_tds' },
+  { key: 'receptions', label: 'Receptions', side: 'OFFENSE', unit: 'rec', column: 'receptions' },
+  { key: 'sacks', label: 'Sacks', side: 'DEFENSE', unit: 'sk', column: 'sacks' },
+  { key: 'interceptions', label: 'Interceptions', side: 'DEFENSE', unit: 'int', column: 'ints_caught' },
+  { key: 'tackles', label: 'Tackles', side: 'DEFENSE', unit: 'tkl', column: 'tackles' },
   { key: 'fieldGoals', label: 'Field goals', side: 'KICKING', unit: 'fg', column: 'fg_made' },
   { key: 'puntYards', label: 'Punting yards', side: 'KICKING', unit: 'yds', column: 'punt_yards' },
 ];

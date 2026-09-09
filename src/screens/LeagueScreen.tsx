@@ -30,7 +30,7 @@ export function LeagueScreen() {
   const [split, setSplit] = useUiState<string>('leagueSplit', 'CONFERENCE');
   const [sort, setSort] = useUiState<Sort>('leagueSort', DEFAULT_SORT);
   const [competition, setCompetition] = useUiState<Competition>('leaderComp', 'REGULAR_SEASON');
-  const [side, setSide] = useUiState<string>('leaderSide', 'OFFENCE');
+  const [side, setSide] = useUiState<string>('leaderSide', 'OFFENSE');
   const [boardKey, setBoardKey] = useUiState<string>('leaderBoard', 'passYards');
   const { save, loaded, loadError, clubsById, version } = useSave();
   const q = useQuery<LeagueOut>(
@@ -56,7 +56,7 @@ export function LeagueScreen() {
                     title={q.data.champion === null
                       ? 'The bracket is live'
                       : `${clubsById.get(q.data.champion)?.name ?? q.data.champion} are champions`}
-                    subtitle={q.data.champion === null ? 'Fourteen clubs, four rounds' : String(save.season)}
+                    subtitle={q.data.champion === null ? 'Fourteen teams, four rounds' : String(save.season)}
                     navigable
                     onSelect={() => { nav.push('playoffs'); }}
                   />

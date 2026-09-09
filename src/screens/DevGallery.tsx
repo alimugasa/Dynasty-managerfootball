@@ -76,7 +76,7 @@ export function DevGallery() {
         <TableScroll><SkeletonTable rows={3} columns={6} /></TableScroll>
       </SkeletonRegion>
 
-      <H>Club marks — generated, never drawn</H>
+      <H>Team marks — generated, never drawn</H>
       <p style={{ color: COLOR.mut, fontSize: 13, margin: '0 0 10px', lineHeight: 1.5 }}>
         Built from two colours and an abbreviation. No artwork ships; see
         docs/IP-POLICY.md.

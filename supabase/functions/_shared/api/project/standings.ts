@@ -57,7 +57,7 @@ export async function recomputeStandings(
     const homeRow = byTeam.get(g.home_team_id);
     const awayRow = byTeam.get(g.away_team_id);
     if (home === undefined || away === undefined || homeRow === undefined || awayRow === undefined) {
-      throw new Error(`game_results names a club not in teams: ${g.home_team_id} v ${g.away_team_id}`);
+      throw new Error(`game_results names a team not in teams: ${g.home_team_id} vs ${g.away_team_id}`);
     }
     home.pointsFor += g.home_score; home.pointsAgainst += g.away_score;
     away.pointsFor += g.away_score; away.pointsAgainst += g.home_score;

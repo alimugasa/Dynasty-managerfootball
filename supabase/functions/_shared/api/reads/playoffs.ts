@@ -71,7 +71,7 @@ export const playoffs: Handler<PlayoffsIn, PlayoffsOut> = {
 
     const roundOf = (name: string): PlayoffRound => {
       const round = PLAYOFF_ROUNDS.find((r) => r === name);
-      if (round === undefined) throw new Error(`A playoff fixture carries an unknown round: ${name}`);
+      if (round === undefined) throw new Error(`A playoff game carries an unknown round: ${name}`);
       return round;
     };
     const final = games.find((g) => g.playoff_round === 'LEAGUE_FINAL' && g.home_score !== null && g.away_score !== null);

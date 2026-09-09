@@ -47,7 +47,7 @@ export function StaffScreen() {
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
       {save !== null && q.status === 'error' && <QueryError error={q.error} />}
-      {save !== null && q.status === 'loading' && <Loading label="Loading the staff" rows={6} />}
+      {save !== null && q.status === 'loading' && <Loading label="Loading the coaching staff" rows={6} />}
       {q.status === 'ready' && q.data.coaches.length === 0 && (
         <EmptyState
           title="No staff on record"
@@ -69,7 +69,7 @@ export function StaffScreen() {
             ]}
           />
 
-          <SectionHeader title="The room" />
+          <SectionHeader title="Head coach and coordinators" />
           <Panel padded={false}>
             <div style={{ padding: '0 12px' }} data-testid="staff-list">
               {q.data.coaches.slice(0, 4).map((c) => <CoachRow key={c.coachId} coach={c} />)}

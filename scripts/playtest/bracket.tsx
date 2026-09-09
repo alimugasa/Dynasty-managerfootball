@@ -88,7 +88,7 @@ export function BracketScreen({ game, open }: Props) {
                     title={game.clubs.get(s.teamId)?.name ?? s.teamId}
                     subtitle={`${record(game.standings.get(s.teamId))} · ${s.divisionWinner ? 'Division winner' : 'Wild seed'}${s.seed === 1 ? ' · rests the opening round' : ''}`}
                     {...(s.teamId === game.userTeamId
-                      ? { trailing: <span style={{ color: COLOR.amber, fontSize: 11 }}>YOUR CLUB</span> }
+                      ? { trailing: <span style={{ color: COLOR.amber, fontSize: 11 }}>YOUR TEAM</span> }
                       : {})}
                   />
                 ))}
@@ -133,11 +133,11 @@ function Tie(
       title={
         <span style={{ fontSize: 13 }}>
           {side(game.awayTeamId, game.awayScore, !homeWon)}
-          <span style={{ color: COLOR.dim }}>{game.neutralSite ? ' v ' : ' at '}</span>
+          <span style={{ color: COLOR.dim }}>{game.neutralSite ? ' vs ' : ' at '}</span>
           {side(game.homeTeamId, game.homeScore, homeWon)}
         </span>
       }
-      subtitle={`${game.neutralSite ? 'Neutral ground · seeds' : 'Seeds'} ${String(seed(game.awayTeamId))} v ${String(seed(game.homeTeamId))}${game.overtime ? ' · OT' : ''}`}
+      subtitle={`${game.neutralSite ? 'Neutral ground · seeds' : 'Seeds'} ${String(seed(game.awayTeamId))} vs ${String(seed(game.homeTeamId))}${game.overtime ? ' · OT' : ''}`}
       navigable
       onSelect={() => { open('game', game.gameId); }}
     />

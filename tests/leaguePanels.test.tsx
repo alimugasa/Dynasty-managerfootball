@@ -61,7 +61,7 @@ describe('sorting the standings', () => {
   });
 
   it('starts a name A to Z, and offers the league order as a field of its own', () => {
-    const sort = sortFor('CLUB');
+    const sort = sortFor('TEAM');
     expect(sort.dir).toBe('asc');
     expect(sortRows(ROWS, sort).map((r) => r.teamId)).toEqual(['BUF', 'CHI', 'DAL', 'PIT']);
 
@@ -90,7 +90,7 @@ describe('sorting the standings', () => {
   });
 
   it('never drops or duplicates a club, whatever the column', () => {
-    for (const key of ['CLUB', 'PCT', 'PLAYED', 'FOR', 'AGAINST', 'DIFF', 'STREAK', 'SEED'] as const) {
+    for (const key of ['TEAM', 'PCT', 'PLAYED', 'FOR', 'AGAINST', 'DIFF', 'STREAK', 'SEED'] as const) {
       for (const dir of ['asc', 'desc'] as const) {
         const ids = sortRows(ROWS, { key, dir }).map((r) => r.teamId);
         expect(new Set(ids)).toEqual(new Set(ROWS.map((r) => r.teamId)));

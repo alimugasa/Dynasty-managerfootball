@@ -195,7 +195,7 @@ export function simWeek(game: Game): Game {
       played = simulateGame(withoutAbsent(home, out), withoutAbsent(away, out), rng, { allowTie: true });
     } catch (error) {
       if (error instanceof MissingUnitError) {
-        abandoned.push(`${fixture.homeTeamId} v ${fixture.awayTeamId} (${error.group})`);
+        abandoned.push(`${fixture.homeTeamId} vs ${fixture.awayTeamId} (${error.group})`);
         continue;
       }
       throw error;

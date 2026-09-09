@@ -312,7 +312,7 @@ export function detectAwardRaces(
         award: race.awardName,
         leader: race.leaderName,
         chaser: race.chaserName ?? 'the field',
-        team: team?.nickname ?? team?.name ?? 'their club',
+        team: team?.nickname ?? team?.name ?? 'their team',
         value: String(Math.round(race.leaderValue)),
         statLabel: race.statLabel,
       },

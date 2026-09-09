@@ -46,7 +46,7 @@ export function TradeSection(
       subtitle={`${p.group} · ${String(Math.round(p.age))} · value ${String(tradeValue(p, rules))}`}
       trailing={
         <ActionButton onClick={pick} disabled={busy} tone="quiet" compact>
-          {chosen ? 'On the table' : label}
+          {chosen ? 'In the deal' : label}
         </ActionButton>
       }
     />
@@ -104,7 +104,7 @@ export function TradeSection(
 
       <SectionHeader title={`You get${partner === '' ? '' : ` · ${game.clubs.get(partner)?.nickname ?? partner}`}`} />
       {theirSquad.length === 0 ? (
-        <EmptyState title="Pick a club" detail="Choose who you want to trade with." />
+        <EmptyState title="Pick a team" detail="Choose who you want to trade with." />
       ) : (
         <Panel padded={false}>
           <div style={{ padding: '0 12px' }}>
