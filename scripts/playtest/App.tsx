@@ -263,7 +263,11 @@ export function App() {
         aria-label="Sections"
         style={{
           position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 20,
-          background: COLOR.panel, borderTop: `1px solid ${COLOR.line}`,
+          background: 'rgba(18, 25, 32, 0.88)',
+          backdropFilter: 'saturate(140%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(140%) blur(14px)',
+          borderTop: `1px solid ${COLOR.line}`,
+          boxShadow: '0 -8px 24px rgba(0,0,0,0.35)',
           display: 'grid', gridTemplateColumns: `repeat(${String(TABS.length)}, minmax(0, 1fr))`,
           height: `calc(${String(LAYOUT.navHeight)}px + env(safe-area-inset-bottom, 0px))`,
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -282,10 +286,26 @@ export function App() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', gap: 3, padding: 0,
                 color: active ? COLOR.amber : COLOR.mut,
-                borderTop: `2px solid ${active ? COLOR.amber : 'transparent'}`,
+                position: 'relative',
               }}
             >
-              <Icon size={20} />
+              {/* A short bar centred over the icon rather than a rule across
+                  the whole tab: it points at the destination instead of
+                  underlining a column. Matches src/app/TabBar.tsx. */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute', top: 0, left: '50%',
+                  width: active ? 22 : 0, height: 2,
+                  marginLeft: active ? -11 : 0,
+                  borderRadius: '0 0 2px 2px',
+                  background: COLOR.amber,
+                  boxShadow: active ? `0 0 12px ${COLOR.amber}` : 'none',
+                  transition: 'width 200ms cubic-bezier(0.2, 0.8, 0.2, 1),'
+                    + ' margin-left 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+                }}
+              />
+              <Icon size={20} active={active} />
               <span style={{ fontSize: 10, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                 {label}
               </span>

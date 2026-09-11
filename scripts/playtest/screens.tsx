@@ -1,11 +1,11 @@
 // Team, League and Schedule, in the play-test build. Same components and
 // tokens as the app.
 
-import { COLOR } from '../../src/app/tokens';
+import { COLOR, R, S } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { StatTiles } from '../../src/components/StatTiles';
-import { TeamMark } from '../../src/components/TeamMark';
+import { TeamHero } from '../../src/components/TeamHero';
 import { ChipRow } from '../../src/components/ChipRow';
 import { ActionButton } from '../../src/components/ActionButton';
 import { ranking, squad } from './host';
@@ -19,6 +19,12 @@ import {
 import { nextRound, ROUND_LABEL, type PlayoffRound } from './postseason';
 import { ordinal, record, type ScreenProps as Props } from './common';
 
+
+/** A run of wins or losses, written the way a broadcast writes it. */
+const streakOf = (s: { streak: number } | undefined): string =>
+  s === undefined || s.streak === 0 ? '—' : `${s.streak > 0 ? 'W' : 'L'}${String(Math.abs(s.streak))}`;
+
+const signed = (n: number): string => (n > 0 ? `+${String(n)}` : String(n));
 
 export function TeamScreen(
   { game, open, busy, onWeek, onSeason, onOffseason, onBracket }:
@@ -44,33 +50,44 @@ export function TeamScreen(
     && (f.homeTeamId === game.userTeamId || f.awayTeamId === game.userTeamId));
   const name = (id: string): string => game.clubs.get(id)?.name ?? id;
   const nick = (id: string): string => game.clubs.get(id)?.nickname ?? id;
-  const finish = done ? ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1 : 0;
+  const place = ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1;
+  const played = standing === undefined ? 0 : standing.wins + standing.losses + standing.ties;
+  const finish = done ? place : 0;
   const roster = squad(game, game.userTeamId);
 
   return (
     <>
-      <Panel>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-          <TeamMark
-            abbreviation={game.userTeamId}
-            primary={club?.primary ?? COLOR.line}
-            secondary={club?.secondary ?? COLOR.mut}
-            size={48}
-          />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>{club?.name ?? game.userTeamId}</div>
-            <div style={{ color: COLOR.mut, fontSize: 12 }}>
-              {record(standing)} · {roster.length} players
-            </div>
-          </div>
-        </div>
-      </Panel>
+      <TeamHero
+        abbreviation={game.userTeamId}
+        metro={club?.metro ?? ''}
+        nickname={club?.nickname ?? game.userTeamId}
+        primary={club?.primary ?? COLOR.line2}
+        secondary={club?.secondary ?? COLOR.mut}
+        record={record(standing)}
+        recordLabel={done ? 'Final record' : 'Record'}
+        facts={[
+          // Before anybody has played, every team is 0-0 and the "order" is
+          // only the tie-break. A position nobody has earned is not a fact
+          // (ARCHITECTURE.md rule 3), so it reports a dash instead.
+          { label: 'League', value: played === 0 || place === 0
+            ? '—'
+            : `${ordinal(place)} of ${String(game.league.teamIds.length)}` },
+          { label: 'Streak', value: streakOf(standing) },
+          { label: 'Roster', value: `${String(roster.length)} players` },
+        ]}
+      />
 
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: S[2] }}>
         <StatTiles stats={[
-          { label: 'Record', value: record(standing) },
           { label: 'Points for', value: String(standing?.pointsFor ?? 0) },
           { label: 'Against', value: String(standing?.pointsAgainst ?? 0) },
+          {
+            label: 'Point diff',
+            value: signed((standing?.pointsFor ?? 0) - (standing?.pointsAgainst ?? 0)),
+            tone: (standing?.pointsFor ?? 0) === (standing?.pointsAgainst ?? 0)
+              ? 'default'
+              : (standing?.pointsFor ?? 0) > (standing?.pointsAgainst ?? 0) ? 'positive' : 'negative',
+          },
         ]}
         />
       </div>
@@ -79,7 +96,8 @@ export function TeamScreen(
         <p
           data-testid="notice"
           style={{
-            margin: '10px 0 0', padding: '8px 10px', borderRadius: 8,
+            margin: `${String(S[3])}px 0 0`, padding: `${String(S[2])}px ${String(S[3])}px`,
+            borderRadius: R.md,
             background: 'rgba(226,87,76,0.12)', border: `1px solid ${COLOR.red}`,
             color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
           }}
