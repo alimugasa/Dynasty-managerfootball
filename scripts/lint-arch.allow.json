@@ -15,12 +15,24 @@
     {
       "term": "madden",
       "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    },
+    {
+      "term": "allpro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
     }
   ],
   "legacy/ui/index.html": [
     {
       "term": "madden",
       "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    },
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    },
+    {
+      "term": "allpro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
     }
   ],
   "scripts/playtest/world.json": [
@@ -49,6 +61,36 @@
     {
       "term": "wild_card",
       "reason": "Frozen build log quoting the schema value the project shipped with before 0020 named the rounds itself. A record of what was changed, not a name in the game."
+    },
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ],
+  "docs/PROMPT-BOOK.md": [
+    {
+      "term": "all-pro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    },
+    {
+      "term": "allpro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    }
+  ],
+  "docs/PROTOTYPE-MANIFEST.md": [
+    {
+      "term": "all-pro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    },
+    {
+      "term": "allpro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    }
+  ],
+  "legacy/UI.md": [
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
     }
   ]
 }

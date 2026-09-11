@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  AWARD_NAME, BALLOT_DEPTH, runAwards, selectHonours, voterScore,
+  ALL_STAR_ROSTER_SIZE, AWARD_NAME, BALLOT_DEPTH, runAwards, selectHonours, voterScore,
   type AwardCandidate, type CoachCandidate,
 } from '../../supabase/functions/_shared/engine/offseason/awards.ts';
 import { createRng } from '../../supabase/functions/_shared/engine/rng.ts';
@@ -13,6 +13,7 @@ const GAMES = 17;
 const candidate = (over: Partial<AwardCandidate> = {}): AwardCandidate => ({
   playerId: 'p1', name: 'A Player', teamId: 'AAA', group: 'WR',
   grade: 70, gradeZ: 0, experience: 4, games: GAMES, teamWins: 9,
+  conferenceId: 'AC',
   passYards: 0, rushYards: 0, recYards: 0, touchdowns: 0,
   sacks: 0, interceptions: 0, tackles: 0,
   ...over,
@@ -30,6 +31,9 @@ function field(): AwardCandidate[] {
         playerId: `f${String(n)}`, name: `Filler ${String(n)}`, teamId: `T${String(i % 32)}`,
         group, grade: 55 + (i % 12), gradeZ: (i % 12) / 6 - 1,
         experience: i % 9, teamWins: 4 + (i % 10),
+        // Two conferences, split evenly, so an all-star roster has a field on
+        // both sides of the league to pick from.
+        conferenceId: i % 2 === 0 ? 'AC' : 'NC',
       }));
     }
   }
@@ -139,8 +143,9 @@ describe('a season of votes', () => {
       expect(first.filter((h) => h.group === group).length).toBe(STARTERS[group]);
       expect(second.filter((h) => h.group === group).length).toBe(STARTERS[group]);
     }
-    // Nobody is on both teams, or on one twice.
-    const ids = result.honours.map((h) => h.playerId);
+    // Nobody is on both all-league teams, or on one twice. All-star rosters
+    // are a separate selection and deliberately overlap with these.
+    const ids = [...first, ...second].map((h) => h.playerId);
     expect(new Set(ids).size).toBe(ids.length);
     expect(first.find((h) => h.group === 'QB')?.playerId).toBe('star');
   });
@@ -164,5 +169,91 @@ describe('a season of votes', () => {
     });
     const honours = selectHonours([...candidates, hurt], GAMES);
     expect(honours.some((h) => h.playerId === 'hurt')).toBe(false);
+  });
+});
+
+describe('the all-star rosters', () => {
+  const result = () => runAwards(2031, field(), [coach()], GAMES, createRng(99));
+
+  it('picks one roster per conference', () => {
+    const stars = result().honours.filter((h) => h.team === 'ALL_STAR');
+    expect(stars.length).toBeGreaterThan(0);
+    expect([...new Set(stars.map((h) => h.unit))].sort()).toEqual(['AC', 'NC']);
+  });
+
+  it('fills a full roster on each side where the field allows', () => {
+    const stars = result().honours.filter((h) => h.team === 'ALL_STAR');
+    for (const conference of ['AC', 'NC']) {
+      expect(stars.filter((h) => h.unit === conference).length).toBe(ALL_STAR_ROSTER_SIZE);
+    }
+  });
+
+  it('never selects the same player twice, and never across conferences', () => {
+    const stars = result().honours.filter((h) => h.team === 'ALL_STAR');
+    expect(new Set(stars.map((h) => h.playerId)).size).toBe(stars.length);
+    // Every selection sits in the conference its player actually played in.
+    const conferenceOf = new Map(field().map((c) => [c.playerId, c.conferenceId]));
+    for (const h of stars) expect(conferenceOf.get(h.playerId)).toBe(h.unit);
+  });
+
+  it('numbers slots from one inside each roster and position', () => {
+    const stars = result().honours.filter((h) => h.team === 'ALL_STAR');
+    const byRoster = new Map<string, number[]>();
+    for (const h of stars) {
+      const key = `${h.unit}|${h.group}`;
+      byRoster.set(key, [...(byRoster.get(key) ?? []), h.slot]);
+    }
+    for (const [key, slots] of byRoster) {
+      expect(slots.sort((a, b) => a - b), key)
+        .toEqual(Array.from({ length: slots.length }, (_, i) => i + 1));
+    }
+  });
+
+  it('takes a long snapper, who is on no all-league team', () => {
+    const honours = result().honours;
+    expect(honours.some((h) => h.team === 'ALL_STAR' && h.group === 'LS')).toBe(true);
+    expect(honours.some((h) => h.team !== 'ALL_STAR' && h.group === 'LS')).toBe(false);
+  });
+
+  it('is deeper than an all-league team at every position it shares', () => {
+    const honours = result().honours;
+    for (const group of POSITION_GROUPS) {
+      if (STARTERS[group] === 0) continue;
+      const first = honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST' && h.group === group);
+      const stars = honours.filter((h) => h.team === 'ALL_STAR' && h.group === group);
+      // Both conferences together, against one league-wide team.
+      expect(stars.length, group).toBeGreaterThan(first.length);
+    }
+  });
+
+  it('leaves out anyone who missed half the season', () => {
+    const hurt = candidate({
+      playerId: 'hurt', name: 'Half A Season', group: 'QB',
+      grade: 99, gradeZ: 4, games: Math.floor(GAMES / 2) - 1, teamWins: 16,
+      conferenceId: 'AC', passYards: 6000, touchdowns: 50,
+    });
+    const out = runAwards(2031, [...field(), hurt], [coach()], GAMES, createRng(99));
+    expect(out.honours.some((h) => h.playerId === 'hurt')).toBe(false);
+    // The awards are a separate question: availability weights a vote there
+    // rather than disqualifying, so a huge half-season can still win one.
+    // Selection for a roster is the rule being checked here.
+  });
+
+  it('replays identically from the same seed and differs from another', () => {
+    const ids = (seed: number) => runAwards(2031, field(), [coach()], GAMES, createRng(seed))
+      .honours.filter((h) => h.team === 'ALL_STAR').map((h) => `${h.unit}${h.group}${h.playerId}`);
+    expect(ids(99)).toEqual(ids(99));
+    expect(ids(99)).not.toEqual(ids(1234));
+  });
+
+  it('is its own vote: the rosters are not the all-league team reprinted', () => {
+    const honours = result().honours;
+    const league = new Set(honours
+      .filter((h) => h.team === 'ALL_LEAGUE_FIRST' || h.team === 'ALL_LEAGUE_SECOND')
+      .map((h) => h.playerId));
+    const stars = honours.filter((h) => h.team === 'ALL_STAR');
+    // Deeper and split two ways, so plenty of all-stars are on neither
+    // all-league team -- that is the difference between the two selections.
+    expect(stars.some((h) => !league.has(h.playerId))).toBe(true);
   });
 });

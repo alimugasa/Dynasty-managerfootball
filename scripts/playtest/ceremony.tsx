@@ -7,6 +7,9 @@ import { COLOR } from '../../src/app/tokens';
 import { EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { TeamMark } from '../../src/components/TeamMark';
+import { HonoursPanel } from '../../src/screens/honoursPanel';
+import { conferences } from './world';
+import { asHonourRows } from './common';
 import type { Game, WinterPhase } from './host';
 
 /** How a season ended, in the league's own words. */
@@ -74,20 +77,12 @@ export function SeasonSection(
           })}
         </div>
 
-        <SectionHeader title="All-league first team" />
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            {voted.honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST').map((h) => (
-              <ListRow
-                key={`${h.group}-${String(h.slot)}`}
-                title={h.name}
-                subtitle={`${h.group} · ${nick(h.teamId)}`}
-                navigable
-                onSelect={() => { open('player', h.playerId); }}
-              />
-            ))}
-          </div>
-        </Panel>
+        <HonoursPanel
+          honours={asHonourRows(voted.honours)}
+          nickname={(id) => nick(id ?? '')}
+          conferenceName={(id) => conferences().find((c) => c.id === id)?.name ?? id}
+          open={(screen, params) => { open(screen, params['id'] ?? ''); }}
+        />
       </>
     );
   }

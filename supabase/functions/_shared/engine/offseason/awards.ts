@@ -50,7 +50,11 @@ export interface AwardCandidate {
   readonly experience: number;
   /** Games he was actually on the field for. */
   readonly games: number;
-  /** Wins his club had, which is what carries a candidate in a close vote. */
+  /** The conference he played in. All-league is one vote for the whole
+   *  league; an all-star roster is picked inside a conference, so the
+   *  selection cannot be made without it. */
+  readonly conferenceId: string;
+  /** Wins his team had, which is what carries a candidate in a close vote. */
   readonly teamWins: number;
   /** Production, where the position has any. Yards and counting numbers. */
   readonly passYards: number;
@@ -89,10 +93,17 @@ export interface Award {
   readonly ballot: readonly Ballot[];
 }
 
-export type HonourTeam = 'ALL_LEAGUE_FIRST' | 'ALL_LEAGUE_SECOND';
+export type HonourTeam = 'ALL_LEAGUE_FIRST' | 'ALL_LEAGUE_SECOND' | 'ALL_STAR';
+
+/** The roster a selection belongs to. An all-league team is picked by the
+ *  whole league at once; an all-star roster is picked inside a conference, and
+ *  there is one per conference. */
+export const LEAGUE_WIDE = 'LEAGUE';
 
 export interface Honour {
   readonly team: HonourTeam;
+  /** LEAGUE_WIDE, or the conference that picked this roster. */
+  readonly unit: string;
   readonly group: PositionGroup;
   readonly slot: number;
   readonly playerId: string;
@@ -109,6 +120,26 @@ export interface AwardResult {
 /** How many of a group make an all-league team. The starting shape, so the
  *  team that gets picked could take the field. */
 const HONOUR_SLOTS: Readonly<Record<PositionGroup, number>> = STARTERS;
+
+/**
+ * How many of a group each conference sends to the all-star game.
+ *
+ * Deeper than a starting lineup, because this one is a roster rather than a
+ * team sheet: it is an exhibition, everybody rotates, and a conference that
+ * turned up with one quarterback would be playing him for sixty minutes. The
+ * long snapper gets a place here and none on an all-league team -- the game
+ * model never asks for a snap, so there is no best snapper to name, but there
+ * is a roster spot to fill.
+ */
+const ALL_STAR_SLOTS: Readonly<Record<PositionGroup, number>> = {
+  QB: 3, RB: 3, WR: 5, TE: 2, OL: 7,
+  EDGE: 4, DT: 3, LB: 4, CB: 4, S: 3,
+  K: 1, P: 1, LS: 1,
+};
+
+/** Forty-one a conference, eighty-two across the league. */
+export const ALL_STAR_ROSTER_SIZE = Object.values(ALL_STAR_SLOTS)
+  .reduce((a, b) => a + b, 0);
 
 /** Ballot depth. Five is what a voter names and what the ballot table keeps. */
 export const BALLOT_DEPTH = 5;
@@ -221,6 +252,7 @@ export function selectHonours(
       if (player === undefined) break;
       out.push({
         team: i < slots ? 'ALL_LEAGUE_FIRST' : 'ALL_LEAGUE_SECOND',
+        unit: LEAGUE_WIDE,
         group,
         slot: (i % slots) + 1,
         playerId: player.playerId,
@@ -233,7 +265,64 @@ export function selectHonours(
 }
 
 /**
- * Every award and both all-league teams, from one season's evidence.
+ * The all-star rosters: one per conference, deeper than an all-league team.
+ *
+ * The same evidence as the all-league vote, cut two ways instead of one --
+ * each conference picks its own, so the second-best quarterback in the league
+ * is on a roster if the best one plays in the other conference. A player who
+ * misses half the year is not selected, on the same rule as all-league: this
+ * is a reward for a season, and half a season is not one.
+ *
+ * It draws its own jitter rather than reusing the all-league order, because
+ * these are two selections and not one printed twice. A player can make an
+ * all-star roster and miss the all-league team, which is what happens every
+ * year in a league that votes twice.
+ *
+ * Conferences are taken from the candidates rather than passed in, and sorted,
+ * so the rosters come back in a fixed order whatever order the players arrived
+ * in -- the same season with the same seed picks the same rosters.
+ */
+export function selectAllStars(
+  candidates: readonly AwardCandidate[], games: number, rng: Rng,
+): Honour[] {
+  const conferences = [...new Set(candidates.map((c) => c.conferenceId))]
+    .filter((id) => id !== '')
+    .sort((a, b) => a.localeCompare(b));
+  const out: Honour[] = [];
+  for (const conference of conferences) {
+    for (const group of POSITION_GROUPS) {
+      const slots = ALL_STAR_SLOTS[group];
+      if (slots === 0) continue;
+      const ranked = candidates
+        .filter((c) => c.conferenceId === conference && c.group === group
+          && c.games >= games / 2)
+        .map((c) => ({
+          c, score: voterScore(c, games) * (1 + rng.normal(0, VOTER_SPREAD)),
+        }))
+        .sort((a, b) => b.score - a.score);
+      for (let i = 0; i < slots; i += 1) {
+        const picked = ranked[i];
+        // A conference short of fit players at a position sends fewer. The
+        // roster is what the season produced, not a shape to pad out.
+        if (picked === undefined) break;
+        out.push({
+          team: 'ALL_STAR',
+          unit: conference,
+          group,
+          slot: i + 1,
+          playerId: picked.c.playerId,
+          name: picked.c.name,
+          teamId: picked.c.teamId,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Every award, both all-league teams and both all-star rosters, from one
+ * season's evidence.
  *
  * The order the votes are taken in is fixed, so the same season with the same
  * seed produces the same ballots. Each award draws its own voter noise: a
@@ -257,5 +346,9 @@ export function runAwards(
   add(vote('NEWCOMER', eligible.filter((c) => c.experience === 0), games, rng));
   add(voteCoach(coaches, rng));
 
-  return { season, awards, honours: selectHonours(eligible, games) };
+  return {
+    season,
+    awards,
+    honours: [...selectHonours(eligible, games), ...selectAllStars(eligible, games, rng)],
+  };
 }

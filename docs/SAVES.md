@@ -202,6 +202,30 @@ The `slots` read answers the menu from `saves`, `teams` and `standings` in one
 query; `save` opens the save it is given, or the most recently touched when it
 is given none.
 
+## Honours
+
+Three selections share one table, told apart by `honour_type` and by the roster
+they belong to:
+
+| `honour_type` | `team_unit` | Rows a season |
+|---|---|---|
+| `ALL_LEAGUE_FIRST` | `LEAGUE` | 25 |
+| `ALL_LEAGUE_SECOND` | `LEAGUE` | 25 |
+| `ALL_STAR` | the conference id | 41 per conference |
+
+`team_unit` is what makes the all-star rosters possible. It used to be written
+as a copy of `position` -- the same value in two columns, telling nobody
+anything -- and the key was `(save_id, season, honour_type, position, slot)`,
+so both conferences' second quarterback was `ALL_STAR / QB / 2` and the second
+written would have overwritten the first. Migration `0026` gives the column its
+meaning and puts it in the key.
+
+Seasons played before `0026` keep every honour they had. Their `team_unit` is
+backfilled to `LEAGUE`, which is a reading of those rows rather than a guess:
+every honour written before that migration was an all-league selection, and
+all-league teams are picked league-wide. They have no all-star rosters, and the
+screens say so rather than showing an empty list.
+
 ## Where the pieces live
 
 | | |
@@ -216,6 +240,9 @@ is given none.
 | The menu's read | `supabase/functions/_shared/api/reads/slots.ts` |
 | The start flow | `src/screens/HomeScreen.tsx` and the three after it |
 | Save-file tests | `tests/api/slots.test.ts`, `tests/startFlow.test.tsx` |
+| All-star rosters | `supabase/migrations/0026_all_star_rosters.sql` |
+| The selections | `supabase/functions/_shared/engine/offseason/awards.ts` |
+| The panel all three are shown on | `src/screens/honoursPanel.tsx` |
 
 `careerBridge.ts` and `season.ts` are new and were needed for the test to exist
 at all: nothing previously turned career state into a squad that could play, and

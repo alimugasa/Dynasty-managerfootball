@@ -46,6 +46,9 @@ export function seasonAwards(game: Game, grades: readonly SeasonGrade[]): AwardR
     const standing = game.standings.get(player.teamId);
     return [{
       playerId: grade.playerId, name: player.name, teamId: player.teamId, group: player.group,
+      // The conference the rig's own world puts him in, so the all-star
+      // rosters split the same way the server's do.
+      conferenceId: game.clubs.get(player.teamId)?.conferenceId ?? '',
       grade: grade.grade, gradeZ: grade.gradeZ,
       experience: Math.max(0, player.experience - 1),
       // A player whose position produces no line still played: the absence of

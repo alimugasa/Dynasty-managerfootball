@@ -23,6 +23,11 @@ const IP_DENY = [
   'rams','seahawks','nfl','super bowl','pro bowl','madden',
   // Round and trophy names, which are another league's as much as its marks.
   'wild card','wildcard','wild-card','wild_card','divisional round','lombardi','afc','nfc',
+  // Honour names. docs/IP-POLICY.md bans real all-star and championship event
+  // names without exception, and an all-league selection called all-pro is one
+  // of those however generic the words look on their own. This league votes on
+  // its own all-league teams and picks its own all-star rosters.
+  'all-pro','all pro','allpro','pro-bowl','probowl',
 ];
 
 // Allowed uses of a denied term, scoped to one file and one term with a

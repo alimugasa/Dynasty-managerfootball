@@ -1,6 +1,6 @@
 // Universal entity routing. In the prototype, opening a player worked identically
-// from a roster row, a leaderboard, an MVP ballot, an All-Pro team and a news
-// headline — but only by convention, via hand-written inline push('player',{id})
+// from a roster row, a leaderboard, an award ballot, an all-league team and a
+// news headline — but only by convention, via hand-written inline push('player',{id})
 // inside template literals. There was no shared function, so the guarantee would
 // break silently during the component split. This module is that seam.
 //

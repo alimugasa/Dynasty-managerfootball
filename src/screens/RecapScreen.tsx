@@ -15,6 +15,7 @@ import { ListRow } from '../components/ListRow';
 import { TeamMark } from '../components/TeamMark';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
+import { HonoursPanel } from './honoursPanel';
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 const RESULT: Readonly<Record<string, string>> = {
@@ -131,22 +132,12 @@ export function RecapScreen() {
             </Panel>
           )}
 
-          <SectionHeader title="All-league first team" />
-          <Panel padded={false}>
-            <div style={{ padding: '0 12px' }}>
-              {q.data.honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST').map((h) => (
-                <ListRow
-                  key={`${h.position}-${String(h.slot)}`}
-                  title={h.name}
-                  subtitle={`${h.position}${h.teamId === null ? '' : ` · ${nick(h.teamId)}`}`}
-                  navigable={h.playerId !== null}
-                  {...(h.playerId === null ? {} : {
-                    onSelect: () => { nav.push('player', { id: h.playerId ?? '' }); },
-                  })}
-                />
-              ))}
-            </div>
-          </Panel>
+          <HonoursPanel
+            honours={q.data.honours}
+            nickname={nick}
+            conferenceName={(id) => q.data.conferences.find((c) => c.id === id)?.name ?? id}
+            open={(screen, params) => { nav.push(screen, params); }}
+          />
 
           <SectionHeader title="Record book" />
           {q.data.records.length === 0 ? (

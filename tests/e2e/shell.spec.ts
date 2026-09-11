@@ -15,6 +15,20 @@ const TABS = ['Team', 'League', 'Schedule', 'Roster', 'Office'];
  * creates: the first test to run walks the whole start flow, and every test
  * after it opens what that one made rather than filling another save file.
  */
+/**
+ * In a dynasty, whatever phase it is in.
+ *
+ * The bottom navigation is the signal, not a button on the Team screen: the
+ * tab bar renders for every in-game phase and for none of the boot screens,
+ * while "Sim week" exists only while there is football left to play. Waiting
+ * on that button hung the moment a save was parked in the offseason -- which
+ * it silently was not before, because the Team screen used to mistake AWARDS
+ * for a week that could still be simulated.
+ */
+async function inDynasty(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Team', exact: true }).waitFor({ timeout: 120_000 });
+}
+
 async function ensureDynasty(page: Page): Promise<void> {
   // domcontentloaded: the load event waits on the font stylesheet, which a
   // proxy that black-holes fonts.googleapis.com holds for the full timeout.
@@ -27,7 +41,7 @@ async function ensureDynasty(page: Page): Promise<void> {
   const saved = page.getByTestId('slot-list').locator('[data-testid^="slot-"] button').first();
   if (await saved.count() > 0) {
     await saved.click();
-    await page.getByTestId('sim-week').waitFor({ timeout: 120_000 });
+    await inDynasty(page);
     return;
   }
 
@@ -41,7 +55,7 @@ async function ensureDynasty(page: Page): Promise<void> {
   await page.getByTestId('gm-continue').click();
   await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
   await page.getByTestId('club-list').locator('button').first().click();
-  await page.getByTestId('sim-week').waitFor({ timeout: 120_000 });
+  await inDynasty(page);
 }
 
 async function pageOverflow(page: Page): Promise<number> {

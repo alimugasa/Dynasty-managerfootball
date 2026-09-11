@@ -7,6 +7,7 @@
 import type { Handler } from '../context.ts';
 import { ownedSave } from '../save.ts';
 import { optionalInt, rawOf, requireString } from '../parse.ts';
+import { POSITION_GROUPS } from '../../engine/types.ts';
 
 export interface RecapIn { readonly saveId: string; readonly season?: number }
 
@@ -19,7 +20,12 @@ export interface AwardOut {
 }
 
 export interface HonourOut {
-  readonly team: string; readonly position: string; readonly slot: number;
+  /** ALL_LEAGUE_FIRST, ALL_LEAGUE_SECOND or ALL_STAR. */
+  readonly team: string;
+  /** The roster it belongs to: LEAGUE for an all-league team, or the
+   *  conference that picked it for an all-star roster. */
+  readonly unit: string;
+  readonly position: string; readonly slot: number;
   readonly playerId: string | null; readonly name: string; readonly teamId: string | null;
 }
 
@@ -37,6 +43,10 @@ export interface RecapOut {
   readonly runnerUpTeamId: string | null;
   readonly awards: readonly AwardOut[];
   readonly honours: readonly HonourOut[];
+  /** The conferences, by the name the league gives them, so a screen showing
+   *  an all-star roster per conference names them rather than printing an id
+   *  or inventing a label. In the league's own order. */
+  readonly conferences: readonly { readonly id: string; readonly name: string }[];
   readonly records: readonly RecordOut[];
   /** The club you manage: its record, its finish, how far it went. */
   readonly you: {
@@ -68,7 +78,7 @@ export const recap: Handler<RecapIn, RecapOut> = {
     if (!complete) {
       return {
         season, complete: false, championTeamId: null, runnerUpTeamId: null,
-        awards: [], honours: [], records: [], you: null, seasons: played,
+        awards: [], honours: [], conferences: [], records: [], you: null, seasons: played,
       };
     }
 
@@ -93,12 +103,37 @@ export const recap: Handler<RecapIn, RecapOut> = {
         from public.award_ballots where save_id = ${s.id} and season = ${season}
        order by award_code, finish_rank`;
     const honours = await sql<{
-      honour_type: string; position: string; slot: number;
+      honour_type: string; team_unit: string; position: string; slot: number;
       player_id: string | null; player_name: string | null; team_abbr: string | null;
     }[]>`
-      select honour_type, position, slot, player_id, player_name, team_abbr
+      select honour_type, team_unit, position, slot, player_id, player_name, team_abbr
         from public.honours where save_id = ${s.id} and season = ${season}
-       order by honour_type, position, slot`;
+       order by honour_type, team_unit, position, slot`;
+    // Re-ordered down the roster rather than up the alphabet. SQL sorts "CB"
+    // before "QB", which is a correct sort and a strange team sheet: a roster
+    // reads quarterbacks first, then the rest of the offense, then the
+    // defense, then the specialists. POSITION_GROUPS is that order and is the
+    // engine's, so there is one definition of it rather than a second here.
+    const groupOrder = new Map<string, number>(POSITION_GROUPS.map((g, i) => [g, i]));
+    honours.sort((a, b) => {
+      // Type first, then roster: without it the two all-league teams, which
+      // share the LEAGUE unit, would interleave by position in the array the
+      // read returns. The screens filter by type and would not notice; the
+      // next reader of this read would.
+      const byType = a.honour_type.localeCompare(b.honour_type);
+      if (byType !== 0) return byType;
+      const byUnit = a.team_unit.localeCompare(b.team_unit);
+      if (byUnit !== 0) return byUnit;
+      // A position the engine does not know keeps a place at the end rather
+      // than being dropped or silently reordered into the middle.
+      const ai = groupOrder.get(a.position) ?? POSITION_GROUPS.length;
+      const bi = groupOrder.get(b.position) ?? POSITION_GROUPS.length;
+      if (ai !== bi) return ai - bi;
+      return a.slot - b.slot;
+    });
+    const conferences = await sql<{ conference_id: string; name: string }[]>`
+      select conference_id, name from public.league_conferences
+       where save_id = ${s.id} order by conference_id`;
     const records = await sql<{
       record_code: string; record_name: string; scope: string; value: string;
       player_name: string | null; season: number | null; set_at_season: number | null;
@@ -124,9 +159,10 @@ export const recap: Handler<RecapIn, RecapOut> = {
         })),
       })),
       honours: honours.map((h) => ({
-        team: h.honour_type, position: h.position, slot: h.slot,
+        team: h.honour_type, unit: h.team_unit, position: h.position, slot: h.slot,
         playerId: h.player_id, name: h.player_name ?? '', teamId: h.team_abbr,
       })),
+      conferences: conferences.map((c) => ({ id: c.conference_id, name: c.name })),
       records: records.map((r) => ({
         code: r.record_code, name: r.record_name, scope: r.scope, value: Number(r.value),
         holder: r.player_name ?? '', season: r.season,

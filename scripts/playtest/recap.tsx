@@ -5,8 +5,10 @@ import { COLOR } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { TeamMark } from '../../src/components/TeamMark';
+import { HonoursPanel } from '../../src/screens/honoursPanel';
 import { playoffOutcomes } from './postseason';
-import { record, type ScreenProps as Props } from './common';
+import { conferences } from './world';
+import { asHonourRows, record, type ScreenProps as Props } from './common';
 
 const RESULT: Readonly<Record<string, string>> = {
   MISSED: 'Missed the playoffs',
@@ -93,20 +95,12 @@ export function RecapScreen({ game, open }: Props) {
             </div>
           </Panel>
 
-          <SectionHeader title="All-league first team" />
-          <Panel padded={false}>
-            <div style={{ padding: '0 12px' }}>
-              {latest.honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST').map((h) => (
-                <ListRow
-                  key={`${h.group}-${String(h.slot)}`}
-                  title={h.name}
-                  subtitle={`${h.group} · ${nick(h.teamId)}`}
-                  navigable
-                  onSelect={() => { open('player', h.playerId); }}
-                />
-              ))}
-            </div>
-          </Panel>
+          <HonoursPanel
+            honours={asHonourRows(latest.honours)}
+            nickname={(id) => nick(id ?? '')}
+            conferenceName={(id) => conferences().find((c) => c.id === id)?.name ?? id}
+            open={(screen, params) => { open(screen, params['id'] ?? ''); }}
+          />
         </>
       )}
     </>

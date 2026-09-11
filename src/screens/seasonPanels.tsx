@@ -8,6 +8,7 @@ import { COLOR } from '../app/tokens';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { TeamMark } from '../components/TeamMark';
+import { HonoursPanel } from './honoursPanel';
 import type { AwardOut, RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 const RESULT: Readonly<Record<string, string>> = {
@@ -46,22 +47,12 @@ export function AwardsPanel({ data, nickname, colours, open }: Props) {
         {data.awards.map((a) => <AwardCard key={a.code} award={a} nickname={nickname} colours={colours} open={open} />)}
       </div>
 
-      <SectionHeader title="All-league first team" />
-      <Panel padded={false}>
-        <div style={{ padding: '0 12px' }}>
-          {data.honours.filter((h) => h.team === 'ALL_LEAGUE_FIRST').map((h) => (
-            <ListRow
-              key={`${h.position}-${String(h.slot)}`}
-              title={h.name}
-              subtitle={`${h.position} · ${nickname(h.teamId)}`}
-              navigable={h.playerId !== null}
-              {...(h.playerId === null ? {} : {
-                onSelect: () => { open('player', { id: h.playerId ?? '' }); },
-              })}
-            />
-          ))}
-        </div>
-      </Panel>
+      <HonoursPanel
+        honours={data.honours}
+        nickname={nickname}
+        conferenceName={(id) => data.conferences.find((c) => c.id === id)?.name ?? id}
+        open={(screen, params) => { open(screen, params); }}
+      />
     </>
   );
 }

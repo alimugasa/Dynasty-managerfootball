@@ -6,6 +6,9 @@ metropolitan area names are used, since city names are not trademarks.
 ## Prohibited, without exception
 
 - Real league names or abbreviations, and real championship or all-star event names.
+- Real honour and selection names. This league votes on its own **all-league**
+  first and second teams and picks its own **all-star** rosters; the real
+  league's names for those are denied in `scripts/lint-arch.mjs`.
 - Real team names, nicknames, marks, logos, wordmarks, or colour schemes presented
   as an official identity.
 - Real player, coach, owner or executive names.

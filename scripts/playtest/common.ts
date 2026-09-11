@@ -1,6 +1,8 @@
 // Shared pieces of the play-test screens.
 
 import type { Chip } from '../../src/components/ChipRow';
+import type { Honour } from '../../supabase/functions/_shared/engine/offseason/index.ts';
+import type { HonourOut } from '../../supabase/functions/_shared/api/reads/recap.ts';
 import type { Game } from './host';
 
 export const GROUPS: readonly Chip[] = [
@@ -21,6 +23,14 @@ export const ordinal = (n: number): string => {
   if (tens >= 11 && tens <= 13) return `${String(n)}th`;
   return `${String(n)}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
 };
+
+/** Engine honours in the shape the recap read returns, so the play-test build
+ *  can render src/screens/honoursPanel.tsx rather than a second copy of it. */
+export const asHonourRows = (honours: readonly Honour[]): HonourOut[] =>
+  honours.map((h) => ({
+    team: h.team, unit: h.unit, position: h.group, slot: h.slot,
+    playerId: h.playerId, name: h.name, teamId: h.teamId,
+  }));
 
 export interface ScreenProps {
   readonly game: Game;

@@ -207,9 +207,26 @@ Office → *Coaching staff* shows your room, its rating and where it ranks.
 
 When the final has been played the league votes. Five awards -- Player of the
 Year, Offensive and Defensive Player of the Year, Newcomer of the Year and
-Coach of the Year -- and two all-league teams, chosen from every player the
-engine graded rather than from the box scores alone, so an offensive lineman
-can be first team.
+Coach of the Year -- two all-league teams and two all-star rosters, all chosen
+from every player the engine graded rather than from the box scores alone, so
+an offensive lineman can be first team.
+
+Three selections, three different questions:
+
+| | Picked by | Shape |
+|---|---|---|
+| **All-league first team** | the whole league, as one | the starting shape: 25, one deep at every position |
+| **All-league second team** | the whole league, as one | the next 25 |
+| **All-star roster** | each conference, for itself | 41 a side, 82 in all -- a roster with substitutes |
+
+The all-star rosters are a separate vote rather than the all-league team
+reprinted: they are cut by conference, they run deeper, and they draw their own
+voter disagreement. So the second-best quarterback in the league is on a roster
+if the best one plays in the other conference, and a player can be an all-star
+and on neither all-league team. Both selections need half a season played --
+this is a reward for a year, and half a year is not one. The long snapper takes
+a roster spot on the all-star side and none on an all-league team: the game
+model never asks for a snap, so there is no best snapper to name.
 
 A vote is a vote, not a maximum. Voters read the grade, what the position is
 worth, the production and what the team won, and they disagree by a few per
@@ -236,7 +253,7 @@ Five steps, and a button at every one of them to hand the rest to your staff.
 | Step | What you decide |
 |---|---|
 | **Season over** | Nothing. Closing the season grades everyone, ages the league, retires who is finished, runs the carousel and votes on the awards. |
-| **The awards** | Nothing. Five awards, each with the vote share it was won by and the player it was won from, then the all-league first team. |
+| **The awards** | Nothing. Five awards, each with the vote share it was won by and the player it was won from, then the all-star rosters and both all-league teams. |
 | **The year in review** | Nothing. The champion, your own season, and the records that fell. |
 | **Contracts** | Re-sign your own out-of-contract players, release anyone, trade with another team. |
 | **The draft** | It runs pick by pick and stops on yours. You take a player off your own scouts' board. |

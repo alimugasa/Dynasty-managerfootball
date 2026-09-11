@@ -1,5 +1,5 @@
-// The end of the year, as rows: awards, the ballots behind them, and the two
-// all-league teams.
+// The end of the year, as rows: awards, the ballots behind them, the two
+// all-league teams and the two all-star rosters.
 //
 // The engine votes; this reads the season the vote is about and stores the
 // result. What a voter is told is the season that was actually played -- the
@@ -43,6 +43,11 @@ export async function awardCandidates(
   const wins = new Map((await db<{ team_id: string; wins: number }[]>`
     select team_id, wins from public.standings
      where save_id = ${saveId} and season = ${season}`).map((r) => [r.team_id, r.wins]));
+  // Which conference each team plays in: an all-star roster is picked inside
+  // one, and the engine cannot know the map -- it holds no league structure.
+  const conferenceOf = new Map((await db<{ team_id: string; conference_id: string }[]>`
+    select team_id, conference_id from public.teams
+     where save_id = ${saveId}`).map((r) => [r.team_id, r.conference_id]));
   const statOf = new Map(stats.map((r) => [r.player_id, r]));
   const playerOf = new Map(league.players.map((p) => [p.id, p]));
 
@@ -58,6 +63,9 @@ export async function awardCandidates(
     if (teamId === null || teamId === undefined) return [];
     const n = (value: number | null | undefined): number => value ?? 0;
     return [{
+      // A team the league does not place in a conference leaves this empty,
+      // and selectAllStars skips it rather than inventing a roster for it.
+      conferenceId: conferenceOf.get(teamId) ?? '',
       playerId: grade.playerId,
       name: player.name,
       teamId,
@@ -148,12 +156,12 @@ export async function writeAwards(
     select ${saveId}, ${result.season}, u.type, u.unit, u.position, u.slot,
            u.player_id, u.name, u.team_id
       from unnest(
-        ${hcol((h) => h.team)}::text[], ${hcol((h) => (h.group))}::text[],
+        ${hcol((h) => h.team)}::text[], ${hcol((h) => h.unit)}::text[],
         ${hcol((h) => h.group)}::text[], ${hcol((h) => h.slot)}::int[],
         ${hcol((h) => h.playerId)}::text[], ${hcol((h) => h.name)}::text[],
         ${hcol((h) => teamOf.get(h.playerId) ?? h.teamId)}::text[]
       ) as u(type, unit, position, slot, player_id, name, team_id)
-    on conflict (save_id, season, honour_type, position, slot) do update
+    on conflict (save_id, season, honour_type, team_unit, position, slot) do update
       set player_id = excluded.player_id, player_name = excluded.player_name,
           team_abbr = excluded.team_abbr, team_unit = excluded.team_unit`;
 }

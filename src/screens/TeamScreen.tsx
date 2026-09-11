@@ -10,6 +10,7 @@ import { StatTiles } from '../components/StatTiles';
 import { TeamMark } from '../components/TeamMark';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
+import { isOffseasonPhase } from '../domain/phase';
 import { Screen } from './Screen';
 import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
 import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
@@ -32,8 +33,7 @@ export function TeamScreen() {
   if (save === null) return <Screen title="Team" screen="team"><NoDynasty /></Screen>;
 
   const identity = clubsById.get(save.userTeamId);
-  const OFFSEASON_PHASES = ['OFFSEASON', 'RETIREMENTS', 'DRAFT', 'FREE_AGENCY', 'CAMP'];
-  const done = OFFSEASON_PHASES.includes(save.phase);
+  const done = isOffseasonPhase(save.phase);
   const inPlayoffs = save.phase === 'PLAYOFFS';
   const roundLabel = post.status === 'ready' ? post.data.nextLabel : null;
   const champion = post.status === 'ready' ? post.data.champion : null;

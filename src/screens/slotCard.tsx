@@ -13,14 +13,8 @@
 import { COLOR, FONT } from '../app/tokens';
 import { TeamMark } from '../components/TeamMark';
 import { ChevronRightIcon } from '../components/icons';
+import { PHASE_LABEL } from '../domain/phase';
 import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
-
-const PHASE_LABEL: Readonly<Record<string, string>> = {
-  PRESEASON: 'Preseason', REGULAR_SEASON: 'Regular season', PLAYOFFS: 'Playoffs',
-  OFFSEASON: 'Offseason', AWARDS: 'Awards', RECAP: 'Year in review',
-  RETIREMENTS: 'Retirements', COACHING: 'Coaching', DRAFT: 'Draft',
-  FREE_AGENCY: 'Free agency', CAMP: 'Training camp',
-};
 
 /** The record, or an honest blank: a save whose table has not been written yet
  *  has no record, and 0-0 would be a claim rather than an absence. */

@@ -7,6 +7,7 @@ import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 import { STARTERS, POSITION_GROUPS } from '../../supabase/functions/_shared/engine/types';
+import { ALL_STAR_ROSTER_SIZE } from '../../supabase/functions/_shared/engine/offseason/awards';
 
 const AWARDS_USER = '88888888-0000-0000-0000-00000000dead';
 
@@ -64,6 +65,47 @@ describe('awards against Postgres', () => {
     }
     // Including the positions that never appear in a box score.
     expect(out.honours.some((h) => h.position === 'OL')).toBe(true);
+  });
+
+  it('picks an all-star roster for each conference, and stores both', async () => {
+    const out = await pipe.api.call<RecapOut>('recap', { saveId, season });
+    const stars = out.honours.filter((h) => h.team === 'ALL_STAR');
+    expect(stars.length).toBe(ALL_STAR_ROSTER_SIZE * 2);
+
+    // Both conferences, named by the league rather than by the screen.
+    const units = [...new Set(stars.map((h) => h.unit))].sort();
+    expect(units).toEqual(['AC', 'NC']);
+    expect(out.conferences.map((c) => c.id).sort()).toEqual(units);
+    for (const c of out.conferences) expect(c.name.length).toBeGreaterThan(0);
+
+    // The key holds both rosters: before 0026 the second conference's rows
+    // would have overwritten the first's on (honour_type, position, slot).
+    const rows = await pipe.sql<{ n: string }[]>`
+      select count(*) as n from public.honours
+       where save_id = ${saveId} and season = ${season} and honour_type = 'ALL_STAR'`;
+    expect(Number(rows[0]?.n ?? 0)).toBe(ALL_STAR_ROSTER_SIZE * 2);
+
+    // Every selection played in the conference that picked him.
+    const conferenceOf = new Map((await pipe.sql<{ team_id: string; conference_id: string }[]>`
+      select team_id, conference_id from public.teams where save_id = ${saveId}`)
+      .map((r) => [r.team_id, r.conference_id]));
+    for (const h of stars) expect(conferenceOf.get(h.teamId ?? '')).toBe(h.unit);
+  });
+
+  it('keeps the all-league teams league-wide and the all-star rosters not', async () => {
+    const out = await pipe.api.call<RecapOut>('recap', { saveId, season });
+    for (const h of out.honours) {
+      if (h.team === 'ALL_STAR') expect(h.unit).not.toBe('LEAGUE');
+      else expect(h.unit).toBe('LEAGUE');
+    }
+  });
+
+  it('is a separate selection: all-stars are not the all-league team reprinted', async () => {
+    const out = await pipe.api.call<RecapOut>('recap', { saveId, season });
+    const league = new Set(out.honours
+      .filter((h) => h.team !== 'ALL_STAR').map((h) => h.playerId));
+    const stars = out.honours.filter((h) => h.team === 'ALL_STAR');
+    expect(stars.some((h) => !league.has(h.playerId))).toBe(true);
   });
 
   it('puts the award on the player, where the market reads it', async () => {
