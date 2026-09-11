@@ -40,10 +40,58 @@ Amber is the first-down marker: it marks the thing you are meant to look at.
 When everything is amber, nothing is — so it appears on the active tab, the
 selected chip, and the tick beside a section heading, and almost nowhere else.
 
+Amber is **marked with, not filled with**. The primary `ActionButton` is the one
+amber fill in the product; a selected chip, a lit table row and a salary-cap
+meter carry amber as a border, a tint or a rule. A second amber fill anywhere
+takes the meaning away from the button.
+
 **Barlow Condensed** carries display text, headings and figures; **Inter**
 carries body copy. Both are SIL Open Font License, which permits commercial
 embedding (`docs/IP-POLICY.md`). Figures use `font-variant-numeric: tabular-nums`
 so a column of scores does not dance as it updates.
+
+## Form
+
+The palette above came from the prototype and is canonical — no hex in
+`tokens.css` may be changed. Everything below is the layer the prototype never
+had, added on top: one scale each, so a screen cannot invent a fourth radius or
+a seventh grey gap by accident. Both files carry the same values,
+`tokens.css` for CSS and `tokens.ts` for TypeScript.
+
+| Scale | Steps | For |
+|---|---|---|
+| Radius `R` | 6 / 10 / 16 / pill | a chip, a card, a hero, a control |
+| Elevation `ELEV` | flat / low / mid / high | how far a surface sits above the one behind |
+| Space `S` | 4 8 12 16 20 24 32 40 | every gap and pad |
+| Type `TYPE` | display / heading / micro / body / prose / figure | six roles, two faces |
+| Motion `MOTION` | 110ms / 200ms, one curve | press feedback, never animation |
+
+A dark interface cannot lift a surface with a drop shadow alone — black on
+near-black is invisible — so each elevation step pairs a shadow below with a
+one-pixel highlight along the top edge. That highlight is what actually reads as
+"lit from above", and it is why `Panel` states a **tone**: `sunken` is a well
+things are listed in, `base` is the default card, `raised` is the one thing on
+the screen that is the point of the screen.
+
+### Team colour
+
+Thirty-two teams ship two colours each, and for a long time those colours lived
+only in a 34px badge — the one place they cannot do any work. `tint(hex, alpha)`
+lays a kit colour over the app's own ink at low alpha, which is what makes it
+usable behind text: a colour chosen to shout on a helmet has to whisper under a
+headline. `colourWash(primary, secondary)` is the one expression built on it,
+so a franchise looks the same wherever it appears: the team hero, a save-file
+card, a player's profile. Badges stay generated in code from those two colours
+and the abbreviation, never shipped as art (`docs/IP-POLICY.md`).
+
+### Figures
+
+A figure leads and its label sits under it, which is the opposite of a form
+field and the right way round for a scoreboard: the eye lands on `302.0M` and
+only then asks what it is. `StatTiles` steps the figure down as the value gets
+longer, because a truncated number is worse than a smaller one — `302.…` is not
+a salary cap. A tile may carry a `fill` and draws it as a hairline amber meter,
+because a cap number means much more next to how much of it is spent.
 
 ## 375px, and no horizontal scroll
 
@@ -105,11 +153,11 @@ screen is what this section governs.
 ## Getting in, and the boot flow
 
 Four screens sit outside the game: Home, the save files, the GM name and the
-club list. They are marked `boot` in the screen registry, which buys them two
+team list. They are marked `boot` in the screen registry, which buys them two
 things. The bottom navigation does not render on them -- there is nothing to
 navigate to until a dynasty is open, and a bar of dead tabs under the main menu
 would be five promises the app cannot keep. And `rootFor` sends them back to
-Home rather than to Team, so Back from the club list lands on the menu instead
+Home rather than to Team, so Back from the team list lands on the menu instead
 of on a dashboard with no dynasty behind it.
 
 The stack is built once the app knows which save is open, not before: a frame
@@ -119,8 +167,19 @@ leaves the boot flow, closing one returns to it -- so nothing that opens,
 creates or closes a save has to know the rule.
 
 The three answers a new game needs travel as navigation params, which is what
-makes Back work across them for free: leave the club list, come back, and the
+makes Back work across them for free: leave the team list, come back, and the
 save file and the GM name are still on the frame.
+
+Home is the one screen that drops the app bar (`Screen`'s `bare`): it carries
+the product lockup itself, and printing the name twice on the front door is the
+kind of detail that makes an interface look assembled. Its backdrop is drawn
+rather than shipped as art — yard lines and a pool of warm light — so there is
+no photograph of anywhere real and no mark belonging to anyone
+(`docs/IP-POLICY.md`), and the file stays a few lines of CSS.
+
+An occupied save file wears its franchise's colours and an empty one is drawn
+as a dashed outline, so which of the three files is free reads before any of
+the words do.
 
 ## Navigation state
 

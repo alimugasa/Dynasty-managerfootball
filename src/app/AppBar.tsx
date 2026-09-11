@@ -23,7 +23,12 @@ export function AppBar({ title, subtitle, trailing }: Props) {
     <header
       style={{
         position: 'sticky', top: 0, zIndex: 10,
-        background: COLOR.ink,
+        // Matches the bottom bar: translucent over a blur, so a long roster
+        // scrolling under the title reads as one surface passing behind
+        // another rather than disappearing under a lid.
+        background: 'rgba(15, 21, 27, 0.86)',
+        backdropFilter: 'saturate(140%) blur(14px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(14px)',
         borderBottom: `1px solid ${COLOR.line}`,
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minWidth: 0,
@@ -54,8 +59,8 @@ export function AppBar({ title, subtitle, trailing }: Props) {
           <h1
             style={{
               margin: 0,
-              fontFamily: FONT.display, fontWeight: 600, fontSize: 20,
-              letterSpacing: '0.06em', textTransform: 'uppercase', color: COLOR.tx,
+              fontFamily: FONT.display, fontWeight: 700, fontSize: 22,
+              letterSpacing: '0.04em', textTransform: 'uppercase', color: COLOR.tx,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
           >
@@ -64,7 +69,9 @@ export function AppBar({ title, subtitle, trailing }: Props) {
           {subtitle !== undefined && (
             <p
               style={{
-                margin: 0, fontSize: 12, color: COLOR.mut,
+                margin: '1px 0 0', fontSize: 11.5, color: COLOR.mut,
+                fontFamily: FONT.display, letterSpacing: '0.07em',
+                textTransform: 'uppercase',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}
             >

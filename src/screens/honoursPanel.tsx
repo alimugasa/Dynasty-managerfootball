@@ -11,7 +11,7 @@
 // be on one and on neither all-league team.
 
 import { useState } from 'react';
-import { COLOR, FONT } from '../app/tokens';
+import { COLOR, FONT, R, S, TYPE } from '../app/tokens';
 import { ChipRow, type Chip } from '../components/ChipRow';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
@@ -29,6 +29,24 @@ interface Props {
   readonly open: (screen: string, params: Record<string, string>) => void;
 }
 
+/** The position, set as a plate rather than as the front of a subtitle. A
+ *  roster is read down the position column first and by name second, which is
+ *  what an actual team sheet looks like. */
+function Position({ code }: { readonly code: string }) {
+  return (
+    <span
+      style={{
+        minWidth: 34, flexShrink: 0, borderRadius: R.sm,
+        padding: `3px ${String(S[1])}px`, textAlign: 'center',
+        background: 'rgba(0,0,0,0.22)', border: `1px solid ${COLOR.line}`,
+        ...TYPE.micro, fontSize: 10.5, color: COLOR.mut,
+      }}
+    >
+      {code}
+    </span>
+  );
+}
+
 function Roster({
   rows, nickname, open, testId,
 }: {
@@ -43,8 +61,9 @@ function Roster({
         {rows.map((h) => (
           <ListRow
             key={`${h.unit}-${h.position}-${String(h.slot)}`}
+            leading={<Position code={h.position} />}
             title={h.name}
-            subtitle={`${h.position}${h.teamId === null ? '' : ` · ${nickname(h.teamId)}`}`}
+            {...(h.teamId === null ? {} : { subtitle: nickname(h.teamId) })}
             navigable={h.playerId !== null}
             {...(h.playerId === null ? {} : {
               onSelect: () => { open('player', { id: h.playerId ?? '' }); },

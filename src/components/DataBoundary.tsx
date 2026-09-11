@@ -29,7 +29,7 @@ export class DataBoundary extends Component<Props, State> {
     return (
       <div
         style={{
-          padding: 14, borderRadius: 3, background: COLOR.panel,
+          padding: 16, borderRadius: 10, background: COLOR.panel,
           border: `1px solid ${missing ? COLOR.amber : COLOR.red}`, color: COLOR.tx,
         }}
       >

@@ -1,4 +1,4 @@
-// The standings table and the leaderboards, as two panels.
+// The standings table, and the sorting and grouping both league panels use.
 //
 // Both are driven entirely by data handed to them -- the rows the league read
 // returned, and the conference and division names the league itself carries.
@@ -15,13 +15,12 @@
 // there is one implementation of the control, not two that drift.
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { COLOR, FONT } from '../app/tokens';
-import { ChipRow, type Chip } from '../components/ChipRow';
+import { COLOR, FONT, tint } from '../app/tokens';
+import { type Chip } from '../components/ChipRow';
 import { TableScroll } from '../components/TableScroll';
-import { Caption, EmptyState, Panel } from '../components/Surface';
-import { ListRow } from '../components/ListRow';
+import { Caption, Panel } from '../components/Surface';
 import { SortControl, type SortField } from '../components/SortControl';
-import type { LeaderBoard, LeagueGroup, TableRow } from '../../supabase/functions/_shared/api/reads/league';
+import type { LeagueGroup, TableRow } from '../../supabase/functions/_shared/api/reads/league';
 
 /** How the table is cut up. LEAGUE is one table of everyone. */
 export const SPLITS = ['LEAGUE', 'CONFERENCE', 'DIVISION'] as const;
@@ -274,12 +273,33 @@ export function StandingsPanel({
                     </tr>
                   </thead>
                   <tbody data-testid="standings-body">
-                    {sortRows(group.rows, sort).map((r) => (
-                      <tr key={r.teamId} style={{ borderTop: `1px solid ${COLOR.line}` }}>
+                    {sortRows(group.rows, sort).map((r) => {
+                      const mine = r.teamId === userTeamId;
+                      return (
+                      <tr
+                        key={r.teamId}
+                        style={{
+                          borderTop: `1px solid ${COLOR.line}`,
+                          // Your own row is lit rather than merely coloured.
+                          // Finding yourself in a thirty-two row table is the
+                          // one thing this screen is opened to do.
+                          background: mine ? tint(COLOR.amber, 0.07) : 'transparent',
+                        }}
+                      >
                         <td
                           style={{
                             ...td, ...PINNED, width: COLUMNS[0]?.width,
-                            color: r.teamId === userTeamId ? COLOR.amber : COLOR.tx,
+                            color: mine ? COLOR.amber : COLOR.tx,
+                            // The pinned cell has to be opaque or the columns
+                            // scroll through it, so the row tint is painted
+                            // into it rather than inherited.
+                            ...(mine
+                              ? {
+                                background: `linear-gradient(${tint(COLOR.amber, 0.07)},`
+                                  + ` ${tint(COLOR.amber, 0.07)}), ${COLOR.panel}`,
+                                boxShadow: `inset 2px 0 0 ${COLOR.amber}, 1px 0 0 ${COLOR.line}`,
+                              }
+                              : {}),
                           }}
                         >
                           {onSelect === undefined ? nameOf(r.teamId) : (
@@ -304,7 +324,8 @@ export function StandingsPanel({
                           </td>
                         ))}
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </TableScroll>
@@ -316,74 +337,6 @@ export function StandingsPanel({
   );
 }
 
-interface LeadersProps {
-  readonly boards: readonly LeaderBoard[];
-  /** The board being shown. An unknown key shows the first board there is. */
-  readonly boardKey: string;
-  readonly onBoard: (key: string) => void;
-  readonly side: string;
-  readonly onSide: (side: string) => void;
-  readonly nameOf: (teamId: string) => string;
-  readonly onSelect?: (playerId: string) => void;
-}
-
-export function LeadersPanel({
-  boards, boardKey, onBoard, side, onSide, nameOf, onSelect,
-}: LeadersProps) {
-  const sides = [...new Set(boards.map((b) => b.side))];
-  const shownSide = sides.includes(side as LeaderBoard['side']) ? side : sides[0];
-  const inSide = boards.filter((b) => b.side === shownSide);
-  const board = inSide.find((b) => b.key === boardKey) ?? inSide[0];
-
-  if (board === undefined) {
-    return <EmptyState title="No boards" detail="The league returned no leaderboards for this competition." />;
-  }
-
-  return (
-    <>
-      <div style={{ display: 'grid', gap: 6, marginBottom: 8 }}>
-        <ChipRow
-          chips={sides.map((s) => ({ key: s, label: s }))}
-          value={shownSide ?? ''}
-          onChange={(next) => {
-            onSide(next);
-            const first = boards.find((b) => b.side === next);
-            if (first !== undefined) onBoard(first.key);
-          }}
-          label="Side of the ball"
-        />
-        <ChipRow
-          chips={inSide.map((b) => ({ key: b.key, label: b.label }))}
-          value={board.key}
-          onChange={onBoard}
-          label="Leaderboard"
-        />
-      </div>
-      <Panel padded={false}>
-        <div style={{ padding: '0 12px' }} data-testid="leader-board">
-          {board.rows.length === 0 ? (
-            <EmptyState title={`No ${board.label.toLowerCase()} yet`} detail="Nobody has recorded one in this competition." />
-          ) : board.rows.map((row, i) => (
-            <ListRow
-              key={row.playerId}
-              leading={(
-                <span className="numeric" style={{ width: 20, color: COLOR.dim, fontSize: 13, flexShrink: 0 }}>
-                  {i + 1}
-                </span>
-              )}
-              title={row.name}
-              subtitle={`${row.group} · ${nameOf(row.teamId)} · ${String(row.games)} gp`}
-              trailing={(
-                <span className="numeric" style={{ color: COLOR.amber, fontSize: 14, flexShrink: 0 }}>
-                  {row.value} <span style={{ color: COLOR.mut, fontSize: 11 }}>{board.unit}</span>
-                </span>
-              )}
-              navigable={onSelect !== undefined}
-              {...(onSelect === undefined ? {} : { onSelect: () => { onSelect(row.playerId); } })}
-            />
-          ))}
-        </div>
-      </Panel>
-    </>
-  );
-}
+// The leaderboards live next door; re-exported so the league screen, the
+// play-test rig and the tests keep one import for both panels.
+export { LeadersPanel } from './leadersPanel';

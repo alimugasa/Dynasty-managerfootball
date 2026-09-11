@@ -6,7 +6,8 @@
 // club screen as navigation params, which is what makes Back work here for
 // free: leave, come back, and what you typed is still on the frame.
 
-import { COLOR, FONT } from '../app/tokens';
+import { useState } from 'react';
+import { COLOR, FONT, MOTION, R, S, TYPE, tint } from '../app/tokens';
 import { useNavigationState, useNavigator } from '../app/navigation';
 import { useUiState } from '../app/useUiState';
 import { ActionButton } from '../components/ActionButton';
@@ -32,12 +33,12 @@ export function CreateGmScreen() {
 
   return (
     <Screen title="Create GM" subtitle={slot === '' ? '' : `File ${slot}`} screen="gm">
-      <p style={{ margin: '4px 0 10px', color: COLOR.mut, fontSize: 12, lineHeight: 1.5 }}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
         Your name goes on the save file and on the office door. Nothing else is asked for.
       </p>
       <Panel>
         <form
-          style={{ display: 'grid', gap: 14 }}
+          style={{ display: 'grid', gap: S[4] }}
           onSubmit={(e) => { e.preventDefault(); go(); }}
         >
           <Field label="First name" value={first} onChange={setFirst} autoFocus testId="gm-first" />
@@ -48,7 +49,7 @@ export function CreateGmScreen() {
         </form>
       </Panel>
       {!ready && (
-        <p style={{ margin: '8px 2px 0', color: COLOR.dim, fontSize: 11 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
           Both names are needed. Half a name on a save file tells you nothing.
         </p>
       )}
@@ -65,14 +66,12 @@ function Field({
   readonly autoFocus?: boolean;
   readonly testId: string;
 }) {
+  // A text field with no focus state is a field you cannot tell you are in.
+  // The ring is amber because amber is what this app uses to mean "here".
+  const [focused, setFocused] = useState(false);
   return (
-    <label style={{ display: 'grid', gap: 6, minWidth: 0 }}>
-      <span
-        style={{
-          fontFamily: FONT.display, fontSize: 11, letterSpacing: '0.09em',
-          textTransform: 'uppercase', color: COLOR.mut,
-        }}
-      >
+    <label style={{ display: 'grid', gap: S[2], minWidth: 0 }}>
+      <span style={{ ...TYPE.micro, color: focused ? COLOR.amber : COLOR.mut }}>
         {label}
       </span>
       <input
@@ -86,11 +85,18 @@ function Field({
         autoFocus={autoFocus}
         data-testid={testId}
         onChange={(e) => { onChange(e.target.value); }}
+        onFocus={() => { setFocused(true); }}
+        onBlur={() => { setFocused(false); }}
         style={{
-          width: '100%', boxSizing: 'border-box', minHeight: 46,
-          padding: '0 12px', borderRadius: 8,
+          width: '100%', boxSizing: 'border-box', minHeight: 48,
+          padding: `0 ${String(S[3])}px`, borderRadius: R.md,
           background: COLOR.ink, color: COLOR.tx,
-          border: `1px solid ${COLOR.line2}`,
+          border: `1px solid ${focused ? COLOR.amber : COLOR.line2}`,
+          boxShadow: focused ? `0 0 0 3px ${tint(COLOR.amber, 0.16)}` : 'inset 0 1px 2px rgba(0,0,0,0.3)',
+          transition: `border-color ${MOTION.fast} ${MOTION.ease}, box-shadow ${MOTION.fast} ${MOTION.ease}`,
+          outline: 'none',
+          // 16px exactly: anything smaller and iOS Safari zooms the page on
+          // focus, which throws the layout of every screen behind this one.
           fontFamily: FONT.ui, fontSize: 16,
         }}
       />

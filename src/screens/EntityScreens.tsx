@@ -4,7 +4,7 @@
 // lands on a real screen. A nav target with no screen behind it is a dead end
 // that only shows up when someone taps it, so the registry is asserted by test.
 
-import { COLOR } from '../app/tokens';
+import { COLOR, ELEV, FONT, R, S, TYPE, colourWash } from '../app/tokens';
 import { useNavigationState, useNavigator } from '../app/navigation';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
@@ -66,24 +66,60 @@ export function PlayerScreen() {
 
   return (
     <Screen title={player.name} subtitle={player.group} screen="player">
-      <Panel>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+      {/* A player wears his team's colours here for the same reason the team
+          screen does -- see components/TeamHero -- and a free agent wears
+          none, which is itself the information. */}
+      <section
+        style={{
+          position: 'relative', overflow: 'hidden',
+          borderRadius: R.lg, border: `1px solid ${COLOR.line}`,
+          background: COLOR.panel, boxShadow: ELEV.mid,
+        }}
+      >
+        {club !== null && club !== undefined && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none',
+              background: colourWash(club.primary, club.secondary),
+            }}
+          />
+        )}
+        <div
+          style={{
+            position: 'relative', display: 'flex', alignItems: 'center',
+            gap: S[3], padding: S[4], minWidth: 0,
+          }}
+        >
           <TeamMark
             abbreviation={player.teamId ?? 'FA'}
-            primary={club?.primary ?? '#28353F'}
-            secondary={club?.secondary ?? '#8698A8'}
+            primary={club?.primary ?? COLOR.line2}
+            secondary={club?.secondary ?? COLOR.mut}
             size={48}
           />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>{player.name}</div>
-            <div style={{ color: COLOR.mut, fontSize: 12 }}>
-              {club?.name ?? 'Free agent'} · age {player.age} · {player.experience} yrs
+            <div
+              style={{
+                fontFamily: FONT.display, fontSize: 24, fontWeight: 700,
+                lineHeight: 1.1, color: COLOR.tx,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}
+            >
+              {player.name}
+            </div>
+            <div
+              style={{
+                ...TYPE.micro, color: COLOR.mut, marginTop: 3,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}
+            >
+              {club?.name ?? 'Free agent'} · {player.group} · age {player.age}
             </div>
           </div>
         </div>
-      </Panel>
+      </section>
 
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: S[2] }}>
         <StatTiles stats={[
           { label: 'Overall', value: String(player.overall), tone: 'accent' },
           { label: 'Potential', value: String(player.potential) },

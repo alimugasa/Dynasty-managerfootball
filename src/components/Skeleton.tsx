@@ -92,7 +92,7 @@ export function SkeletonTiles({ count = 3 }: { readonly count?: number }) {
         <div
           key={i}
           style={{
-            background: COLOR.panel, border: `1px solid ${COLOR.line}`, borderRadius: 3,
+            background: COLOR.panel, border: `1px solid ${COLOR.line}`, borderRadius: 10,
             padding: 10, display: 'grid', gap: 8, minWidth: 0,
           }}
         >

@@ -23,7 +23,7 @@ export function QueryError({ error }: { readonly error: Error }) {
     <div
       role="alert"
       style={{
-        padding: 14, borderRadius: 3, background: COLOR.panel,
+        padding: 16, borderRadius: 10, background: COLOR.panel,
         border: `1px solid ${COLOR.red}`, color: COLOR.tx, fontSize: 13, lineHeight: 1.5,
       }}
     >

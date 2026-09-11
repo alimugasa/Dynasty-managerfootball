@@ -1,12 +1,12 @@
-// The club you manage. The last question a new game asks.
+// The team you manage. The last question a new game asks.
 //
 // The list comes from the template world through the `clubs` read rather than
-// from an open save, because at this point there is no save: the club is what
+// from an open save, because at this point there is no save: the team is what
 // the save is about to be created from. Picking one creates the dynasty on the
 // server -- its own seed, its own copy of the world -- and opens it at week 1
 // of the regular season, which is where create-save always starts.
 
-import { COLOR } from '../app/tokens';
+import { COLOR, S, TYPE } from '../app/tokens';
 import { useNavigationState } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
@@ -36,16 +36,16 @@ export function SelectTeamScreen() {
       screen="pickTeam"
     >
       {!ready && (
-        <p style={{ margin: '8px 0', color: COLOR.red, fontSize: 13, lineHeight: 1.5 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 0`, color: COLOR.red }}>
           This screen was opened without a save file and a GM name. Go back and start again
           from New Game.
         </p>
       )}
       {notice !== null && (
-        <p data-testid="notice" style={{ margin: '0 0 8px', color: COLOR.red, fontSize: 12 }}>{notice}</p>
+        <p data-testid="notice" style={{ ...TYPE.prose, margin: `0 0 ${String(S[2])}px`, color: COLOR.red }}>{notice}</p>
       )}
       {ready && (
-        <p style={{ margin: '4px 0 10px', color: COLOR.mut, fontSize: 12, lineHeight: 1.5 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
           The dynasty is created on the server with its own seed, and opens at week 1 of the
           regular season.
         </p>
@@ -55,7 +55,7 @@ export function SelectTeamScreen() {
       {q.status === 'loading' && <Loading label="Loading teams" rows={8} />}
       {q.status === 'ready' && ready && (
         <Panel padded={false}>
-          <div style={{ padding: '0 12px' }} data-testid="club-list">
+          <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="club-list">
             {q.data.clubs.map((club) => (
               <ListRow
                 key={club.id}

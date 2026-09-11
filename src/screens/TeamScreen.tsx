@@ -1,13 +1,13 @@
-// Team: the club you manage, and the button that advances the game.
+// Team: the franchise you manage, and the button that advances the game.
 
-import { COLOR } from '../app/tokens';
+import { COLOR, R, S } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
-import { TeamMark } from '../components/TeamMark';
+import { TeamHero } from '../components/TeamHero';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { isOffseasonPhase } from '../domain/phase';
@@ -17,6 +17,13 @@ import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/pla
 
 const recordOf = (s: { wins: number; losses: number; ties: number } | null): string =>
   s === null ? '—' : `${String(s.wins)}-${String(s.losses)}${s.ties > 0 ? `-${String(s.ties)}` : ''}`;
+
+// A run of wins or losses, written the way a broadcast writes it. Zero is not
+// a streak of nothing; it means no games played, and says so with a dash.
+const streakOf = (s: { streak: number } | null): string =>
+  s === null || s.streak === 0 ? '—' : `${s.streak > 0 ? 'W' : 'L'}${String(Math.abs(s.streak))}`;
+
+const signed = (n: number): string => (n > 0 ? `+${String(n)}` : String(n));
 
 export function TeamScreen() {
   const nav = useNavigator();
@@ -62,31 +69,33 @@ export function TeamScreen() {
       {q.status === 'loading' && <Loading label="Loading team" />}
       {q.status === 'ready' && (
         <>
-          <Panel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-              <TeamMark
-                abbreviation={save.userTeamId}
-                primary={identity?.primary ?? '#28353F'}
-                secondary={identity?.secondary ?? '#8698A8'}
-                size={48}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>
-                  {identity?.name ?? save.userTeamId}
-                </div>
-                <div style={{ color: COLOR.mut, fontSize: 12 }}>
-                  {recordOf(q.data.standing)} · {q.data.squadSize} players
-                </div>
-              </div>
-            </div>
-          </Panel>
+          <TeamHero
+            abbreviation={save.userTeamId}
+            metro={identity?.metro ?? ''}
+            nickname={identity?.nickname ?? save.userTeamId}
+            primary={identity?.primary ?? COLOR.line2}
+            secondary={identity?.secondary ?? COLOR.mut}
+            record={recordOf(q.data.standing)}
+            recordLabel={done ? 'Final record' : 'Record'}
+            facts={[
+              { label: 'League', value: q.data.rank === null ? '—' : `${ordinal(q.data.rank)} of 32` },
+              { label: 'Streak', value: streakOf(q.data.standing) },
+              { label: 'Roster', value: `${String(q.data.squadSize)} players` },
+            ]}
+          />
 
-          <div style={{ marginTop: 10 }}>
+          <div style={{ marginTop: S[2] }}>
             <StatTiles
               stats={[
-                { label: 'Record', value: recordOf(q.data.standing) },
                 { label: 'Points for', value: q.data.standing === null ? '—' : String(q.data.standing.pointsFor) },
                 { label: 'Against', value: q.data.standing === null ? '—' : String(q.data.standing.pointsAgainst) },
+                {
+                  label: 'Point diff',
+                  value: q.data.standing === null ? '—' : signed(q.data.standing.pointsFor - q.data.standing.pointsAgainst),
+                  tone: q.data.standing === null || q.data.standing.pointsFor === q.data.standing.pointsAgainst
+                    ? 'default'
+                    : q.data.standing.pointsFor > q.data.standing.pointsAgainst ? 'positive' : 'negative',
+                },
               ]}
             />
           </div>
@@ -97,7 +106,8 @@ export function TeamScreen() {
         <p
           data-testid="notice"
           style={{
-            margin: '10px 0 0', padding: '8px 10px', borderRadius: 8,
+            margin: `${String(S[3])}px 0 0`, padding: `${String(S[2])}px ${String(S[3])}px`,
+            borderRadius: R.md,
             background: 'rgba(226,87,76,0.12)', border: `1px solid ${COLOR.red}`,
             color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
           }}
@@ -107,7 +117,7 @@ export function TeamScreen() {
       )}
 
       <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
-      <div style={{ display: 'grid', gap: 8 }}>
+      <div style={{ display: 'grid', gap: S[2] }}>
         {done ? (
           <>
             <ActionButton onClick={() => { nav.push('offseason'); }} testId="play-offseason">
@@ -161,7 +171,7 @@ export function TeamScreen() {
             />
           ) : (
             <Panel padded={false}>
-              <div style={{ padding: '0 12px' }}>
+              <div style={{ padding: `0 ${String(S[3])}px` }}>
                 <ListRow
                   title={q.data.next.homeTeamId === save.userTeamId
                     ? `vs ${fullName(q.data.next.awayTeamId)}`
@@ -177,7 +187,7 @@ export function TeamScreen() {
             <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
           ) : (
             <Panel padded={false}>
-              <div style={{ padding: '0 12px' }}>
+              <div style={{ padding: `0 ${String(S[3])}px` }}>
                 <ListRow
                   title={`${nickname(q.data.last.awayTeamId)} ${String(q.data.last.awayScore)} — ${String(q.data.last.homeScore)} ${nickname(q.data.last.homeTeamId)}`}
                   subtitle={q.data.last.round ?? `Week ${String(q.data.last.week)}`}
@@ -190,7 +200,7 @@ export function TeamScreen() {
 
           <SectionHeader title="Roster" />
           <Panel padded={false}>
-            <div style={{ padding: '0 12px' }}>
+            <div style={{ padding: `0 ${String(S[3])}px` }}>
               {q.data.squad.map((p) => (
                 <ListRow
                   key={p.playerId}

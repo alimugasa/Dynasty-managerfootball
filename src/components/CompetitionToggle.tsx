@@ -1,4 +1,4 @@
-import { COLOR } from '../app/tokens';
+import { COLOR, ELEV, FONT, MOTION, R } from '../app/tokens';
 import { COMPETITIONS, COMPETITION_LABEL, type Competition } from '../domain/competition';
 
 /** The REGULAR SEASON | PLAYOFFS control. ONE component, used identically on
@@ -15,8 +15,11 @@ export function CompetitionToggle({ value, onChange }: Props) {
       role="tablist"
       aria-label="Competition"
       style={{
-        display: 'flex', gap: 2, padding: 2, borderRadius: 3,
-        background: COLOR.panel, border: `1px solid ${COLOR.line}`,
+        display: 'flex', gap: 2, padding: 3, borderRadius: R.md,
+        // A sunken track: the selected half sits above it, which is what makes
+        // a segmented control read as one control rather than two buttons.
+        background: 'rgba(0,0,0,0.22)', border: `1px solid ${COLOR.line}`,
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
       }}
     >
       {COMPETITIONS.map((c) => {
@@ -29,11 +32,14 @@ export function CompetitionToggle({ value, onChange }: Props) {
             type="button"
             onClick={() => onChange(c)}
             style={{
-              flex: 1, minHeight: 34, border: 0, borderRadius: 2, cursor: 'pointer',
+              flex: 1, minHeight: 34, border: 0, borderRadius: R.sm, cursor: 'pointer',
               background: active ? COLOR.raise : 'transparent',
+              boxShadow: active ? ELEV.low : 'none',
               color: active ? COLOR.tx : COLOR.mut,
-              fontFamily: "'Barlow Condensed', system-ui, sans-serif",
+              fontFamily: FONT.display,
               fontSize: 14, fontWeight: 600, letterSpacing: '0.04em',
+              transition: `background-color ${MOTION.fast} ${MOTION.ease}, color ${MOTION.fast} ${MOTION.ease}`,
+              WebkitTapHighlightColor: 'transparent',
             }}
           >
             {COMPETITION_LABEL[c]}

@@ -115,7 +115,7 @@ export function OffseasonScreen() {
             <p
               data-testid="notice"
               style={{
-                margin: '10px 0 0', padding: '8px 10px', borderRadius: 8,
+                margin: '12px 0 0', padding: '8px 12px', borderRadius: 10,
                 background: 'rgba(240,168,48,0.10)', border: `1px solid ${COLOR.line2}`,
                 color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
               }}

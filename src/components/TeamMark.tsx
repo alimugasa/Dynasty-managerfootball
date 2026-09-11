@@ -6,7 +6,7 @@
 // of real marks are not. Building the badge in code rather than shipping art
 // files is what keeps that true by construction.
 
-import { COLOR, FONT } from '../app/tokens';
+import { ELEV, FONT } from '../app/tokens';
 
 interface Props {
   readonly abbreviation: string;
@@ -16,14 +16,19 @@ interface Props {
 }
 
 /**
- * The generated fill: a diagonal split of the two club colours.
+ * The generated fill: a diagonal split of the two team colours.
+ *
+ * The split is a hair soft rather than a hard edge. A hard line between two
+ * saturated colours aliases into a staircase at 28px, which is the size most
+ * of these are drawn at; two per cent of blur costs nothing and is the
+ * difference between a badge and a placeholder.
  *
  * Exported as a plain function because it is the part worth testing, and
  * because jsdom's CSS parser discards gradients from an inline style -- an
  * assertion against the rendered attribute would be testing jsdom.
  */
 export function markGradient(primary: string, secondary: string): string {
-  return `linear-gradient(135deg, ${primary} 0%, ${primary} 52%, ${secondary} 52%, ${secondary} 100%)`;
+  return `linear-gradient(135deg, ${primary} 0%, ${primary} 50%, ${secondary} 54%, ${secondary} 100%)`;
 }
 
 /** At most three characters, upper case. Longer abbreviations truncate rather
@@ -40,12 +45,18 @@ export function TeamMark({ abbreviation, primary, secondary, size = 34 }: Props)
       aria-label={label}
       style={{
         width: size, height: size, flexShrink: 0,
-        borderRadius: 4, overflow: 'hidden', position: 'relative',
+        // A squircle rather than a square: it reads as a crest at 28px and as
+        // a tile at 64px, where a 4px radius reads as neither.
+        borderRadius: Math.max(6, Math.round(size * 0.26)),
+        overflow: 'hidden', position: 'relative',
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-        // Enough to be distinctive across thirty-two clubs without resembling
+        // Enough to be distinctive across thirty-two teams without resembling
         // anyone's actual badge.
         background: markGradient(primary, secondary),
-        border: `1px solid ${COLOR.line2}`,
+        // The ring is the team's own colour darkened by the ink behind it
+        // rather than a grey hairline, so a badge does not wear a border that
+        // belongs to the app instead of to the team.
+        boxShadow: `inset 0 0 0 1px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22), ${ELEV.low}`,
       }}
     >
       <span
@@ -70,7 +81,11 @@ export function TeamMarkSkeleton({ size = 34 }: { readonly size?: number }) {
     <span
       className="skeleton"
       aria-hidden="true"
-      style={{ width: size, height: size, borderRadius: 4, display: 'inline-block', flexShrink: 0 }}
+      style={{
+        width: size, height: size, display: 'inline-block', flexShrink: 0,
+        // Matches the real mark, so a list does not change shape as it loads.
+        borderRadius: Math.max(6, Math.round(size * 0.26)),
+      }}
     />
   );
 }

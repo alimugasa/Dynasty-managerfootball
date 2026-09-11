@@ -131,7 +131,7 @@ export function RosterScreen() {
 
 function arrow(disabled: boolean) {
   return {
-    width: 44, minHeight: 44, flexShrink: 0, borderRadius: 8,
+    width: 44, minHeight: 44, flexShrink: 0, borderRadius: 10,
     border: `1px solid ${COLOR.line2}`, background: 'transparent',
     color: disabled ? COLOR.dim : COLOR.tx, fontSize: 16,
     cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.4 : 1,

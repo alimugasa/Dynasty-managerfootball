@@ -7,7 +7,7 @@
 
 import type { ReactNode } from 'react';
 import { AppBar } from '../app/AppBar';
-import { LAYOUT } from '../app/tokens';
+import { LAYOUT, S } from '../app/tokens';
 import { DataBoundary } from '../components/DataBoundary';
 
 interface Props {
@@ -15,17 +15,22 @@ interface Props {
   readonly subtitle?: string;
   readonly trailing?: ReactNode;
   readonly screen: string;
+  /** Drops the app bar. For the front door, which carries its own lockup and
+   *  would otherwise print the product name twice. */
+  readonly bare?: boolean;
   readonly children: ReactNode;
 }
 
-export function Screen({ title, subtitle, trailing, screen, children }: Props) {
+export function Screen({ title, subtitle, trailing, screen, bare = false, children }: Props) {
   return (
     <>
-      <AppBar title={title} {...(subtitle === undefined ? {} : { subtitle })} trailing={trailing} />
+      {!bare && (
+        <AppBar title={title} {...(subtitle === undefined ? {} : { subtitle })} trailing={trailing} />
+      )}
       <main
         style={{
           maxWidth: LAYOUT.shellMax, margin: '0 auto',
-          padding: '4px 12px 18px', minWidth: 0,
+          padding: `${String(S[1])}px ${String(S[3])}px ${String(S[5])}px`, minWidth: 0,
         }}
       >
         <DataBoundary screen={screen}>{children}</DataBoundary>

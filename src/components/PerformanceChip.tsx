@@ -1,4 +1,4 @@
-import { COLOR, gradeColor } from '../app/tokens';
+import { COLOR, FONT, R, gradeColor, tint } from '../app/tokens';
 
 /** PERFORMANCE — a rectangular chip with a coloured left edge on the six-stop
  *  ramp (violet elite -> teal -> green -> amber -> orange -> red).
@@ -20,10 +20,12 @@ export function PerformanceChip({ value, label = 'Grade' }: Props) {
       style={{
         display: 'inline-flex', alignItems: 'center', minHeight: 22,
         padding: '2px 8px 2px 6px',
-        background: COLOR.raise,
+        // The chip carries a breath of its own grade colour, so a row of
+        // them reads as a ramp rather than as a column of grey boxes.
+        background: unavailable ? COLOR.raise : tint(edge, 0.12),
         borderLeft: `4px solid ${edge}`,
-        borderRadius: 2,
-        fontFamily: "'Inter', system-ui, sans-serif",
+        borderRadius: R.sm,
+        fontFamily: FONT.ui,
         fontSize: 13, fontWeight: 600, fontVariantNumeric: 'tabular-nums',
         color: unavailable ? COLOR.dim : COLOR.tx,
       }}

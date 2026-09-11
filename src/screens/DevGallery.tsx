@@ -93,6 +93,13 @@ export function DevGallery() {
         ))}
       </div>
 
+      <H>Surfaces — three tones</H>
+      <div style={{ display: 'grid', gap: 8 }}>
+        <Panel tone="sunken"><Caption>Sunken — a well things are listed in</Caption></Panel>
+        <Panel tone="base"><Caption>Base — the default card</Caption></Panel>
+        <Panel tone="raised"><Caption>Raised — the point of the screen</Caption></Panel>
+      </div>
+
       <H>Stat tiles</H>
       <StatTiles stats={[
         { label: 'Record', value: '11-6' },
@@ -101,8 +108,16 @@ export function DevGallery() {
       ]} />
       <p style={{ color: COLOR.mut, fontSize: 12, margin: '8px 0 0' }}>
         <Caption>Note</Caption>{' '}
-        a missing value renders as a dash, never as zero.
+        a missing value renders as a dash, never as zero. A long figure steps
+        down rather than truncating.
       </p>
+
+      <H>Stat tiles — with a meter</H>
+      <StatTiles stats={[
+        { label: 'Cap', value: '302.0M' },
+        { label: 'Committed', value: '281.0M', fill: 281 / 302 },
+        { label: 'Space', value: '21.0M', tone: 'positive' },
+      ]} />
 
       <H>Chips — scroll inside themselves</H>
       <ChipRow

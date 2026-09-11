@@ -1,6 +1,6 @@
 // Schedule: the season, week by week. Played weeks show scores.
 
-import { COLOR } from '../app/tokens';
+import { COLOR, FONT, S, tint } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
@@ -39,7 +39,7 @@ export function ScheduleScreen() {
       {loaded && save === null && <NoDynasty />}
       {save !== null && (
         <>
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: S[2] }}>
             <ChipRow chips={chips} value={week} onChange={setWeek} label="Week" />
           </div>
 
@@ -57,16 +57,37 @@ export function ScheduleScreen() {
                   const played = f.homeScore !== null && f.awayScore !== null;
                   const involvesUser = f.homeTeamId === save.userTeamId || f.awayTeamId === save.userTeamId;
                   return (
-                    <ListRow
+                    // Your own game is lit and railed, the way your own row is
+                    // in the standings. Sixteen games a week is a wall; the one
+                    // that is yours should not have to be found by reading.
+                    <div
                       key={f.gameId}
-                      title={`${name(f.awayTeamId)} ${q.data.round === 'LEAGUE_FINAL' ? 'vs' : 'at'} ${name(f.homeTeamId)}`}
-                      {...(involvesUser ? { subtitle: 'Your team' } : {})}
-                      trailing={played
-                        ? <span style={{ color: COLOR.tx, fontSize: 13 }}>{String(f.awayScore)}–{String(f.homeScore)}</span>
-                        : <span style={{ color: COLOR.dim, fontSize: 12 }}>—</span>}
-                      navigable={played}
-                      {...(played ? { onSelect: () => { nav.push('game', { id: f.gameId }); } } : {})}
-                    />
+                      style={involvesUser ? {
+                        marginInline: -S[3], paddingInline: S[3],
+                        background: tint(COLOR.amber, 0.06),
+                        boxShadow: `inset 2px 0 0 ${COLOR.amber}`,
+                      } : undefined}
+                    >
+                      <ListRow
+                        title={`${name(f.awayTeamId)} ${q.data.round === 'LEAGUE_FINAL' ? 'vs' : 'at'} ${name(f.homeTeamId)}`}
+                        {...(involvesUser ? { subtitle: 'Your team' } : {})}
+                        trailing={played
+                          ? (
+                            <span
+                              className="numeric"
+                              style={{
+                                fontFamily: FONT.display, fontSize: 17, fontWeight: 600,
+                                color: COLOR.tx, flexShrink: 0,
+                              }}
+                            >
+                              {String(f.awayScore)}–{String(f.homeScore)}
+                            </span>
+                          )
+                          : <span style={{ color: COLOR.dim, fontSize: 12, flexShrink: 0 }}>—</span>}
+                        navigable={played}
+                        {...(played ? { onSelect: () => { nav.push('game', { id: f.gameId }); } } : {})}
+                      />
+                    </div>
                   );
                 })}
               </div>

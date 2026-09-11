@@ -9,7 +9,7 @@
 // and the rule above the tab -- so it survives greyscale and colour-blindness
 // rather than depending on the amber alone.
 
-import { COLOR, FONT, LAYOUT } from './tokens';
+import { COLOR, FONT, LAYOUT, MOTION } from './tokens';
 import { useNavigator } from './navigation';
 import {
   CalendarIcon, LeagueIcon, OfficeIcon, RosterIcon, ShieldIcon,
@@ -36,8 +36,15 @@ export function TabBar({ active }: { readonly active: string }) {
       aria-label="Primary"
       style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 20,
-        background: COLOR.panel,
+        // Translucent over a blur, so content scrolling under the bar reads as
+        // continuing rather than being cut off by an opaque slab. The solid
+        // colour behind it is the fallback where backdrop-filter is not
+        // supported, which is why it is not simply transparent.
+        background: 'rgba(18, 25, 32, 0.88)',
+        backdropFilter: 'saturate(140%) blur(14px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(14px)',
         borderTop: `1px solid ${COLOR.line}`,
+        boxShadow: '0 -8px 24px rgba(0,0,0,0.35)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
@@ -65,10 +72,26 @@ export function TabBar({ active }: { readonly active: string }) {
                   alignItems: 'center', justifyContent: 'center', gap: 3,
                   background: 'none', border: 0, cursor: 'pointer',
                   color: isActive ? COLOR.amber : COLOR.mut,
-                  borderTop: `2px solid ${isActive ? COLOR.amber : 'transparent'}`,
-                  padding: 0, minWidth: 0,
+                  padding: 0, minWidth: 0, position: 'relative',
+                  transition: `color ${MOTION.base} ${MOTION.ease}`,
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
+                {/* The marker is a short bar centred over the icon rather than
+                    a rule across the whole tab: it points at the destination
+                    instead of underlining a column. */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute', top: 0, left: '50%',
+                    width: isActive ? 22 : 0, height: 2,
+                    marginLeft: isActive ? -11 : 0,
+                    borderRadius: '0 0 2px 2px',
+                    background: COLOR.amber,
+                    boxShadow: isActive ? `0 0 12px ${COLOR.amber}` : 'none',
+                    transition: `width ${MOTION.base} ${MOTION.ease}, margin-left ${MOTION.base} ${MOTION.ease}`,
+                  }}
+                />
                 <tab.Icon size={21} active={isActive} />
                 <span
                   style={{
