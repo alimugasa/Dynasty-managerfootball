@@ -1,0 +1,96 @@
+{
+  "legacy/seed/players.csv": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "legacy/history/player_career_stats.csv": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    }
+  ],
+  "legacy/fixtures/snapshot-2031.json": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    },
+    {
+      "term": "allpro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ],
+  "legacy/ui/index.html": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's."
+    },
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    },
+    {
+      "term": "allpro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ],
+  "scripts/playtest/world.json": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's. Generated from the seed by scripts/playtest/seed.ts."
+    }
+  ],
+  "scripts/playtest/playtest.html": [
+    {
+      "term": "madden",
+      "reason": "A generated player's given name in the frozen seed, not the trademark; the world ships these 32 rosters and the name is a person's, never a product's. Generated from the seed by scripts/playtest/build.ts."
+    }
+  ],
+  "legacy/ENGINE.md": [
+    {
+      "term": "nfl",
+      "reason": "Frozen reference documentation describing what the retired Python engine was calibrated against. Not shipped to a player and not a name in the game."
+    }
+  ],
+  "legacy/HISTORY.md": [
+    {
+      "term": "super bowl",
+      "reason": "Frozen build log recording a feature that was never built. Not shipped to a player and not a name in the game."
+    },
+    {
+      "term": "wild_card",
+      "reason": "Frozen build log quoting the schema value the project shipped with before 0020 named the rounds itself. A record of what was changed, not a name in the game."
+    },
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ],
+  "docs/PROMPT-BOOK.md": [
+    {
+      "term": "all-pro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    },
+    {
+      "term": "allpro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    }
+  ],
+  "docs/PROTOTYPE-MANIFEST.md": [
+    {
+      "term": "all-pro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    },
+    {
+      "term": "allpro",
+      "reason": "A record of what was asked for and what the legacy export contained, quoted verbatim. Renaming a historical prompt would falsify the record; the product itself uses the league's own names."
+    }
+  ],
+  "legacy/UI.md": [
+    {
+      "term": "all-pro",
+      "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ]
+}

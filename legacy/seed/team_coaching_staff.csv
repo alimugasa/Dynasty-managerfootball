@@ -1,0 +1,481 @@
+team_id,coach_id,role,side_of_ball,years_with_team,play_calling_duty,data_class
+BUF,CCH0001,Head Coach,Staff,5,0,GENERATED
+BUF,CCH0002,Offensive Coordinator,Offense,3,1,GENERATED
+BUF,CCH0003,Defensive Coordinator,Defense,5,1,GENERATED
+BUF,CCH0004,Special Teams Coordinator,Special Teams,1,0,GENERATED
+BUF,CCH0005,Assistant Head Coach,Staff,4,0,GENERATED
+BUF,CCH0006,Quarterbacks Coach,Offense,1,0,GENERATED
+BUF,CCH0007,Running Backs Coach,Offense,4,0,GENERATED
+BUF,CCH0008,Wide Receivers Coach,Offense,7,0,GENERATED
+BUF,CCH0009,Tight Ends Coach,Offense,7,0,GENERATED
+BUF,CCH0010,Offensive Line Coach,Offense,1,0,GENERATED
+BUF,CCH0011,Defensive Line Coach,Defense,4,0,GENERATED
+BUF,CCH0012,Outside Linebackers Coach,Defense,8,0,GENERATED
+BUF,CCH0013,Linebackers Coach,Defense,8,0,GENERATED
+BUF,CCH0014,Defensive Backs Coach,Defense,6,0,GENERATED
+BUF,CCH0015,Strength & Conditioning,Staff,8,0,GENERATED
+MIA,CCH0016,Head Coach,Staff,3,0,GENERATED
+MIA,CCH0017,Offensive Coordinator,Offense,5,1,GENERATED
+MIA,CCH0018,Defensive Coordinator,Defense,5,1,GENERATED
+MIA,CCH0019,Special Teams Coordinator,Special Teams,4,0,GENERATED
+MIA,CCH0020,Assistant Head Coach,Staff,1,0,GENERATED
+MIA,CCH0021,Quarterbacks Coach,Offense,6,0,GENERATED
+MIA,CCH0022,Running Backs Coach,Offense,6,0,GENERATED
+MIA,CCH0023,Wide Receivers Coach,Offense,3,0,GENERATED
+MIA,CCH0024,Tight Ends Coach,Offense,3,0,GENERATED
+MIA,CCH0025,Offensive Line Coach,Offense,8,0,GENERATED
+MIA,CCH0026,Defensive Line Coach,Defense,1,0,GENERATED
+MIA,CCH0027,Outside Linebackers Coach,Defense,8,0,GENERATED
+MIA,CCH0028,Linebackers Coach,Defense,2,0,GENERATED
+MIA,CCH0029,Defensive Backs Coach,Defense,2,0,GENERATED
+MIA,CCH0030,Strength & Conditioning,Staff,5,0,GENERATED
+NE,CCH0031,Head Coach,Staff,6,0,GENERATED
+NE,CCH0032,Offensive Coordinator,Offense,5,1,GENERATED
+NE,CCH0033,Defensive Coordinator,Defense,3,1,GENERATED
+NE,CCH0034,Special Teams Coordinator,Special Teams,6,0,GENERATED
+NE,CCH0035,Assistant Head Coach,Staff,2,0,GENERATED
+NE,CCH0036,Quarterbacks Coach,Offense,4,0,GENERATED
+NE,CCH0037,Running Backs Coach,Offense,2,0,GENERATED
+NE,CCH0038,Wide Receivers Coach,Offense,8,0,GENERATED
+NE,CCH0039,Tight Ends Coach,Offense,2,0,GENERATED
+NE,CCH0040,Offensive Line Coach,Offense,3,0,GENERATED
+NE,CCH0041,Defensive Line Coach,Defense,1,0,GENERATED
+NE,CCH0042,Outside Linebackers Coach,Defense,7,0,GENERATED
+NE,CCH0043,Linebackers Coach,Defense,5,0,GENERATED
+NE,CCH0044,Defensive Backs Coach,Defense,3,0,GENERATED
+NE,CCH0045,Strength & Conditioning,Staff,3,0,GENERATED
+NYJ,CCH0046,Head Coach,Staff,4,0,GENERATED
+NYJ,CCH0047,Offensive Coordinator,Offense,3,1,GENERATED
+NYJ,CCH0048,Defensive Coordinator,Defense,2,1,GENERATED
+NYJ,CCH0049,Special Teams Coordinator,Special Teams,1,0,GENERATED
+NYJ,CCH0050,Assistant Head Coach,Staff,1,0,GENERATED
+NYJ,CCH0051,Quarterbacks Coach,Offense,6,0,GENERATED
+NYJ,CCH0052,Running Backs Coach,Offense,5,0,GENERATED
+NYJ,CCH0053,Wide Receivers Coach,Offense,7,0,GENERATED
+NYJ,CCH0054,Tight Ends Coach,Offense,3,0,GENERATED
+NYJ,CCH0055,Offensive Line Coach,Offense,1,0,GENERATED
+NYJ,CCH0056,Defensive Line Coach,Defense,2,0,GENERATED
+NYJ,CCH0057,Outside Linebackers Coach,Defense,4,0,GENERATED
+NYJ,CCH0058,Linebackers Coach,Defense,4,0,GENERATED
+NYJ,CCH0059,Defensive Backs Coach,Defense,3,0,GENERATED
+NYJ,CCH0060,Strength & Conditioning,Staff,8,0,GENERATED
+BAL,CCH0061,Head Coach,Staff,6,0,GENERATED
+BAL,CCH0062,Offensive Coordinator,Offense,7,1,GENERATED
+BAL,CCH0063,Defensive Coordinator,Defense,1,1,GENERATED
+BAL,CCH0064,Special Teams Coordinator,Special Teams,2,0,GENERATED
+BAL,CCH0065,Assistant Head Coach,Staff,2,0,GENERATED
+BAL,CCH0066,Quarterbacks Coach,Offense,8,0,GENERATED
+BAL,CCH0067,Running Backs Coach,Offense,1,0,GENERATED
+BAL,CCH0068,Wide Receivers Coach,Offense,1,0,GENERATED
+BAL,CCH0069,Tight Ends Coach,Offense,1,0,GENERATED
+BAL,CCH0070,Offensive Line Coach,Offense,5,0,GENERATED
+BAL,CCH0071,Defensive Line Coach,Defense,6,0,GENERATED
+BAL,CCH0072,Outside Linebackers Coach,Defense,7,0,GENERATED
+BAL,CCH0073,Linebackers Coach,Defense,3,0,GENERATED
+BAL,CCH0074,Defensive Backs Coach,Defense,4,0,GENERATED
+BAL,CCH0075,Strength & Conditioning,Staff,3,0,GENERATED
+PIT,CCH0076,Head Coach,Staff,4,0,GENERATED
+PIT,CCH0077,Offensive Coordinator,Offense,8,1,GENERATED
+PIT,CCH0078,Defensive Coordinator,Defense,4,1,GENERATED
+PIT,CCH0079,Special Teams Coordinator,Special Teams,7,0,GENERATED
+PIT,CCH0080,Assistant Head Coach,Staff,6,0,GENERATED
+PIT,CCH0081,Quarterbacks Coach,Offense,4,0,GENERATED
+PIT,CCH0082,Running Backs Coach,Offense,2,0,GENERATED
+PIT,CCH0083,Wide Receivers Coach,Offense,2,0,GENERATED
+PIT,CCH0084,Tight Ends Coach,Offense,3,0,GENERATED
+PIT,CCH0085,Offensive Line Coach,Offense,5,0,GENERATED
+PIT,CCH0086,Defensive Line Coach,Defense,2,0,GENERATED
+PIT,CCH0087,Outside Linebackers Coach,Defense,8,0,GENERATED
+PIT,CCH0088,Linebackers Coach,Defense,7,0,GENERATED
+PIT,CCH0089,Defensive Backs Coach,Defense,6,0,GENERATED
+PIT,CCH0090,Strength & Conditioning,Staff,5,0,GENERATED
+CLE,CCH0091,Head Coach,Staff,4,0,GENERATED
+CLE,CCH0092,Offensive Coordinator,Offense,2,1,GENERATED
+CLE,CCH0093,Defensive Coordinator,Defense,7,1,GENERATED
+CLE,CCH0094,Special Teams Coordinator,Special Teams,2,0,GENERATED
+CLE,CCH0095,Assistant Head Coach,Staff,7,0,GENERATED
+CLE,CCH0096,Quarterbacks Coach,Offense,6,0,GENERATED
+CLE,CCH0097,Running Backs Coach,Offense,2,0,GENERATED
+CLE,CCH0098,Wide Receivers Coach,Offense,4,0,GENERATED
+CLE,CCH0099,Tight Ends Coach,Offense,6,0,GENERATED
+CLE,CCH0100,Offensive Line Coach,Offense,4,0,GENERATED
+CLE,CCH0101,Defensive Line Coach,Defense,1,0,GENERATED
+CLE,CCH0102,Outside Linebackers Coach,Defense,6,0,GENERATED
+CLE,CCH0103,Linebackers Coach,Defense,1,0,GENERATED
+CLE,CCH0104,Defensive Backs Coach,Defense,7,0,GENERATED
+CLE,CCH0105,Strength & Conditioning,Staff,5,0,GENERATED
+CIN,CCH0106,Head Coach,Staff,1,0,GENERATED
+CIN,CCH0107,Offensive Coordinator,Offense,1,1,GENERATED
+CIN,CCH0108,Defensive Coordinator,Defense,2,1,GENERATED
+CIN,CCH0109,Special Teams Coordinator,Special Teams,4,0,GENERATED
+CIN,CCH0110,Assistant Head Coach,Staff,5,0,GENERATED
+CIN,CCH0111,Quarterbacks Coach,Offense,3,0,GENERATED
+CIN,CCH0112,Running Backs Coach,Offense,1,0,GENERATED
+CIN,CCH0113,Wide Receivers Coach,Offense,1,0,GENERATED
+CIN,CCH0114,Tight Ends Coach,Offense,2,0,GENERATED
+CIN,CCH0115,Offensive Line Coach,Offense,6,0,GENERATED
+CIN,CCH0116,Defensive Line Coach,Defense,6,0,GENERATED
+CIN,CCH0117,Outside Linebackers Coach,Defense,3,0,GENERATED
+CIN,CCH0118,Linebackers Coach,Defense,2,0,GENERATED
+CIN,CCH0119,Defensive Backs Coach,Defense,3,0,GENERATED
+CIN,CCH0120,Strength & Conditioning,Staff,8,0,GENERATED
+HOU,CCH0121,Head Coach,Staff,6,0,GENERATED
+HOU,CCH0122,Offensive Coordinator,Offense,6,1,GENERATED
+HOU,CCH0123,Defensive Coordinator,Defense,7,1,GENERATED
+HOU,CCH0124,Special Teams Coordinator,Special Teams,2,0,GENERATED
+HOU,CCH0125,Assistant Head Coach,Staff,7,0,GENERATED
+HOU,CCH0126,Quarterbacks Coach,Offense,5,0,GENERATED
+HOU,CCH0127,Running Backs Coach,Offense,2,0,GENERATED
+HOU,CCH0128,Wide Receivers Coach,Offense,6,0,GENERATED
+HOU,CCH0129,Tight Ends Coach,Offense,7,0,GENERATED
+HOU,CCH0130,Offensive Line Coach,Offense,2,0,GENERATED
+HOU,CCH0131,Defensive Line Coach,Defense,2,0,GENERATED
+HOU,CCH0132,Outside Linebackers Coach,Defense,3,0,GENERATED
+HOU,CCH0133,Linebackers Coach,Defense,6,0,GENERATED
+HOU,CCH0134,Defensive Backs Coach,Defense,8,0,GENERATED
+HOU,CCH0135,Strength & Conditioning,Staff,7,0,GENERATED
+IND,CCH0136,Head Coach,Staff,7,0,GENERATED
+IND,CCH0137,Offensive Coordinator,Offense,4,1,GENERATED
+IND,CCH0138,Defensive Coordinator,Defense,2,1,GENERATED
+IND,CCH0139,Special Teams Coordinator,Special Teams,4,0,GENERATED
+IND,CCH0140,Assistant Head Coach,Staff,1,0,GENERATED
+IND,CCH0141,Quarterbacks Coach,Offense,5,0,GENERATED
+IND,CCH0142,Running Backs Coach,Offense,3,0,GENERATED
+IND,CCH0143,Wide Receivers Coach,Offense,3,0,GENERATED
+IND,CCH0144,Tight Ends Coach,Offense,6,0,GENERATED
+IND,CCH0145,Offensive Line Coach,Offense,1,0,GENERATED
+IND,CCH0146,Defensive Line Coach,Defense,2,0,GENERATED
+IND,CCH0147,Outside Linebackers Coach,Defense,2,0,GENERATED
+IND,CCH0148,Linebackers Coach,Defense,3,0,GENERATED
+IND,CCH0149,Defensive Backs Coach,Defense,4,0,GENERATED
+IND,CCH0150,Strength & Conditioning,Staff,2,0,GENERATED
+JAX,CCH0151,Head Coach,Staff,1,0,GENERATED
+JAX,CCH0152,Offensive Coordinator,Offense,8,1,GENERATED
+JAX,CCH0153,Defensive Coordinator,Defense,3,1,GENERATED
+JAX,CCH0154,Special Teams Coordinator,Special Teams,6,0,GENERATED
+JAX,CCH0155,Assistant Head Coach,Staff,2,0,GENERATED
+JAX,CCH0156,Quarterbacks Coach,Offense,2,0,GENERATED
+JAX,CCH0157,Running Backs Coach,Offense,8,0,GENERATED
+JAX,CCH0158,Wide Receivers Coach,Offense,8,0,GENERATED
+JAX,CCH0159,Tight Ends Coach,Offense,5,0,GENERATED
+JAX,CCH0160,Offensive Line Coach,Offense,1,0,GENERATED
+JAX,CCH0161,Defensive Line Coach,Defense,1,0,GENERATED
+JAX,CCH0162,Outside Linebackers Coach,Defense,7,0,GENERATED
+JAX,CCH0163,Linebackers Coach,Defense,7,0,GENERATED
+JAX,CCH0164,Defensive Backs Coach,Defense,4,0,GENERATED
+JAX,CCH0165,Strength & Conditioning,Staff,1,0,GENERATED
+TEN,CCH0166,Head Coach,Staff,1,0,GENERATED
+TEN,CCH0167,Offensive Coordinator,Offense,5,1,GENERATED
+TEN,CCH0168,Defensive Coordinator,Defense,6,1,GENERATED
+TEN,CCH0169,Special Teams Coordinator,Special Teams,5,0,GENERATED
+TEN,CCH0170,Assistant Head Coach,Staff,1,0,GENERATED
+TEN,CCH0171,Quarterbacks Coach,Offense,3,0,GENERATED
+TEN,CCH0172,Running Backs Coach,Offense,6,0,GENERATED
+TEN,CCH0173,Wide Receivers Coach,Offense,2,0,GENERATED
+TEN,CCH0174,Tight Ends Coach,Offense,2,0,GENERATED
+TEN,CCH0175,Offensive Line Coach,Offense,1,0,GENERATED
+TEN,CCH0176,Defensive Line Coach,Defense,1,0,GENERATED
+TEN,CCH0177,Outside Linebackers Coach,Defense,4,0,GENERATED
+TEN,CCH0178,Linebackers Coach,Defense,8,0,GENERATED
+TEN,CCH0179,Defensive Backs Coach,Defense,3,0,GENERATED
+TEN,CCH0180,Strength & Conditioning,Staff,8,0,GENERATED
+DEN,CCH0181,Head Coach,Staff,8,0,GENERATED
+DEN,CCH0182,Offensive Coordinator,Offense,6,1,GENERATED
+DEN,CCH0183,Defensive Coordinator,Defense,3,1,GENERATED
+DEN,CCH0184,Special Teams Coordinator,Special Teams,6,0,GENERATED
+DEN,CCH0185,Assistant Head Coach,Staff,2,0,GENERATED
+DEN,CCH0186,Quarterbacks Coach,Offense,5,0,GENERATED
+DEN,CCH0187,Running Backs Coach,Offense,2,0,GENERATED
+DEN,CCH0188,Wide Receivers Coach,Offense,3,0,GENERATED
+DEN,CCH0189,Tight Ends Coach,Offense,4,0,GENERATED
+DEN,CCH0190,Offensive Line Coach,Offense,4,0,GENERATED
+DEN,CCH0191,Defensive Line Coach,Defense,2,0,GENERATED
+DEN,CCH0192,Outside Linebackers Coach,Defense,3,0,GENERATED
+DEN,CCH0193,Linebackers Coach,Defense,3,0,GENERATED
+DEN,CCH0194,Defensive Backs Coach,Defense,3,0,GENERATED
+DEN,CCH0195,Strength & Conditioning,Staff,8,0,GENERATED
+KC,CCH0196,Head Coach,Staff,3,0,GENERATED
+KC,CCH0197,Offensive Coordinator,Offense,6,1,GENERATED
+KC,CCH0198,Defensive Coordinator,Defense,7,1,GENERATED
+KC,CCH0199,Special Teams Coordinator,Special Teams,1,0,GENERATED
+KC,CCH0200,Assistant Head Coach,Staff,3,0,GENERATED
+KC,CCH0201,Quarterbacks Coach,Offense,3,0,GENERATED
+KC,CCH0202,Running Backs Coach,Offense,8,0,GENERATED
+KC,CCH0203,Wide Receivers Coach,Offense,5,0,GENERATED
+KC,CCH0204,Tight Ends Coach,Offense,2,0,GENERATED
+KC,CCH0205,Offensive Line Coach,Offense,8,0,GENERATED
+KC,CCH0206,Defensive Line Coach,Defense,8,0,GENERATED
+KC,CCH0207,Outside Linebackers Coach,Defense,3,0,GENERATED
+KC,CCH0208,Linebackers Coach,Defense,1,0,GENERATED
+KC,CCH0209,Defensive Backs Coach,Defense,7,0,GENERATED
+KC,CCH0210,Strength & Conditioning,Staff,3,0,GENERATED
+LV,CCH0211,Head Coach,Staff,6,0,GENERATED
+LV,CCH0212,Offensive Coordinator,Offense,8,1,GENERATED
+LV,CCH0213,Defensive Coordinator,Defense,7,1,GENERATED
+LV,CCH0214,Special Teams Coordinator,Special Teams,5,0,GENERATED
+LV,CCH0215,Assistant Head Coach,Staff,6,0,GENERATED
+LV,CCH0216,Quarterbacks Coach,Offense,1,0,GENERATED
+LV,CCH0217,Running Backs Coach,Offense,5,0,GENERATED
+LV,CCH0218,Wide Receivers Coach,Offense,5,0,GENERATED
+LV,CCH0219,Tight Ends Coach,Offense,6,0,GENERATED
+LV,CCH0220,Offensive Line Coach,Offense,5,0,GENERATED
+LV,CCH0221,Defensive Line Coach,Defense,2,0,GENERATED
+LV,CCH0222,Outside Linebackers Coach,Defense,5,0,GENERATED
+LV,CCH0223,Linebackers Coach,Defense,7,0,GENERATED
+LV,CCH0224,Defensive Backs Coach,Defense,6,0,GENERATED
+LV,CCH0225,Strength & Conditioning,Staff,4,0,GENERATED
+LAC,CCH0226,Head Coach,Staff,6,0,GENERATED
+LAC,CCH0227,Offensive Coordinator,Offense,2,1,GENERATED
+LAC,CCH0228,Defensive Coordinator,Defense,1,1,GENERATED
+LAC,CCH0229,Special Teams Coordinator,Special Teams,7,0,GENERATED
+LAC,CCH0230,Assistant Head Coach,Staff,2,0,GENERATED
+LAC,CCH0231,Quarterbacks Coach,Offense,7,0,GENERATED
+LAC,CCH0232,Running Backs Coach,Offense,8,0,GENERATED
+LAC,CCH0233,Wide Receivers Coach,Offense,4,0,GENERATED
+LAC,CCH0234,Tight Ends Coach,Offense,2,0,GENERATED
+LAC,CCH0235,Offensive Line Coach,Offense,5,0,GENERATED
+LAC,CCH0236,Defensive Line Coach,Defense,8,0,GENERATED
+LAC,CCH0237,Outside Linebackers Coach,Defense,5,0,GENERATED
+LAC,CCH0238,Linebackers Coach,Defense,6,0,GENERATED
+LAC,CCH0239,Defensive Backs Coach,Defense,7,0,GENERATED
+LAC,CCH0240,Strength & Conditioning,Staff,2,0,GENERATED
+DAL,CCH0241,Head Coach,Staff,4,0,GENERATED
+DAL,CCH0242,Offensive Coordinator,Offense,5,1,GENERATED
+DAL,CCH0243,Defensive Coordinator,Defense,3,1,GENERATED
+DAL,CCH0244,Special Teams Coordinator,Special Teams,7,0,GENERATED
+DAL,CCH0245,Assistant Head Coach,Staff,7,0,GENERATED
+DAL,CCH0246,Quarterbacks Coach,Offense,6,0,GENERATED
+DAL,CCH0247,Running Backs Coach,Offense,5,0,GENERATED
+DAL,CCH0248,Wide Receivers Coach,Offense,8,0,GENERATED
+DAL,CCH0249,Tight Ends Coach,Offense,3,0,GENERATED
+DAL,CCH0250,Offensive Line Coach,Offense,1,0,GENERATED
+DAL,CCH0251,Defensive Line Coach,Defense,6,0,GENERATED
+DAL,CCH0252,Outside Linebackers Coach,Defense,3,0,GENERATED
+DAL,CCH0253,Linebackers Coach,Defense,4,0,GENERATED
+DAL,CCH0254,Defensive Backs Coach,Defense,1,0,GENERATED
+DAL,CCH0255,Strength & Conditioning,Staff,8,0,GENERATED
+PHI,CCH0256,Head Coach,Staff,4,0,GENERATED
+PHI,CCH0257,Offensive Coordinator,Offense,8,1,GENERATED
+PHI,CCH0258,Defensive Coordinator,Defense,2,1,GENERATED
+PHI,CCH0259,Special Teams Coordinator,Special Teams,1,0,GENERATED
+PHI,CCH0260,Assistant Head Coach,Staff,6,0,GENERATED
+PHI,CCH0261,Quarterbacks Coach,Offense,4,0,GENERATED
+PHI,CCH0262,Running Backs Coach,Offense,3,0,GENERATED
+PHI,CCH0263,Wide Receivers Coach,Offense,8,0,GENERATED
+PHI,CCH0264,Tight Ends Coach,Offense,6,0,GENERATED
+PHI,CCH0265,Offensive Line Coach,Offense,4,0,GENERATED
+PHI,CCH0266,Defensive Line Coach,Defense,8,0,GENERATED
+PHI,CCH0267,Outside Linebackers Coach,Defense,5,0,GENERATED
+PHI,CCH0268,Linebackers Coach,Defense,5,0,GENERATED
+PHI,CCH0269,Defensive Backs Coach,Defense,8,0,GENERATED
+PHI,CCH0270,Strength & Conditioning,Staff,4,0,GENERATED
+WAS,CCH0271,Head Coach,Staff,3,0,GENERATED
+WAS,CCH0272,Offensive Coordinator,Offense,2,1,GENERATED
+WAS,CCH0273,Defensive Coordinator,Defense,7,1,GENERATED
+WAS,CCH0274,Special Teams Coordinator,Special Teams,8,0,GENERATED
+WAS,CCH0275,Assistant Head Coach,Staff,2,0,GENERATED
+WAS,CCH0276,Quarterbacks Coach,Offense,5,0,GENERATED
+WAS,CCH0277,Running Backs Coach,Offense,4,0,GENERATED
+WAS,CCH0278,Wide Receivers Coach,Offense,7,0,GENERATED
+WAS,CCH0279,Tight Ends Coach,Offense,8,0,GENERATED
+WAS,CCH0280,Offensive Line Coach,Offense,6,0,GENERATED
+WAS,CCH0281,Defensive Line Coach,Defense,7,0,GENERATED
+WAS,CCH0282,Outside Linebackers Coach,Defense,7,0,GENERATED
+WAS,CCH0283,Linebackers Coach,Defense,6,0,GENERATED
+WAS,CCH0284,Defensive Backs Coach,Defense,5,0,GENERATED
+WAS,CCH0285,Strength & Conditioning,Staff,1,0,GENERATED
+NYG,CCH0286,Head Coach,Staff,8,0,GENERATED
+NYG,CCH0287,Offensive Coordinator,Offense,5,1,GENERATED
+NYG,CCH0288,Defensive Coordinator,Defense,6,1,GENERATED
+NYG,CCH0289,Special Teams Coordinator,Special Teams,8,0,GENERATED
+NYG,CCH0290,Assistant Head Coach,Staff,1,0,GENERATED
+NYG,CCH0291,Quarterbacks Coach,Offense,5,0,GENERATED
+NYG,CCH0292,Running Backs Coach,Offense,2,0,GENERATED
+NYG,CCH0293,Wide Receivers Coach,Offense,1,0,GENERATED
+NYG,CCH0294,Tight Ends Coach,Offense,4,0,GENERATED
+NYG,CCH0295,Offensive Line Coach,Offense,3,0,GENERATED
+NYG,CCH0296,Defensive Line Coach,Defense,7,0,GENERATED
+NYG,CCH0297,Outside Linebackers Coach,Defense,5,0,GENERATED
+NYG,CCH0298,Linebackers Coach,Defense,8,0,GENERATED
+NYG,CCH0299,Defensive Backs Coach,Defense,4,0,GENERATED
+NYG,CCH0300,Strength & Conditioning,Staff,1,0,GENERATED
+CHI,CCH0301,Head Coach,Staff,2,0,GENERATED
+CHI,CCH0302,Offensive Coordinator,Offense,5,1,GENERATED
+CHI,CCH0303,Defensive Coordinator,Defense,4,1,GENERATED
+CHI,CCH0304,Special Teams Coordinator,Special Teams,8,0,GENERATED
+CHI,CCH0305,Assistant Head Coach,Staff,6,0,GENERATED
+CHI,CCH0306,Quarterbacks Coach,Offense,2,0,GENERATED
+CHI,CCH0307,Running Backs Coach,Offense,8,0,GENERATED
+CHI,CCH0308,Wide Receivers Coach,Offense,3,0,GENERATED
+CHI,CCH0309,Tight Ends Coach,Offense,6,0,GENERATED
+CHI,CCH0310,Offensive Line Coach,Offense,2,0,GENERATED
+CHI,CCH0311,Defensive Line Coach,Defense,6,0,GENERATED
+CHI,CCH0312,Outside Linebackers Coach,Defense,4,0,GENERATED
+CHI,CCH0313,Linebackers Coach,Defense,1,0,GENERATED
+CHI,CCH0314,Defensive Backs Coach,Defense,6,0,GENERATED
+CHI,CCH0315,Strength & Conditioning,Staff,1,0,GENERATED
+DET,CCH0316,Head Coach,Staff,4,0,GENERATED
+DET,CCH0317,Offensive Coordinator,Offense,8,1,GENERATED
+DET,CCH0318,Defensive Coordinator,Defense,7,1,GENERATED
+DET,CCH0319,Special Teams Coordinator,Special Teams,1,0,GENERATED
+DET,CCH0320,Assistant Head Coach,Staff,3,0,GENERATED
+DET,CCH0321,Quarterbacks Coach,Offense,2,0,GENERATED
+DET,CCH0322,Running Backs Coach,Offense,7,0,GENERATED
+DET,CCH0323,Wide Receivers Coach,Offense,8,0,GENERATED
+DET,CCH0324,Tight Ends Coach,Offense,3,0,GENERATED
+DET,CCH0325,Offensive Line Coach,Offense,7,0,GENERATED
+DET,CCH0326,Defensive Line Coach,Defense,1,0,GENERATED
+DET,CCH0327,Outside Linebackers Coach,Defense,1,0,GENERATED
+DET,CCH0328,Linebackers Coach,Defense,8,0,GENERATED
+DET,CCH0329,Defensive Backs Coach,Defense,3,0,GENERATED
+DET,CCH0330,Strength & Conditioning,Staff,2,0,GENERATED
+GB,CCH0331,Head Coach,Staff,6,0,GENERATED
+GB,CCH0332,Offensive Coordinator,Offense,1,1,GENERATED
+GB,CCH0333,Defensive Coordinator,Defense,2,1,GENERATED
+GB,CCH0334,Special Teams Coordinator,Special Teams,7,0,GENERATED
+GB,CCH0335,Assistant Head Coach,Staff,7,0,GENERATED
+GB,CCH0336,Quarterbacks Coach,Offense,6,0,GENERATED
+GB,CCH0337,Running Backs Coach,Offense,1,0,GENERATED
+GB,CCH0338,Wide Receivers Coach,Offense,8,0,GENERATED
+GB,CCH0339,Tight Ends Coach,Offense,4,0,GENERATED
+GB,CCH0340,Offensive Line Coach,Offense,6,0,GENERATED
+GB,CCH0341,Defensive Line Coach,Defense,6,0,GENERATED
+GB,CCH0342,Outside Linebackers Coach,Defense,4,0,GENERATED
+GB,CCH0343,Linebackers Coach,Defense,6,0,GENERATED
+GB,CCH0344,Defensive Backs Coach,Defense,1,0,GENERATED
+GB,CCH0345,Strength & Conditioning,Staff,7,0,GENERATED
+MIN,CCH0346,Head Coach,Staff,2,0,GENERATED
+MIN,CCH0347,Offensive Coordinator,Offense,1,1,GENERATED
+MIN,CCH0348,Defensive Coordinator,Defense,3,1,GENERATED
+MIN,CCH0349,Special Teams Coordinator,Special Teams,7,0,GENERATED
+MIN,CCH0350,Assistant Head Coach,Staff,1,0,GENERATED
+MIN,CCH0351,Quarterbacks Coach,Offense,3,0,GENERATED
+MIN,CCH0352,Running Backs Coach,Offense,5,0,GENERATED
+MIN,CCH0353,Wide Receivers Coach,Offense,4,0,GENERATED
+MIN,CCH0354,Tight Ends Coach,Offense,8,0,GENERATED
+MIN,CCH0355,Offensive Line Coach,Offense,1,0,GENERATED
+MIN,CCH0356,Defensive Line Coach,Defense,7,0,GENERATED
+MIN,CCH0357,Outside Linebackers Coach,Defense,4,0,GENERATED
+MIN,CCH0358,Linebackers Coach,Defense,7,0,GENERATED
+MIN,CCH0359,Defensive Backs Coach,Defense,5,0,GENERATED
+MIN,CCH0360,Strength & Conditioning,Staff,3,0,GENERATED
+ATL,CCH0361,Head Coach,Staff,5,0,GENERATED
+ATL,CCH0362,Offensive Coordinator,Offense,6,1,GENERATED
+ATL,CCH0363,Defensive Coordinator,Defense,6,1,GENERATED
+ATL,CCH0364,Special Teams Coordinator,Special Teams,3,0,GENERATED
+ATL,CCH0365,Assistant Head Coach,Staff,6,0,GENERATED
+ATL,CCH0366,Quarterbacks Coach,Offense,3,0,GENERATED
+ATL,CCH0367,Running Backs Coach,Offense,7,0,GENERATED
+ATL,CCH0368,Wide Receivers Coach,Offense,7,0,GENERATED
+ATL,CCH0369,Tight Ends Coach,Offense,4,0,GENERATED
+ATL,CCH0370,Offensive Line Coach,Offense,3,0,GENERATED
+ATL,CCH0371,Defensive Line Coach,Defense,8,0,GENERATED
+ATL,CCH0372,Outside Linebackers Coach,Defense,8,0,GENERATED
+ATL,CCH0373,Linebackers Coach,Defense,4,0,GENERATED
+ATL,CCH0374,Defensive Backs Coach,Defense,1,0,GENERATED
+ATL,CCH0375,Strength & Conditioning,Staff,1,0,GENERATED
+CAR,CCH0376,Head Coach,Staff,5,0,GENERATED
+CAR,CCH0377,Offensive Coordinator,Offense,2,1,GENERATED
+CAR,CCH0378,Defensive Coordinator,Defense,1,1,GENERATED
+CAR,CCH0379,Special Teams Coordinator,Special Teams,4,0,GENERATED
+CAR,CCH0380,Assistant Head Coach,Staff,6,0,GENERATED
+CAR,CCH0381,Quarterbacks Coach,Offense,8,0,GENERATED
+CAR,CCH0382,Running Backs Coach,Offense,4,0,GENERATED
+CAR,CCH0383,Wide Receivers Coach,Offense,7,0,GENERATED
+CAR,CCH0384,Tight Ends Coach,Offense,3,0,GENERATED
+CAR,CCH0385,Offensive Line Coach,Offense,2,0,GENERATED
+CAR,CCH0386,Defensive Line Coach,Defense,6,0,GENERATED
+CAR,CCH0387,Outside Linebackers Coach,Defense,8,0,GENERATED
+CAR,CCH0388,Linebackers Coach,Defense,1,0,GENERATED
+CAR,CCH0389,Defensive Backs Coach,Defense,4,0,GENERATED
+CAR,CCH0390,Strength & Conditioning,Staff,5,0,GENERATED
+NO,CCH0391,Head Coach,Staff,1,0,GENERATED
+NO,CCH0392,Offensive Coordinator,Offense,4,1,GENERATED
+NO,CCH0393,Defensive Coordinator,Defense,2,1,GENERATED
+NO,CCH0394,Special Teams Coordinator,Special Teams,3,0,GENERATED
+NO,CCH0395,Assistant Head Coach,Staff,1,0,GENERATED
+NO,CCH0396,Quarterbacks Coach,Offense,8,0,GENERATED
+NO,CCH0397,Running Backs Coach,Offense,6,0,GENERATED
+NO,CCH0398,Wide Receivers Coach,Offense,5,0,GENERATED
+NO,CCH0399,Tight Ends Coach,Offense,5,0,GENERATED
+NO,CCH0400,Offensive Line Coach,Offense,7,0,GENERATED
+NO,CCH0401,Defensive Line Coach,Defense,3,0,GENERATED
+NO,CCH0402,Outside Linebackers Coach,Defense,5,0,GENERATED
+NO,CCH0403,Linebackers Coach,Defense,6,0,GENERATED
+NO,CCH0404,Defensive Backs Coach,Defense,7,0,GENERATED
+NO,CCH0405,Strength & Conditioning,Staff,1,0,GENERATED
+TB,CCH0406,Head Coach,Staff,8,0,GENERATED
+TB,CCH0407,Offensive Coordinator,Offense,4,1,GENERATED
+TB,CCH0408,Defensive Coordinator,Defense,3,1,GENERATED
+TB,CCH0409,Special Teams Coordinator,Special Teams,4,0,GENERATED
+TB,CCH0410,Assistant Head Coach,Staff,1,0,GENERATED
+TB,CCH0411,Quarterbacks Coach,Offense,5,0,GENERATED
+TB,CCH0412,Running Backs Coach,Offense,5,0,GENERATED
+TB,CCH0413,Wide Receivers Coach,Offense,4,0,GENERATED
+TB,CCH0414,Tight Ends Coach,Offense,5,0,GENERATED
+TB,CCH0415,Offensive Line Coach,Offense,6,0,GENERATED
+TB,CCH0416,Defensive Line Coach,Defense,2,0,GENERATED
+TB,CCH0417,Outside Linebackers Coach,Defense,1,0,GENERATED
+TB,CCH0418,Linebackers Coach,Defense,5,0,GENERATED
+TB,CCH0419,Defensive Backs Coach,Defense,8,0,GENERATED
+TB,CCH0420,Strength & Conditioning,Staff,8,0,GENERATED
+ARI,CCH0421,Head Coach,Staff,6,0,GENERATED
+ARI,CCH0422,Offensive Coordinator,Offense,1,1,GENERATED
+ARI,CCH0423,Defensive Coordinator,Defense,3,1,GENERATED
+ARI,CCH0424,Special Teams Coordinator,Special Teams,7,0,GENERATED
+ARI,CCH0425,Assistant Head Coach,Staff,4,0,GENERATED
+ARI,CCH0426,Quarterbacks Coach,Offense,3,0,GENERATED
+ARI,CCH0427,Running Backs Coach,Offense,3,0,GENERATED
+ARI,CCH0428,Wide Receivers Coach,Offense,1,0,GENERATED
+ARI,CCH0429,Tight Ends Coach,Offense,5,0,GENERATED
+ARI,CCH0430,Offensive Line Coach,Offense,1,0,GENERATED
+ARI,CCH0431,Defensive Line Coach,Defense,1,0,GENERATED
+ARI,CCH0432,Outside Linebackers Coach,Defense,5,0,GENERATED
+ARI,CCH0433,Linebackers Coach,Defense,7,0,GENERATED
+ARI,CCH0434,Defensive Backs Coach,Defense,5,0,GENERATED
+ARI,CCH0435,Strength & Conditioning,Staff,5,0,GENERATED
+LAR,CCH0436,Head Coach,Staff,1,0,GENERATED
+LAR,CCH0437,Offensive Coordinator,Offense,6,1,GENERATED
+LAR,CCH0438,Defensive Coordinator,Defense,7,1,GENERATED
+LAR,CCH0439,Special Teams Coordinator,Special Teams,1,0,GENERATED
+LAR,CCH0440,Assistant Head Coach,Staff,8,0,GENERATED
+LAR,CCH0441,Quarterbacks Coach,Offense,4,0,GENERATED
+LAR,CCH0442,Running Backs Coach,Offense,8,0,GENERATED
+LAR,CCH0443,Wide Receivers Coach,Offense,5,0,GENERATED
+LAR,CCH0444,Tight Ends Coach,Offense,1,0,GENERATED
+LAR,CCH0445,Offensive Line Coach,Offense,8,0,GENERATED
+LAR,CCH0446,Defensive Line Coach,Defense,1,0,GENERATED
+LAR,CCH0447,Outside Linebackers Coach,Defense,2,0,GENERATED
+LAR,CCH0448,Linebackers Coach,Defense,5,0,GENERATED
+LAR,CCH0449,Defensive Backs Coach,Defense,7,0,GENERATED
+LAR,CCH0450,Strength & Conditioning,Staff,5,0,GENERATED
+SF,CCH0451,Head Coach,Staff,2,0,GENERATED
+SF,CCH0452,Offensive Coordinator,Offense,7,1,GENERATED
+SF,CCH0453,Defensive Coordinator,Defense,5,1,GENERATED
+SF,CCH0454,Special Teams Coordinator,Special Teams,7,0,GENERATED
+SF,CCH0455,Assistant Head Coach,Staff,5,0,GENERATED
+SF,CCH0456,Quarterbacks Coach,Offense,6,0,GENERATED
+SF,CCH0457,Running Backs Coach,Offense,8,0,GENERATED
+SF,CCH0458,Wide Receivers Coach,Offense,1,0,GENERATED
+SF,CCH0459,Tight Ends Coach,Offense,3,0,GENERATED
+SF,CCH0460,Offensive Line Coach,Offense,8,0,GENERATED
+SF,CCH0461,Defensive Line Coach,Defense,8,0,GENERATED
+SF,CCH0462,Outside Linebackers Coach,Defense,5,0,GENERATED
+SF,CCH0463,Linebackers Coach,Defense,1,0,GENERATED
+SF,CCH0464,Defensive Backs Coach,Defense,8,0,GENERATED
+SF,CCH0465,Strength & Conditioning,Staff,7,0,GENERATED
+SEA,CCH0466,Head Coach,Staff,5,0,GENERATED
+SEA,CCH0467,Offensive Coordinator,Offense,8,1,GENERATED
+SEA,CCH0468,Defensive Coordinator,Defense,5,1,GENERATED
+SEA,CCH0469,Special Teams Coordinator,Special Teams,6,0,GENERATED
+SEA,CCH0470,Assistant Head Coach,Staff,2,0,GENERATED
+SEA,CCH0471,Quarterbacks Coach,Offense,1,0,GENERATED
+SEA,CCH0472,Running Backs Coach,Offense,1,0,GENERATED
+SEA,CCH0473,Wide Receivers Coach,Offense,6,0,GENERATED
+SEA,CCH0474,Tight Ends Coach,Offense,7,0,GENERATED
+SEA,CCH0475,Offensive Line Coach,Offense,5,0,GENERATED
+SEA,CCH0476,Defensive Line Coach,Defense,2,0,GENERATED
+SEA,CCH0477,Outside Linebackers Coach,Defense,1,0,GENERATED
+SEA,CCH0478,Linebackers Coach,Defense,8,0,GENERATED
+SEA,CCH0479,Defensive Backs Coach,Defense,1,0,GENERATED
+SEA,CCH0480,Strength & Conditioning,Staff,5,0,GENERATED

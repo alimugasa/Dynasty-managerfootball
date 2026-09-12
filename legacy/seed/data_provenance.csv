@@ -1,0 +1,28 @@
+file,data_class,notes,row_count,contains_real_people
+league_conferences.csv,GENERATED,Original league structure,2,NO
+league_divisions.csv,GENERATED,Original league structure,8,NO
+teams.csv,GENERATED,"Real metro areas; original nicknames, colors, identities",32,NO
+stadiums.csv,GENERATED,Original venue names; capacities modeled on real stadium size bands,32,NO
+owners.csv,GENERATED,Fictional owners; archetypes drive sim behavior,32,NO
+colleges.csv,GENERATED,Fictional programs with talent tiers and pipeline rates,260,NO
+players.csv,GENERATED,Fictional people; roster shape modeled on a 90-man preseason,3066,NO
+player_attributes.csv,MODELED,Derived from overall rating + positional archetype,3066,NO
+player_contracts.csv,MODELED,"Market curve by position value, normalized to the cap",2880,NO
+player_morale.csv,MODELED,"Derived from role tier, contract, and experience",3066,NO
+player_traits.csv,MODELED,Sampled behavioral tags,4333,NO
+player_injuries.csv,MODELED,Preseason designation distribution,309,NO
+team_rosters.csv,GENERATED,53 active / 16 PS-eligible / 21 camp per club,2880,NO
+team_depth_charts.csv,MODELED,Scheme-aware slot assignment by rating,1952,NO
+coaches.csv,GENERATED,Fictional staff plus an unemployed hiring market,526,NO
+coach_attributes.csv,MODELED,Role-shaped ratings,526,NO
+team_coaching_staff.csv,GENERATED,15 roles per club,480,NO
+team_schemes.csv,MODELED,Offensive/defensive identity and tendencies,32,NO
+season_schedule.csv,GENERATED,17 games/team over 18 weeks via edge-colouring,272,NO
+team_bye_weeks.csv,GENERATED,Derived from schedule solution,32,NO
+free_agents.csv,GENERATED,Unsigned veteran pool,186,NO
+draft_picks.csv,GENERATED,2027-2028 pick inventory with trades,448,NO
+draft_classes.csv,GENERATED,FICTIONAL_GENERATED_PROSPECT - not real people,392,NO
+franchise_finances.csv,MODELED,Revenue scaled by market size and venue capacity,32,NO
+salary_cap.csv,MODELED,Top-51 accounting against a $302M cap,32,NO
+team_needs.csv,MODELED,Computed from weakest starter slots,160,NO
+owner_goals.csv,MODELED,Derived from franchise posture,96,NO
