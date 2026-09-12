@@ -19,6 +19,7 @@ import { TeamScreen } from '../screens/TeamScreen';
 import { StaffScreen } from '../screens/StaffScreen';
 import { RecapScreen } from '../screens/RecapScreen';
 import { OffseasonScreen } from '../screens/OffseasonScreen';
+import { CreditsScreen, DatabaseToolsScreen, SettingsScreen } from '../screens/MenuScreens';
 import {
   CoachScreen, CollegeScreen, DraftPickScreen, GameScreen, PlayerScreen,
   ScoutingScreen, TransactionsScreen,
@@ -43,6 +44,13 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   slots: { title: 'Save files', Component: SlotsScreen, root: false, boot: true },
   gm: { title: 'Create GM', Component: CreateGmScreen, root: false, boot: true },
   pickTeam: { title: 'Select Team', Component: SelectTeamScreen, root: false, boot: true },
+
+  // The main menu's foot. Boot screens too: they are reachable with no dynasty
+  // open, so they must not render a bar of tabs that would go nowhere, and
+  // Back from any of them belongs on the menu rather than on Team.
+  settings: { title: 'Settings', Component: SettingsScreen, root: false, boot: true },
+  dbtools: { title: 'Database Tools', Component: DatabaseToolsScreen, root: false, boot: true },
+  credits: { title: 'Credits', Component: CreditsScreen, root: false, boot: true },
 
   // Bottom navigation.
   team: { title: 'Team', Component: TeamScreen, root: true },

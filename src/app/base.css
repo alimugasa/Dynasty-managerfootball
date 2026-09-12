@@ -55,3 +55,24 @@ button {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
+
+/* Moving between screens.
+ *
+ * A cross-fade only. A rise would need a transform on the wrapper, and a
+ * transformed ancestor becomes the containing block for `position: fixed`
+ * children -- which would tear the main menu's full-bleed backdrop off the
+ * viewport for the length of the animation. Opacity has no such side effect
+ * and reads as smooth on its own.
+ *
+ * The reduced-motion block above already collapses this to nothing. */
+@keyframes dmp-screen-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.screen-in {
+  animation: dmp-screen-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}

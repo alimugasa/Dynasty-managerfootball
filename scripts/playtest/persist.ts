@@ -211,3 +211,31 @@ export function adoptLegacy(): void {
     localStorage.removeItem(LEGACY_KEY);
   } catch { /* nothing to do */ }
 }
+
+/**
+ * What this browser is actually holding, for the database-tools screen.
+ *
+ * `bytes` is the length of the JSON written, which is a real measurement of
+ * what was stored rather than an estimate of what the browser charges for it.
+ */
+export function storageReport(): {
+  readonly used: number; readonly total: number; readonly bytes: number | null;
+} {
+  let bytes: number | null = 0;
+  let used = 0;
+  for (let slot = 1; slot <= SLOT_COUNT; slot += 1) {
+    try {
+      const text = localStorage.getItem(KEY(slot));
+      if (text === null) continue;
+      used += 1;
+      if (bytes !== null) bytes += text.length;
+    } catch {
+      // Storage that cannot be read is reported as unknown, not as zero.
+      bytes = null;
+    }
+  }
+  return { used, total: SLOT_COUNT, bytes };
+}
+
+/** The save-document schema this build reads and writes. */
+export const SCHEMA_VERSION = SAVE_SCHEMA_VERSION;

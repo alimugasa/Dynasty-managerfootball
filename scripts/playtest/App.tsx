@@ -1,10 +1,8 @@
 // The play-test app: the product's five tabs, driven by the engine in the page.
 
 import { useCallback, useEffect, useState } from 'react';
-import { COLOR, FONT, LAYOUT, S } from '../../src/app/tokens';
-import {
-  CalendarIcon, LeagueIcon, OfficeIcon, RosterIcon, ShieldIcon,
-} from '../../src/components/icons';
+import { COLOR, S } from '../../src/app/tokens';
+import { Frame, TabBar } from './chrome';
 import type { PositionGroup } from '../../supabase/functions/_shared/engine/types';
 import { newDynasty, reorder, simWeek, type Game } from './host';
 import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
@@ -12,20 +10,14 @@ import { OffseasonScreen } from './offseason';
 import { adoptLegacy, clear, gmOf, persist, restore } from './persist';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
 import {
-  CreateGmScreen, HomeScreen, SelectTeamScreen, SlotsScreen,
+  CreateGmScreen, CreditsPanel, DatabaseToolsScreen, HomeScreen, SelectTeamScreen,
+  SettingsPanel, SlotsScreen,
 } from './boot';
 import { BracketScreen } from './bracket';
 import { StaffScreen } from './staff';
 import { RecapScreen } from './recap';
 import { BoxScore, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
 
-const TABS = [
-  { key: 'team', label: 'Team', Icon: ShieldIcon },
-  { key: 'league', label: 'League', Icon: LeagueIcon },
-  { key: 'schedule', label: 'Schedule', Icon: CalendarIcon },
-  { key: 'roster', label: 'Roster', Icon: RosterIcon },
-  { key: 'office', label: 'Office', Icon: OfficeIcon },
-] as const;
 
 const TITLES: Readonly<Record<string, string>> = {
   team: 'Team', league: 'League', schedule: 'Schedule', roster: 'Roster',
@@ -36,7 +28,18 @@ const TITLES: Readonly<Record<string, string>> = {
 interface Drill { readonly screen: string; readonly id: string }
 
 /** Where the player is before a dynasty is open. `play` is in one. */
-type Route = 'home' | 'slots' | 'gm' | 'pick' | 'play';
+type Route =
+  | 'home' | 'slots' | 'gm' | 'pick' | 'play'
+  // The main menu's foot. Reachable with no dynasty open, like the rest of the
+  // boot flow, and Back from any of them returns to the menu.
+  | 'settings' | 'dbtools' | 'credits';
+
+/** The three utility destinations, titled the way the app titles them. */
+const UTILITY: Readonly<Record<string, { title: string; subtitle: string }>> = {
+  settings: { title: 'Settings', subtitle: 'Preferences' },
+  dbtools: { title: 'Database Tools', subtitle: 'Developer' },
+  credits: { title: 'Credits', subtitle: 'Who built this' },
+};
 
 export function App() {
   // A save written by the build that kept one nameless dynasty becomes file 1,
@@ -150,60 +153,12 @@ export function App() {
    *  `onBack` is passed rather than derived: in a dynasty the arrow closes a
    *  drill-down, and in the boot flow it steps back through the save file, the
    *  name and the team. Two different questions, one frame. */
-  const frame = (
-    title: string, subtitle: string, onBack: (() => void) | null,
-    body: React.ReactNode, forNav: boolean,
-  ): React.ReactElement => (
-    <div style={{ minHeight: '100%', display: 'flex', justifyContent: 'center' }}>
-      <div
-        style={{
-          width: '100%', maxWidth: LAYOUT.shellMax, minWidth: 0,
-          paddingLeft: 'env(safe-area-inset-left, 0px)',
-          paddingRight: 'env(safe-area-inset-right, 0px)',
-          paddingBottom: forNav
-            ? `calc(${String(LAYOUT.navHeight)}px + env(safe-area-inset-bottom, 0px) + 16px)`
-            : 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
-        }}
-      >
-        <header
-          style={{
-            position: 'sticky', top: 0, zIndex: 10, background: COLOR.ink,
-            borderBottom: `1px solid ${COLOR.line}`, padding: '14px 16px 10px',
-            display: 'flex', alignItems: 'flex-start', gap: 10,
-          }}
-        >
-          {onBack !== null && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label="Back"
-              style={{
-                background: 'none', border: 'none', color: COLOR.amber, fontSize: 22,
-                lineHeight: 1, padding: '2px 6px 0 0', cursor: 'pointer',
-              }}
-            >
-              ‹
-            </button>
-          )}
-          <div style={{ minWidth: 0 }}>
-            <h1 style={{
-              margin: 0, fontFamily: FONT.display, fontSize: 26, lineHeight: 1.05,
-              letterSpacing: '0.02em', textTransform: 'uppercase', color: COLOR.tx,
-            }}
-            >
-              {title}
-            </h1>
-            <p style={{ margin: '2px 0 0', color: COLOR.mut, fontSize: 12 }}>{subtitle}</p>
-          </div>
-        </header>
-        <main style={{ padding: '10px 16px 0' }}>{body}</main>
-      </div>
-    </div>
-  );
 
   const bootShell = (
     title: string, subtitle: string, onBack: () => void, body: React.ReactNode,
-  ): React.ReactElement => frame(title, subtitle, onBack, body, false);
+  ): React.ReactElement => (
+    <Frame title={title} subtitle={subtitle} onBack={onBack} forNav={false}>{body}</Frame>
+  );
 
   if (game === null) {
     if (route === 'home') {
@@ -211,8 +166,20 @@ export function App() {
         <HomeScreen
           onNew={() => { setCreating(true); setPending(null); setNotice(null); setRoute('slots'); }}
           onLoad={() => { setCreating(false); setPending(null); setNotice(null); setRoute('slots'); }}
+          onUtility={(to) => { setRoute(to); }}
         />
       );
+    }
+
+    const utility = UTILITY[route];
+    if (utility !== undefined) {
+      return bootShell(utility.title, utility.subtitle, () => { setRoute('home'); }, (
+        <>
+          {route === 'settings' && <SettingsPanel />}
+          {route === 'dbtools' && <DatabaseToolsScreen />}
+          {route === 'credits' && <CreditsPanel />}
+        </>
+      ));
     }
 
     const title = route === 'slots' ? (creating ? 'New Game' : 'Load Game')
@@ -335,61 +302,18 @@ export function App() {
 
   return (
     <>
-      {frame(title, subtitle, drill === null ? null : () => { setDrill(null); }, body, true)}
-      <nav
-        aria-label="Sections"
-        style={{
-          position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 20,
-          background: 'rgba(18, 25, 32, 0.88)',
-          backdropFilter: 'saturate(140%) blur(14px)',
-          WebkitBackdropFilter: 'saturate(140%) blur(14px)',
-          borderTop: `1px solid ${COLOR.line}`,
-          boxShadow: '0 -8px 24px rgba(0,0,0,0.35)',
-          display: 'grid', gridTemplateColumns: `repeat(${String(TABS.length)}, minmax(0, 1fr))`,
-          height: `calc(${String(LAYOUT.navHeight)}px + env(safe-area-inset-bottom, 0px))`,
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
+      <Frame
+        title={title}
+        subtitle={subtitle}
+        onBack={drill === null ? null : () => { setDrill(null); }}
+        forNav
       >
-        {TABS.map(({ key, label, Icon }) => {
-          const active = drill === null && tab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => { setTab(key); setDrill(null); window.scrollTo(0, 0); }}
-              {...(active ? { 'aria-current': 'page' as const } : {})}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', minWidth: 0,
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', gap: 3, padding: 0,
-                color: active ? COLOR.amber : COLOR.mut,
-                position: 'relative',
-              }}
-            >
-              {/* A short bar centred over the icon rather than a rule across
-                  the whole tab: it points at the destination instead of
-                  underlining a column. Matches src/app/TabBar.tsx. */}
-              <span
-                aria-hidden="true"
-                style={{
-                  position: 'absolute', top: 0, left: '50%',
-                  width: active ? 22 : 0, height: 2,
-                  marginLeft: active ? -11 : 0,
-                  borderRadius: '0 0 2px 2px',
-                  background: COLOR.amber,
-                  boxShadow: active ? `0 0 12px ${COLOR.amber}` : 'none',
-                  transition: 'width 200ms cubic-bezier(0.2, 0.8, 0.2, 1),'
-                    + ' margin-left 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
-                }}
-              />
-              <Icon size={20} active={active} />
-              <span style={{ fontSize: 10, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                {label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+        {body}
+      </Frame>
+      <TabBar
+        tab={drill === null ? tab : ''}
+        onTab={(key) => { setTab(key); setDrill(null); window.scrollTo(0, 0); }}
+      />
     </>
   );
 }

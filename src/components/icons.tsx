@@ -103,3 +103,49 @@ export function ChevronRightIcon({ size = 18, stroke = 'currentColor' }: IconPro
     </Frame>
   );
 }
+
+// ---------------------------------------------------------------- utilities
+// The three quiet actions along the foot of the main menu. Drawn a hair
+// thinner than the navigation icons: they sit at 15px beside 11px text and
+// must read as secondary to the two buttons above them, not compete.
+
+const thin = (stroke: string) => ({
+  stroke,
+  strokeWidth: 1.4,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+});
+
+/** Settings: two sliders. A gear at 15px is a smudge; sliders stay legible. */
+export function SettingsIcon({ size = 15, stroke = 'currentColor' }: IconProps) {
+  return (
+    <Frame size={size}>
+      <path d="M4 8h16M4 16h16" {...thin(stroke)} />
+      <circle cx="9" cy="8" r="2.4" {...thin(stroke)} />
+      <circle cx="16" cy="16" r="2.4" {...thin(stroke)} />
+    </Frame>
+  );
+}
+
+/** Database tools: a cylinder, the shape every storage icon has settled on. */
+export function DatabaseIcon({ size = 15, stroke = 'currentColor' }: IconProps) {
+  return (
+    <Frame size={size}>
+      <ellipse cx="12" cy="6" rx="7" ry="2.8" {...thin(stroke)} />
+      <path d="M5 6v12c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8V6" {...thin(stroke)} />
+      <path d="M5 12c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8" {...thin(stroke)} />
+    </Frame>
+  );
+}
+
+/** Credits: a star. Recognition, without borrowing anyone's mark for it. */
+export function CreditsIcon({ size = 15, stroke = 'currentColor' }: IconProps) {
+  return (
+    <Frame size={size}>
+      <path
+        d="M12 3.8l2.6 5.27 5.82.85-4.21 4.1.99 5.79L12 17.08l-5.2 2.73.99-5.79-4.21-4.1 5.82-.85z"
+        {...thin(stroke)}
+      />
+    </Frame>
+  );
+}

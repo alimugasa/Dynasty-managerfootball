@@ -16,16 +16,59 @@ import { ChevronRightIcon } from '../../src/components/icons';
 import { Panel } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { TeamMark } from '../../src/components/TeamMark';
-import { HomeDoor } from '../../src/screens/homeDoor';
+import { HomeDoor, type DoorDestination } from '../../src/screens/homeDoor';
+import {
+  CreditsPanel, DatabaseToolsPanel, SettingsPanel, type Fact,
+} from '../../src/screens/menuPanels';
 import { NameField } from '../../src/screens/nameField';
 import { SlotCard, SlotNumber } from '../../src/screens/slotCard';
-import { slotRows } from './persist';
+import { SCHEMA_VERSION, slotRows, storageReport } from './persist';
 import { clubs as allClubs } from './world';
 
-export function HomeScreen({ onNew, onLoad }: {
-  readonly onNew: () => void; readonly onLoad: () => void;
+export function HomeScreen({ onNew, onLoad, onUtility }: {
+  readonly onNew: () => void;
+  readonly onLoad: () => void;
+  readonly onUtility: (to: DoorDestination) => void;
 }) {
-  return <HomeDoor onNew={onNew} onLoad={onLoad} />;
+  return <HomeDoor onNew={onNew} onLoad={onLoad} onUtility={onUtility} />;
+}
+
+export { CreditsPanel, SettingsPanel };
+
+/**
+ * Database tools, as the rig can honestly describe itself.
+ *
+ * No server and no API: a dynasty here is JSON in this browser, and the screen
+ * says exactly that rather than borrowing the app's answer.
+ */
+export function DatabaseToolsScreen() {
+  const report = storageReport();
+  const rows = slotRows();
+  const open = rows.filter((r) => r.saveId !== null);
+  const facts: readonly Fact[] = [
+    { label: 'Location', value: 'This browser only' },
+    { label: 'Files used', value: `${String(report.used)} of ${String(report.total)}` },
+    {
+      label: 'Written',
+      value: report.bytes === null ? null : `${(report.bytes / 1024).toFixed(0)} KB`,
+    },
+    { label: 'Save schema', value: `v${String(SCHEMA_VERSION)}` },
+    {
+      label: 'Seasons on file',
+      value: open.length === 0
+        ? null
+        : open.map((r) => (r.season === null ? '—' : String(r.season))).join(', '),
+    },
+  ];
+  return (
+    <DatabaseToolsPanel facts={facts}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 0 0`, color: COLOR.dim }}>
+        The play-test build runs the engine in the page: there is no server, and nothing
+        you do here leaves this browser. Delete a file from the save-file screen, where
+        the dynasty being deleted is on screen beside the button.
+      </p>
+    </DatabaseToolsPanel>
+  );
 }
 
 /**

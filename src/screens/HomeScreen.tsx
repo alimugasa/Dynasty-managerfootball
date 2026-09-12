@@ -1,4 +1,4 @@
-// The front door: New Game, or Load Game.
+// The front door: New Franchise, or Load Franchise.
 //
 // Everything a new game needs is asked for on the three screens after this one
 // -- a save file, a name, a team -- and nothing beyond those three is asked for
@@ -24,6 +24,7 @@ export function HomeScreen() {
       <HomeDoor
         onNew={() => { nav.push('slots', { mode: 'new' }); }}
         onLoad={() => { nav.push('slots', { mode: 'load' }); }}
+        onUtility={(to) => { nav.push(to); }}
         disabled={busy !== null}
         {...(loadError === null ? {} : { notice: <QueryError error={loadError} /> })}
       />

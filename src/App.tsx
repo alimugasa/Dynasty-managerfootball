@@ -1,7 +1,7 @@
 import { Shell } from './app/Shell';
 import { NavigationProvider } from './app/NavigationProvider';
 import { TabBar, TABS } from './app/TabBar';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useNavigationState, useNavigator } from './app/navigation';
 import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from './app/screens';
 import { COLOR } from './app/tokens';
@@ -29,7 +29,15 @@ function CurrentScreen() {
   }
 
   const { Component } = def;
-  return <Component />;
+  // Keyed on the screen so each navigation replays the fade rather than the
+  // new screen appearing mid-animation of the old one.
+  return <div key={screen} className="screen-in"><Component /></div>;
+}
+
+/** The shell, told whether a tab bar is going to be under it. */
+function ShellForCurrentScreen({ children }: { readonly children: ReactNode }) {
+  const { screen } = useNavigationState();
+  return <Shell reserveNav={!isBootScreen(screen)}>{children}</Shell>;
 }
 
 function TabsForCurrentScreen() {
@@ -92,9 +100,9 @@ function Booted() {
       rootOf={rootFor}
     >
       <OpenSaveRouter />
-      <Shell>
+      <ShellForCurrentScreen>
         <CurrentScreen />
-      </Shell>
+      </ShellForCurrentScreen>
       <TabsForCurrentScreen />
     </NavigationProvider>
   );

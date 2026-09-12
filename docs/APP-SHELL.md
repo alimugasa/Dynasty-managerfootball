@@ -66,6 +66,12 @@ a seventh grey gap by accident. Both files carry the same values,
 | Type `TYPE` | display / heading / micro / body / prose / figure | six roles, two faces |
 | Motion `MOTION` | 110ms / 200ms, one curve | press feedback, never animation |
 
+Navigating cross-fades the new screen in over 220ms (`.screen-in` in
+`base.css`). A fade and not a rise: a rise needs a transform, a transformed
+ancestor becomes the containing block for `position: fixed` children, and that
+would tear the main menu's full-bleed backdrop off the viewport for the length
+of the animation. The reduced-motion block collapses it to nothing.
+
 A dark interface cannot lift a surface with a drop shadow alone — black on
 near-black is invisible — so each elevation step pairs a shadow below with a
 one-pixel highlight along the top edge. That highlight is what actually reads as
@@ -176,6 +182,31 @@ kind of detail that makes an interface look assembled. Its backdrop is drawn
 rather than shipped as art — yard lines and a pool of warm light — so there is
 no photograph of anywhere real and no mark belonging to anyone
 (`docs/IP-POLICY.md`), and the file stays a few lines of CSS.
+
+The door reads top to bottom in three bands: an empty top, the name and the two
+doors in the middle, and housekeeping along the foot. **New Franchise** is the
+only gold fill on the screen — 58px tall, a three-stop gradient and a lifted
+shadow; **Load Franchise** is a dark card with a blue-grey hairline, so one is
+obviously the thing to press and the other is obviously still a door. Under
+them, three quiet actions — Settings, Database Tools, Credits — in muted grey
+at 10.5px with thin icons, and the build number pinned in the bottom-right
+corner. They are furniture, not choices, and are styled so they cannot be
+mistaken for either door.
+
+Every one of the five goes somewhere: `settings`, `dbtools` and `credits` are
+registered boot screens like the rest of the flow, so they render without a tab
+bar and Back from any of them lands on the menu. Settings and Credits are the
+same components in both builds; Database Tools is not, because the two builds
+keep a dynasty in different places and each reports its own truth — the app
+names the API and the open save, the rig names this browser and its three
+files. Neither invents a fact it does not have, and Settings shows no switches,
+because a control that does nothing is worse than an empty screen.
+
+The door respects both safe areas: the title never sits under a status bar and
+the foot never sits under a home indicator, and it measures itself in `dvh`
+rather than `vh` so an iOS address bar cannot push the foot off the screen.
+`Shell` stops reserving the tab bar's 60px on boot screens, which is what lets
+the foot reach the bottom at all.
 
 An occupied save file wears its franchise's colours and an empty one is drawn
 as a dashed outline, so which of the three files is free reads before any of

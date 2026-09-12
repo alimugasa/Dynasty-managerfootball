@@ -45,6 +45,19 @@ export function ActionButton({
         padding: compact ? `0 ${String(S[3])}px` : `0 ${String(S[4])}px`,
         whiteSpace: 'nowrap',
         flexShrink: 0,
+        // A full-width button is a grid or flex item, and such an item's
+        // automatic minimum size is its content -- so a nowrap label longer
+        // than the column pushes the button out past its own track and takes
+        // the page's horizontal scroll with it. Labels here carry generated
+        // names ("Season recap · Prospectors champions"), so the length is not
+        // knowable in advance: the button gives up its automatic minimum and
+        // ellipsizes instead. A compact button is sized to its label by
+        // design and keeps both.
+        ...(compact ? {} : {
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }),
         borderRadius: compact ? R.sm : R.md,
         cursor: disabled ? 'default' : 'pointer',
         border: primary ? '1px solid transparent' : `1px solid ${COLOR.line2}`,

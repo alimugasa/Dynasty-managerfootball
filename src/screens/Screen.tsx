@@ -29,8 +29,18 @@ export function Screen({ title, subtitle, trailing, screen, bare = false, childr
       )}
       <main
         style={{
-          maxWidth: LAYOUT.shellMax, margin: '0 auto',
-          padding: `${String(S[1])}px ${String(S[3])}px ${String(S[5])}px`, minWidth: 0,
+          maxWidth: LAYOUT.shellMax, margin: '0 auto', minWidth: 0,
+          // A bare screen composes itself edge to edge -- the front door is a
+          // full-bleed backdrop and a foot pinned to the bottom -- so the
+          // scaffold gets out of its way entirely rather than adding padding it
+          // would then have to subtract.
+          ...(bare ? { padding: 0 } : {
+            paddingTop: S[1],
+            paddingInline: S[3],
+            // Shell stops reserving the tab bar's height on the boot flow,
+            // which is what leaves the home indicator to this padding.
+            paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${String(S[5])}px)`,
+          }),
         }}
       >
         <DataBoundary screen={screen}>{children}</DataBoundary>
