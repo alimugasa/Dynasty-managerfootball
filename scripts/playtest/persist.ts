@@ -17,7 +17,7 @@ import {
   ledgerFromJson, ledgerToJson, type LedgerJson,
 } from '../../supabase/functions/_shared/engine/news/index';
 import { clubs } from './world';
-import type { Game, Standing } from './host';
+import { capFor, type Game, type Standing } from './host';
 import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
 
 export const SLOT_COUNT = 3;
@@ -31,6 +31,9 @@ const LEGACY_KEY = 'dmp.playtest.v1';
  *  opening the league. */
 interface Header {
   readonly gmName: string | null;
+  /** What the player calls this file. Defaults to the GM's name, as the app's
+   *  create-save does, and is renameable from the save-file screen. */
+  readonly name: string;
   readonly teamId: string;
   readonly season: number;
   readonly week: number;
@@ -38,6 +41,11 @@ interface Header {
   readonly wins: number;
   readonly losses: number;
   readonly ties: number;
+  /** Cap space in whole dollars, and championships won, both computed from the
+   *  dynasty at save time so the file list never has to open a league to draw
+   *  a card. */
+  readonly capSpace: number;
+  readonly titles: number;
   readonly savedAt: string;
 }
 
@@ -68,12 +76,20 @@ interface Stored {
   readonly header?: Header;
 }
 
-export function persist(game: Game, slot: number, gmName: string | null): void {
+export function persist(
+  game: Game, slot: number, gmName: string | null, name?: string,
+): void {
   const mine = game.standings.get(game.userTeamId);
+  // A rename already on the file survives a save: the name belongs to the
+  // player, and simulating a week is not a reason to take it back.
+  const called = name ?? read(slot)?.header?.name ?? gmName ?? `File ${String(slot)}`;
   try {
     const stored = {
       header: {
         gmName,
+        name: called,
+        capSpace: capFor(game, game.userTeamId).available,
+        titles: game.history.filter((h) => h.playoffResult === 'CHAMPION').length,
         teamId: game.userTeamId,
         season: game.season,
         week: game.week,
@@ -119,6 +135,29 @@ function read(slot: number): Stored | null {
 /** The GM whose name is on a file, or null where none was ever recorded. */
 export function gmOf(slot: number): string | null {
   return read(slot)?.header?.gmName ?? null;
+}
+
+/**
+ * Rename a file, without opening the dynasty in it.
+ *
+ * The header is rewritten in place; the save document beside it is untouched,
+ * because the name is not part of the league. Returns false when there was no
+ * file to rename, which the caller reports rather than swallowing.
+ */
+export function rename(slot: number, name: string): boolean {
+  const trimmed = name.trim();
+  if (trimmed === '') return false;
+  try {
+    const text = localStorage.getItem(KEY(slot));
+    if (text === null) return false;
+    const stored = JSON.parse(text) as Stored;
+    if (stored.header === undefined) return false;
+    const next = { ...stored, header: { ...stored.header, name: trimmed } };
+    localStorage.setItem(KEY(slot), JSON.stringify(next));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function restore(slot: number): Game | null {
@@ -169,9 +208,11 @@ export function slotRows(): SlotRow[] {
     const stored = read(slot);
     if (stored === null) {
       return {
-        slot, saveId: null, teamId: null, teamName: null, primary: null, secondary: null,
+        slot, saveId: null, name: null,
+        teamId: null, teamName: null, primary: null, secondary: null,
         gmName: null, season: null, week: null, phase: null,
-        wins: null, losses: null, ties: null, savedAt: null,
+        wins: null, losses: null, ties: null,
+        capSpace: null, titles: 0, savedAt: null,
       };
     }
     const header = stored.header;
@@ -180,6 +221,7 @@ export function slotRows(): SlotRow[] {
     return {
       slot,
       saveId: String(slot),
+      name: header?.name ?? null,
       teamId,
       teamName: club?.name ?? null,
       primary: club?.primary ?? null,
@@ -191,6 +233,10 @@ export function slotRows(): SlotRow[] {
       wins: header?.wins ?? null,
       losses: header?.losses ?? null,
       ties: header?.ties ?? null,
+      // A file written before these were recorded reports that it does not
+      // know them, rather than claiming no cap space and no trophies.
+      capSpace: header?.capSpace ?? null,
+      titles: header?.titles ?? 0,
       savedAt: header?.savedAt ?? null,
     };
   });

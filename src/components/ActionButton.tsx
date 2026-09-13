@@ -6,7 +6,10 @@
 // whole app feels like it is thinking about whether to bother.
 //
 // The primary is the only amber fill in the product, which is what keeps amber
-// meaning "this is the thing to press". Everything else is an outline.
+// meaning "this is the thing to press". Everything else is an outline -- except
+// `danger`, which is filled red and appears only on the button that destroys
+// something, where "are you sure" has already been asked and the answer needs
+// to look like what it does.
 
 import { useState, type ReactNode } from 'react';
 import { COLOR, ELEV, FONT, MOTION, R, S } from '../app/tokens';
@@ -15,7 +18,7 @@ interface Props {
   readonly children: ReactNode;
   readonly onClick: () => void;
   readonly disabled?: boolean;
-  readonly tone?: 'primary' | 'quiet';
+  readonly tone?: 'primary' | 'quiet' | 'danger';
   /** A row action rather than a page action: sized to its label, so the row
    *  it sits in still shows the player it is about. */
   readonly compact?: boolean;
@@ -27,6 +30,8 @@ export function ActionButton({
 }: Props) {
   const [held, setHeld] = useState(false);
   const primary = tone === 'primary';
+  // Red, filled, and only ever on the button that destroys something.
+  const danger = tone === 'danger';
   const down = held && !disabled;
 
   return (
@@ -60,19 +65,21 @@ export function ActionButton({
         }),
         borderRadius: compact ? R.sm : R.md,
         cursor: disabled ? 'default' : 'pointer',
-        border: primary ? '1px solid transparent' : `1px solid ${COLOR.line2}`,
+        border: primary || danger ? '1px solid transparent' : `1px solid ${COLOR.line2}`,
         // A flat fill reads as a coloured rectangle; two stops of the same
         // amber read as a surface with a light on it.
         background: primary
           ? `linear-gradient(180deg, #F7BC52 0%, ${COLOR.amber} 55%, #DE9820 100%)`
-          : down ? COLOR.raise : 'transparent',
-        color: primary ? COLOR.ink : COLOR.tx,
+          : danger
+            ? `linear-gradient(180deg, #EA6C62 0%, ${COLOR.red} 55%, #C8443A 100%)`
+            : down ? COLOR.raise : 'transparent',
+        color: primary || danger ? COLOR.tx : COLOR.tx,
         fontFamily: FONT.ui,
         fontSize: compact ? 13 : 15,
         fontWeight: 600,
         letterSpacing: 0.2,
         opacity: disabled ? 0.4 : 1,
-        boxShadow: disabled || !primary ? 'none' : down ? ELEV.low : ELEV.mid,
+        boxShadow: disabled || !(primary || danger) ? 'none' : down ? ELEV.low : ELEV.mid,
         transform: down ? 'translateY(1px)' : 'none',
         transition: `transform ${MOTION.fast} ${MOTION.ease},`
           + ` box-shadow ${MOTION.fast} ${MOTION.ease},`

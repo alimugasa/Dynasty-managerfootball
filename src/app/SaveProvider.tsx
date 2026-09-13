@@ -52,6 +52,9 @@ export interface SaveApi {
   leaveSave: () => void;
   /** Deletes a save outright. Used from the slot screen, never mid-game. */
   deleteSave: (saveId: string) => Promise<void>;
+  /** Renames a save file. The name is the one thing about a dynasty the player
+   *  owns outright, so it is the one thing the client may set. */
+  renameSave: (saveId: string, name: string) => Promise<void>;
 }
 
 export interface NewDynasty {
@@ -232,6 +235,9 @@ export function SaveProvider({ children }: { children: ReactNode }) {
           setOpenSaveId(null);
           remember(null);
         }
+      }),
+      renameSave: (saveId, name) => act('Renaming…', async () => {
+        await api().call('rename-save', { saveId, name });
       }),
     };
   }, [current, loadError, clubsById, version, busy, notice, act, openSaveId, settled]);

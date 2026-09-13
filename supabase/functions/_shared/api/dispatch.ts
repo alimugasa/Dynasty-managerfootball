@@ -11,6 +11,7 @@ import { health } from './health.ts';
 import { createSave } from './createSave.ts';
 import { simWeek } from './simWeek.ts';
 import { deleteSave } from './deleteSave.ts';
+import { renameSave } from './renameSave.ts';
 import { advanceSeason } from './advanceSeason.ts';
 import { save } from './reads/save.ts';
 import { slots } from './reads/slots.ts';
@@ -37,6 +38,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'sim-week': simWeek,
   'advance-season': advanceSeason,
   'delete-save': deleteSave,
+  'rename-save': renameSave,
   save,
   slots,
   clubs,

@@ -7,7 +7,7 @@ import type { PositionGroup } from '../../supabase/functions/_shared/engine/type
 import { newDynasty, reorder, simWeek, type Game } from './host';
 import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
 import { OffseasonScreen } from './offseason';
-import { adoptLegacy, clear, gmOf, persist, restore } from './persist';
+import { adoptLegacy, clear, gmOf, persist, rename, restore } from './persist';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
 import {
   CreateGmScreen, CreditsPanel, DatabaseToolsScreen, HomeScreen, SelectTeamScreen,
@@ -182,9 +182,9 @@ export function App() {
       ));
     }
 
-    const title = route === 'slots' ? (creating ? 'New Game' : 'Load Game')
+    const title = route === 'slots' ? (creating ? 'New Franchise' : 'Load Franchise')
       : route === 'gm' ? 'Create GM' : 'Select Team';
-    const subtitle = route === 'slots' ? 'Save files'
+    const subtitle = route === 'slots' ? (creating ? 'Choose save file' : 'Save files')
       : route === 'gm' ? `File ${String(pending?.slot ?? 1)}`
         : `${pending?.gm ?? ''} · File ${String(pending?.slot ?? 1)}`;
     const back = (): void => {
@@ -209,6 +209,11 @@ export function App() {
             onOpen={openSlot}
             onStart={(n) => { setPending({ slot: n, gm: '' }); setRoute('gm'); }}
             onDelete={(n) => { clear(n); setNotice(null); setRefresh((r) => r + 1); }}
+            onRename={(n, name) => {
+              if (!rename(n, name)) setNotice(`File ${String(n)} could not be renamed.`);
+              else setNotice(null);
+              setRefresh((r) => r + 1);
+            }}
           />
         )}
         {route === 'gm' && (

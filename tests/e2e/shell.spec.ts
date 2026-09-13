@@ -38,7 +38,9 @@ async function ensureDynasty(page: Page): Promise<void> {
 
   await page.getByTestId('load-game').click();
   await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
-  const saved = page.getByTestId('slot-list').locator('[data-testid^="slot-"] button').first();
+  // The button that opens a save, by name: a filled card also carries an
+  // overflow menu, and that one comes first in the DOM.
+  const saved = page.getByTestId('slot-list').locator('[data-testid^="open-slot-"]').first();
   if (await saved.count() > 0) {
     await saved.click();
     await inDynasty(page);

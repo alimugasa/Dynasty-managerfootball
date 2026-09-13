@@ -149,3 +149,14 @@ export function CreditsIcon({ size = 15, stroke = 'currentColor' }: IconProps) {
     </Frame>
   );
 }
+
+/** More: the three dots that open a menu of things to do to a row. */
+export function MoreIcon({ size = 18, stroke = 'currentColor' }: IconProps) {
+  return (
+    <Frame size={size}>
+      <circle cx="12" cy="5" r="1.6" fill={stroke} stroke="none" />
+      <circle cx="12" cy="12" r="1.6" fill={stroke} stroke="none" />
+      <circle cx="12" cy="19" r="1.6" fill={stroke} stroke="none" />
+    </Frame>
+  );
+}

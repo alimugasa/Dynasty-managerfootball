@@ -10,9 +10,9 @@
 // from drifting apart again.
 
 import { useState } from 'react';
-import { COLOR, R, S, TYPE } from '../../src/app/tokens';
+import { COLOR, R, S, TYPE, tint } from '../../src/app/tokens';
 import { ActionButton } from '../../src/components/ActionButton';
-import { ChevronRightIcon } from '../../src/components/icons';
+import { Modal } from '../../src/components/Modal';
 import { Panel } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { TeamMark } from '../../src/components/TeamMark';
@@ -21,7 +21,8 @@ import {
   CreditsPanel, DatabaseToolsPanel, SettingsPanel, type Fact,
 } from '../../src/screens/menuPanels';
 import { NameField } from '../../src/screens/nameField';
-import { SlotCard, SlotNumber } from '../../src/screens/slotCard';
+import { EmptySlotCard, SlotCard } from '../../src/screens/slotCard';
+import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
 import { SCHEMA_VERSION, slotRows, storageReport } from './persist';
 import { clubs as allClubs } from './world';
 
@@ -72,70 +73,23 @@ export function DatabaseToolsScreen() {
 }
 
 /**
- * A file with nothing in it.
- *
- * Drawn as an outline rather than a filled card, because that is what empty
- * looks like. Occupied files are solid and carry their franchise's colour, so
- * which of the three is available reads before any of the words do.
- */
-function EmptySlot({ n, lit, onSelect }: {
-  readonly n: number; readonly lit: boolean; readonly onSelect?: () => void;
-}) {
-  const inner = (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', gap: S[2],
-        padding: `${String(S[5])}px ${String(S[3])}px`,
-        border: `1px dashed ${lit ? COLOR.line2 : COLOR.line}`,
-        borderRadius: R.md,
-        background: lit ? 'rgba(240,168,48,0.04)' : 'rgba(0,0,0,0.12)',
-        minWidth: 0, width: '100%', boxSizing: 'border-box',
-      }}
-    >
-      <SlotNumber n={n} lit={lit} />
-      <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 2, textAlign: 'left' }}>
-        <span style={{ ...TYPE.body, fontWeight: 600, color: lit ? COLOR.tx : COLOR.dim }}>
-          File {n}
-        </span>
-        <span style={{ ...TYPE.micro, color: lit ? COLOR.amber : COLOR.dim }}>
-          {lit ? 'Empty · start here' : 'Empty'}
-        </span>
-      </span>
-      {lit && (
-        <span style={{ color: COLOR.dim, display: 'flex', flexShrink: 0 }}><ChevronRightIcon /></span>
-      )}
-    </div>
-  );
-  if (onSelect === undefined) return inner;
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      style={{
-        display: 'block', width: '100%', background: 'none', border: 0,
-        padding: 0, textAlign: 'left', cursor: 'pointer', minWidth: 0,
-        WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation',
-      }}
-    >
-      {inner}
-    </button>
-  );
-}
-
-/**
  * The save files.
  *
  * One screen, two errands, told apart by how it was opened. Starting a new
  * game, an empty file is the thing to tap and an occupied one is in the way.
  * Loading, it is the other way round.
  */
-export function SlotsScreen({ creating, onOpen, onStart, onDelete }: {
+export function SlotsScreen({ creating, onOpen, onStart, onDelete, onRename }: {
   readonly creating: boolean;
   readonly onOpen: (slot: number) => void;
   readonly onStart: (slot: number) => void;
   readonly onDelete: (slot: number) => void;
+  readonly onRename: (slot: number, name: string) => void;
 }) {
-  const [confirming, setConfirming] = useState<number | null>(null);
+  const [renaming, setRenaming] = useState<SlotRow | null>(null);
+  const [deleting, setDeleting] = useState<SlotRow | null>(null);
+  const [draft, setDraft] = useState('');
+  const [refused, setRefused] = useState<number | null>(null);
   const rows = slotRows();
 
   return (
@@ -148,11 +102,30 @@ export function SlotsScreen({ creating, onOpen, onStart, onDelete }: {
           if (slot.saveId === null) {
             return (
               <div key={slot.slot} data-testid={`empty-slot-${String(slot.slot)}`} data-empty-slot="">
-                <EmptySlot
+                <EmptySlotCard
                   n={slot.slot}
                   lit={creating}
-                  {...(creating ? { onSelect: () => { onStart(slot.slot); } } : {})}
+                  onSelect={() => {
+                    if (!creating) { setRefused(slot.slot); return; }
+                    setRefused(null);
+                    onStart(slot.slot);
+                  }}
                 />
+                {refused === slot.slot && (
+                  <p
+                    data-testid={`empty-refused-${String(slot.slot)}`}
+                    role="status"
+                    style={{
+                      ...TYPE.prose, margin: `${String(S[2])}px 0 0`,
+                      padding: `${String(S[2])}px ${String(S[3])}px`,
+                      borderRadius: R.sm, color: COLOR.tx,
+                      background: tint(COLOR.red, 0.12),
+                      border: `1px solid ${tint(COLOR.red, 0.5)}`,
+                    }}
+                  >
+                    No franchise exists in this file.
+                  </p>
+                )}
               </div>
             );
           }
@@ -161,30 +134,9 @@ export function SlotsScreen({ creating, onOpen, onStart, onDelete }: {
               <SlotCard
                 slot={slot}
                 openable={!creating}
-                onOpen={() => { onOpen(slot.slot); }}
-                footer={confirming === slot.slot ? (
-                  <>
-                    <ActionButton onClick={() => { setConfirming(null); }} tone="quiet" compact>
-                      Keep
-                    </ActionButton>
-                    <ActionButton
-                      onClick={() => { setConfirming(null); onDelete(slot.slot); }}
-                      compact
-                      testId={`delete-confirm-${String(slot.slot)}`}
-                    >
-                      Delete for good
-                    </ActionButton>
-                  </>
-                ) : (
-                  <ActionButton
-                    onClick={() => { setConfirming(slot.slot); }}
-                    tone="quiet"
-                    compact
-                    testId={`delete-${String(slot.slot)}`}
-                  >
-                    Delete
-                  </ActionButton>
-                )}
+                onOpen={() => { setRefused(null); onOpen(slot.slot); }}
+                onRename={() => { setDraft(slot.name ?? ''); setRenaming(slot); }}
+                onDelete={() => { setDeleting(slot); }}
               />
             </div>
           );
@@ -192,8 +144,79 @@ export function SlotsScreen({ creating, onOpen, onStart, onDelete }: {
       </div>
       {creating && rows.every((s) => s.saveId !== null) && (
         <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 2px 0`, color: COLOR.mut }}>
-          Every file is in use. Delete one to start a new game in it.
+          Every file is in use. Delete one to start a new franchise in it.
         </p>
+      )}
+
+      {renaming !== null && (
+        <Modal
+          title="Rename File"
+          detail={`File ${String(renaming.slot)} · ${renaming.teamName ?? 'this franchise'}`}
+          onClose={() => { setRenaming(null); }}
+          testId="rename-modal"
+          actions={(
+            <>
+              <ActionButton tone="quiet" compact onClick={() => { setRenaming(null); }}>
+                Cancel
+              </ActionButton>
+              <ActionButton
+                compact
+                disabled={draft.trim() === ''}
+                testId="rename-save"
+                onClick={() => {
+                  const n = renaming.slot;
+                  setRenaming(null);
+                  onRename(n, draft.trim());
+                }}
+              >
+                Save
+              </ActionButton>
+            </>
+          )}
+        >
+          <NameField
+            label="File name"
+            value={draft}
+            onChange={setDraft}
+            autoFocus
+            testId="rename-input"
+          />
+        </Modal>
+      )}
+
+      {deleting !== null && (
+        <Modal
+          title="Delete Franchise?"
+          detail="This will permanently remove this save file."
+          onClose={() => { setDeleting(null); }}
+          testId="delete-modal"
+          actions={(
+            <>
+              <ActionButton tone="quiet" compact onClick={() => { setDeleting(null); }}>
+                Cancel
+              </ActionButton>
+              <ActionButton
+                tone="danger"
+                compact
+                testId="delete-confirm"
+                onClick={() => {
+                  const n = deleting.slot;
+                  setDeleting(null);
+                  onDelete(n);
+                }}
+              >
+                Delete
+              </ActionButton>
+            </>
+          )}
+        >
+          <p style={{ ...TYPE.body, margin: 0, color: COLOR.tx }}>
+            File {deleting.slot} · {deleting.teamName ?? 'Team unavailable'}
+          </p>
+          <p style={{ ...TYPE.micro, margin: `${String(S[1])}px 0 0`, color: COLOR.mut }}>
+            {deleting.gmName ?? 'No GM recorded'}
+          </p>
+        </Modal>
       )}
     </>
   );

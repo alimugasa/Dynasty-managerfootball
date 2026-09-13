@@ -198,9 +198,30 @@ world -- but GM names were left null, and the menu prints *No GM recorded*.
 
 `create-save` takes an optional `slot` (the lowest free one when omitted) and an
 optional GM name, and refuses a slot that is occupied before it clones anything.
-The `slots` read answers the menu from `saves`, `teams` and `standings` in one
-query; `save` opens the save it is given, or the most recently touched when it
-is given none.
+The `slots` read answers the menu from `saves`, `teams`, `standings`,
+`salary_cap` and `league_history` in one query; `save` opens the save it is
+given, or the most recently touched when it is given none.
+
+It never opens a save document. A file list that had to deserialize a 12MB
+league to print a record would cost a second per slot, so everything a card
+shows is a column or an aggregate:
+
+| On the card | From |
+|---|---|
+| Team, colours | `teams`, joined on the save's own `user_team_id` |
+| Record | `standings`, for the season the save is in |
+| Cap space | `salary_cap.available`, cast `::text` — cap money is `bigint` and outgrows a JS number by 2062 |
+| Titles | `count(*)` over `league_history` where `playoff_result = 'CHAMPION'`, as a scalar subquery rather than a join, which would multiply the row by one per season played |
+| Name | `saves.name` |
+
+Every join is a left join, and every missing value reaches the card as null
+rather than as zero: a season with no cap sheet has unknown space, which is not
+the same fact as no space.
+
+`rename-save` is the only write handler that stores a free-text string from the
+client. It trims once, refuses an empty or over-long name rather than
+truncating, and resolves the save through `ownedSave` first, so a rename can
+only land on a row the caller already owns.
 
 ## Honours
 
@@ -239,7 +260,7 @@ screens say so rather than showing an empty list.
 | Save files and the GM | `supabase/migrations/0025_save_slots.sql` |
 | The menu's read | `supabase/functions/_shared/api/reads/slots.ts` |
 | The start flow | `src/screens/HomeScreen.tsx` and the three after it |
-| Save-file tests | `tests/api/slots.test.ts`, `tests/startFlow.test.tsx` |
+| Save-file tests | `tests/api/slots.test.ts`, `tests/api/renameSave.test.ts`, `tests/startFlow.test.tsx` |
 | All-star rosters | `supabase/migrations/0026_all_star_rosters.sql` |
 | The selections | `supabase/functions/_shared/engine/offseason/awards.ts` |
 | The panel all three are shown on | `src/screens/honoursPanel.tsx` |

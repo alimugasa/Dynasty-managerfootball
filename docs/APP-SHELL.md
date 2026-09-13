@@ -208,6 +208,41 @@ rather than `vh` so an iOS address bar cannot push the foot off the screen.
 `Shell` stops reserving the tab bar's 60px on boot screens, which is what lets
 the foot reach the bottom at all.
 
+### The save files
+
+One screen, two errands, told apart by the mode it was pushed with.
+
+| | New Franchise | Load Franchise |
+|---|---|---|
+| Subtitle | Choose save file | Save files |
+| An empty file | gold, `Empty · start here`, chevroned, opens the GM screen | dimmed, `Empty`, and a tap says *No franchise exists in this file.* |
+| A filled file | shown, not tappable | the thing to tap; opens the dynasty |
+
+An empty file in load mode is dimmed but is **not** `disabled`, and carries no
+`aria-disabled`: both announce a control that cannot be used, and this one can
+— tapping it is how the screen gets to say why the file is no use for loading.
+A button that calls itself disabled and then answers a tap tells two stories.
+
+A filled card carries the franchise's colours and everything worth knowing
+before opening it: the file and when it was last saved along the top, the
+badge, team and GM in the middle, and season, record, cap space and titles in a
+strip along the foot. The strip is a wrapping flex row, not four columns —
+"2026 · Week 4" is three times the width of "0", and equal columns truncate the
+season to buy the trophy count room it has no use for. At 320px it wraps to two
+lines rather than clipping.
+
+The file's own name shows on the top line only once it differs from the GM's
+name, because that is what it is created as: printing it unrenamed would say
+the same thing twice.
+
+**Rename** and **Delete** live behind the three dots on a filled card, and both
+open a dialog naming the file. Rename prefills with the current name; Delete is
+titled *Delete Franchise?* with a red confirm, and clears that slot only. The
+name is the one thing about a dynasty the client may set — the season, the
+record and the cap are the engine's to say — which is why `rename-save` is the
+only write handler that takes a free-text string, and why it resolves the save
+through `ownedSave` before touching it.
+
 An occupied save file wears its franchise's colours and an empty one is drawn
 as a dashed outline, so which of the three files is free reads before any of
 the words do.

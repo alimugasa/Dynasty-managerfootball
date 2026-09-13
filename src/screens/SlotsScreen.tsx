@@ -1,97 +1,64 @@
 // The save files.
 //
 // One screen, two errands, told apart by the mode it was pushed with. Starting
-// a new game, an empty slot is the thing to tap and an occupied one is in the
-// way. Loading, it is the other way round. The list is the same either way, so
-// a player can always see what they have.
+// a franchise, an empty file is the thing to tap and a filled one is in the
+// way; loading one, it is the other way round. Both show all three files --
+// the list is the same either way, so a player can always see what they have.
 //
-// Deleting lives here and nowhere else. Three files and no way to clear one is
-// a dead end -- fill them and a new game becomes impossible -- and mid-game is
-// the wrong place to offer it, so the menu is where a save is thrown away, and
-// only after a second tap says so.
+// The two things you can do to a file that are not opening it live behind the
+// three dots on the card: renaming it, and destroying it. Both open a dialog
+// naming the file, because a rename you did not mean is annoying and a delete
+// you did not mean is a season.
 
 import { useState } from 'react';
-import { COLOR, R, S, TYPE } from '../app/tokens';
+import { COLOR, R, S, TYPE, tint } from '../app/tokens';
 import { useNavigationState, useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { ActionButton } from '../components/ActionButton';
-import { ChevronRightIcon } from '../components/icons';
+import { Modal } from '../components/Modal';
 import { Loading, QueryError } from '../components/QueryState';
+import { NameField } from './nameField';
 import { Screen } from './Screen';
-import { SlotCard, SlotNumber } from './slotCard';
-import type { SlotsOut } from '../../supabase/functions/_shared/api/reads/slots';
+import { EmptySlotCard, SlotCard } from './slotCard';
+import type { SlotRow, SlotsOut } from '../../supabase/functions/_shared/api/reads/slots';
 
-/**
- * A file with nothing in it.
- *
- * Drawn as an outline rather than a filled card, because that is what empty
- * looks like: the dashed edge says the space is real and the space is free.
- * Occupied files are solid and carry their franchise's colour, so which of the
- * three is available reads before any of the words do.
- */
-function EmptySlot({
-  n, lit, onSelect,
-}: {
-  readonly n: number; readonly lit: boolean; readonly onSelect?: () => void;
-}) {
-  const inner = (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', gap: S[2],
-        padding: `${String(S[5])}px ${String(S[3])}px`,
-        border: `1px dashed ${lit ? COLOR.line2 : COLOR.line}`,
-        borderRadius: R.md,
-        background: lit ? 'rgba(240,168,48,0.04)' : 'rgba(0,0,0,0.12)',
-        minWidth: 0, width: '100%', boxSizing: 'border-box',
-      }}
-    >
-      <SlotNumber n={n} lit={lit} />
-      <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 2, textAlign: 'left' }}>
-        <span style={{ ...TYPE.body, fontWeight: 600, color: lit ? COLOR.tx : COLOR.dim }}>
-          File {n}
-        </span>
-        <span style={{ ...TYPE.micro, color: lit ? COLOR.amber : COLOR.dim }}>
-          {lit ? 'Empty · start here' : 'Empty'}
-        </span>
-      </span>
-      {lit && (
-        <span style={{ color: COLOR.dim, display: 'flex', flexShrink: 0 }}><ChevronRightIcon /></span>
-      )}
-    </div>
-  );
-
-  if (onSelect === undefined) return inner;
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      style={{
-        display: 'block', width: '100%', background: 'none', border: 0,
-        padding: 0, textAlign: 'left', cursor: 'pointer', minWidth: 0,
-        WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation',
-      }}
-    >
-      {inner}
-    </button>
-  );
-}
+/** What the screen is for, which decides everything else on it. */
+type Mode = 'new' | 'load';
 
 export function SlotsScreen() {
   const nav = useNavigator();
   const { params } = useNavigationState();
-  const { openSave, deleteSave, busy, notice, version } = useSave();
-  const [confirming, setConfirming] = useState<string | null>(null);
-  const creating = params['mode'] !== 'load';
+  const { openSave, deleteSave, renameSave, busy, notice, version } = useSave();
+  const mode: Mode = params['mode'] === 'load' ? 'load' : 'new';
+  const creating = mode === 'new';
   const q = useQuery<SlotsOut>('slots', {}, version);
 
+  // Which file a dialog is open for, and which dialog. One at a time.
+  const [renaming, setRenaming] = useState<SlotRow | null>(null);
+  const [deleting, setDeleting] = useState<SlotRow | null>(null);
+  const [draft, setDraft] = useState('');
+  // Why the tap you just made did nothing. Cleared by the next tap that works.
+  const [refused, setRefused] = useState<number | null>(null);
+
+  const startRename = (slot: SlotRow): void => {
+    setDraft(slot.name ?? '');
+    setRenaming(slot);
+  };
+
   return (
-    <Screen title={creating ? 'New Game' : 'Load Game'} subtitle="Save files" screen="slots">
+    <Screen
+      title={creating ? 'New Franchise' : 'Load Franchise'}
+      subtitle={creating ? 'Choose save file' : 'Save files'}
+      screen="slots"
+    >
       <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
         {creating ? 'Choose a save file to start in.' : 'Choose a save file to open.'}
       </p>
       {notice !== null && (
-        <p data-testid="notice" style={{ ...TYPE.prose, margin: `0 0 ${String(S[2])}px`, color: COLOR.red }}>{notice}</p>
+        <p data-testid="notice" style={{ ...TYPE.prose, margin: `0 0 ${String(S[2])}px`, color: COLOR.red }}>
+          {notice}
+        </p>
       )}
 
       {q.status === 'error' && <QueryError error={q.error} />}
@@ -105,13 +72,31 @@ export function SlotsScreen() {
                 // text starts with the file number, so anything matching on
                 // "File 1" is matching the wrong end of the string.
                 <div key={slot.slot} data-testid={`empty-slot-${String(slot.slot)}`} data-empty-slot="">
-                  <EmptySlot
+                  <EmptySlotCard
                     n={slot.slot}
                     lit={creating}
-                    {...(creating && busy === null
-                      ? { onSelect: () => { nav.push('gm', { slot: String(slot.slot) }); } }
-                      : {})}
+                    onSelect={() => {
+                      if (!creating) { setRefused(slot.slot); return; }
+                      if (busy !== null) return;
+                      setRefused(null);
+                      nav.push('gm', { slot: String(slot.slot) });
+                    }}
                   />
+                  {refused === slot.slot && (
+                    <p
+                      data-testid={`empty-refused-${String(slot.slot)}`}
+                      role="status"
+                      style={{
+                        ...TYPE.prose, margin: `${String(S[2])}px 0 0`,
+                        padding: `${String(S[2])}px ${String(S[3])}px`,
+                        borderRadius: R.sm, color: COLOR.tx,
+                        background: tint(COLOR.red, 0.12),
+                        border: `1px solid ${tint(COLOR.red, 0.5)}`,
+                      }}
+                    >
+                      No franchise exists in this file.
+                    </p>
+                  )}
                 </div>
               );
             }
@@ -122,36 +107,9 @@ export function SlotsScreen() {
                 <SlotCard
                   slot={slot}
                   openable={!creating && busy === null}
-                  onOpen={() => { void openSave(saveId); }}
-                  footer={confirming === saveId ? (
-                    <>
-                      <ActionButton
-                        onClick={() => { setConfirming(null); }}
-                        tone="quiet"
-                        compact
-                      >
-                        Keep
-                      </ActionButton>
-                      <ActionButton
-                        onClick={() => { setConfirming(null); void deleteSave(saveId); }}
-                        disabled={busy !== null}
-                        compact
-                        testId={`delete-confirm-${String(slot.slot)}`}
-                      >
-                        Delete for good
-                      </ActionButton>
-                    </>
-                  ) : (
-                    <ActionButton
-                      onClick={() => { setConfirming(saveId); }}
-                      disabled={busy !== null}
-                      tone="quiet"
-                      compact
-                      testId={`delete-${String(slot.slot)}`}
-                    >
-                      Delete
-                    </ActionButton>
-                  )}
+                  onOpen={() => { setRefused(null); void openSave(saveId); }}
+                  onRename={() => { startRename(slot); }}
+                  onDelete={() => { setDeleting(slot); }}
                 />
               </div>
             );
@@ -161,8 +119,82 @@ export function SlotsScreen() {
 
       {q.status === 'ready' && creating && q.data.slots.every((s) => s.saveId !== null) && (
         <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 2px 0`, color: COLOR.mut }}>
-          Every file is in use. Delete one to start a new game in it.
+          Every file is in use. Delete one to start a new franchise in it.
         </p>
+      )}
+
+      {renaming !== null && (
+        <Modal
+          title="Rename File"
+          detail={`File ${String(renaming.slot)} · ${renaming.teamName ?? 'this franchise'}`}
+          onClose={() => { setRenaming(null); }}
+          testId="rename-modal"
+          actions={(
+            <>
+              <ActionButton tone="quiet" compact onClick={() => { setRenaming(null); }}>
+                Cancel
+              </ActionButton>
+              <ActionButton
+                compact
+                disabled={draft.trim() === '' || busy !== null}
+                testId="rename-save"
+                onClick={() => {
+                  const id = renaming.saveId;
+                  setRenaming(null);
+                  if (id !== null) void renameSave(id, draft.trim());
+                }}
+              >
+                Save
+              </ActionButton>
+            </>
+          )}
+        >
+          <NameField
+            label="File name"
+            value={draft}
+            onChange={setDraft}
+            autoFocus
+            testId="rename-input"
+          />
+        </Modal>
+      )}
+
+      {deleting !== null && (
+        <Modal
+          title="Delete Franchise?"
+          detail="This will permanently remove this save file."
+          onClose={() => { setDeleting(null); }}
+          testId="delete-modal"
+          actions={(
+            <>
+              <ActionButton tone="quiet" compact onClick={() => { setDeleting(null); }}>
+                Cancel
+              </ActionButton>
+              <ActionButton
+                tone="danger"
+                compact
+                disabled={busy !== null}
+                testId="delete-confirm"
+                onClick={() => {
+                  const id = deleting.saveId;
+                  setDeleting(null);
+                  if (id !== null) void deleteSave(id);
+                }}
+              >
+                Delete
+              </ActionButton>
+            </>
+          )}
+        >
+          {/* What is about to go, named, so the confirmation is about a thing
+              and not about a word. */}
+          <p style={{ ...TYPE.body, margin: 0, color: COLOR.tx }}>
+            File {deleting.slot} · {deleting.teamName ?? 'Team unavailable'}
+          </p>
+          <p style={{ ...TYPE.micro, margin: `${String(S[1])}px 0 0`, color: COLOR.mut }}>
+            {deleting.gmName ?? 'No GM recorded'}
+          </p>
+        </Modal>
       )}
     </Screen>
   );

@@ -6,24 +6,43 @@
 // a game they are about to spend a season in.
 
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { SlotCard, recordOf, savedAt, whenIn } from '../src/screens/slotCard';
+import { cleanup, render, screen } from '@testing-library/react';
+import { SlotCard, capOf, recordOf, savedAt, whenIn } from '../src/screens/slotCard';
 import { HOME_SCREEN, SCREENS, isBootScreen, rootFor } from '../src/app/screens';
 import { TABS } from '../src/app/TabBar';
 import type { SlotRow } from '../supabase/functions/_shared/api/reads/slots';
 
 const occupied: SlotRow = {
-  slot: 2, saveId: 'a-save', teamId: 'CLE', teamName: 'Cleveland Ironmen',
+  slot: 2, saveId: 'a-save', name: 'Casey Okonkwo',
+  teamId: 'CLE', teamName: 'Cleveland Ironmen',
   primary: '#41230A', secondary: '#F26A21', gmName: 'Casey Okonkwo',
   season: 2026, week: 4, phase: 'REGULAR_SEASON',
-  wins: 3, losses: 1, ties: 0, savedAt: '2026-09-09T04:27:00.000Z',
+  wins: 3, losses: 1, ties: 0,
+  capSpace: 18_400_000, titles: 0, savedAt: '2026-09-09T04:27:00.000Z',
 };
 
 const empty: SlotRow = {
-  slot: 3, saveId: null, teamId: null, teamName: null, primary: null, secondary: null,
+  slot: 3, saveId: null, name: null, teamId: null, teamName: null, primary: null, secondary: null,
   gmName: null, season: null, week: null, phase: null,
-  wins: null, losses: null, ties: null, savedAt: null,
+  wins: null, losses: null, ties: null, capSpace: null, titles: 0, savedAt: null,
 };
+
+describe('cap space on a save-file card', () => {
+  it('reads in millions, the way a cap is talked about', () => {
+    expect(capOf({ ...occupied, capSpace: 18_400_000 })).toBe('$18.4M');
+  });
+
+  it('signs an overspent cap rather than hiding it', () => {
+    expect(capOf({ ...occupied, capSpace: -2_150_000 })).toBe('-$2.1M');
+  });
+
+  it('reports a season with no cap sheet as unknown, not as no space', () => {
+    // Zero space and no sheet are opposite facts: one says the cap is full to
+    // the dollar, the other says nobody has written it yet.
+    expect(capOf({ ...occupied, capSpace: null })).toBe('—');
+    expect(capOf({ ...occupied, capSpace: 0 })).toBe('$0.0M');
+  });
+});
 
 describe('what a save file reports', () => {
   it('gives the record, with ties only when there are some', () => {
@@ -37,12 +56,12 @@ describe('what a save file reports', () => {
   });
 
   it('shows the week during the regular season and the phase outside it', () => {
-    expect(whenIn(occupied)).toBe('Wk 4');
-    expect(whenIn({ ...occupied, phase: 'PLAYOFFS' })).toBe('Playoffs');
-    expect(whenIn({ ...occupied, phase: 'RECAP' })).toBe('Year in review');
+    expect(whenIn(occupied)).toBe('2026 · Week 4');
+    expect(whenIn({ ...occupied, phase: 'PLAYOFFS' })).toBe('2026 · Playoffs');
+    expect(whenIn({ ...occupied, phase: 'RECAP' })).toBe('2026 · Year in review');
     // A phase the labels do not know is shown as the server named it, never
     // silently blanked.
-    expect(whenIn({ ...occupied, phase: 'SOMETHING_NEW' })).toBe('SOMETHING_NEW');
+    expect(whenIn({ ...occupied, phase: 'SOMETHING_NEW' })).toBe('2026 · SOMETHING_NEW');
     expect(whenIn(empty)).toBe('—');
   });
 
@@ -58,12 +77,47 @@ describe('what a save file reports', () => {
     render(<SlotCard slot={occupied} openable onOpen={() => undefined} />);
     expect(screen.getByText('Cleveland Ironmen')).toBeTruthy();
     expect(screen.getByText('Casey Okonkwo')).toBeTruthy();
-    expect(screen.getByText('2026')).toBeTruthy();
-    expect(screen.getByText('Wk 4')).toBeTruthy();
+    expect(screen.getByText('2026 · Week 4')).toBeTruthy();
     expect(screen.getByText('3-1')).toBeTruthy();
-    for (const label of ['Season', 'At', 'Record', 'Saved']) {
+    expect(screen.getByText('$18.4M')).toBeTruthy();
+    for (const label of ['Season', 'Record', 'Cap', 'Titles']) {
       expect(screen.getByText(label)).toBeTruthy();
     }
+  });
+
+  it('prints the file name only once it says something the card does not', () => {
+    // It is created as the GM's name, which is already on the card. Printing
+    // it unrenamed would say the same thing twice; renamed, it is the whole
+    // point of having renamed it.
+    render(<SlotCard slot={occupied} openable onOpen={() => undefined} />);
+    expect(screen.queryAllByText('Casey Okonkwo')).toHaveLength(1);
+
+    cleanup();
+    render(
+      <SlotCard
+        slot={{ ...occupied, name: 'The Rebuild' }}
+        openable
+        onOpen={() => undefined}
+      />,
+    );
+    expect(screen.getByText('The Rebuild')).toBeTruthy();
+  });
+
+  it('offers rename and delete only where a caller handles them', () => {
+    render(<SlotCard slot={occupied} openable onOpen={() => undefined} />);
+    expect(screen.queryByTestId('slot-menu-2')).toBeNull();
+
+    cleanup();
+    render(
+      <SlotCard
+        slot={occupied}
+        openable
+        onOpen={() => undefined}
+        onRename={() => undefined}
+        onDelete={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId('slot-menu-2')).toBeTruthy();
   });
 
   it('says a save has no GM rather than giving it a name it never had', () => {

@@ -202,11 +202,15 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
       )}
 
       <div style={{ marginTop: 18 }}>
+        {/* It returns to the menu; it does not wipe anything. It said it did
+            until save files existed, which was a promise to destroy a season
+            that the button never kept. */}
         <ActionButton onClick={onRestart} tone="quiet" testId="restart">
-          Start a new dynasty
+          Main menu
         </ActionButton>
         <p style={{ margin: '8px 0 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
-          Wipes the dynasty saved in this browser.
+          Closes this dynasty and returns to the save files. Nothing is deleted; the file
+          keeps it exactly where you left it.
         </p>
       </div>
     </>
