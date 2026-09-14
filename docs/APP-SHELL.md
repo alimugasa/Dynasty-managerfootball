@@ -405,11 +405,41 @@ iPhone is a Continue button nobody can press.
 
 ### Confirm Franchise
 
-The last screen of the flow and the only one that writes. It reads back the
-file, the GM, the style, the club and all eight rules, then states what
-`create-save` is about to do — the season it opens in, thirty-two clubs, a seed
-generated on the server — each of which the handler actually does on the next
-tap.
+Four review cards — Save File and GM, Team Selection, League Setup, Rules and
+Settings — and one gold button.
+
+The **League Setup** card is counted, not stated. Thirty-two clubs, two
+conferences, eight divisions, an eighteen-week regular season and 448 draft
+picks are facts about the template world, read by `leagueShape()` in one query;
+a screen that printed them as constants would be wrong the day a seed with
+thirty-four clubs ships, and a season with no schedule reads *Not recorded*
+rather than promising eighteen weeks nobody wrote.
+
+The save name defaults to the club's — *Cleveland Ironmen Franchise*, falling
+back to the nickname where the full name would exceed `MAX_SAVE_NAME`, which is
+the same ceiling `rename-save` enforces so the screen that sets a name and the
+screen that changes it later agree. `saveName` is `null` until the player types:
+null means "use the club's", empty means they cleared it and the button closes.
+
+**Creating happens once.** The guard is a `useRef`, not the busy flag — busy is
+React state and lands a render later, so a second press inside that window would
+ask for a second franchise in the same file. The unique index on
+`(user_id, slot)` would refuse it, but "refused by a constraint" is not a thing
+a player should ever see.
+
+**A failure leaves nothing behind**, and that is the server's guarantee rather
+than the screen's: `create-save` runs in one transaction, so the screen can
+honestly say the file is still empty. `tests/api/createOnce` proves it by
+failing three ways into one slot and then creating in it.
+
+The draft is cleared in `OpenSaveRouter`, where a save actually opens — not
+beside the call that created it. Clearing it there threw away every answer on a
+failure as well as on a success.
+
+**Change Team** uses `nav.backTo('teamPreview')`, a new navigator primitive:
+back to a named screen further down the stack in one `history.go`. Pushing would
+stack a second Select Team whose search and chips start empty, and calling
+`back()` twice races the history it delegates to.
 
 ### The franchise being set up
 

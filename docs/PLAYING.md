@@ -119,8 +119,35 @@ an honest answer to give. Eight controls promising specific behaviour would be
 worse than none if none of it were true and the screen kept quiet about it.
 
 **Confirm Franchise** is the last screen, and the only one in the flow that
-writes. It reads back the file, the GM, the style, the club and all eight rules,
-states what `create-save` is about to do, and creates the dynasty.
+writes. *Review your setup before taking the office.* Four cards:
+
+- **Save File and GM** — the file number, an editable save name defaulting to
+  the club's (*Cleveland Ironmen Franchise*), the GM, his style, and the two
+  facts true of a manager who has not worked a day: reputation *Unknown*,
+  career record *0-0*. Clear the name and Create Franchise closes.
+- **Team Selection** — badge, club, market, conference and division, difficulty,
+  archetype, all four ratings, cap space, draft capital, owner patience and fan
+  pressure, with a **Change Team** link back to the scouting report that keeps
+  the GM, the rules and the board's own search and filters.
+- **League Setup** — teams, conferences, divisions, the regular season's length,
+  playoffs, draft picks on the books, the cap setting and the starting point.
+  All of it **counted from the template world**, not stated: thirty-two clubs and
+  eighteen weeks are facts about this seed, and a screen that printed them as
+  constants would be wrong the day a different one ships.
+- **Rules and Settings** — the difficulty and all eight rules, closing on an
+  amber warning where the editing tools are open and *Realistic franchise rules*
+  where they are not.
+
+Create Franchise is the single call to `create-save`, and it is guarded by a ref
+rather than by the busy flag: busy is React state and lands a render later, so a
+fast double tap would otherwise ask for a second franchise in the same file.
+While it runs, every control is closed and the screen shows what is being built.
+
+**A failure leaves nothing behind.** `create-save` runs in one transaction —
+the clone, the engine state, the projection and the save document either all
+landed or none of them did — so the screen says the file is still empty and
+offers to try again, and the draft survives, because six screens is a lot to
+answer twice.
 
 Nothing before it writes anything. The file, the names, the style and the club
 collect in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives

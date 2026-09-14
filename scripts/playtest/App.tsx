@@ -244,6 +244,7 @@ export function App() {
                 : {
                   slot: n, first: '', last: '', style: DEFAULT_GM_STYLE, teamId: null,
                   difficulty: DEFAULT_DIFFICULTY, settings: DEFAULT_SETTINGS,
+                  saveName: null,
                 }));
               setRoute('gm');
             }}

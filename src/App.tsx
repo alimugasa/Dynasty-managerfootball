@@ -7,7 +7,7 @@ import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from '.
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
 import { SaveProvider, useSave } from './app/SaveProvider';
-import { FranchiseSetupProvider } from './app/FranchiseSetup';
+import { FranchiseSetupProvider, useFranchiseSetup } from './app/FranchiseSetup';
 import { Loading } from './components/QueryState';
 
 /** Resolves the frame on top of the stack to a screen and renders it. */
@@ -64,14 +64,21 @@ function TabsForCurrentScreen() {
  */
 function OpenSaveRouter() {
   const { save, loaded } = useSave();
+  const { clear } = useFranchiseSetup();
   const nav = useNavigator();
   const { screen } = useNavigationState();
   useEffect(() => {
     if (!loaded) return;
     const onBoot = isBootScreen(screen);
-    if (save !== null && onBoot) nav.replaceRoot(DEFAULT_SCREEN);
-    else if (save === null && !onBoot) nav.replaceRoot(HOME_SCREEN);
-  }, [save, loaded, screen, nav]);
+    if (save !== null && onBoot) {
+      // A save is open, so the franchise that was being set up is now a
+      // franchise. The draft is dropped here rather than beside the call that
+      // created it, because a creation that failed must keep every answer --
+      // six screens is a lot to ask twice.
+      clear();
+      nav.replaceRoot(DEFAULT_SCREEN);
+    } else if (save === null && !onBoot) nav.replaceRoot(HOME_SCREEN);
+  }, [save, loaded, screen, nav, clear]);
   return null;
 }
 

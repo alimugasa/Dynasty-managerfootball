@@ -68,6 +68,8 @@ export interface NewDynasty {
   readonly gmStyle?: string;
   /** The eight rules the franchise is played under. All eight or none. */
   readonly settings?: FranchiseSettings;
+  /** What the player calls the save file. */
+  readonly name: string;
 }
 
 /** Where this browser remembers the open save. A convenience for this viewer
@@ -212,9 +214,7 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       }),
       startDynasty: (input) => act('Creating…', async () => {
         const out = await api().call<CreateSaveOut>('create-save', {
-          // The save's name is not asked for: a dynasty is known by its club
-          // and its GM, both of which the player has just chosen.
-          name: `${input.gmFirstName} ${input.gmLastName}`.trim(),
+          name: input.name,
           teamId: input.teamId,
           slot: input.slot,
           gmFirstName: input.gmFirstName,

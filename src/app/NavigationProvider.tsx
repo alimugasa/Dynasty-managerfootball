@@ -73,14 +73,23 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
     if (typeof window !== 'undefined') window.scrollTo(0, 0);
   }, [captureScroll]);
 
+  /** How many frames the next popstate should consume.
+   *
+   *  One, for every ordinary back. More only for backTo, which asks the browser
+   *  to move several entries at once -- and history.go(-n) fires a single
+   *  popstate however far it went, so a handler that always popped one frame
+   *  would leave the stack a screen behind the history it is meant to mirror. */
+  const pendingPop = useRef(1);
+
   /** Pops without touching history: used by the popstate handler, which has
    *  already been moved by the browser. */
-  const popFrame = useCallback(() => {
+  const popFrame = useCallback((steps = 1) => {
     setStack((current) => {
-      if (current.length <= 1) return current;
-      const beneath = current[current.length - 2] as Frame;
+      const take = Math.min(steps, current.length - 1);
+      if (take <= 0) return current;
+      const beneath = current[current.length - 1 - take] as Frame;
       restoreTo.current = beneath.scroll;
-      return current.slice(0, -1);
+      return current.slice(0, current.length - take);
     });
   }, []);
 
@@ -90,11 +99,40 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
     // swipe and the in-app affordance all take one path. Two paths would
     // desynchronise the moment someone pressed both quickly.
     if (typeof window !== 'undefined' && stackRef.current.length > 1) {
+      pendingPop.current = 1;
       window.history.back();
       return;
     }
     popFrame();
   }, [popFrame]);
+
+  const backTo = useCallback((screen: string) => {
+    const current = stackRef.current;
+    // The topmost frame for that screen, below the one on top: "back to the
+    // Select Team I came from", not "back to the first one ever pushed".
+    let index = -1;
+    for (let i = current.length - 2; i >= 0; i -= 1) {
+      if (current[i]?.screen === screen) { index = i; break; }
+    }
+    if (index < 0) return;
+    const steps = current.length - 1 - index;
+    // The browser stays the single authority on going back, exactly as back()
+    // leaves it: one history.go is one popstate, where a loop of back() calls
+    // would race itself.
+    if (typeof window !== 'undefined') {
+      // The browser stays the authority on when the stack moves; this says how
+      // far the one popstate it is about to fire should carry it.
+      pendingPop.current = steps;
+      window.history.go(-steps);
+      return;
+    }
+    setStack((frames) => {
+      const beneath = frames[index];
+      if (beneath === undefined) return frames;
+      restoreTo.current = beneath.scroll;
+      return frames.slice(0, index + 1);
+    });
+  }, []);
 
   const replaceRoot = useCallback((screen: string, params: Record<string, string> = {}) => {
     // The bottom nav uses this, not push. Tapping Team from four levels deep
@@ -112,7 +150,11 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
-    const onPop = () => popFrame();
+    const onPop = () => {
+      const steps = pendingPop.current;
+      pendingPop.current = 1;
+      popFrame(steps);
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [popFrame]);
@@ -136,6 +178,7 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
   const navigator = useMemo<Navigator>(() => ({
     push,
     back,
+    backTo,
     replaceRoot,
     depth: () => stackRef.current.length,
     current: () => topOf(stackRef.current)?.screen ?? '',
@@ -151,7 +194,7 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
         return withTop(current, { ui: { ...top.ui, [key]: value } });
       });
     },
-  }), [push, back, replaceRoot]);
+  }), [push, back, backTo, replaceRoot]);
 
   const top = topOf(stack);
   const state = useMemo<NavigationState>(() => ({

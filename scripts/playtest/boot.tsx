@@ -42,6 +42,8 @@ export interface GmDraft {
    *  they amount to. The rig's copy of the app's franchise setup state. */
   readonly difficulty: Difficulty;
   readonly settings: FranchiseSettings;
+  /** What the player calls this save. Null for the club's own name. */
+  readonly saveName: string | null;
 }
 
 export function HomeScreen({ onNew, onLoad, onUtility }: {

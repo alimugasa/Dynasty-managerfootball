@@ -39,6 +39,14 @@ export function useNavigationState(): NavigationState {
 export interface Navigator {
   push(screen: string, params?: Record<string, string>): void;
   back(): void;
+  /** Back to a named screen further down the stack, in one step.
+   *
+   *  For the setup flow, where "Change Team" has to land on the screen the
+   *  player chose from rather than on a fresh copy of it: pushing would stack
+   *  a second Select Team whose filters and search start empty, and calling
+   *  back() twice races the history it delegates to. Does nothing when the
+   *  screen is not below the current one. */
+  backTo(screen: string): void;
   replaceRoot(screen: string, params?: Record<string, string>): void;
   depth(): number;
   /** Screen key of the frame on top of the stack. */
@@ -61,6 +69,7 @@ const notImplemented = (op: string) => () => {
 export const NULL_NAVIGATOR: Navigator = {
   push: notImplemented('push'),
   back: notImplemented('back'),
+  backTo: notImplemented('backTo'),
   replaceRoot: notImplemented('replaceRoot'),
   depth: () => 0,
   current: () => '',

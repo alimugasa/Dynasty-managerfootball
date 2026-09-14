@@ -16,6 +16,7 @@ import {
 } from '../../supabase/functions/_shared/api/reads/teamOutlook.ts';
 import {
   GROUP_STARTERS, ON_FIELD as SIDE_STARTERS, ROUND_VALUE as ROUND_POINTS, YOUNG_AGE,
+  type LeagueShape,
 } from '../../supabase/functions/_shared/api/reads/teamBoard.ts';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles.ts';
 import { FIRST_SEASON } from '../../supabase/functions/_shared/engine/careerWorld.ts';
@@ -123,6 +124,25 @@ function playerOut(p: Roster | undefined, withAge = false): TeamProfile['bestPla
 /** The season the packed world opens in, so the rig's screens name the same
  *  year the app's do. */
 export const BOARD_SEASON = FIRST_SEASON;
+
+/** The shape of the packed league, counted the way the server counts it. The
+ *  regular season's length comes from the schedule the seed ships, not from a
+ *  constant: eighteen weeks is a fact about this world, not about football. */
+export function boardLeague(): LeagueShape {
+  const clubIds = new Set(
+    table('teams').map((r) => r['team_id'] ?? '').filter((id) => id !== ''));
+  const weeks = table('season_schedule')
+    .filter((r) => numberOr(r['season']) === FIRST_SEASON)
+    .map((r) => numberOr(r['week']) ?? 0);
+  return {
+    teams: clubIds.size,
+    conferences: table('league_conferences').length,
+    divisions: table('league_divisions').length,
+    regularSeasonWeeks: weeks.length === 0 ? null : Math.max(...weeks),
+    draftPicks: table('draft_picks').length,
+    season: FIRST_SEASON,
+  };
+}
 
 /** Every club in the packed world, measured and labelled. */
 export function teamProfiles(): TeamProfile[] {

@@ -17,7 +17,9 @@
 // facts.
 
 import type { Handler } from '../context.ts';
-import { groupRows, profileRows, type ProfileRow } from './teamBoard.ts';
+import {
+  groupRows, leagueShape, profileRows, type LeagueShape, type ProfileRow,
+} from './teamBoard.ts';
 import {
   draftLabel, draftScore, fanPressure, franchiseStatus, ownerMood,
   quarterbackSituation, ratingBand, rosterTimeline, suggestedMove,
@@ -93,6 +95,10 @@ export interface TeamProfilesOut {
    *  hardcoded on the client, because the template is what create-save clones
    *  and a client constant would drift the day a new seed ships. */
   readonly season: number;
+  /** The shape of the competition a new dynasty opens into: how many clubs,
+   *  conferences and divisions, how long the regular season runs, and how many
+   *  draft picks are on the books. All counted, none of it stated. */
+  readonly league: LeagueShape;
 }
 
 /** The seed's group names, as a scouting report would say them. */
@@ -142,9 +148,10 @@ export const teamProfiles: Handler<Record<string, never>, TeamProfilesOut> = {
       select id, season from public.saves where is_template`;
     if (template === undefined) throw new Error('No template world has been imported');
 
-    const [rows, groups] = await Promise.all([
+    const [rows, groups, league] = await Promise.all([
       profileRows(sql, template.id, template.season),
       groupRows(sql, template.id),
+      leagueShape(sql, template.id, template.season),
     ]);
 
     // The thinnest room on each club. Read from the group ratings rather than
@@ -201,6 +208,7 @@ export const teamProfiles: Handler<Record<string, never>, TeamProfilesOut> = {
 
     return {
       season: template.season,
+      league,
       teams: rows.map((r, i) => {
         const m = measures[i] as TeamMeasure;
         const shape = shapes.get(r.team_id);

@@ -187,3 +187,49 @@ export async function groupRows(db: Db, saveId: string): Promise<GroupRow[]> {
      where r.depth <= c.starters
      group by r.team_id, r.position_group`;
 }
+
+/** What the league a new dynasty opens into actually is.
+ *
+ *  Counted rather than stated: thirty-two clubs and eighteen weeks are facts
+ *  about the template world, and a screen that printed them as constants would
+ *  be wrong the day a seed with thirty-four clubs ships. The only figure not
+ *  counted here is the playoff field, which is a rule of the competition and
+ *  lives in the engine beside the bracket that uses it.
+ */
+export interface LeagueShape {
+  readonly teams: number;
+  readonly conferences: number;
+  readonly divisions: number;
+  readonly regularSeasonWeeks: number | null;
+  readonly draftPicks: number;
+  readonly season: number;
+}
+
+export async function leagueShape(db: Db, saveId: string, season: number): Promise<LeagueShape> {
+  const [row] = await db<{
+    teams: string; conferences: string; divisions: string;
+    weeks: number | null; picks: string;
+  }[]>`
+    select
+      (select count(*) from public.teams where save_id = ${saveId})::text as teams,
+      (select count(*) from public.league_conferences
+        where save_id = ${saveId})::text as conferences,
+      (select count(*) from public.league_divisions
+        where save_id = ${saveId})::text as divisions,
+      (select max(week)::int from public.season_schedule
+        where save_id = ${saveId} and season = ${season}
+          and competition = 'REGULAR') as weeks,
+      (select count(*) from public.draft_picks
+        where save_id = ${saveId} and selected_player_id is null)::text as picks`;
+  return {
+    teams: Number(row?.teams ?? 0),
+    conferences: Number(row?.conferences ?? 0),
+    divisions: Number(row?.divisions ?? 0),
+    // Null rather than a guess: a template with no schedule is a broken import,
+    // and the screen should say the season length is unknown rather than
+    // promise eighteen weeks nobody wrote.
+    regularSeasonWeeks: row?.weeks ?? null,
+    draftPicks: Number(row?.picks ?? 0),
+    season,
+  };
+}

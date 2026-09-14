@@ -15,6 +15,7 @@ import { ApiError, badRequest, type Handler } from './context.ts';
 import { optionalInt, optionalString, rawOf } from './parse.ts';
 import { isGmStyle } from './gmStyles.ts';
 import { parseSettings, type FranchiseSettings } from './franchiseOptions.ts';
+import { MAX_SAVE_NAME } from './renameSave.ts';
 import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
@@ -71,6 +72,12 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
     const name = typeof r['name'] === 'string' ? r['name'].trim() : '';
     const teamId = typeof r['teamId'] === 'string' ? r['teamId'].trim() : '';
     if (name === '') throw badRequest('name is required');
+    // The same ceiling rename-save enforces: one place decides how long a save
+    // file's name may be, and both the screen that sets it and the screen that
+    // changes it later agree.
+    if (name.length > MAX_SAVE_NAME) {
+      throw badRequest(`A save file name is at most ${String(MAX_SAVE_NAME)} characters.`);
+    }
     if (teamId === '') throw badRequest('teamId is required');
     const slot = optionalInt(r, 'slot');
     if (slot !== undefined && slot < 1) throw badRequest('slot must be 1 or greater');

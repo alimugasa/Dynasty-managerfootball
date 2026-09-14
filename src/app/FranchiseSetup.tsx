@@ -42,6 +42,10 @@ export interface FranchiseDraft {
    *  choices even though the rows agree. */
   readonly difficulty: Difficulty;
   readonly settings: FranchiseSettings;
+  /** What the player calls this save. Null until they type something, which is
+   *  not the same as empty: null means "use the name the club suggests", and
+   *  empty means they cleared it and the screen must refuse to go on. */
+  readonly saveName: string | null;
 }
 
 export interface FranchiseSetupApi {
@@ -75,7 +79,7 @@ export function FranchiseSetupProvider({ children }: { readonly children: ReactN
       ? d
       : {
         slot, firstName: '', lastName: '', style: DEFAULT_GM_STYLE, teamId: null,
-        difficulty: DEFAULT_DIFFICULTY, settings: DEFAULT_SETTINGS,
+        difficulty: DEFAULT_DIFFICULTY, settings: DEFAULT_SETTINGS, saveName: null,
       }));
   }, []);
 

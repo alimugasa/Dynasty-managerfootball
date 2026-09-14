@@ -22,7 +22,7 @@ import { TeamPreview } from '../../src/screens/teamPreview';
 import { SelectTeamScreen, type GmDraft } from './boot';
 import { PRESETS, difficultyOf } from '../../supabase/functions/_shared/api/franchiseOptions';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
-import { BOARD_SEASON } from './board';
+import { BOARD_SEASON, boardLeague } from './board';
 
 /** The three routes this module renders. Named here because this is what
  *  renders them; App.tsx folds them into its own Route union.
@@ -115,9 +115,13 @@ export function FranchiseFlow({
           team={previewing ?? null}
           settings={pending.settings}
           difficulty={pending.difficulty}
+          league={boardLeague()}
           season={BOARD_SEASON}
+          saveName={pending.saveName}
+          onSaveName={(saveName) => { onPending({ ...pending, saveName }); }}
           busy={busy}
           onBack={() => { onRoute('franchiseSettings'); }}
+          onChangeTeam={() => { onRoute('preview'); }}
           onCreate={() => { onStart(pending.teamId ?? ''); }}
         />
       )}
