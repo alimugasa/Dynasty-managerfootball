@@ -241,6 +241,24 @@ export function TeamScreen() {
               testId="to-schedule"
             />
             <HubCard
+              title="Waiver wire"
+              detail="Claim a released player before another club does"
+              onSelect={() => { nav.push('waivers'); }}
+              testId="to-waivers"
+            />
+            <HubCard
+              title="Free agents"
+              detail="Sign an unsigned player, any week of the season"
+              onSelect={() => { nav.push('freeAgents'); }}
+              testId="to-free-agents"
+            />
+            <HubCard
+              title="Transactions"
+              detail="Every cut, claim and signing in the league"
+              onSelect={() => { nav.push('transactions'); }}
+              testId="to-transactions"
+            />
+            <HubCard
               title="Offseason moves"
               detail="Re-signings, free agency, the draft and trades"
               onSelect={() => { nav.push('offseason'); }}
@@ -248,7 +266,7 @@ export function TeamScreen() {
             />
             {/* Named because the tab promises them and dimmed because they do
                 not exist. A card that looked tappable and did nothing would
-                put the three above it in doubt. */}
+                put the ones above it in doubt. */}
             <NotBuilt
               title="Contracts"
               detail="What every player is owed, and for how long."
@@ -263,11 +281,6 @@ export function TeamScreen() {
               title="Practice squad and training"
               detail="Develop the players who are not starting yet."
               testId="soon-training"
-            />
-            <NotBuilt
-              title="Transaction log"
-              detail="Every signing, release and trade this dynasty has made."
-              testId="soon-transactions"
             />
           </HubStack>
 

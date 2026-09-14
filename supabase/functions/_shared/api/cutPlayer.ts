@@ -23,6 +23,7 @@ import { postToWaivers } from './waivers.ts';
 import { enterFreeAgency } from './freeAgentPool.ts';
 import { refreshCapSheet } from './rosterSpace.ts';
 import { clubNames, logMove, money } from './transactionLog.ts';
+import { addDocumentDeadMoney, applyDocumentMove } from './engineRoster.ts';
 
 /** Accrued seasons below which a released player passes through waivers. */
 export const WAIVER_THRESHOLD_YEARS = 4;
@@ -150,6 +151,13 @@ export async function releaseFrom(
   await db`
     update public.players set team_id = null
      where save_id = ${save.id} and player_id = ${playerId}`;
+  // And unattached in the engine's own state, which is the copy that decides
+  // who takes the field. A release that only cleared the rows left a man
+  // playing for a club that had let him go.
+  await applyDocumentMove(db, save.id, {
+    playerId, teamId: null, contract: null, previousTeamId: teamId,
+  });
+  await addDocumentDeadMoney(db, save.id, teamId, save.season, terms.deadMoney);
 
   // Where he goes. Under four accrued seasons and he is posted to the wire,
   // where another club may claim him and the contract with him; four or more

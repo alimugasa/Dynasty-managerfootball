@@ -191,14 +191,34 @@ and `salary_cap` after anything that moves a roster; `game_results`,
 `player_game_stats`, `player_season_stats`, `standings`, `player_injuries` and
 `news` after every week; `league_history`, `player_season_grades`,
 `transactions`, `draft_picks`, `season_schedule`, `team_season_summary` and
-`player_career_totals` at rollover. The projection runs one way, so a row can
-never disagree with the document for longer than the transaction that wrote it.
+`player_career_totals` at rollover.
+
+The projection runs one way, so a row can never disagree with the document for
+longer than the transaction that wrote it -- with one deliberate exception,
+added by the in-season market in 0033. A waiver claim or a free-agent signing
+happens *between* rollovers, so there is no projection pass to carry it: those
+handlers write the rows and then write the same move into the document
+(`engineRoster.ts`). Both, or the move is invisible in a way nothing surfaces.
+The week runner builds its teams from the document, so a signing that wrote only
+rows bought a player who never took a snap; and the next rollover projected the
+document back over his roster row, undoing the move with nothing to show for it.
+docs/IN-SEASON-MARKET.md has the detail.
 
 `player_game_stats` (also 0017) is one line per player per game, every column
 the engine emits and no defaults; `prune_player_game_stats(save, keep)` keeps
 the current season plus `keep` prior (default 3), the older seasons living on
 as `player_season_stats` totals. Rows written with `data_class = 'ENGINE'`
 are the engine's; the seed's are `GENERATED` and `MODELED`.
+
+## The wire and the in-season market
+
+Migration 0033 adds `waiver_wire` (who is on it, who let him go, when the window
+shuts), `waiver_claims` (who wants him, and the priority that club held **when
+it claimed** -- stored rather than looked up, so a claim cannot be overtaken
+after the fact by a result it had no part in), and `teams.waiver_priority`, 1
+first. `free_agents` gains `desired_role` and `available_from_week`: what a
+player believes he is, and when he became available. Migration 0034 widens
+`news_category_check` with `TRANSACTION`, which is the category the wire writes.
 
 ## Running the schema locally
 

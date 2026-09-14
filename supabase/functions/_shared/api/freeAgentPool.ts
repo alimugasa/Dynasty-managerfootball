@@ -26,6 +26,7 @@ import {
   expectedYearsFor, inSeasonAsk, roleFromTier,
   type DesiredRole, type MarketPlayer,
 } from './inSeasonMarket.ts';
+import { GROUP_OF } from '../engine/careerWorld.ts';
 
 /* ------------------------------------------------------------ entering ----- */
 
@@ -179,6 +180,16 @@ export async function readPool(
   filters: PoolFilters,
 ): Promise<readonly PoolPlayer[]> {
   const rules = capRules(season);
+  // The group filter arrives as the engine's vocabulary ('QB', 'S') and is
+  // expanded to the positions in it, because players.position_group holds the
+  // seed's *display* grouping ('Quarterback', 'Secondary') and the two are
+  // different vocabularies one column apart. Matching them directly returned
+  // nothing at all -- every position filter on the screen emptied the list --
+  // which is the same mistake the camp board made a feature ago, in the same
+  // column, for the same reason.
+  const inGroup = filters.group === null
+    ? null
+    : Object.keys(GROUP_OF).filter((pos) => GROUP_OF[pos] === filters.group);
   const rows = await db<PoolRow[]>`
     select f.player_id, f.display_name, f.position, p.position_group,
            f.age, p.overall_rating, p.potential_rating, f.experience_years,
@@ -200,7 +211,7 @@ export async function readPool(
        -- moment he does, and a retired one never reappears on it.
        and p.team_id is null and p.retired_season is null
        and (${filters.position}::text is null or f.position = ${filters.position})
-       and (${filters.group}::text is null or p.position_group = ${filters.group})
+       and (${inGroup}::text[] is null or p.position = any(${inGroup}::text[]))
        and (${filters.maxAge}::int is null or f.age <= ${filters.maxAge})
        and (${filters.minOverall}::int is null or p.overall_rating >= ${filters.minOverall})
        and (${filters.minPotential}::int is null or p.potential_rating >= ${filters.minPotential})

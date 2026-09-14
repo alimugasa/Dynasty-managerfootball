@@ -17,6 +17,10 @@ import { rawOf, optionalInt, optionalString, requireString } from '../parse.ts';
 import {
   DEFAULT_POOL_FILTERS, readPool, type PoolFilters, type PoolPlayer,
 } from '../freeAgentPool.ts';
+
+/** Re-exported so a screen types its rows from the read it called rather than
+ *  from the module the read happens to build them in. */
+export type { PoolPlayer } from '../freeAgentPool.ts';
 import { ACTIVE_ROSTER_LIMIT, teamCapPosition, teamRosterCount } from '../rosterSpace.ts';
 
 export interface FreeAgentsIn extends PoolFilters {

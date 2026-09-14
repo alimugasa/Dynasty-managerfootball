@@ -210,6 +210,11 @@ on the server, and opening the app on another device meets the menu. Office →
 | Read the team's rating | **Team** → the four rings under the identity card |
 | See what the owner wants | **Team** → *The owner* |
 | Set a depth chart | **Team** → *Depth chart* → pick a position chip → ↑ / ↓ arrows |
+| Release a player | **Team** → *Depth chart* → a player → *Release* — under four seasons and he goes to waivers, four or more and straight to the market |
+| Claim somebody off waivers | **Team** → *Waiver wire* → a player → *Submit claim*; withdraw it any time before the deadline |
+| Sign a free agent mid-season | **Team** → *Free agents* → filter → a player → move the terms → *Offer this deal* |
+| Meet a player's counter | the offer sheet's *Meet his number* button — it names the salary that closes it |
+| See every move in the league | **Team** → *Transactions*, or the News tab's *Transactions* chip for the ones worth reporting |
 | Sim a week | **Play** tab → *Sim week N*, or the week card on **Team** |
 | See who you play next | **Play** tab — the matchup card is the top of it |
 | Check the injury report | **Play** → *Game prep* |

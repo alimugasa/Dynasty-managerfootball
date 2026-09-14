@@ -340,12 +340,3 @@ export function ScoutingScreen() {
   );
 }
 
-export function TransactionsScreen() {
-  return (
-    <Screen title="Transactions" screen="transactions">
-      <SkeletonRegion label="Loading transactions">
-        <SkeletonRows rows={10} lead={false} />
-      </SkeletonRegion>
-    </Screen>
-  );
-}

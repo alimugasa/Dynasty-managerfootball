@@ -69,9 +69,21 @@ describe('the filter chips', () => {
   });
 
   it('records which chips nothing writes to yet', () => {
-    // Two of the seven are shape rather than content in this build. The screen
+    // One of the seven is shape rather than content in this build. The screen
     // says so in the empty state; this is where that fact lives.
-    expect(Object.keys(CHIP_UNWRITTEN).sort()).toEqual(['DRAFT', 'TRANSACTIONS']);
+    //
+    // It was two until the waiver wire started filing stories, and this is the
+    // assertion that makes sure the sentence goes when the feed arrives: a
+    // chip that carries real news while telling the reader nothing is written
+    // to it is worse than an empty chip, because it stops them looking.
+    expect(Object.keys(CHIP_UNWRITTEN).sort()).toEqual(['DRAFT']);
+  });
+
+  it('files a claim, a release and a signing under Transactions', () => {
+    for (const category of ['TRANSACTION']) {
+      expect(matchesChip('TRANSACTIONS', item({ category }), MINE)).toBe(true);
+    }
+    expect(matchesChip('TRANSACTIONS', item({ category: 'RESULT' }), MINE)).toBe(false);
   });
 
   it('counts every chip, including the empty ones', () => {

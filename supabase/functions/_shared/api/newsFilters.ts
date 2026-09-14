@@ -13,7 +13,7 @@
 /** Every category that can reach the `news` table. Mirrors 0030's check. */
 export const NEWS_CATEGORIES = [
   'UPSET', 'STREAK', 'MILESTONE', 'INJURY', 'HOT_SEAT', 'AWARD_RACE',
-  'FRANCHISE', 'OWNER', 'CAMP', 'MATCHUP', 'RESULT',
+  'FRANCHISE', 'OWNER', 'CAMP', 'MATCHUP', 'RESULT', 'TRANSACTION',
 ] as const;
 
 export const NEWS_CHIPS = [
@@ -40,17 +40,18 @@ export interface FilterableNews {
 }
 
 /**
- * Two of the seven chips have nothing behind them yet.
+ * One of the seven chips still has nothing behind it.
  *
- * Nothing in this build writes a TRANSACTION or a DRAFT story: the offseason
- * moves players without filing a story about it, and the draft board is not
- * wired to the feed. The chips are still here because they are part of the
- * shape the tab is meant to have, and an empty one that says why is honest in
- * a way a missing one is not -- but the screen has to be able to say it, so
- * the fact is recorded here rather than discovered by an empty list.
+ * It was two. The waiver wire writes TRANSACTION stories now -- a release, a
+ * claim, a signing -- so that chip has a feed behind it and the sentence
+ * saying otherwise has gone. The draft board is still not wired to the feed.
+ *
+ * The chip stays either way, because it is part of the shape the tab is meant
+ * to have, and an empty one that says why is honest in a way a missing one is
+ * not -- but the screen has to be able to say it, so the fact is recorded here
+ * rather than discovered by an empty list.
  */
 export const CHIP_UNWRITTEN: Readonly<Partial<Record<NewsChip, string>>> = {
-  TRANSACTIONS: 'Trades, signings and releases are not written to the feed yet.',
   DRAFT: 'Draft stories are not written to the feed yet.',
 };
 

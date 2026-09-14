@@ -20,6 +20,7 @@ import {
   type ClubOffer, type DesiredRole, type MarketPlayer, type OfferVerdict,
 } from './inSeasonMarket.ts';
 import { ACTIVE_ROSTER_LIMIT, refreshCapSheet, teamCapSpace, teamRosterCount } from './rosterSpace.ts';
+import { applyDocumentMove } from './engineRoster.ts';
 
 const isRole = (v: string | null): v is DesiredRole =>
   v === 'STARTER' || v === 'ROTATION' || v === 'DEPTH';
@@ -197,6 +198,16 @@ export async function signPlayer(
     delete from public.free_agents
      where save_id = ${save.id} and player_id = ${player.playerId}`;
   await refreshCapSheet(db, save.id, save.season, teamId);
+  // The signing, in the engine's own state. The tables are what the screens
+  // read; this is what the week runner plays, and a signing that skipped it
+  // bought a player who never took a snap and vanished at the rollover.
+  await applyDocumentMove(db, save.id, {
+    playerId: player.playerId, teamId,
+    contract: {
+      aav, years, yearsRemaining: years,
+      guaranteed: Math.round(aav * years * 0.45), signedSeason: save.season,
+    },
+  });
 }
 
 /** What the offer panel shows as the shape of a deal he would take. */

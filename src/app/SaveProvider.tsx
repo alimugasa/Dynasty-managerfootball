@@ -50,6 +50,18 @@ export interface SaveApi {
   /** A move the manager makes himself. The server refuses what it must, and
    *  what it says comes back as the notice. */
   offseasonMove: (route: string, input: Record<string, unknown>) => Promise<void>;
+  /**
+   * A move whose answer the screen has to show.
+   *
+   * offseasonMove above is for the moves whose whole outcome is a sentence --
+   * the server says what happened and the screen prints it. A contract offer
+   * is not one of those: a player accepts, refuses or counters, and a counter
+   * carries terms the manager acts on. Swallowing that and showing a sentence
+   * would leave them retyping numbers the server already worked out.
+   *
+   * Returns null when the call failed, with the reason in `notice`.
+   */
+  marketMove: <Out>(route: string, input: Record<string, unknown>) => Promise<Out | null>;
   setDepthChart: (group: string, order: readonly string[]) => Promise<void>;
   /** What the manager has opened and finished on the dashboard checklist.
    *  Empty until something is tapped; never null, because "nothing yet" and
@@ -242,6 +254,13 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         // says what happened, and the screen shows it either way.
         setNotice(out.detail);
       }),
+      marketMove: async <Out,>(route: string, input: Record<string, unknown>) => {
+        let out: Out | null = null;
+        await act('Working…', async () => {
+          out = await api().call<Out>(route, { saveId: need(), ...input });
+        });
+        return out;
+      },
       nextSeason: () => act('Running offseason…', async () => {
         const out = await api().call<SeasonOutcome>('advance-season', { saveId: need() });
         // The one offseason outcome a manager must not miss.

@@ -29,8 +29,11 @@ import { OffseasonScreen } from '../screens/OffseasonScreen';
 import { CreditsScreen, DatabaseToolsScreen, SettingsScreen } from '../screens/MenuScreens';
 import {
   CoachScreen, CollegeScreen, DraftPickScreen, GameScreen, PlayerScreen,
-  ScoutingScreen, TransactionsScreen,
+  ScoutingScreen,
 } from '../screens/EntityScreens';
+import { WaiverWireScreen } from '../screens/WaiverWireScreen';
+import { FreeAgentsScreen } from '../screens/FreeAgentsScreen';
+import { TransactionsScreen } from '../screens/TransactionsScreen';
 
 export interface ScreenDef {
   readonly title: string;
@@ -104,9 +107,16 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   // Reached from the Office.
   rules: { title: 'Franchise rules', Component: FranchiseRulesScreen, root: false },
 
-  // Registered so resolveEntityRoute has somewhere to land. Neither is linked
-  // from a hub card: both render a loading state that never resolves, and a
-  // card that opens one would be the dead end the hub cards exist to avoid.
+  // The market, which stays open all season. Reached from Team: working the
+  // wire and the pool is a football job, not an executive one.
+  waivers: { title: 'Waiver Wire', Component: WaiverWireScreen, root: false },
+  freeAgents: { title: 'Free Agents', Component: FreeAgentsScreen, root: false },
+
+  // Registered so resolveEntityRoute has somewhere to land. Scouting is still
+  // a loading state that never resolves and is deliberately not linked from a
+  // hub card -- a card that opened one would be the dead end the hub cards
+  // exist to avoid. Transactions was in that state until the wire gave it
+  // something to read; it is a real screen now, and Team links to it.
   scouting: { title: 'Scouting', Component: ScoutingScreen, root: false },
   staff: { title: 'Staff', Component: StaffScreen, root: false },
   transactions: { title: 'Transactions', Component: TransactionsScreen, root: false },

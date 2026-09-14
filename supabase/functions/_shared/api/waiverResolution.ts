@@ -17,6 +17,7 @@ import { awardClaim, reorderAfterAward } from './waiverRules.ts';
 import { capRules } from '../engine/offseason/frontOffice.ts';
 import { ACTIVE_ROSTER_LIMIT, refreshCapSheet, teamCapSpace, teamRosterCount } from './rosterSpace.ts';
 import { enterFreeAgency } from './freeAgentPool.ts';
+import { applyDocumentMove } from './engineRoster.ts';
 import { currentWaiverOrder, writeWaiverOrder } from './waivers.ts';
 import {
   clubNames, logMove, missedClaimStory, money, type MoveContext,
@@ -193,6 +194,16 @@ async function awardPlayer(
      where save_id = ${save.id} and player_id = ${row.player_id}`;
   // The deal he came with is now on this club's books.
   await refreshCapSheet(db, save.id, save.season, teamId);
+  // And he is on this club's roster in the engine's own state, which is the
+  // copy that picks the eleven. Without this a claimed player sat on a roster
+  // he never played for.
+  await applyDocumentMove(db, save.id, {
+    playerId: row.player_id, teamId,
+    contract: {
+      aav, years, yearsRemaining: years,
+      guaranteed: Math.round(aav * years * 0.45), signedSeason: save.season,
+    },
+  });
 }
 
 /** Nobody eligible claimed him, so the market gets him. */
