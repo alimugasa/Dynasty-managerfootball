@@ -32,7 +32,8 @@ import {
   type Mandate, type RatingBand,
 } from './teamOutlook.ts';
 import {
-  injuryCount, lastResult, ownerRow, shapeRow, standingRows, turnoverRow, weekFixture,
+  injuryCount, lastResult, marginRows, ownerRow, shapeRow, standingRows, turnoverRow,
+  weekFixture, type MarginRow,
 } from './dashboardQueries.ts';
 import type { SquadRow } from './team.ts';
 
@@ -125,6 +126,16 @@ export interface ShapeOut {
   readonly played: number;
 }
 
+/** A result worth naming: the biggest win, or the heaviest defeat. */
+export interface MarginOut {
+  readonly gameId: string;
+  readonly week: number;
+  readonly opponentId: string;
+  readonly teamScore: number;
+  readonly opponentScore: number;
+  readonly margin: number;
+}
+
 /** The game just played, for the screen that played it. */
 export interface LastResultOut {
   readonly gameId: string;
@@ -163,11 +174,22 @@ export interface DashboardOut {
    *  a crowd -- its size. Not a simulated fan base. */
   readonly fanPressure: string | null;
   readonly last: LastResultOut | null;
+  /** Where the club sits in the bracket, once there is one. Null through the
+   *  regular season and null for a club that missed it -- the screen tells the
+   *  two apart by the phase, not by guessing. */
+  readonly seed: number | null;
+  readonly bestWin: MarginOut | null;
+  readonly worstLoss: MarginOut | null;
   readonly thisWeek: ThisWeekOut;
   readonly shape: ShapeOut;
   /** The top of the depth chart, in the order it plays. */
   readonly squad: readonly SquadRow[];
 }
+
+const asMargin = (row: MarginRow | undefined): MarginOut | null => (row === undefined ? null : {
+  gameId: row.game_id, week: row.week, opponentId: row.opponent,
+  teamScore: row.team_score, opponentScore: row.opponent_score, margin: row.margin,
+});
 
 /** The season is over for a club whose phase has left the football behind.
  *  Taken from the offseason's own list rather than written out again here: a
@@ -192,6 +214,7 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
         injuryCount(sql, s.id, s.season, s.week, teamId, POSITION_GROUPS),
         lastResult(sql, s.id, s.season, teamId),
       ]);
+    const margins = await marginRows(sql, s.id, s.season, teamId);
 
     const squad = await sql<{
       player_id: string; display_name: string; slot: string; age: number; overall_rating: number;
@@ -345,6 +368,9 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
         teamScore: last.home_team_id === teamId ? last.home_score : last.away_score,
         opponentScore: last.home_team_id === teamId ? last.away_score : last.home_score,
       },
+      seed: standing?.conference_seed ?? null,
+      bestWin: asMargin(margins.find((m) => m.margin > 0)),
+      worstLoss: asMargin(margins.find((m) => m.margin < 0)),
       shape: {
         rosterCount: Number(shape?.roster ?? '0'),
         depthGroups: Number(shape?.groups ?? '0'),

@@ -219,7 +219,7 @@ on the server, and opening the app on another device meets the menu. Office →
 | Read the news | **News** tab |
 | Read the cap sheet | **Office** tab → *Finances* |
 | The rules this save is played under | **Office** → *Franchise rules* |
-| Sim to the end | **Play** → *Sim to end of season* (one request per week, stops at the bracket) |
+| Sim to the end | **Play** → *Quick sim* → *Sim to End of Regular Season* — confirms first, then hands over a season summary (one request per week, stops at the bracket) |
 | Play a playoff round | **Play** → *Play the Opening Round*, then one button per round |
 | Follow the bracket | **Play** or **League** → *See the bracket*, or the schedule's round chips |
 | See the awards | **League** → *Awards and records*, once the season is closed |

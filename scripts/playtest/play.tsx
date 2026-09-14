@@ -5,11 +5,13 @@
 // roster list, which is the wrong end of a phone for the most-used button in
 // the product.
 
+import { useState } from 'react';
 import { COLOR, R, S } from '../../src/app/tokens';
 import { EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { ActionButton } from '../../src/components/ActionButton';
 import { MatchupCard, PrepCard, PrepGrid, PrepWide } from '../../src/screens/playMatchup';
+import { SeasonWarningModal } from '../../src/screens/playResult';
 import { matchupOf } from './dashboard';
 import { ranking, squad } from './host';
 import { nextRound, ROUND_LABEL } from './postseason';
@@ -45,6 +47,7 @@ export function PlayScreen(
   const played = standing === undefined ? 0 : standing.wins + standing.losses + standing.ties;
   const place = played === 0
     ? 0 : ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1;
+  const [confirming, setConfirming] = useState(false);
   const matchup = matchupOf(game);
   // How many of the club's own players are unavailable this week, from the
   // same map the engine benches them with.
@@ -155,9 +158,6 @@ export function PlayScreen(
             <ActionButton onClick={onWeek} disabled={busy !== null} testId="sim-week">
               {busy ?? `Sim week ${String(game.week)}`}
             </ActionButton>
-            <ActionButton onClick={onSeason} disabled={busy !== null} tone="quiet" testId="sim-season">
-              Sim to end of season
-            </ActionButton>
           </>
         )}
       </div>
@@ -187,6 +187,24 @@ export function PlayScreen(
         </Panel>
       )}
 
+      {!done && !inPlayoffs && (
+        <>
+          <SectionHeader title="Quick sim" />
+          <ActionButton
+            tone="quiet"
+            onClick={() => { setConfirming(true); }}
+            disabled={busy !== null}
+            testId="sim-season"
+          >
+            Sim to End of Regular Season
+          </ActionButton>
+          <p style={{ margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
+            Plays the remaining {String(Math.max(0, game.weeks - game.week + 1))} weeks in one
+            go and stops at the bracket.
+          </p>
+        </>
+      )}
+
       <SectionHeader title="Last result · box score" />
       {last === undefined ? (
         <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
@@ -201,6 +219,14 @@ export function PlayScreen(
             />
           </div>
         </Panel>
+      )}
+      {confirming && (
+        <SeasonWarningModal
+          weeks={Math.max(0, game.weeks - game.week + 1)}
+          record={matchup.record}
+          onCancel={() => { setConfirming(false); }}
+          onConfirm={() => { setConfirming(false); onSeason(); }}
+        />
       )}
     </>
   );

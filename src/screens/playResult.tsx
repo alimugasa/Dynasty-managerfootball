@@ -15,6 +15,7 @@ import { COLOR, FONT, R, S, TYPE } from '../app/tokens';
 import { Modal } from '../components/Modal';
 import { ActionButton } from '../components/ActionButton';
 import { StatTiles } from '../components/StatTiles';
+import { signed } from './dashboardCards';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
 /** A reason to stop and think, in the words the modal lists it in. */
@@ -186,6 +187,169 @@ export function ResultModal({ result, record, mine, theirs, opponentName, onReca
           ]}
         />
       </div>
+    </Modal>
+  );
+}
+
+/**
+ * The confirmation in front of the season sim.
+ *
+ * It is not a formality. Running the season out plays every remaining week in
+ * one press, and everything a manager would have done in between -- the depth
+ * chart after an injury, a trade, a gameplan -- is decided by the simulation
+ * instead of by them. The modal says exactly that, and counts the weeks it is
+ * about to take, because "are you sure" without a number is a question nobody
+ * can answer.
+ */
+export function SeasonWarningModal({ weeks, record, onCancel, onConfirm }: {
+  readonly weeks: number;
+  readonly record: DashboardOut['record'];
+  readonly onCancel: () => void;
+  readonly onConfirm: () => void;
+}) {
+  return (
+    <Modal
+      title="Sim to End of Regular Season?"
+      onClose={onCancel}
+      testId="season-warning"
+      actions={(
+        <>
+          <ActionButton tone="quiet" onClick={onCancel} testId="season-cancel" compact>
+            Cancel
+          </ActionButton>
+          <ActionButton onClick={onConfirm} testId="season-confirm" compact>
+            Sim Season
+          </ActionButton>
+        </>
+      )}
+    >
+      <p style={{ ...TYPE.prose, margin: 0, color: COLOR.mut }}>
+        This will simulate all remaining regular season weeks and may skip weekly
+        decisions, depth chart review, injuries, trades, and gameplan changes.
+      </p>
+      <div style={{ marginTop: S[4] }}>
+        <StatTiles
+          stats={[
+            { label: 'Weeks', value: String(weeks), tone: 'accent' },
+            {
+              label: 'Record',
+              value: record === null
+                ? '—'
+                : `${String(record.wins)}-${String(record.losses)}${record.ties > 0 ? `-${String(record.ties)}` : ''}`,
+            },
+            { label: 'Point diff', value: record === null ? '—' : signed(record.differential) },
+          ]}
+        />
+      </div>
+    </Modal>
+  );
+}
+
+/** A named game, one line. Null where the season has none of that kind yet. */
+function MarginLine({ label, margin, nameOf }: {
+  readonly label: string;
+  readonly margin: DashboardOut['bestWin'];
+  readonly nameOf: (teamId: string) => string;
+}) {
+  return (
+    <div style={{ display: 'flex', gap: S[3], alignItems: 'baseline', minWidth: 0 }}>
+      <span style={{ ...TYPE.micro, fontSize: 9.5, color: COLOR.dim, width: 74, flexShrink: 0 }}>
+        {label}
+      </span>
+      <span
+        style={{
+          ...TYPE.prose, fontSize: 12, color: margin === null ? COLOR.dim : COLOR.tx,
+          flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}
+      >
+        {margin === null
+          ? 'None this season'
+          : `${String(margin.teamScore)}–${String(margin.opponentScore)} `
+            + `${margin.margin > 0 ? 'over' : 'to'} ${nameOf(margin.opponentId)}, week ${String(margin.week)}`}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Where the regular season left the club.
+ *
+ * Shown once, when the last week has been played, and deliberately not a door
+ * into the bracket: the postseason is its own decision and this screen does
+ * not make it for anybody. It says what happened and what is next, and the
+ * manager chooses when.
+ */
+export function SeasonSummaryModal({ season, record, seed, bestWin, worstLoss, nameOf, onBracket, onClose }: {
+  readonly season: number;
+  readonly record: DashboardOut['record'];
+  /** The club's place in the bracket, or null where it missed the field. */
+  readonly seed: number | null;
+  readonly bestWin: DashboardOut['bestWin'];
+  readonly worstLoss: DashboardOut['worstLoss'];
+  readonly nameOf: (teamId: string) => string;
+  readonly onBracket: () => void;
+  readonly onClose: () => void;
+}) {
+  const made = seed !== null;
+  return (
+    <Modal
+      title={`${String(season)} regular season`}
+      detail="Every remaining week has been played."
+      onClose={onClose}
+      testId="season-summary"
+      actions={(
+        <>
+          <ActionButton tone="quiet" onClick={onClose} testId="summary-close" compact>
+            Stay here
+          </ActionButton>
+          <ActionButton onClick={onBracket} testId="summary-bracket" compact>
+            See the bracket
+          </ActionButton>
+        </>
+      )}
+    >
+      <StatTiles
+        stats={[
+          {
+            label: 'Record',
+            value: record === null
+              ? '—'
+              : `${String(record.wins)}-${String(record.losses)}${record.ties > 0 ? `-${String(record.ties)}` : ''}`,
+          },
+          { label: 'Points for', value: record === null ? '—' : String(record.pointsFor) },
+          { label: 'Against', value: record === null ? '—' : String(record.pointsAgainst) },
+        ]}
+      />
+      <div style={{ marginTop: S[3] }}>
+        <StatTiles
+          stats={[
+            {
+              label: 'Point diff',
+              value: record === null ? '—' : signed(record.differential),
+              tone: record === null || record.differential === 0
+                ? 'default' : record.differential > 0 ? 'positive' : 'negative',
+            },
+            {
+              label: 'Postseason',
+              value: made ? `Seed ${String(seed)}` : 'Missed out',
+              tone: made ? 'positive' : 'default',
+            },
+          ]}
+        />
+      </div>
+
+      <div style={{ display: 'grid', gap: S[2], marginTop: S[4], minWidth: 0 }} data-testid="season-margins">
+        <MarginLine label="Best win" margin={bestWin} nameOf={nameOf} />
+        <MarginLine label="Worst loss" margin={worstLoss} nameOf={nameOf} />
+      </div>
+
+      <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+        {made
+          ? 'The bracket is drawn and waiting. Nothing has been played in it: the '
+            + 'postseason is yours to start when you are ready.'
+          : 'Your season is over. The bracket is played out by the rest of the league, '
+            + 'and the offseason opens when it finishes.'}
+      </p>
     </Modal>
   );
 }

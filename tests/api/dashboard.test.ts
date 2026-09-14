@@ -167,6 +167,30 @@ describe('the franchise dashboard', () => {
     expect(after.last?.opponentScore).toBe(mineIsHome ? row?.as : row?.hs);
   });
 
+  it('reports no seed and no named games before a season is played', () => {
+    // A bracket nobody has been drawn into, and a best win that does not
+    // exist, are both reported as absent rather than as a zero or a placeholder.
+    expect(day1.seed).toBeNull();
+    expect(day1.bestWin).toBeNull();
+    expect(day1.worstLoss).toBeNull();
+  });
+
+  it('names the biggest win and the heaviest defeat from the results', async () => {
+    const after = await pipe.api.call<DashboardOut>('dashboard', { saveId });
+    // One week played, so at most one of the two exists -- and whichever it is
+    // has to be that game, read from the club's own side.
+    const named = [after.bestWin, after.worstLoss].filter((m) => m !== null);
+    expect(named.length).toBeGreaterThan(0);
+    for (const m of named) {
+      expect(m?.margin).toBe((m?.teamScore ?? 0) - (m?.opponentScore ?? 0));
+      expect(m?.opponentId).not.toBe('CLE');
+    }
+    // A win has a positive margin and a defeat a negative one, never the other
+    // way round: they are two queries over the same results and could drift.
+    if (after.bestWin !== null) expect(after.bestWin.margin).toBeGreaterThan(0);
+    if (after.worstLoss !== null) expect(after.worstLoss.margin).toBeLessThan(0);
+  });
+
   it('refuses a save this user does not own', async () => {
     const other = await openPipe('77777777-0000-0000-0000-0000000000db');
     await expect(other.api.call('dashboard', { saveId })).rejects.toThrow();

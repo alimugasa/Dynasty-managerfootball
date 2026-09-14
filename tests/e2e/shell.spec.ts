@@ -210,6 +210,14 @@ test.describe('app shell', () => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Play', exact: true }).click();
 
+    // Wait for the tab to answer before asking which shape it is in. The
+    // dashboard is a round trip behind the tap, and checking first meant
+    // reading "no offseason here" off a screen that had not loaded yet.
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="game-prep"]') !== null
+        || document.querySelector('[data-testid="next-season"]') !== null,
+      undefined, { timeout: 60_000 });
+
     // The save is shared and long-lived, so it may well be parked in an
     // offseason left by an earlier run. Start the next year rather than fail:
     // a test that only passes on a fresh database is a test that fails for the
@@ -241,6 +249,37 @@ test.describe('app shell', () => {
     await expect(result).toBeHidden();
     // And the week moved.
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(before);
+  });
+
+  test('the season sim is demoted, bordered, and asks before it runs', async ({ page }) => {
+    // The point of the section: the gold button is the week, and the one that
+    // skips a season of decisions looks like the shortcut it is and confirms.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="game-prep"]') !== null
+        || document.querySelector('[data-testid="next-season"]') !== null,
+      undefined, { timeout: 60_000 });
+    // Nothing to demote in an offseason; the section belongs to a live season.
+    test.skip(await page.getByTestId('sim-season').count() === 0, 'no regular season to sim');
+
+    const week = page.getByTestId('sim-week');
+    const season = page.getByTestId('sim-season');
+    await expect(season).toHaveText('Sim to End of Regular Season');
+    // Gold is a gradient; the quiet button has none and carries a border.
+    expect(await week.evaluate((n) => getComputedStyle(n).backgroundImage)).toContain('gradient');
+    expect(await season.evaluate((n) => getComputedStyle(n).backgroundImage)).toBe('none');
+
+    await season.scrollIntoViewIfNeeded();
+    await season.click();
+    const modal = page.getByTestId('season-warning');
+    await expect(modal).toBeVisible();
+    await expect(modal).toContainText('may skip weekly decisions');
+    // Cancel closes it and plays nothing.
+    const before = await page.getByRole('heading', { level: 1 }).innerText();
+    await page.getByTestId('season-cancel').click();
+    await expect(modal).toBeHidden();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(before);
   });
 
   test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {

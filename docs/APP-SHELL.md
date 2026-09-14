@@ -102,6 +102,7 @@ The weekly command centre, in the order a manager does the week:
    is not a setting anybody chose.
 3. **One gold button**, then four quiet ones — game preview, depth chart,
    roster, fixtures.
+4. **Quick sim**, at the bottom and deliberately not gold.
 
 **The button is the real thing.** It plays every club's week on the server and
 writes the results, the standings, the statistics and the news. It is not a
@@ -117,6 +118,26 @@ of result it was (an upset is an upset at any margin, read off the two overall
 ratings), and the record, points for and points against the week just moved.
 The screen behind it has already advanced to the next week; the modal is there
 so nobody has to notice that for themselves.
+
+#### Quick sim
+
+Running the season out in one press is the most destructive control in the
+product: every week it plays is a week of decisions — a depth chart after an
+injury, a trade, a gameplan — taken by the simulation instead of by the
+manager. So it is **not a primary action**. It sits below the week it would
+skip, in its own *Quick sim* section, as a bordered button with no fill, and
+it says how many weeks it is about to take.
+
+It confirms with the number: *Sim to End of Regular Season?* names what it
+skips, counts the remaining weeks, and shows the record it is starting from.
+"Are you sure" without a number is a question nobody can answer. A save with no
+fixture list is refused before the dialog opens rather than inside it.
+
+It stops at the bracket and hands over a **season summary** — record, points
+for and against, differential, whether the club was seeded or missed the field,
+and its biggest win and heaviest defeat named off the results. It does not walk
+into the postseason: that is its own decision, and this screen does not make it
+for anybody.
 
 Schedule and Roster were tabs of their own and neither was a destination: each
 is a list, and it belongs inside the tab whose job it is part of. The roster is

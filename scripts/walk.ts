@@ -177,8 +177,16 @@ out(`news rows on screen: ${String(await page.locator('[data-testid="news-feed"]
 // and the only way the season reaches the offseason.
 await tab(page, 'Play').click();
 await page.getByTestId('sim-season').waitFor({ timeout: 30_000 });
+await page.getByTestId('sim-season').scrollIntoViewIfNeeded();
 await page.getByTestId('sim-season').click();
-await page.getByTestId('view-bracket').waitFor({ timeout: 300_000 });
+// It is the most destructive control on the screen, so it asks first and says
+// how many weeks it is about to take.
+await page.getByTestId('season-warning').waitFor({ timeout: 15_000 });
+out(`season confirm: ${(await page.getByTestId('season-warning').innerText()).replace(/\n/g, ' | ')}`);
+await page.getByTestId('season-confirm').click();
+await page.getByTestId('season-summary').waitFor({ timeout: 600_000 });
+out(`season summary: ${(await page.getByTestId('season-summary').innerText()).replace(/\n/g, ' | ')}`);
+await page.getByTestId('summary-close').click();
 await counts('after sim to end of regular season');
 
 // Four rounds, and a bound rather than a while(true): a bracket that stopped

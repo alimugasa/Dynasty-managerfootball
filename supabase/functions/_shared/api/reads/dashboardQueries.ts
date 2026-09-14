@@ -13,6 +13,11 @@ import type { Db } from '../db.ts';
 export interface StandingRow {
   team_id: string; wins: number; losses: number; ties: number;
   points_for: number; points_against: number; streak: string | null;
+  /** Where the club sits in its conference's field once the bracket is drawn.
+   *  Null through the regular season, and null afterwards for a club that
+   *  missed it -- two different facts the screen tells apart. */
+  conference_seed: number | null;
+  eliminated: boolean | null;
   rank: string;
 }
 
@@ -26,6 +31,7 @@ export async function standingRows(
 ): Promise<StandingRow[]> {
   return db<StandingRow[]>`
     select team_id, wins, losses, ties, points_for, points_against, streak,
+           conference_seed, eliminated,
            rank() over (
              order by win_pct desc, points_for - points_against desc, team_id
            )::text as rank
@@ -185,4 +191,36 @@ export async function lastResult(
        and (g.home_team_id = ${teamId} or g.away_team_id = ${teamId})
      order by g.week desc limit 1`;
   return row;
+}
+
+export interface MarginRow {
+  game_id: string; week: number; opponent: string;
+  team_score: number; opponent_score: number; margin: number;
+}
+
+/**
+ * The club's biggest win and heaviest defeat this season.
+ *
+ * Two rows off the results rather than a summary, because the season summary
+ * is shown the moment the last week is played and no roll-up has run yet.
+ * Ties are broken by the earlier week, so the same season always names the
+ * same two games.
+ */
+export async function marginRows(
+  db: Db, saveId: string, season: number, teamId: string,
+): Promise<MarginRow[]> {
+  return db<MarginRow[]>`
+    with mine as (
+      select game_id, week,
+             case when home_team_id = ${teamId} then away_team_id else home_team_id end as opponent,
+             case when home_team_id = ${teamId} then home_score else away_score end as team_score,
+             case when home_team_id = ${teamId} then away_score else home_score end as opponent_score
+        from public.game_results
+       where save_id = ${saveId} and season = ${season}
+         and (home_team_id = ${teamId} or away_team_id = ${teamId})
+    ),
+    scored as (select *, team_score - opponent_score as margin from mine)
+    (select * from scored where margin > 0 order by margin desc, week limit 1)
+    union all
+    (select * from scored where margin < 0 order by margin asc, week limit 1)`;
 }

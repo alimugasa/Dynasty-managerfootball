@@ -317,6 +317,8 @@ hands back the next opponent's rating, which is what the matchup line reads.
 | Injured starters | those of them first in line in one of the thirteen groups: six backups out is a thinner roster, one starter out is a different team |
 | Opponent units | the same aggregate, on their roster — offense, defense, special teams, and which is their best |
 | Last result | `game_results` joined to the fixture, reported from **the club's own side**: their score first whether they were home or away |
+| Playoff seed | `standings.conference_seed` — null through the regular season, and null afterwards for a club that missed the field; the screen tells those apart by the phase rather than guessing |
+| Best win, worst loss | the widest positive and negative margins over `game_results`, ties broken by the earlier week so one season always names the same two games |
 
 It costs about **36ms** warm against a full save, against 9ms for the old
 `team` read it replaced. That is the price of the thirty-two-club aggregate,
