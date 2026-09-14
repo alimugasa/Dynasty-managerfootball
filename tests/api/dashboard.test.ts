@@ -127,6 +127,46 @@ describe('the franchise dashboard', () => {
     expect(after.thisWeek.week).toBe(2);
   }, 300_000);
 
+  it('counts the injured with the arithmetic the simulation uses', async () => {
+    // The number on the screen has to be the number the engine benches. A
+    // report that disagreed with who actually misses the game would be worse
+    // than no report.
+    const after = await pipe.api.call<DashboardOut>('dashboard', { saveId });
+    const [row] = await pipe.sql<{ n: string }[]>`
+      select count(*)::text as n from public.player_injuries i
+        join public.saves s on s.id = i.save_id
+       where i.save_id = ${saveId} and i.team_id = 'CLE'
+         and i.injured_season = s.season
+         and i.injured_week < s.week
+         and i.injured_week + i.weeks_out_estimate - 1 >= s.week`;
+    expect(after.injuries).toBe(Number(row?.n ?? '-1'));
+    // A starter is one of the injured, never more of them.
+    expect(after.injuredStarters).toBeLessThanOrEqual(after.injuries);
+  });
+
+  it('rates the opponent unit by unit, and names their best', () => {
+    expect(day1.thisWeek.opponentOffense).not.toBeNull();
+    expect(day1.thisWeek.opponentDefense).not.toBeNull();
+    expect(['Offense', 'Defense', 'Special teams'])
+      .toContain(day1.thisWeek.opponentStrongest);
+  });
+
+  it('reports the last result from the club own side of the scoreboard', async () => {
+    // Week one has none; after a week it is the club's score first, whether
+    // they were at home or away.
+    expect(day1.last).toBeNull();
+    const after = await pipe.api.call<DashboardOut>('dashboard', { saveId });
+    expect(after.last).not.toBeNull();
+    const [row] = await pipe.sql<{ home: string; hs: number; as: number }[]>`
+      select home_team_id as home, home_score as hs, away_score as "as"
+        from public.game_results
+       where save_id = ${saveId} and game_id = ${after.last?.gameId ?? ''}`;
+    const mineIsHome = row?.home === 'CLE';
+    expect(after.last?.home).toBe(mineIsHome);
+    expect(after.last?.teamScore).toBe(mineIsHome ? row?.hs : row?.as);
+    expect(after.last?.opponentScore).toBe(mineIsHome ? row?.as : row?.hs);
+  });
+
   it('refuses a save this user does not own', async () => {
     const other = await openPipe('77777777-0000-0000-0000-0000000000db');
     await expect(other.api.call('dashboard', { saveId })).rejects.toThrow();

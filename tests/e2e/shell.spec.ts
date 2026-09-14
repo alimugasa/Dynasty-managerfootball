@@ -200,6 +200,38 @@ test.describe('app shell', () => {
     await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
   });
 
+  test('the Play tab previews the matchup and simulates the week', async ({ page }) => {
+    // The whole point of the tab: see who you play, see what you are walking
+    // in with, press the one gold button, and watch the save move.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.getByTestId('game-prep').waitFor({ timeout: 60_000 });
+    // A bye or a finished season draws no matchup card, and neither is a
+    // failure -- the prep cards are on the tab either way.
+    const before = await page.getByRole('heading', { level: 1 }).innerText();
+
+    const sim = page.getByTestId('sim-week');
+    await sim.scrollIntoViewIfNeeded();
+    await sim.click();
+    // The confirmation only appears when there is something real to confirm.
+    if (await page.getByTestId('sim-warning').count() > 0) {
+      await expect(page.getByTestId('sim-warnings')).toBeVisible();
+      await page.getByTestId('sim-anyway').click();
+    }
+    const result = page.getByTestId('sim-result');
+    await result.waitFor({ timeout: 180_000 });
+    await expect(page.getByTestId('result-score')).toBeVisible();
+    await expect(page.getByTestId('result-label')).toBeVisible();
+
+    // A dialog nested in the screen's opacity animation cannot rise above the
+    // bottom navigation, so this button was unclickable until the modals were
+    // moved into a portal. Clicking it is the regression test for that.
+    await page.getByTestId('result-continue').click();
+    await expect(result).toBeHidden();
+    // And the week moved.
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(before);
+  });
+
   test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {
     // The roster is opened from Team, so Team stays lit while it is on screen:
     // the bar reports which job you are doing, not which list you are reading.

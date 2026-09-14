@@ -9,9 +9,12 @@ import { COLOR, R, S } from '../../src/app/tokens';
 import { EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { ActionButton } from '../../src/components/ActionButton';
-import { ranking } from './host';
+import { MatchupCard, PrepCard, PrepGrid, PrepWide } from '../../src/screens/playMatchup';
+import { matchupOf } from './dashboard';
+import { ranking, squad } from './host';
 import { nextRound, ROUND_LABEL } from './postseason';
 import { lastRoundSurvivor, roundOf } from './screens';
+import { POSITION_GROUPS } from '../../supabase/functions/_shared/engine/types.ts';
 import { ordinal, record, type ScreenProps as Props } from './common';
 
 export function PlayScreen(
@@ -42,6 +45,11 @@ export function PlayScreen(
   const played = standing === undefined ? 0 : standing.wins + standing.losses + standing.ties;
   const place = played === 0
     ? 0 : ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1;
+  const matchup = matchupOf(game);
+  // How many of the club's own players are unavailable this week, from the
+  // same map the engine benches them with.
+  const onRoster = new Set(squad(game, game.userTeamId).map((p) => p.id));
+  const absent = [...game.absence.keys()].filter((id) => onRoster.has(id)).length;
 
   return (
     <>
@@ -57,6 +65,53 @@ export function PlayScreen(
         >
           {game.abandoned.length} game(s) could not be played: {game.abandoned.join(', ')}
         </p>
+      )}
+
+      {!done && !inPlayoffs && matchup.week.state === 'FIXTURE' && (
+        <>
+          <MatchupCard
+            identity={matchup.identity}
+            ratings={matchup.ratings}
+            record={matchup.record}
+            week={matchup.week}
+            competition={`Regular Season · Week ${String(game.week)}`}
+            clubOf={(id) => game.clubs.get(id)}
+          />
+
+          <SectionHeader title="Game prep" />
+          <PrepGrid>
+            <PrepCard
+              label="Depth chart"
+              value="Ready"
+              detail={`${String(POSITION_GROUPS.length)} of ${String(POSITION_GROUPS.length)} groups`}
+              tone="ready"
+            />
+            <PrepCard
+              label="Injury report"
+              value={absent === 0 ? 'Everyone fit' : `${String(absent)} out`}
+              detail={absent === 0 ? 'No starters affected' : 'Backups play in their place'}
+              tone={absent === 0 ? 'ready' : 'plain'}
+            />
+            <PrepCard
+              label="Gameplan"
+              value="Balanced"
+              detail="Every club plays its base approach."
+              tone="absent"
+            />
+            <PrepWide>
+              <PrepCard
+                label="Opponent strength"
+                value={matchup.week.opponentOverall === null
+                  ? '—'
+                  : `${String(matchup.week.opponentOverall)} overall`}
+                detail={matchup.week.opponentStrongest === null
+                  ? 'Not measured'
+                  : `Strongest: ${matchup.week.opponentStrongest.toLowerCase()}`}
+                tone="plain"
+              />
+            </PrepWide>
+          </PrepGrid>
+        </>
       )}
 
       <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />

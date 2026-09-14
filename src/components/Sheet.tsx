@@ -16,6 +16,7 @@
 // keeps, for the same reason: a sheet a keyboard cannot leave is a trap.
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { COLOR, ELEV, MOTION, R, S, TYPE } from '../app/tokens';
 
 interface Props {
@@ -46,7 +47,10 @@ export function Sheet({ title, detail, badge, onClose, children, testId }: Props
     };
   }, [onClose]);
 
-  return (
+  // Rendered into the body rather than where it was written: see the note in
+  // Modal.tsx. A sheet nested inside the screen's opacity animation cannot
+  // rise above the bottom navigation, whatever its z-index says.
+  return createPortal((
     <div
       style={{
         position: 'fixed', inset: 0, zIndex: 60,
@@ -113,5 +117,5 @@ export function Sheet({ title, detail, badge, onClose, children, testId }: Props
         <div style={{ marginTop: S[4] }}>{children}</div>
       </div>
     </div>
-  );
+  ), document.body);
 }

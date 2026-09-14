@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 import {
   draftLabel, draftScore, fanPressure, franchiseStatus, mandateStanding,
   matchupDifficulty, overallRating, ownerMandate, ownerMood, quarterbackSituation,
-  ratingBand, rosterTimeline, suggestedMove,
+  ratingBand, rosterTimeline, strongestUnit, suggestedMove,
   type Outlook, type OwnerInput,
 } from '../supabase/functions/_shared/api/reads/teamOutlook';
 
@@ -280,5 +280,25 @@ describe('one club, one rating', () => {
   it('refuses to rate a club missing a side of the ball', () => {
     expect(overallRating(null, 80, 80)).toBeNull();
     expect(overallRating(80, null, 80)).toBeNull();
+  });
+});
+
+describe('the strongest unit', () => {
+  it('names the best of the three', () => {
+    expect(strongestUnit(84, 78, 70)).toBe('Offense');
+    expect(strongestUnit(78, 84, 70)).toBe('Defense');
+    expect(strongestUnit(70, 72, 88)).toBe('Special teams');
+  });
+
+  it('gives a tie to the side of the ball over the kicking game', () => {
+    // A club whose three units rate the same is not remarkable for its kickers.
+    expect(strongestUnit(80, 80, 80)).toBe('Offense');
+    expect(strongestUnit(null, 80, 80)).toBe('Defense');
+  });
+
+  it('says nothing about a club with no unit measured', () => {
+    expect(strongestUnit(null, null, null)).toBeNull();
+    // One measured unit is still the strongest one.
+    expect(strongestUnit(null, null, 66)).toBe('Special teams');
   });
 });

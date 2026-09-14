@@ -43,6 +43,27 @@ async function counts(label: string): Promise<void> {
 
 const tab = (page: Page, name: string) => page.getByRole('button', { name, exact: true });
 
+/**
+ * One week, the way a player plays one: press the gold button, answer the
+ * confirmation if there is one, and wait for the result.
+ *
+ * The confirmation appears only when the roster has a real problem, so both
+ * paths have to be walked -- a script that assumed one would hang on the other
+ * for thirty seconds and blame the simulation.
+ */
+async function simOnce(): Promise<void> {
+  const sim = page.getByTestId('sim-week');
+  await sim.scrollIntoViewIfNeeded();
+  await sim.click();
+  if (await page.getByTestId('sim-warning').count() > 0) {
+    out(`   warned: ${(await page.getByTestId('sim-warnings').innerText()).replace(/\n/g, ' / ')}`);
+    await page.getByTestId('sim-anyway').click();
+  }
+  await page.getByTestId('sim-result').waitFor({ timeout: 120_000 });
+  out(`   result: ${await page.getByTestId('result-score').innerText()}`
+    + ` ${await page.getByTestId('result-label').innerText()}`);
+}
+
 // The full Chromium the e2e suite runs on, when the headless shell build
 // Playwright's library defaults to is not installed.
 const executablePath = process.env['CHROME_PATH'];
@@ -120,17 +141,19 @@ const [starter] = await sql<{ player_id: string; display_name: string; is_starte
   order by s.updated_at desc limit 1`;
 out(`   team_depth_charts QB1 now ${starter?.player_id ?? '?'} ${starter?.display_name ?? ''} (starter ${String(starter?.is_starter)})`);
 
-// Sim a week.
+// Sim a week. The gold button confirms first when a starter is out or a
+// position group has nobody named, so the walk answers that the way a player
+// would, then reads the result modal it opens.
 await tab(page, 'Play').click();
 await page.getByTestId('sim-week').waitFor({ timeout: 30_000 });
-await page.getByTestId('sim-week').click();
-await page.getByText(/Week 2 of/).waitFor({ timeout: 60_000 });
+out(`matchup: ${(await page.getByTestId('matchup').innerText()).replace(/\n/g, ' | ')}`);
+out(`prep:    ${(await page.getByTestId('game-prep').innerText()).replace(/\n/g, ' | ')}`);
+await simOnce();
 await counts('after sim week 1');
 
-// Box score.
-await page.getByText(/Last result/).first().waitFor();
-await page.locator('text=Last result').first()
-  .locator('xpath=following::*[@role="button" or self::button][1]').click().catch(() => undefined);
+// Box score, reached from the result modal's own Recap button.
+await page.getByTestId('sim-result').waitFor({ timeout: 30_000 });
+await page.getByTestId('result-recap').click();
 await page.getByTestId('home-score').waitFor({ timeout: 15_000 });
 const box = await page.getByTestId('box-team-stats').innerText();
 out(`box score: ${(await page.getByTestId('away-score').innerText())}-${await page.getByTestId('home-score').innerText()}; rows: ${box.split('\n').slice(0, 6).join(' | ')}`);
@@ -166,7 +189,8 @@ for (let round = 0; round < 6; round += 1) {
   // signal that this one finished. Waiting on the button to re-enable would
   // race the request; waiting on the text does not.
   const was = await page.getByTestId('sim-week').innerText();
-  await page.getByTestId('sim-week').click();
+  await simOnce();
+  await page.getByTestId('result-continue').click();
   await page.waitForFunction(
     (before) => {
       if (document.querySelector('[data-testid="next-season"]') !== null) return true;

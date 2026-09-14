@@ -27,12 +27,12 @@ import { OFFSEASON_PHASES } from '../phases.ts';
 import { profileRows, type ProfileRow } from './teamBoard.ts';
 import { shortDivision } from './teamProfiles.ts';
 import {
-  mandateStanding, matchupDifficulty, num, overallRating, ownerMandate, ownerMood,
-  quarterbackSituation, ratingBand, rosterTimeline, rounded,
+  fanPressure, mandateStanding, matchupDifficulty, num, overallRating, ownerMandate,
+  ownerMood, quarterbackSituation, ratingBand, rosterTimeline, rounded, strongestUnit,
   type Mandate, type RatingBand,
 } from './teamOutlook.ts';
 import {
-  ownerRow, shapeRow, standingRows, turnoverRow, weekFixture,
+  injuryCount, lastResult, ownerRow, shapeRow, standingRows, turnoverRow, weekFixture,
 } from './dashboardQueries.ts';
 import type { SquadRow } from './team.ts';
 
@@ -103,6 +103,11 @@ export interface ThisWeekOut {
   readonly opponentRecord: { readonly wins: number; readonly losses: number; readonly ties: number } | null;
   readonly opponentOverall: number | null;
   readonly opponentBand: RatingBand | null;
+  readonly opponentOffense: number | null;
+  readonly opponentDefense: number | null;
+  readonly opponentSpecialTeams: number | null;
+  /** Which of their three units is their best, named. */
+  readonly opponentStrongest: string | null;
   /** True when the club you manage is at home. Null when there is no game. */
   readonly home: boolean | null;
   readonly difficulty: string | null;
@@ -118,6 +123,17 @@ export interface ShapeOut {
   readonly positionGroups: number;
   readonly fixtures: number;
   readonly played: number;
+}
+
+/** The game just played, for the screen that played it. */
+export interface LastResultOut {
+  readonly gameId: string;
+  readonly week: number;
+  readonly round: string | null;
+  readonly opponentId: string;
+  readonly home: boolean;
+  readonly teamScore: number;
+  readonly opponentScore: number;
 }
 
 export interface DashboardOut {
@@ -138,6 +154,15 @@ export interface DashboardOut {
   readonly quarterback: string | null;
   readonly turnovers: TurnoverOut | null;
   readonly owner: OwnerOut | null;
+  /** How many of the club's players miss this week, and how many of those are
+   *  first in line in their group. Counted with the same arithmetic the
+   *  simulation uses, so the report and the game agree. */
+  readonly injuries: number;
+  readonly injuredStarters: number;
+  /** How demanding the market is, from the only thing the world models about
+   *  a crowd -- its size. Not a simulated fan base. */
+  readonly fanPressure: string | null;
+  readonly last: LastResultOut | null;
   readonly thisWeek: ThisWeekOut;
   readonly shape: ShapeOut;
   /** The top of the depth chart, in the order it plays. */
@@ -156,14 +181,17 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
     const s = await ownedSave(sql, userId, input.saveId);
     const teamId = s.user_team_id;
 
-    const [profiles, standings, owner, shape, turnovers, fixture] = await Promise.all([
-      profileRows(sql, s.id, s.season),
-      standingRows(sql, s.id, s.season),
-      ownerRow(sql, s.id, teamId),
-      shapeRow(sql, s.id, s.season, teamId, POSITION_GROUPS),
-      turnoverRow(sql, s.id, s.season, teamId),
-      weekFixture(sql, s.id, s.season, s.week, teamId),
-    ]);
+    const [profiles, standings, owner, shape, turnovers, fixture, injuries, last] =
+      await Promise.all([
+        profileRows(sql, s.id, s.season),
+        standingRows(sql, s.id, s.season),
+        ownerRow(sql, s.id, teamId),
+        shapeRow(sql, s.id, s.season, teamId, POSITION_GROUPS),
+        turnoverRow(sql, s.id, s.season, teamId),
+        weekFixture(sql, s.id, s.season, s.week, teamId),
+        injuryCount(sql, s.id, s.season, s.week, teamId, POSITION_GROUPS),
+        lastResult(sql, s.id, s.season, teamId),
+      ]);
 
     const squad = await sql<{
       player_id: string; display_name: string; slot: string; age: number; overall_rating: number;
@@ -292,11 +320,30 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
         },
         opponentOverall: opponentRated.overall,
         opponentBand: ratingBand(opponentRated.overall),
+        opponentOffense: opponentRated.offense,
+        opponentDefense: opponentRated.defense,
+        opponentSpecialTeams: opponentRated.specialTeams,
+        opponentStrongest: strongestUnit(
+          opponentRated.offense, opponentRated.defense, opponentRated.specialTeams),
         home: fixture === undefined ? null : fixture.home_team_id === teamId,
         difficulty: matchupDifficulty(rated.overall, opponentRated.overall),
         round: fixture?.playoff_round == null
           ? null
           : (ROUND_LABEL[fixture.playoff_round as PlayoffRound] ?? fixture.playoff_round),
+      },
+      injuries: Number(injuries?.out ?? '0'),
+      injuredStarters: Number(injuries?.starters ?? '0'),
+      fanPressure: fanPressure(mine?.market_size ?? null),
+      last: last === undefined ? null : {
+        gameId: last.game_id,
+        week: last.week,
+        round: last.playoff_round === null
+          ? null
+          : (ROUND_LABEL[last.playoff_round as PlayoffRound] ?? last.playoff_round),
+        opponentId: last.home_team_id === teamId ? last.away_team_id : last.home_team_id,
+        home: last.home_team_id === teamId,
+        teamScore: last.home_team_id === teamId ? last.home_score : last.away_score,
+        opponentScore: last.home_team_id === teamId ? last.away_score : last.home_score,
       },
       shape: {
         rosterCount: Number(shape?.roster ?? '0'),

@@ -20,7 +20,7 @@ They are the jobs a manager has, not the screens that happened to exist:
 |---|---|---|
 | Office | the executive one | finances, the front office, dynasty history, the franchise rules |
 | Team | the football one | the franchise dashboard, then the roster, the depth chart, the schedule and offseason moves |
-| Play | the week | advance the week, round or offseason; this week's game; the last result |
+| Play | the week | the matchup, game prep, the one gold button, and the result it produced |
 | League | the world outside | standings, leaders, the league schedule, the bracket, awards and records |
 | News | what is being said | the whole feed, as the engine writes it |
 
@@ -85,6 +85,38 @@ number, so the tap is worth making. A row that navigated to a screen rendering
 nothing, or that quietly did nothing, are the two dishonest answers. *Play the
 game* navigates nowhere at all: it scrolls the gold button into view and
 focuses it, because the button is already on this screen.
+
+### The Play tab
+
+The weekly command centre, in the order a manager does the week:
+
+1. **The matchup.** Both clubs either side of a label, each with its badge,
+   name, record and the same three numbers — offense, defense, overall. The
+   club you manage is always on the left whoever is at home; the label in the
+   middle says which, and reads *Home* or *Away* with the opponent's name
+   prefixed *vs* or *at*.
+2. **Game prep.** Five cards: depth chart status (Ready / Incomplete / Not set),
+   injuries out this week and how many of them start, gameplan, the opponent's
+   overall and strongest unit, and the owner's mood beside the market's size.
+   The gameplan card is dashed and badged *Not built yet*, because "Balanced"
+   is not a setting anybody chose.
+3. **One gold button**, then four quiet ones — game preview, depth chart,
+   roster, fixtures.
+
+**The button is the real thing.** It plays every club's week on the server and
+writes the results, the standings, the statistics and the news. It is not a
+placeholder and never was.
+
+**It confirms first, but only when there is something to confirm.** A dialog
+every week is a dialog nobody reads by October, so it is raised for two facts
+that cost a Sunday — a position group with nobody named first, and a starter
+who is out — and lists them, with Cancel and *Sim anyway*.
+
+**Then it shows what changed.** The result modal carries the score, what kind
+of result it was (an upset is an upset at any margin, read off the two overall
+ratings), and the record, points for and points against the week just moved.
+The screen behind it has already advanced to the next week; the modal is there
+so nobody has to notice that for themselves.
 
 Schedule and Roster were tabs of their own and neither was a destination: each
 is a list, and it belongs inside the tab whose job it is part of. The roster is

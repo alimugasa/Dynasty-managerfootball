@@ -313,6 +313,10 @@ hands back the next opponent's rating, which is what the matchup line reads.
 | This week | `season_schedule` for the save's week, with the opponent's record and rating |
 | Matchup difficulty | the margin between the two overall ratings, not a ranking |
 | Checklist counts | `team_rosters`, `team_depth_charts`, `season_schedule` and `game_results` row counts |
+| Injuries out this week | `player_injuries`, with **the same arithmetic `absentPlayers()` uses** when the week is played — a report that disagreed with who actually misses the game would be worse than none |
+| Injured starters | those of them first in line in one of the thirteen groups: six backups out is a thinner roster, one starter out is a different team |
+| Opponent units | the same aggregate, on their roster — offense, defense, special teams, and which is their best |
+| Last result | `game_results` joined to the fixture, reported from **the club's own side**: their score first whether they were home or away |
 
 It costs about **36ms** warm against a full save, against 9ms for the old
 `team` read it replaced. That is the price of the thirty-two-club aggregate,

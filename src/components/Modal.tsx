@@ -11,6 +11,7 @@
 // trap, and one that never took focus was never really open.
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { COLOR, ELEV, MOTION, R, S, TYPE } from '../app/tokens';
 
 interface Props {
@@ -47,7 +48,15 @@ export function Modal({ title, detail, onClose, children, actions, testId }: Pro
     };
   }, [onClose]);
 
-  return (
+  // Rendered into the body rather than where it was written.
+  //
+  // Every screen sits inside `.screen-in`, which animates opacity with a fill
+  // mode of `both` -- so the animation keeps applying after it finishes, the
+  // element keeps the stacking context the animation gave it, and a dialog
+  // nested inside it can never rise above the bottom navigation however high
+  // its z-index goes. It looked fine and its lowest buttons were unclickable,
+  // which is the worst way for this to be wrong.
+  return createPortal((
     <div
       // The backdrop. Dark enough to take the screen behind it out of the
       // conversation, translucent enough to keep the context.
@@ -98,5 +107,5 @@ export function Modal({ title, detail, onClose, children, actions, testId }: Pro
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }

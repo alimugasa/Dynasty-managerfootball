@@ -205,7 +205,9 @@ on the server, and opening the app on another device meets the menu. Office →
 | Read the team's rating | **Team** → the four rings under the identity card |
 | See what the owner wants | **Team** → *The owner* |
 | Set a depth chart | **Team** → *Depth chart* → pick a position chip → ↑ / ↓ arrows |
-| Sim a week | **Team** → *Sim week N* on the week card, or the **Play** tab |
+| Sim a week | **Play** tab → *Sim week N*, or the week card on **Team** |
+| See who you play next | **Play** tab — the matchup card is the top of it |
+| Check the injury report | **Play** → *Game prep* |
 | Read the box score | **Play** → *Last result* row, or the schedule → any played game |
 | Read your schedule | **Team** → *Schedule* |
 | Standings and leaders | **League** tab |

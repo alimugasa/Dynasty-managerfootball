@@ -312,3 +312,23 @@ export function matchupDifficulty(
   if (margin > -8) return 'Tough';
   return 'Severe';
 }
+
+/**
+ * Which of a club's three units is its best, named.
+ *
+ * Ties go to the side of the ball over the kicking game, and to offence over
+ * defence, because a club whose three units rate the same is not remarkable
+ * for its kickers. Null unless at least one unit was measured -- "strongest"
+ * over nothing is not a fact.
+ */
+export function strongestUnit(
+  offense: number | null, defense: number | null, specialTeams: number | null,
+): string | null {
+  const units: readonly { label: string; rating: number }[] = [
+    ...(offense === null ? [] : [{ label: 'Offense', rating: offense }]),
+    ...(defense === null ? [] : [{ label: 'Defense', rating: defense }]),
+    ...(specialTeams === null ? [] : [{ label: 'Special teams', rating: specialTeams }]),
+  ];
+  if (units.length === 0) return null;
+  return units.reduce((best, u) => (u.rating > best.rating ? u : best)).label;
+}

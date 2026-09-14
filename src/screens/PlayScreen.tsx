@@ -1,26 +1,39 @@
-// Play: the week, and the button that ends it.
+// Play: the weekly command centre.
 //
-// The one tab that moves the season on, which is why it is the one in the
-// middle of the bar. Everything here is about the next seven days: who you
-// play, what happened last time, and the control that advances the clock --
-// whether that is a week, a playoff round, or a whole offseason.
+// Everything about the next seven days, and the one button that ends them.
+// Preview, prepare, simulate, advance -- in that order down the screen,
+// because that is the order a manager does them in.
 //
-// It used to live at the bottom of Team, under a hero and a roster list, which
-// put the most-used control in the product below the fold on a phone.
+// It reads the same call the dashboard reads: both screens are about the club
+// right now, and one read producing both is why the rating on the matchup card
+// can never disagree with the rating on the Team tab.
+//
+// The button is not a button that looks like it does something. Pressing it
+// plays every club's week on the server, writes the results, the standings,
+// the stats and the news, and moves the save on. The modal afterwards exists
+// to show that it did.
 
+import { useEffect, useRef, useState } from 'react';
 import { COLOR, R, S, TYPE } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
-import { EmptyState, Panel, SectionHeader } from '../components/Surface';
-import { ListRow } from '../components/ListRow';
+import { EmptyState, SectionHeader } from '../components/Surface';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { isOffseasonPhase } from '../domain/phase';
-import { HubCard, HubStack, NotBuilt } from './hubCards';
+import { MatchupCard, PrepCard, PrepGrid, PrepWide } from './playMatchup';
+import { ResultModal, SimWarningModal, warningsFor } from './playResult';
 import { Screen } from './Screen';
-import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
-import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
+import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
+
+/** What the depth chart is, in one word, and how worried to be about it. */
+function depthStatus(d: DashboardOut): { value: string; tone: 'ready' | 'warn' } {
+  if (d.shape.depthStarters >= d.shape.positionGroups) return { value: 'Ready', tone: 'ready' };
+  return d.shape.depthStarters === 0
+    ? { value: 'Not set', tone: 'warn' }
+    : { value: 'Incomplete', tone: 'warn' };
+}
 
 export function PlayScreen() {
   const nav = useNavigator();
@@ -28,37 +41,48 @@ export function PlayScreen() {
     save, loaded, loadError, clubsById, version, busy, notice,
     simWeek, simSeason, nextSeason,
   } = useSave();
-  const q = useQuery<TeamOut>('team', { saveId: save?.saveId ?? '' }, version, save !== null);
-  // The bracket is only asked for once there is one: through the regular
-  // season this stays unfetched.
-  const post = useQuery<PlayoffsOut>(
-    'playoffs', { saveId: save?.saveId ?? '' }, version,
-    save !== null && save.phase !== 'REGULAR_SEASON');
+  const q = useQuery<DashboardOut>('dashboard', { saveId: save?.saveId ?? '' }, version, save !== null);
+  const [confirming, setConfirming] = useState(false);
+  const [result, setResult] = useState(false);
+  /** The game that was the latest one before this sim started. The modal opens
+   *  when a newer one appears, which is the only signal that says the week was
+   *  played rather than merely requested. */
+  const before = useRef<string | null>(null);
+  const waiting = useRef(false);
+  const latest = q.status === 'ready' ? q.data.last?.gameId ?? null : null;
+
+  useEffect(() => {
+    if (!waiting.current || latest === null || latest === before.current) return;
+    waiting.current = false;
+    setResult(true);
+  }, [latest]);
 
   if (loadError !== null) return <Screen title="Play" screen="play"><QueryError error={loadError} /></Screen>;
   if (!loaded) return <Screen title="Play" screen="play"><Loading label="Loading the week" /></Screen>;
   if (save === null) return <Screen title="Play" screen="play"><NoDynasty /></Screen>;
 
+  const d = q.status === 'ready' ? q.data : null;
   const done = isOffseasonPhase(save.phase);
   const inPlayoffs = save.phase === 'PLAYOFFS';
-  const roundLabel = post.status === 'ready' ? post.data.nextLabel : null;
-  const champion = post.status === 'ready' ? post.data.champion : null;
-  const stillIn = post.status === 'ready'
-    && post.data.games.some((g) => g.homeScore === null
-      && (g.homeTeamId === save.userTeamId || g.awayTeamId === save.userTeamId));
-  const nickname = (id: string): string => clubsById.get(id)?.nickname ?? id;
-  const fullName = (id: string): string => clubsById.get(id)?.name ?? id;
+  const round = d?.thisWeek.round ?? null;
+  const competition = inPlayoffs
+    ? `Postseason · ${round ?? 'Playoffs'}`
+    : `Regular Season · Week ${String(save.week)}`;
+  const warnings = d === null ? [] : warningsFor(d);
+
+  const play = (): void => {
+    setConfirming(false);
+    before.current = d?.last?.gameId ?? null;
+    waiting.current = true;
+    void simWeek();
+  };
 
   return (
     <Screen
-      title="Play"
-      // The same words the Team screen uses for the same fact: two screens
-      // naming one week differently is two weeks to anyone skim-reading.
+      title={done ? 'Offseason' : round ?? `Week ${String(save.week)}`}
       subtitle={done
-        ? `${String(save.season)} · Offseason`
-        : inPlayoffs
-          ? `${String(save.season)} · ${roundLabel ?? 'Playoffs'}`
-          : `${String(save.season)} · Week ${String(save.week)} of ${String(save.weeks)}`}
+        ? `${String(save.season)} · Season complete`
+        : `${String(save.season)} · ${inPlayoffs ? 'Postseason' : `Week ${String(save.week)} of ${String(save.weeks)}`}`}
       screen="play"
     >
       {notice !== null && (
@@ -66,19 +90,23 @@ export function PlayScreen() {
           data-testid="notice"
           style={{
             margin: `0 0 ${String(S[3])}px`, padding: `${String(S[2])}px ${String(S[3])}px`,
-            borderRadius: R.md,
-            background: 'rgba(226,87,76,0.12)', border: `1px solid ${COLOR.red}`,
-            color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
+            borderRadius: R.md, background: 'rgba(226,87,76,0.12)',
+            border: `1px solid ${COLOR.red}`, color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
           }}
         >
           {notice}
         </p>
       )}
+      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'loading' && <Loading label="Loading the week" rows={6} />}
 
-      <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
-      <div style={{ display: 'grid', gap: S[2] }}>
-        {done ? (
-          <>
+      {d !== null && done && (
+        <>
+          <EmptyState
+            title="The season is over"
+            detail="Play the offseason out, or simulate it and start the next year."
+          />
+          <div style={{ display: 'grid', gap: S[2], marginTop: S[3] }}>
             <ActionButton onClick={() => { nav.push('offseason'); }} testId="play-offseason">
               Play the offseason
             </ActionButton>
@@ -91,97 +119,149 @@ export function PlayScreen() {
               {busy ?? `Simulate it → ${String(save.season + 1)}`}
             </ActionButton>
             <ActionButton onClick={() => { nav.push('recap'); }} tone="quiet" testId="view-recap">
-              {champion === null ? 'Season recap' : `Season recap · ${nickname(champion)} champions`}
+              Season recap
             </ActionButton>
-          </>
-        ) : inPlayoffs ? (
-          <>
-            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Play the ${roundLabel ?? 'next round'}`}
-            </ActionButton>
-            <ActionButton onClick={() => { nav.push('playoffs'); }} tone="quiet" testId="view-bracket">
-              {stillIn ? 'See the bracket' : 'See the bracket · your team is out'}
-            </ActionButton>
-          </>
-        ) : (
-          <>
-            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Sim week ${String(save.week)}`}
-            </ActionButton>
-            <ActionButton onClick={() => { void simSeason(); }} disabled={busy !== null} tone="quiet" testId="sim-season">
-              Sim to end of season
-            </ActionButton>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
-      {q.status === 'error' && <QueryError error={q.error} />}
-      {q.status === 'loading' && <Loading label="Loading the week" rows={3} />}
-      {q.status === 'ready' && (
+      {d !== null && !done && (
         <>
-          <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
-          {q.data.next === null ? (
+          {d.thisWeek.state === 'FIXTURE' ? (
+            <MatchupCard
+              identity={d.identity}
+              ratings={d.ratings}
+              record={d.record}
+              week={d.thisWeek}
+              competition={competition}
+              clubOf={(id) => clubsById.get(id)}
+            />
+          ) : (
             <EmptyState
-              title={done ? 'The season is over' : inPlayoffs ? 'Nothing to play this round' : 'No game this week'}
-              {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
-              {...(inPlayoffs && !stillIn ? { detail: 'Your team is not in the bracket. Play it out to see who takes it.' } : {})}
+              title={d.thisWeek.state === 'NO_SCHEDULE' ? 'Schedule not generated' : 'No game this week'}
+              detail={d.thisWeek.state === 'NO_SCHEDULE'
+                ? 'This save has no fixtures for the season, so there is nothing to play.'
+                : inPlayoffs
+                  ? 'Your club is not in this round. Play it out to see who takes it.'
+                  : 'A bye week. The league plays on without you; advance to join it.'}
             />
-          ) : (
-            <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="next-fixture">
-                <ListRow
-                  title={q.data.next.homeTeamId === save.userTeamId
-                    ? `vs ${fullName(q.data.next.awayTeamId)}`
-                    : `at ${fullName(q.data.next.homeTeamId)}`}
-                  subtitle={q.data.next.round ?? `Week ${String(q.data.next.week)}`}
-                />
-              </div>
-            </Panel>
           )}
 
-          <SectionHeader title="Last result" />
-          {q.data.last === null ? (
-            <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
-          ) : (
-            <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }}>
-                <ListRow
-                  title={`${nickname(q.data.last.awayTeamId)} ${String(q.data.last.awayScore)} — ${String(q.data.last.homeScore)} ${nickname(q.data.last.homeTeamId)}`}
-                  subtitle={`${q.data.last.round ?? `Week ${String(q.data.last.week)}`} · box score`}
-                  navigable
-                  onSelect={() => { nav.push('game', { id: q.data.last?.gameId ?? '' }); }}
-                />
-              </div>
-            </Panel>
-          )}
+          <SectionHeader title="Game prep" />
+          <PrepGrid>
+            <PrepCard
+              label="Depth chart"
+              value={depthStatus(d).value}
+              detail={`${String(d.shape.depthStarters)} of ${String(d.shape.positionGroups)} groups`}
+              tone={depthStatus(d).tone}
+            />
+            <PrepCard
+              label="Injury report"
+              value={d.injuries === 0 ? 'Everyone fit' : `${String(d.injuries)} out`}
+              detail={d.injuredStarters === 0
+                ? 'No starters affected'
+                : `${String(d.injuredStarters)} of them start`}
+              tone={d.injuredStarters > 0 ? 'warn' : d.injuries === 0 ? 'ready' : 'plain'}
+            />
+            <PrepCard
+              label="Gameplan"
+              value="Balanced"
+              detail="Every club plays its base approach."
+              tone="absent"
+            />
+            <PrepCard
+              label="Opponent strength"
+              value={d.thisWeek.opponentOverall === null
+                ? '—'
+                : `${String(d.thisWeek.opponentOverall)} overall`}
+              detail={d.thisWeek.opponentStrongest === null
+                ? 'Not measured'
+                : `Strongest: ${d.thisWeek.opponentStrongest.toLowerCase()}`}
+              tone="plain"
+            />
+            <PrepWide>
+              <PrepCard
+                label="Owner and fans"
+                value={d.owner?.mood ?? 'No owner on file'}
+                detail={d.fanPressure === null
+                  ? 'Market not measured'
+                  : `${d.fanPressure} market · the owner does not act on this yet`}
+                tone="plain"
+              />
+            </PrepWide>
+          </PrepGrid>
 
-          <SectionHeader title="The week" />
-          <HubStack>
-            <HubCard
-              title="Schedule"
-              detail="Every fixture this season, and how each one went"
-              onSelect={() => { nav.push('schedule'); }}
-              testId="to-schedule"
-            />
-            {/* Named because the tab promises them, dimmed because they do not
-                exist. A card that looked tappable and did nothing would put
-                the two above it in doubt. */}
-            <NotBuilt
-              title="Opponent preview"
-              detail="Who you are facing, how they line up, and where they are weak."
-              testId="soon-opponent"
-            />
-            <NotBuilt
-              title="Gameplan"
-              detail="Set the approach for the week before you play it."
-              testId="soon-gameplan"
-            />
-          </HubStack>
+          <div style={{ display: 'grid', gap: S[2], marginTop: S[4] }}>
+            <ActionButton
+              onClick={() => {
+                if (warnings.length > 0) { setConfirming(true); return; }
+                play();
+              }}
+              disabled={busy !== null}
+              testId="sim-week"
+            >
+              {busy ?? (inPlayoffs
+                ? `Play the ${round ?? 'next round'}`
+                : `Sim week ${String(save.week)}`)}
+            </ActionButton>
+            <div style={{ display: 'grid', gap: S[2], gridTemplateColumns: '1fr 1fr' }}>
+              <ActionButton tone="quiet" onClick={() => { nav.replaceRoot('team'); }} testId="to-preview">
+                Game preview
+              </ActionButton>
+              <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }} testId="to-depth">
+                Depth chart
+              </ActionButton>
+              <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }} testId="to-roster">
+                View roster
+              </ActionButton>
+              <ActionButton tone="quiet" onClick={() => { nav.push('schedule'); }} testId="to-schedule">
+                Fixtures
+              </ActionButton>
+            </div>
+            {inPlayoffs && (
+              <ActionButton onClick={() => { nav.push('playoffs'); }} tone="quiet" testId="view-bracket">
+                See the bracket
+              </ActionButton>
+            )}
+            {!inPlayoffs && (
+              <ActionButton
+                onClick={() => { void simSeason(); }}
+                disabled={busy !== null}
+                tone="quiet"
+                testId="sim-season"
+              >
+                Sim to end of season
+              </ActionButton>
+            )}
+          </div>
 
           <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
-            Simulating plays every club's week, not only yours.
+            Simulating plays every club&rsquo;s week, not only yours. The results, the table,
+            the statistics and the news all move with it.
           </p>
         </>
+      )}
+
+      {confirming && d !== null && (
+        <SimWarningModal
+          warnings={warnings}
+          week={save.week}
+          onCancel={() => { setConfirming(false); }}
+          onConfirm={play}
+        />
+      )}
+
+      {result && d?.last != null && (
+        <ResultModal
+          result={d.last}
+          record={d.record}
+          mine={d.ratings.overall}
+          theirs={d.thisWeek.opponentOverall}
+          opponentName={clubsById.get(d.last.opponentId)?.name ?? d.last.opponentId}
+          onRecap={() => { setResult(false); nav.push('game', { id: d.last?.gameId ?? '' }); }}
+          onResults={() => { setResult(false); nav.push('schedule'); }}
+          onClose={() => { setResult(false); }}
+        />
       )}
     </Screen>
   );

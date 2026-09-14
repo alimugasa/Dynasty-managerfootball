@@ -27,7 +27,7 @@ import {
 import { mandateCopy } from '../../src/screens/dashboardMandate';
 import {
   matchupDifficulty, mandateStanding, overallRating, ownerMandate, ownerMood,
-  quarterbackSituation, ratingBand, rosterTimeline,
+  quarterbackSituation, ratingBand, rosterTimeline, strongestUnit,
 } from '../../supabase/functions/_shared/api/reads/teamOutlook.ts';
 import { ON_FIELD } from '../../supabase/functions/_shared/api/reads/teamBoard.ts';
 import { TeamScreen } from './screens';
@@ -49,7 +49,7 @@ const mean = (xs: readonly number[], take: number): number | null => {
 };
 
 /** The three units, off the roster as it is now rather than as it shipped. */
-function ratingsOf(game: Game, teamId: string) {
+export function ratingsOf(game: Game, teamId: string) {
   const roster = game.league.players.filter((p) => p.teamId === teamId);
   const by = (keep: (group: string) => boolean): number[] =>
     roster.filter((p) => keep(p.group)).map((p) => p.ability);
@@ -122,7 +122,8 @@ export function DashboardScreen(
     ? null
     : fixture.homeTeamId === teamId ? fixture.awayTeamId : fixture.homeTeamId;
   const opponentRated = opponentId === null
-    ? { overall: null } : ratingsOf(game, opponentId);
+    ? { overall: null, offense: null, defense: null, specialTeams: null }
+    : ratingsOf(game, opponentId);
   const opponentStanding = opponentId === null ? undefined : game.standings.get(opponentId);
 
   const week: DashboardOut['thisWeek'] = {
@@ -140,6 +141,11 @@ export function DashboardScreen(
     },
     opponentOverall: opponentRated.overall,
     opponentBand: ratingBand(opponentRated.overall),
+    opponentOffense: opponentRated.offense,
+    opponentDefense: opponentRated.defense,
+    opponentSpecialTeams: opponentRated.specialTeams,
+    opponentStrongest: strongestUnit(
+      opponentRated.offense, opponentRated.defense, opponentRated.specialTeams),
     home: fixture === undefined ? null : fixture.homeTeamId === teamId,
     difficulty: matchupDifficulty(rated.overall, opponentRated.overall),
     round: null,
@@ -296,4 +302,80 @@ export function TeamTab(
       <TeamScreen game={game} open={open} />
     </>
   );
+}
+
+/**
+ * The matchup, in the shape the app's Play tab reads it in.
+ *
+ * Built here rather than in play.tsx so the rig's two screens cannot come to
+ * disagree about who the opponent is or what either club is rated -- the same
+ * argument for the app's two screens sharing one read.
+ */
+export function matchupOf(game: Game): {
+  identity: DashboardOut['identity'];
+  ratings: DashboardOut['ratings'];
+  record: DashboardOut['record'];
+  week: DashboardOut['thisWeek'];
+} {
+  const teamId = game.userTeamId;
+  const club = game.clubs.get(teamId);
+  const standing = game.standings.get(teamId);
+  const rated = ratingsOf(game, teamId);
+  const fixture = game.schedule.find((f) => f.week === game.week
+    && (f.homeTeamId === teamId || f.awayTeamId === teamId));
+  const opponentId = fixture === undefined
+    ? null
+    : fixture.homeTeamId === teamId ? fixture.awayTeamId : fixture.homeTeamId;
+  const opponent = opponentId === null
+    ? { overall: null, offense: null, defense: null, specialTeams: null }
+    : ratingsOf(game, opponentId);
+  const theirStanding = opponentId === null ? undefined : game.standings.get(opponentId);
+  const played = standing === undefined
+    ? 0 : standing.wins + standing.losses + standing.ties;
+  return {
+    identity: {
+      teamId,
+      city: club?.metro ?? '',
+      teamName: club?.nickname ?? teamId,
+      fullName: club?.name ?? teamId,
+      conferenceName: '', divisionName: '', divisionShort: '',
+      primary: club?.primary ?? COLOR.line2,
+      secondary: club?.secondary ?? COLOR.mut,
+    },
+    ratings: {
+      ...rated,
+      overallBand: ratingBand(rated.overall),
+      offenseBand: ratingBand(rated.offense),
+      defenseBand: ratingBand(rated.defense),
+      specialTeamsBand: ratingBand(rated.specialTeams),
+    },
+    record: standing === undefined ? null : {
+      wins: standing.wins, losses: standing.losses, ties: standing.ties,
+      pointsFor: standing.pointsFor, pointsAgainst: standing.pointsAgainst,
+      differential: standing.pointsFor - standing.pointsAgainst,
+      streak: standing.streak, played,
+    },
+    week: {
+      state: fixture !== undefined
+        ? 'FIXTURE'
+        : isWinter(game.phase) ? 'SEASON_OVER'
+          : game.schedule.length === 0 ? 'NO_SCHEDULE' : 'BYE',
+      week: game.week,
+      gameId: null,
+      opponentId,
+      opponentName: opponentId === null ? null : game.clubs.get(opponentId)?.name ?? opponentId,
+      opponentRecord: theirStanding === undefined ? null : {
+        wins: theirStanding.wins, losses: theirStanding.losses, ties: theirStanding.ties,
+      },
+      opponentOverall: opponent.overall,
+      opponentBand: ratingBand(opponent.overall),
+      opponentOffense: opponent.offense,
+      opponentDefense: opponent.defense,
+      opponentSpecialTeams: opponent.specialTeams,
+      opponentStrongest: strongestUnit(opponent.offense, opponent.defense, opponent.specialTeams),
+      home: fixture === undefined ? null : fixture.homeTeamId === teamId,
+      difficulty: matchupDifficulty(rated.overall, opponent.overall),
+      round: null,
+    },
+  };
 }

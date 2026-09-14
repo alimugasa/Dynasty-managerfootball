@@ -130,3 +130,59 @@ export async function ownerRow(
       from public.owners where save_id = ${saveId} and team_id = ${teamId}`;
   return row;
 }
+
+/**
+ * How many of the club's players miss this week.
+ *
+ * The same arithmetic absentPlayers() uses when the week is played, so the
+ * number on the screen is the number the simulation acts on. An injury report
+ * that disagreed with who actually misses the game would be worse than no
+ * injury report.
+ */
+export interface InjuryRow { out: string; starters: string }
+
+export async function injuryCount(
+  db: Db, saveId: string, season: number, week: number, teamId: string,
+  /** The thirteen groups a depth chart is judged on, so "a starter" means the
+   *  man at the top of one of those rather than of the seed's finer slots. */
+  groups: readonly string[],
+): Promise<InjuryRow | undefined> {
+  const [row] = await db<InjuryRow[]>`
+    with out_this_week as (
+      select player_id from public.player_injuries
+       where save_id = ${saveId} and team_id = ${teamId} and injured_season = ${season}
+         and injured_week < ${week}
+         and injured_week + weeks_out_estimate - 1 >= ${week}
+    )
+    select
+      (select count(*) from out_this_week)::text as out,
+      -- The ones it actually costs a Sunday: a man first in line in one of the
+      -- thirteen groups. Six backups out is a thinner roster; one starter out
+      -- is a different team, and the warning before a sim should say which.
+      (select count(distinct d.player_id) from public.team_depth_charts d
+        join out_this_week o on o.player_id = d.player_id
+       where d.save_id = ${saveId} and d.team_id = ${teamId}
+         and d.depth_order = 1 and d.slot = any(${groups}::text[]))::text as starters`;
+  return row;
+}
+
+export interface ResultRow {
+  game_id: string; week: number; home_team_id: string; away_team_id: string;
+  home_score: number; away_score: number; playoff_round: string | null;
+}
+
+/** The club's most recent result this season, for the screen that just
+ *  simulated it. Null before a game is played. */
+export async function lastResult(
+  db: Db, saveId: string, season: number, teamId: string,
+): Promise<ResultRow | undefined> {
+  const [row] = await db<ResultRow[]>`
+    select g.game_id, g.week, g.home_team_id, g.away_team_id,
+           g.home_score, g.away_score, f.playoff_round
+      from public.game_results g
+      join public.season_schedule f on f.save_id = g.save_id and f.game_id = g.game_id
+     where g.save_id = ${saveId} and g.season = ${season}
+       and (g.home_team_id = ${teamId} or g.away_team_id = ${teamId})
+     order by g.week desc limit 1`;
+  return row;
+}
