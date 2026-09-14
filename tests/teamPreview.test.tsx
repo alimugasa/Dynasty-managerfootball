@@ -72,7 +72,8 @@ describe('the identity card', () => {
     mount();
     expect(screen.getByTestId('preview-name').textContent).toBe('Ironmen');
     expect(screen.getByText('Cleveland · CLE')).toBeTruthy();
-    expect(screen.getByText('Atlas Conference · North')).toBeTruthy();
+    // The preview has a line to spare, so it says the whole thing.
+    expect(screen.getByText('Atlas Conference North')).toBeTruthy();
   });
 
   it('leads with how hard the job is', () => {

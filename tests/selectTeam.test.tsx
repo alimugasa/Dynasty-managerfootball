@@ -105,10 +105,22 @@ describe('searching the board', () => {
   it('matches on city, nickname, abbreviation, conference and division', () => {
     for (const [query, expected] of [
       ['cleveland', 'CLE'], ['stampede', 'AUS'], ['sac', 'SAC'],
-      ['national', 'AUS'], ['west', 'SAC'], ['AC-N', 'CLE'],
+      // Every way a conference or a division is written on screen: the full
+      // name, the one-word short name, the abbreviation and the region.
+      ['frontier', 'AUS'], ['atlas north', 'CLE'], ['fc south', 'AUS'],
+      ['west', 'SAC'],
     ] as const) {
       const hit = filterTeams(LEAGUE, ALL, query);
       expect(hit.map((t) => t.teamId), query).toEqual([expected]);
+    }
+  });
+
+  it('does not match a conference or division id', () => {
+    // 'NC' is the id of the Frontier Conference, so matching ids would hand
+    // somebody who typed the letters off a card the wrong eight clubs. The
+    // ids are deliberately absent from what a search reads.
+    for (const query of ['AC-N', 'NC-S', 'AC-W']) {
+      expect(filterTeams(LEAGUE, ALL, query), query).toEqual([]);
     }
   });
 
@@ -127,9 +139,12 @@ describe('searching the board', () => {
 describe('the board on screen', () => {
   it('names the league placing in words rather than in ids', () => {
     mount();
-    // "AC · AC-N" is two identifiers where a label should be.
-    expect(screen.getByText('Atlas Conference · North')).toBeTruthy();
+    // "AC · AC-N" is two identifiers where a label should be. The row shows
+    // the short form: two words, readable without decoding an abbreviation,
+    // and narrow enough to leave room for the difficulty pill beside it.
+    expect(screen.getByText('Atlas North')).toBeTruthy();
     expect(screen.queryByText(/AC · AC-N/)).toBeNull();
+    expect(screen.queryByText(/AC-N/)).toBeNull();
   });
 
   it('shows the market over the name, and the rating beside it', () => {

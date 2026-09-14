@@ -15,17 +15,25 @@ import { DEFAULT_SETTINGS, PRESETS } from '../supabase/functions/_shared/api/fra
 import type { LeagueShape } from '../supabase/functions/_shared/api/reads/teamBoard';
 import type { TeamProfile } from '../supabase/functions/_shared/api/reads/teamProfiles';
 
-const IRONMEN = {
+// `satisfies Partial<TeamProfile>` before the cast, so the compiler still
+// checks every field that is here even though the fixture is deliberately
+// short of a whole profile. Without it the double cast hid a field this
+// fixture kept setting after the read stopped returning it, and the drift
+// surfaced as a failing assertion rather than as a type error.
+const IRONMEN_FACTS = {
   teamId: 'CLE', abbreviation: 'CLE', city: 'Cleveland', teamName: 'Ironmen',
   fullName: 'Cleveland Ironmen',
   conferenceId: 'AC', conferenceName: 'Atlas Conference',
-  divisionId: 'AC-N', divisionName: 'Atlas Conference North', divisionShort: 'North',
+  conferenceAbbr: 'AC', conferenceShort: 'Atlas',
+  divisionId: 'AC-N', divisionName: 'Atlas Conference North', region: 'North',
   primary: '#41230A', secondary: '#F26A21',
   overall: 82, offense: 81.4, defense: 82.9, specialTeams: 74.1,
   capSpace: 18_400_000, draftScore: 56, draftLabel: 'Standard',
   ownerPatience: 72, ownerMood: 'Patient', fanPressure: 'Engaged',
   archetype: 'Defensive core', difficulty: 'Playoff Push',
-} as unknown as TeamProfile;
+} satisfies Partial<TeamProfile>;
+
+const IRONMEN = IRONMEN_FACTS as unknown as TeamProfile;
 
 const LEAGUE: LeagueShape = {
   teams: 32, conferences: 2, divisions: 8,
@@ -115,7 +123,7 @@ describe('the review', () => {
     mount();
     const card = screen.getByTestId('card-team').textContent ?? '';
     for (const fact of [
-      'Ironmen', 'Cleveland · Atlas Conference · North',
+      'Ironmen', 'Cleveland · Atlas North',
       'DifficultyPlayoff Push', 'ArchetypeDefensive core', 'Overall82',
       'Offence81.4', 'Defence82.9', 'Special teams74.1', 'Cap space$18.4M',
       'Draft capitalStandard · 56', 'Owner patiencePatient · 72', 'Fan pressureEngaged',
