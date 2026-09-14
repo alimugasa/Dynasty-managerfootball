@@ -40,7 +40,10 @@ describe('the app and the rig scout the same league', () => {
       // measurement drifted instead of printing two objects to diff by eye.
       expect(mine.fullName, club.teamId).toBe(club.fullName);
       expect(mine.conferenceName, club.teamId).toBe(club.conferenceName);
-      expect(mine.divisionShort, club.teamId).toBe(club.divisionShort);
+      expect(mine.conferenceAbbr, club.teamId).toBe(club.conferenceAbbr);
+      expect(mine.conferenceShort, club.teamId).toBe(club.conferenceShort);
+      expect(mine.divisionName, club.teamId).toBe(club.divisionName);
+      expect(mine.region, club.teamId).toBe(club.region);
       expect(mine.offense, `${club.teamId} offence`).toBe(club.offense);
       expect(mine.defense, `${club.teamId} defence`).toBe(club.defense);
       expect(mine.specialTeams, `${club.teamId} special teams`).toBe(club.specialTeams);

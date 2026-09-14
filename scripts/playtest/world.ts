@@ -64,11 +64,19 @@ export interface Group {
   readonly id: string;
   readonly name: string;
   readonly conferenceId: string | null;
+  /** Conferences only: "AC" and "Atlas". */
+  readonly abbreviation?: string;
+  readonly shortName?: string;
+  /** Divisions only: "East", "North", "South" or "West". */
+  readonly region?: string;
 }
 
 export function conferences(): Group[] {
   return table('league_conferences')
-    .map((row) => ({ id: row['conference_id'] ?? '', name: row['name'] ?? '', conferenceId: null }))
+    .map((row) => ({
+      id: row['conference_id'] ?? '', name: row['name'] ?? '', conferenceId: null,
+      abbreviation: row['abbreviation'] ?? '', shortName: row['short_name'] ?? '',
+    }))
     .filter((g) => g.id !== '')
     .sort((a, b) => a.id.localeCompare(b.id));
 }
@@ -78,6 +86,7 @@ export function divisions(): Group[] {
     .map((row) => ({
       id: row['division_id'] ?? '', name: row['name'] ?? '',
       conferenceId: row['conference_id'] ?? '',
+      region: row['region'] ?? '',
     }))
     .filter((g) => g.id !== '')
     .sort((a, b) => a.id.localeCompare(b.id));
@@ -117,3 +126,25 @@ export function newLeague(seed: number): League {
 }
 
 export { FIRST_SEASON };
+
+/**
+ * A club's placing, with every field the label builders need.
+ *
+ * Straight off the two seed tables, shaped exactly as the server's dashboard
+ * read returns it -- so the rig and the app hand the same object to the same
+ * functions in leaguePlacing.ts and cannot print different labels for the same
+ * club.
+ */
+export function placingOf(conferenceId: string, divisionId: string) {
+  const conference = conferences().find((c) => c.id === conferenceId);
+  const division = divisions().find((d) => d.id === divisionId);
+  return {
+    conferenceId,
+    conferenceName: conference?.name ?? '',
+    conferenceAbbr: conference?.abbreviation ?? '',
+    conferenceShort: conference?.shortName ?? '',
+    divisionId,
+    region: division?.region ?? '',
+    divisionName: division?.name ?? '',
+  };
+}

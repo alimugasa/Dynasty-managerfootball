@@ -14,8 +14,9 @@ import type { TeamProfile } from '../supabase/functions/_shared/api/reads/teamPr
 const IRONMEN: TeamProfile = {
   teamId: 'CLE', abbreviation: 'CLE', city: 'Cleveland', teamName: 'Ironmen',
   fullName: 'Cleveland Ironmen',
-  conferenceId: 'AC', conferenceName: 'American Conference',
-  divisionId: 'AC-N', divisionName: 'AC North', divisionShort: 'North',
+  conferenceId: 'AC', conferenceName: 'Atlas Conference',
+  conferenceAbbr: 'AC', conferenceShort: 'Atlas',
+  divisionId: 'AC-N', divisionName: 'Atlas Conference North', region: 'North',
   primary: '#41230A', secondary: '#F26A21',
   overall: 82, offense: 81.4, defense: 82.9, specialTeams: 74.1,
   overallBand: 'strong', offenseBand: 'strong', defenseBand: 'strong',
@@ -71,7 +72,7 @@ describe('the identity card', () => {
     mount();
     expect(screen.getByTestId('preview-name').textContent).toBe('Ironmen');
     expect(screen.getByText('Cleveland · CLE')).toBeTruthy();
-    expect(screen.getByText('American Conference · North')).toBeTruthy();
+    expect(screen.getByText('Atlas Conference · North')).toBeTruthy();
   });
 
   it('leads with how hard the job is', () => {

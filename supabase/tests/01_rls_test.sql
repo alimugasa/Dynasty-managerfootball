@@ -17,8 +17,8 @@ values ('00000000-0000-0000-0000-000000000000', null, true, 'Template World',
         2026, 1, 'PRESEASON', 20260825, 'test');
 
 insert into public.leagues values           ('00000000-0000-0000-0000-000000000000','DMP','Dynasty Manager Pro','DMP',1960,'GENERATED');
-insert into public.league_conferences values('00000000-0000-0000-0000-000000000000','AC','American Conference','DMP','GENERATED');
-insert into public.league_divisions values  ('00000000-0000-0000-0000-000000000000','AC-E','AC','AC East','East','GENERATED');
+insert into public.league_conferences values('00000000-0000-0000-0000-000000000000','AC','Atlas Conference','DMP','GENERATED','AC','Atlas');
+insert into public.league_divisions values  ('00000000-0000-0000-0000-000000000000','AC-E','AC','Atlas Conference East','East','GENERATED');
 insert into public.teams (save_id, team_id, metro_area, nickname, division_id, conference_id, primary_color, secondary_color)
 values ('00000000-0000-0000-0000-000000000000','BUF','Buffalo','Stampede','AC-E','AC','#12376B','#C8102E'),
        ('00000000-0000-0000-0000-000000000000','MIA','Miami','Barracuda','AC-E','AC','#00857D','#F26522');

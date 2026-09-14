@@ -8,10 +8,10 @@ import { EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { TeamMark } from '../../src/components/TeamMark';
 import { nextRound, ROUND_LABEL, type PlayoffGame, type PlayoffRound } from './postseason';
+import { conferences } from './world';
 import { record, type ScreenProps as Props } from './common';
 
 const ROUNDS: readonly PlayoffRound[] = ['OPENING', 'QUARTERFINAL', 'CONFERENCE_FINAL', 'LEAGUE_FINAL'];
-const CONFERENCE_NAME: Readonly<Record<string, string>> = { AC: 'American', NC: 'National' };
 
 export function BracketScreen({ game, open }: Props) {
   const nick = (id: string): string => game.clubs.get(id)?.nickname ?? id;
@@ -73,12 +73,14 @@ export function BracketScreen({ game, open }: Props) {
         );
       })}
 
-      {(['AC', 'NC'] as const).map((conference) => {
-        const seeds = game.seeds.filter((s) => s.conferenceId === conference);
+      {/* From the seed's own conference rows, named by them -- the app's
+          bracket reads the same two columns from Postgres. */}
+      {conferences().map((conference) => {
+        const seeds = game.seeds.filter((s) => s.conferenceId === conference.id);
         if (seeds.length === 0) return null;
         return (
-          <div key={conference}>
-            <SectionHeader title={`${CONFERENCE_NAME[conference] ?? conference} seeds`} />
+          <div key={conference.id}>
+            <SectionHeader title={`${conference.name} seeds`} />
             <Panel padded={false}>
               <div style={{ padding: '0 12px' }}>
                 {seeds.map((s) => (

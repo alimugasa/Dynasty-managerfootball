@@ -42,7 +42,8 @@ export const GROUP_STARTERS: Readonly<Record<string, number>> = {
 export interface ProfileRow {
   team_id: string; metro_area: string; nickname: string;
   conference_id: string; conference_name: string;
-  division_id: string; division_name: string;
+  conference_abbr: string; conference_short: string;
+  division_id: string; division_name: string; region: string;
   primary_color: string; secondary_color: string;
   market_size: number | null;
   offense: string | null; defense: string | null; special_teams: string | null;
@@ -115,7 +116,8 @@ export async function profileRows(
     )
     select t.team_id, t.metro_area, t.nickname,
            t.conference_id, c.name as conference_name,
-           t.division_id, d.name as division_name,
+           c.abbreviation as conference_abbr, c.short_name as conference_short,
+           t.division_id, d.name as division_name, d.region,
            t.primary_color, t.secondary_color, t.market_size,
            u.offense::text as offense, u.defense::text as defense,
            u.special_teams::text as special_teams,

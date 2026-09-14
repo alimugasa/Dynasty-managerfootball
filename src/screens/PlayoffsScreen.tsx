@@ -15,7 +15,6 @@ import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import type { PlayoffGameOut, PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
 
-const CONFERENCE_NAME: Readonly<Record<string, string>> = { AC: 'American', NC: 'National' };
 
 export function PlayoffsScreen() {
   const nav = useNavigator();
@@ -89,12 +88,15 @@ export function PlayoffsScreen() {
             );
           })}
 
-          {(['AC', 'NC'] as const).map((conference) => {
-            const seeds = q.data.seeds.filter((s) => s.conferenceId === conference);
+          {/* The conferences the read returned, named by the read. A hardcoded
+              pair of ids against a hardcoded pair of names kept printing the
+              old names for a season after they were changed in the database. */}
+          {q.data.conferences.map((conference) => {
+            const seeds = q.data.seeds.filter((s) => s.conferenceId === conference.id);
             if (seeds.length === 0) return null;
             return (
-              <div key={conference}>
-                <SectionHeader title={`${CONFERENCE_NAME[conference] ?? conference} seeds`} />
+              <div key={conference.id}>
+                <SectionHeader title={`${conference.name} seeds`} />
                 <Panel padded={false}>
                   <div style={{ padding: '0 12px' }}>
                     {seeds.map((s) => (

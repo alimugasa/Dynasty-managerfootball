@@ -47,10 +47,13 @@ export interface TeamProfile {
   readonly conferenceName: string;
   readonly divisionId: string;
   readonly divisionName: string;
-  /** The division without the conference in front of it -- "North" out of
-   *  "AC North" -- so a row can read "American Conference · North" rather than
-   *  saying the conference twice or saying "AC · AC-N", which says nothing. */
-  readonly divisionShort: string;
+  /** "AC", and "Atlas". Carried so a screen can build "AC East" or "Atlas
+   *  East" itself rather than being handed one of them and having to cut the
+   *  other out of it -- see leaguePlacing.ts. */
+  readonly conferenceAbbr: string;
+  readonly conferenceShort: string;
+  /** "East", "North", "South" or "West". */
+  readonly region: string;
   readonly primary: string;
   readonly secondary: string;
   readonly overall: number | null;
@@ -114,13 +117,6 @@ const GROUP_LABEL: Readonly<Record<string, string>> = {
 
 /** postgres.js hands back numerics and bigints as text so no digit is lost on
  *  the way. Nothing downstream may see the string. */
-/** "AC North" under conference AC is "North". A division whose name does not
- *  start with its conference is returned whole rather than cut at a guess. */
-export function shortDivision(name: string, conferenceId: string): string {
-  const prefix = `${conferenceId} `;
-  return name.startsWith(prefix) ? name.slice(prefix.length) : name;
-}
-
 function named(
   name: string | null, position: string | null, overall: number | null, age?: number | null,
 ): NamedPlayer | null {
@@ -216,8 +212,9 @@ export const teamProfiles: Handler<Record<string, never>, TeamProfilesOut> = {
           city: r.metro_area, teamName: r.nickname,
           fullName: `${r.metro_area} ${r.nickname}`.trim(),
           conferenceId: r.conference_id, conferenceName: r.conference_name,
+          conferenceAbbr: r.conference_abbr, conferenceShort: r.conference_short,
           divisionId: r.division_id, divisionName: r.division_name,
-          divisionShort: shortDivision(r.division_name, r.conference_id),
+          region: r.region,
           primary: r.primary_color, secondary: r.secondary_color,
           overall: m.overall, offense: m.offense, defense: m.defense,
           specialTeams: m.specialTeams,

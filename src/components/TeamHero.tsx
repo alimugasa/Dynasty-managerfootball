@@ -147,7 +147,20 @@ export function TeamHero({
                 background: `linear-gradient(90deg, ${COLOR.line2} 0%, ${COLOR.line} 60%, transparent 100%)`,
               }}
             />
-            <div style={{ display: 'flex', gap: S[5], minWidth: 0, flexWrap: 'wrap' }}>
+            {/* Two across, however many rows that takes.
+                Four in a row does not fit a phone -- "Cap space" and a
+                division label together are wider than 390px leaves -- so the
+                flex version wrapped three above one, which reads as a card
+                that broke rather than one that wrapped. Four equal columns
+                truncated instead, because these facts are nothing like the
+                same width. Half the card each is the one arrangement that is
+                deliberate at every width the app supports and never clips. */}
+            <div
+              style={{
+                display: 'grid', gap: `${String(S[3])}px ${String(S[4])}px`,
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', minWidth: 0,
+              }}
+            >
               {facts.map((f) => (
                 <div key={f.label} style={{ minWidth: 0 }}>
                   <div style={{ ...TYPE.micro, fontSize: 10, color: COLOR.dim }}>{f.label}</div>

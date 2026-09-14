@@ -15,6 +15,9 @@ import { openPipe, type Pipe } from './harness.ts';
 import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
+import {
+  divisionFull, divisionShort,
+} from '../../supabase/functions/_shared/api/leaguePlacing.ts';
 
 const OWNER = '77777777-0000-0000-0000-0000000000da';
 
@@ -42,8 +45,14 @@ describe('the franchise dashboard', () => {
     expect(day1.identity.teamId).toBe('CLE');
     expect(day1.identity.teamName).not.toBe('');
     expect(day1.identity.fullName).toContain(day1.identity.teamName);
-    // "North", not "AC North": the conference is already on the same line.
-    expect(day1.identity.divisionShort).not.toContain(day1.identity.conferenceName);
+    // The placing arrives as structure, and the labels are built from it --
+    // no screen has to cut a conference out of a division string.
+    expect(day1.identity.region).toMatch(/^(East|North|South|West)$/);
+    expect(day1.identity.conferenceName).toContain('Conference');
+    expect(day1.identity.conferenceAbbr).toHaveLength(2);
+    expect(divisionShort(day1.identity)).toBe(
+      `${day1.identity.conferenceShort} ${day1.identity.region}`);
+    expect(divisionFull(day1.identity)).toBe(day1.identity.divisionName);
     expect(day1.identity.primary).toMatch(/^#/);
   });
 

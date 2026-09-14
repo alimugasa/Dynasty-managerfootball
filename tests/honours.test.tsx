@@ -23,7 +23,7 @@ const HONOURS: HonourOut[] = [
   honour({ team: 'ALL_STAR', unit: 'NC', playerId: 'n1', name: 'National QB One', slot: 1 }),
 ];
 
-const NAMES: Readonly<Record<string, string>> = { AC: 'American Conference', NC: 'National Conference' };
+const NAMES: Readonly<Record<string, string>> = { AC: 'Atlas Conference', NC: 'Frontier Conference' };
 
 function draw(honours: readonly HonourOut[] = HONOURS) {
   return render(
@@ -56,8 +56,8 @@ describe('the honours panel', () => {
   it('shows one conference of all-stars at a time, named by the league', () => {
     draw();
     // The chips carry the league's names, not the ids.
-    expect(screen.getByRole('tab', { name: 'American Conference' })).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'National Conference' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Atlas Conference' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Frontier Conference' })).toBeTruthy();
 
     const roster = screen.getByTestId('all-stars');
     expect(roster.textContent).toContain('American QB One');

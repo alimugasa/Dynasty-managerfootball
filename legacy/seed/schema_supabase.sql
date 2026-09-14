@@ -5,6 +5,11 @@
 create table if not exists "league_conferences" (
   "conference_id" text primary key,
   "name" text,
+  -- The two-letter label and the one-word name. Columns rather than something
+  -- derived from conference_id: the ids predate the names and no longer match
+  -- them (migration 0031), so nothing may infer a label from a key.
+  "abbreviation" text,
+  "short_name" text,
   "league_id" text,
   "data_class" text
 );

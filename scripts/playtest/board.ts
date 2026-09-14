@@ -146,10 +146,15 @@ export function boardLeague(): LeagueShape {
 
 /** Every club in the packed world, measured and labelled. */
 export function teamProfiles(): TeamProfile[] {
-  const conferenceName = new Map(
-    table('league_conferences').map((r) => [r['conference_id'] ?? '', r['name'] ?? '']));
-  const divisionName = new Map(
-    table('league_divisions').map((r) => [r['division_id'] ?? '', r['name'] ?? '']));
+  // The conference as three fields, not one string, exactly as the server's
+  // query hands it over -- so the rig builds its labels with the same module
+  // and cannot end up one rename behind the app.
+  const conference = new Map(table('league_conferences').map((r) => [r['conference_id'] ?? '', {
+    name: r['name'] ?? '', abbr: r['abbreviation'] ?? '', short: r['short_name'] ?? '',
+  }]));
+  const division = new Map(table('league_divisions').map((r) => [r['division_id'] ?? '', {
+    name: r['name'] ?? '', region: r['region'] ?? '',
+  }]));
 
   const teams = table('teams').filter((r) => (r['team_id'] ?? '') !== '');
   // Only the thirty-two. The seed parks its free agents on a team_id of "FA",
@@ -252,7 +257,8 @@ export function teamProfiles(): TeamProfile[] {
     const shape = shapes.get(teamId);
     const conferenceId = r['conference_id'] ?? '';
     const divisionId = r['division_id'] ?? '';
-    const division = divisionName.get(divisionId) ?? divisionId;
+    const conf = conference.get(conferenceId);
+    const div = division.get(divisionId);
     const metro = r['metro_area'] ?? '';
     const nickname = r['nickname'] ?? '';
 
@@ -288,11 +294,13 @@ export function teamProfiles(): TeamProfile[] {
     return {
       teamId, abbreviation: teamId, city: metro, teamName: nickname,
       fullName: `${metro} ${nickname}`.trim(),
-      conferenceId, conferenceName: conferenceName.get(conferenceId) ?? conferenceId,
-      divisionId, divisionName: division,
-      divisionShort: division.startsWith(`${conferenceId} `)
-        ? division.slice(conferenceId.length + 1)
-        : division,
+      conferenceId,
+      conferenceName: conf?.name ?? '',
+      conferenceAbbr: conf?.abbr ?? '',
+      conferenceShort: conf?.short ?? '',
+      divisionId,
+      divisionName: div?.name ?? '',
+      region: div?.region ?? '',
       primary: r['primary_color'] ?? '#28353F',
       secondary: r['secondary_color'] ?? '#8698A8',
       overall: m.overall, offense: m.offense, defense: m.defense,

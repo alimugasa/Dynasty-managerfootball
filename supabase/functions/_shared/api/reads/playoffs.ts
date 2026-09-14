@@ -27,6 +27,11 @@ export interface PlayoffGameOut {
 }
 
 export interface PlayoffsOut {
+  /** The conferences the bracket is drawn from, in order, with their names.
+   *  The screen used to iterate a hardcoded ['AC', 'NC'] against a hardcoded
+   *  map of names, so a conference renamed in the database kept its old label
+   *  on this screen and a third conference would never have appeared at all. */
+  readonly conferences: readonly { readonly id: string; readonly name: string }[];
   /** False until the regular season has ended. */
   readonly seeded: boolean;
   readonly seeds: readonly SeedOut[];
@@ -48,6 +53,11 @@ export const playoffs: Handler<PlayoffsIn, PlayoffsOut> = {
   run: async ({ sql, userId }, input) => {
     const s = await ownedSave(sql, userId, input.saveId);
     const weeks = await seasonWeeks(sql, s.id, s.season);
+    // Ordered by id so the bracket's two halves keep a stable order between
+    // reads; the name is what the screen prints.
+    const conferences = await sql<{ conference_id: string; name: string }[]>`
+      select conference_id, name from public.league_conferences
+       where save_id = ${s.id} order by conference_id`;
     const seeds = await sql<{
       team_id: string; conference_id: string; conference_seed: number; playoff_status: string | null;
       wins: number; losses: number; ties: number;
@@ -83,6 +93,7 @@ export const playoffs: Handler<PlayoffsIn, PlayoffsOut> = {
     const nextRound = pending === undefined ? null : roundOf(pending.playoff_round);
 
     return {
+      conferences: conferences.map((c) => ({ id: c.conference_id, name: c.name })),
       seeded: seeds.length > 0,
       seeds: seeds.map((r) => ({
         teamId: r.team_id, conferenceId: r.conference_id, seed: r.conference_seed,

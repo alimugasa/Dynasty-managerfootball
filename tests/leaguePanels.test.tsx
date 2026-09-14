@@ -35,14 +35,14 @@ const ROWS: TableRow[] = [
 ];
 
 const CONFERENCES: LeagueGroup[] = [
-  { id: 'AC', name: 'American Conference', conferenceId: null },
-  { id: 'NC', name: 'National Conference', conferenceId: null },
+  { id: 'AC', name: 'Atlas Conference', conferenceId: null },
+  { id: 'NC', name: 'Frontier Conference', conferenceId: null },
 ];
 const DIVISIONS: LeagueGroup[] = [
-  { id: 'AC-E', name: 'AC East', conferenceId: 'AC' },
-  { id: 'AC-N', name: 'AC North', conferenceId: 'AC' },
-  { id: 'NC-E', name: 'NC East', conferenceId: 'NC' },
-  { id: 'NC-N', name: 'NC North', conferenceId: 'NC' },
+  { id: 'AC-E', name: 'Atlas Conference East', conferenceId: 'AC' },
+  { id: 'AC-N', name: 'Atlas Conference North', conferenceId: 'AC' },
+  { id: 'NC-E', name: 'Frontier Conference East', conferenceId: 'NC' },
+  { id: 'NC-N', name: 'Frontier Conference North', conferenceId: 'NC' },
 ];
 
 describe('sorting the standings', () => {
@@ -114,9 +114,9 @@ describe('splitting the standings', () => {
 
   it('uses the league\'s own names for its conferences and divisions', () => {
     expect(groupRows(ROWS, 'CONFERENCE', CONFERENCES, DIVISIONS).map((g) => g.name))
-      .toEqual(['American Conference', 'National Conference']);
+      .toEqual(['Atlas Conference', 'Frontier Conference']);
     expect(groupRows(ROWS, 'DIVISION', CONFERENCES, DIVISIONS).map((g) => g.name))
-      .toEqual(['AC East', 'AC North', 'NC East', 'NC North']);
+      .toEqual(['Atlas Conference East', 'Atlas Conference North', 'Frontier Conference East', 'Frontier Conference North']);
   });
 
   it('puts every club in exactly one group, under every split', () => {
@@ -148,7 +148,7 @@ describe('the standings panel', () => {
       />,
     );
     expect(screen.getAllByTestId('standings-body').length).toBe(2);
-    expect(screen.getByText('American Conference')).toBeTruthy();
+    expect(screen.getByText('Atlas Conference')).toBeTruthy();
     // Sorting is the explicit control, not the column heads: the heads carry no
     // button at all, which is the point of docs/PROMPT-BOOK.md prompt 0061.
     expect(screen.getAllByRole('columnheader').length).toBe(16);

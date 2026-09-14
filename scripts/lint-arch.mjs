@@ -59,6 +59,13 @@ const IP_DENY = [
   // the surname alone where that surname is unambiguous. The real defence is
   // that every name in this product is generated from the engine's own name
   // pools; this is the net under it.
+  // The two conferences of the real league. These shipped as the names of
+  // this league's own two conferences until migration 0031 and nothing caught
+  // them, because the denylist only ever saw source and they lived in a seed
+  // CSV. They are the Atlas and Frontier Conferences now, and these spellings
+  // are refused so a re-import cannot quietly bring them back.
+  'american conference','national conference',
+  'american football conference','national football conference',
   'roger goodell','goodell',
   'patrick mahomes','mahomes','tom brady','josh allen','lamar jackson',
   'aaron rodgers','travis kelce','kelce','jalen hurts','joe burrow',

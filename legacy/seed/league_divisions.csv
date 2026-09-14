@@ -1,9 +1,9 @@
 division_id,conference_id,name,region,data_class
-AC-E,AC,AC East,East,GENERATED
-AC-N,AC,AC North,North,GENERATED
-AC-S,AC,AC South,South,GENERATED
-AC-W,AC,AC West,West,GENERATED
-NC-E,NC,NC East,East,GENERATED
-NC-N,NC,NC North,North,GENERATED
-NC-S,NC,NC South,South,GENERATED
-NC-W,NC,NC West,West,GENERATED
+AC-E,AC,Atlas Conference East,East,GENERATED
+AC-N,AC,Atlas Conference North,North,GENERATED
+AC-S,AC,Atlas Conference South,South,GENERATED
+AC-W,AC,Atlas Conference West,West,GENERATED
+NC-E,NC,Frontier Conference East,East,GENERATED
+NC-N,NC,Frontier Conference North,North,GENERATED
+NC-S,NC,Frontier Conference South,South,GENERATED
+NC-W,NC,Frontier Conference West,West,GENERATED

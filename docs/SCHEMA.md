@@ -17,6 +17,19 @@ Authoritative source: `supabase/migrations/`. Applied in numeric order.
 
 45 tables, 45 primary keys, 103 foreign keys, forced row-level security on every one.
 
+### The league's shape
+
+32 clubs, 2 conferences, 8 divisions, 4 clubs a division -- `league_conferences`
+and `league_divisions`, with `teams.conference_id` and `teams.division_id`
+pointing at them. `0031` gave conferences an `abbreviation` and a `short_name`
+and gave divisions a full `name` plus a constrained `region`, so the three
+labels a screen might want are built from columns rather than sliced out of
+one. The conferences were named American and National until then, which was one
+word from a real league's and is now refused by the denylist; they are the Atlas
+and Frontier Conferences. The ids are unchanged, so `'NC'` is the Frontier
+Conference's id and `'FC'` is its abbreviation -- which is exactly why the
+abbreviation is stored.
+
 ## The template save
 
 There is one set of tables, not a seed set plus per-save copies. Every game table
@@ -85,6 +98,7 @@ Every deliberate duplication, and why it earns its place.
 | Where | Duplicated | Reason |
 |---|---|---|
 | `teams.conference_id` | Reachable through `division_id` | Conference standings, leaders and playoff seeding all filter on it, and it cannot change during a save. Realignment is not a feature. |
+| `league_conferences.abbreviation` / `short_name` | Could be cut out of `name` | They are what a label is *built from*, not something recovered from a display string. "Atlas Conference" gives "Atlas" by chopping a word off today and gives nonsense the day a conference is named differently. Added by `0031`. |
 | `players.team_id` | Also on `team_rosters` | "Who employs this player" is read by nearly every query in the app, most of which have no reason to touch roster metadata. Kept consistent by a trigger, not by a rule people remember. |
 | `players.college_name` | `colleges.name` | Written once at creation. A drafted player's school must stay correct in the record book independent of the college pipeline. |
 | `game_results` home/away columns | Two teams in one wide row | `sim_game()` produces both boxes as one indivisible result and every scoreline in the UI shows both sides. Two rows would make the dominant read a self-join. `v_team_game_stats` provides the long shape for aggregation. |

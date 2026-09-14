@@ -3,7 +3,7 @@
 // Bigger than a list row because this is the one screen where the club is the
 // decision rather than a link to somewhere else. The name is the size of a
 // heading, the market sits above it where an eye lands first, and the league
-// placing is spelled out -- "American Conference · North", not "AC · AC-N",
+// placing is spelled out -- "Atlas North", not "AC · AC-N",
 // which is two ids pretending to be a label.
 //
 // The right-hand side carries what a manager would ask next: how good the
@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { COLOR, FONT, MOTION, R, S, TYPE, tint } from '../app/tokens';
 import { ChevronRightIcon } from '../components/icons';
 import { TeamMark } from '../components/TeamMark';
+import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 /** Difficulty coloured by what it is telling you to expect. Amber is this
@@ -86,9 +87,10 @@ export function TeamRow({ team, onSelect, last = false }: {
         </span>
         {/* The placing and the difficulty share the third line rather than
             standing in a right-hand column. The column cost this line about
-            eighty pixels, and "American Conference · East" needs a hundred and
-            sixty: a readable label that ellipsizes on twenty-seven of
-            thirty-two rows is not a readable label. */}
+            eighty pixels, and the full "Atlas Conference East" needs a hundred
+            and sixty: a readable label that ellipsizes on twenty-seven of
+            thirty-two rows is not a readable label. So this is the short form
+            -- two words, no abbreviation to decode, and it fits. */}
         <span
           style={{
             display: 'flex', alignItems: 'center', flexWrap: 'wrap',
@@ -96,7 +98,7 @@ export function TeamRow({ team, onSelect, last = false }: {
           }}
         >
           <span style={{ ...TYPE.prose, fontSize: 11.5, color: COLOR.mut, minWidth: 0 }}>
-            {team.conferenceName} · {team.divisionShort}
+            {divisionShort(team)}
           </span>
           {team.difficulty !== null && (
             <span

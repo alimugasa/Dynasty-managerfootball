@@ -22,6 +22,7 @@ import type {
   Difficulty, FranchiseSettings,
 } from '../../supabase/functions/_shared/api/franchiseOptions';
 import type { LeagueShape } from '../../supabase/functions/_shared/api/reads/teamBoard';
+import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 export function Card({ title, action, children, testId }: {
@@ -162,7 +163,7 @@ export function TeamCard({ team, onChange, disabled }: {
                 {team.teamName}
               </p>
               <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
-                {team.city} · {team.conferenceName} · {team.divisionShort}
+                {team.city} · {divisionShort(team)}
               </p>
             </div>
           </div>

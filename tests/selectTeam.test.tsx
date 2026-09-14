@@ -18,8 +18,9 @@ import type { TeamProfile } from '../supabase/functions/_shared/api/reads/teamPr
 const club = (over: Partial<TeamProfile>): TeamProfile => ({
   teamId: 'CLE', abbreviation: 'CLE', city: 'Cleveland', teamName: 'Ironmen',
   fullName: 'Cleveland Ironmen',
-  conferenceId: 'AC', conferenceName: 'American Conference',
-  divisionId: 'AC-N', divisionName: 'AC North', divisionShort: 'North',
+  conferenceId: 'AC', conferenceName: 'Atlas Conference',
+  conferenceAbbr: 'AC', conferenceShort: 'Atlas',
+  divisionId: 'AC-N', divisionName: 'Atlas Conference North', region: 'North',
   primary: '#41230A', secondary: '#F26A21',
   overall: 82, offense: 81.4, defense: 82.9, specialTeams: 74.1,
   capSpace: 18_400_000, draftCapital: 485, averageAge: 25.5,
@@ -42,15 +43,17 @@ const LEAGUE: readonly TeamProfile[] = [
   club({}),
   club({
     teamId: 'AUS', abbreviation: 'AUS', city: 'Austin', teamName: 'Stampede',
-    fullName: 'Austin Stampede', conferenceId: 'NC', conferenceName: 'National Conference',
-    divisionId: 'NC-S', divisionName: 'NC South', divisionShort: 'South',
+    fullName: 'Austin Stampede', conferenceId: 'NC', conferenceName: 'Frontier Conference',
+    conferenceAbbr: 'FC', conferenceShort: 'Frontier',
+    divisionId: 'NC-S', divisionName: 'Frontier Conference South', region: 'South',
     overall: 86, difficulty: 'Dynasty Ready', tags: ['CONTENDERS', 'ELITE_QB'],
     quarterbackStatus: 'Elite',
   }),
   club({
     teamId: 'SAC', abbreviation: 'SAC', city: 'Sacramento', teamName: 'Prospectors',
-    fullName: 'Sacramento Prospectors', divisionId: 'AC-W', divisionName: 'AC West',
-    divisionShort: 'West', overall: 74, difficulty: 'Hard Rebuild',
+    fullName: 'Sacramento Prospectors', divisionId: 'AC-W',
+    divisionName: 'Atlas Conference West', region: 'West',
+    overall: 74, difficulty: 'Hard Rebuild',
     tags: ['REBUILDS', 'YOUNG_ROSTER', 'HIGH_DRAFT_PICKS'],
   }),
 ];
@@ -125,7 +128,7 @@ describe('the board on screen', () => {
   it('names the league placing in words rather than in ids', () => {
     mount();
     // "AC · AC-N" is two identifiers where a label should be.
-    expect(screen.getByText('American Conference · North')).toBeTruthy();
+    expect(screen.getByText('Atlas Conference · North')).toBeTruthy();
     expect(screen.queryByText(/AC · AC-N/)).toBeNull();
   });
 

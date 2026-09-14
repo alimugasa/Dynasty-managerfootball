@@ -33,6 +33,14 @@
     {
       "term": "allpro",
       "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    },
+    {
+      "term": "american conference",
+      "reason": "Frozen reference material: the original prototype, kept verbatim as the parity baseline. Nothing here ships; the league's conferences are the Atlas Conference and the Frontier Conference (docs/IP-POLICY.md, migration 0031)."
+    },
+    {
+      "term": "national conference",
+      "reason": "Frozen reference material: the original prototype, kept verbatim as the parity baseline. Nothing here ships; the league's conferences are the Atlas Conference and the Frontier Conference (docs/IP-POLICY.md, migration 0031)."
     }
   ],
   "scripts/playtest/world.json": [
@@ -91,6 +99,26 @@
     {
       "term": "all-pro",
       "reason": "Frozen reference material: the original prototype and its exported history, kept verbatim as the parity baseline. Nothing here ships; the league's own selections are named all-league and all-star (docs/IP-POLICY.md)."
+    }
+  ],
+  "supabase/migrations/0031_league_identity.sql": [
+    {
+      "term": "american conference",
+      "reason": "The migration that removed these names has to say which names it removed. It is the record of the rename, not a use: the league's conferences are the Atlas Conference and the Frontier Conference (docs/IP-POLICY.md)."
+    },
+    {
+      "term": "national conference",
+      "reason": "The migration that removed these names has to say which names it removed. It is the record of the rename, not a use: the league's conferences are the Atlas Conference and the Frontier Conference (docs/IP-POLICY.md)."
+    }
+  ],
+  "docs/SCHEMA.md": [
+    {
+      "term": "american conference",
+      "reason": "Names the two conference names this league used to ship and no longer does. A rename nobody can read the before-and-after of is not documented."
+    },
+    {
+      "term": "national conference",
+      "reason": "Names the two conference names this league used to ship and no longer does. A rename nobody can read the before-and-after of is not documented."
     }
   ]
 }

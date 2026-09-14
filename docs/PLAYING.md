@@ -56,8 +56,13 @@ rule to be reverse-engineered from the results. A filter that matches nothing
 says so and offers Clear Filters.
 
 Each row carries the club's badge, its market over its nickname, its place in
-the league in words ("American Conference · North", never "AC · AC-N"), its
-roster rating and how hard the job is. All of that is measured from the
+the league in words ("Atlas North", never "AC · AC-N"), its
+roster rating and how hard the job is. The league is 32 clubs in two
+conferences -- Atlas and Frontier -- of four divisions of four; a placing is
+written three ways depending on the room a screen has, and all three come from
+`leaguePlacing.ts`: "Atlas Conference East" in full on the team preview, "Atlas
+East" on a row or a dashboard tile, and "AC East" only where the full name is
+already on screen. All of that is measured from the
 template world's own rows by the `team-profiles` read -- unit ratings from the
 players who would be on the field, cap space from the cap sheet, draft capital
 from the picks the club owns, owner patience and stadium capacity from their

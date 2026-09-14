@@ -12,6 +12,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { openPipe, type Pipe } from './harness.ts';
 import { TEAM_TAGS } from '../../supabase/functions/_shared/api/reads/teamShape.ts';
 import type { TeamProfilesOut } from '../../supabase/functions/_shared/api/reads/teamProfiles';
+import {
+  divisionCompact, divisionFull, divisionShort,
+} from '../../supabase/functions/_shared/api/leaguePlacing.ts';
 
 const READER = '77777777-0000-0000-0000-0000000000dd';
 
@@ -108,8 +111,16 @@ describe('the thirty-two clubs, measured', () => {
   it('names conferences and divisions rather than printing their ids', () => {
     for (const t of board) {
       expect(t.conferenceName, t.teamId).not.toBe(t.conferenceId);
-      expect(t.divisionShort, t.teamId).not.toContain(t.conferenceId);
-      expect(t.divisionShort.length, t.teamId).toBeGreaterThan(0);
+      // Every label a screen can draw, and none of them the id. 'NC' is the
+      // id of the Frontier Conference, so a label built off the key would be
+      // the wrong two letters rather than merely an ugly pair.
+      for (const label of [divisionShort(t), divisionCompact(t), divisionFull(t)]) {
+        expect(label.length, t.teamId).toBeGreaterThan(0);
+        expect(label, t.teamId).not.toContain(t.divisionId);
+      }
+      expect(divisionShort(t), t.teamId).toBe(`${t.conferenceShort} ${t.region}`);
+      expect(divisionCompact(t), t.teamId).toBe(`${t.conferenceAbbr} ${t.region}`);
+      expect(divisionFull(t), t.teamId).toBe(t.divisionName);
     }
   });
 

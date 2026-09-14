@@ -20,8 +20,10 @@ const KEEP: Readonly<Record<string, readonly string[]>> = {
   // The league names its own conferences and divisions. The rig shows those
   // names rather than deriving labels from the ids, exactly as the server's
   // league read does.
-  league_conferences: ['conference_id', 'name'],
-  league_divisions: ['division_id', 'conference_id', 'name'],
+  // abbreviation, short_name and region are carried so the rig builds its
+  // conference and division labels from the same columns the app does.
+  league_conferences: ['conference_id', 'name', 'abbreviation', 'short_name'],
+  league_divisions: ['division_id', 'conference_id', 'name', 'region'],
   players: ['player_id', 'display_name', 'team_id', 'position', 'position_group',
     'age', 'experience_years', 'overall_rating', 'potential_rating'],
   player_attributes: ['player_id', 'work_ethic', 'durability', 'football_iq'],

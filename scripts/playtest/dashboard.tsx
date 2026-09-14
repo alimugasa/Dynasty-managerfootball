@@ -32,7 +32,8 @@ import {
 import { ON_FIELD } from '../../supabase/functions/_shared/api/reads/teamBoard.ts';
 import { TeamScreen } from './screens';
 import { capFor, ranking, squad, type Game } from './host';
-import { conferences, divisions, owners } from './world';
+import { owners, placingOf } from './world';
+import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing.ts';
 import { isWinter } from './winter';
 import { record, type ScreenProps as Props } from './common';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard.ts';
@@ -104,8 +105,7 @@ export function DashboardScreen(
     passers[0]?.age === undefined ? null : Math.round(passers[0].age),
     passers[1]?.ability ?? null);
 
-  const conferenceName = conferences().find((c) => c.id === club?.conferenceId)?.name ?? '';
-  const divisionName = divisions().find((d) => d.id === club?.divisionId)?.name ?? '';
+  const placing = placingOf(club?.conferenceId ?? '', club?.divisionId ?? '');
   const patience = owner?.['patience'] === undefined ? null : Number(owner['patience']);
   const mandate = ownerMandate({
     patience,
@@ -175,12 +175,10 @@ export function DashboardScreen(
         recordLabel={done ? 'Final record' : 'Record'}
         tags={tags}
         facts={[
-          {
-            label: 'Division',
-            value: divisionName === ''
-              ? '—'
-              : `${conferenceName.replace(' Conference', '')} ${divisionName.replace(`${club?.conferenceId ?? ''} `, '')}`,
-          },
+          // The same builder the app's tile uses, off the same fields. This
+          // was two chained .replace() calls undoing a name to get at a
+          // region, one rename away from printing nonsense.
+          { label: 'Division', value: divisionShort(placing) || '—' },
           { label: 'Roster', value: `${String(roster.length)} players` },
           {
             label: 'Streak',
@@ -338,7 +336,11 @@ export function matchupOf(game: Game): {
       city: club?.metro ?? '',
       teamName: club?.nickname ?? teamId,
       fullName: club?.name ?? teamId,
-      conferenceName: '', divisionName: '', divisionShort: '',
+      // Filled from the seed's own conference and division rows. This was
+      // three empty strings, which is why the rig's Division tile read "—"
+      // while the app's read a placing -- the one thing the mirror is for is
+      // not doing that.
+      ...placingOf(club?.conferenceId ?? '', club?.divisionId ?? ''),
       primary: club?.primary ?? COLOR.line2,
       secondary: club?.secondary ?? COLOR.mut,
     },

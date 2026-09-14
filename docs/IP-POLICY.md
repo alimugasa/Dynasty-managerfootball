@@ -17,6 +17,26 @@ metropolitan area names are used, since city names are not trademarks.
 - Copyrighted broadcast or publisher terminology, including competing franchise
   titles in this genre.
 
+## How the league is structured, and named
+
+Thirty-two clubs, two conferences, four divisions each, four clubs a division.
+The conferences are the **Atlas Conference** (AC) and the **Frontier
+Conference** (FC); the divisions are East, North, South and West within each.
+`supabase/functions/_shared/api/leaguePlacing.ts` is the only place a label is
+built from those parts, and `LEAGUE_SHAPE` there is checked against the rows by
+`tests/api/leagueStructure.test.ts`.
+
+The conferences shipped under two other names until migration `0031`, each one
+word away from a real league's. Nothing caught it for months, because they
+lived in a seed CSV and the denylist reads source. Both spellings are on the
+denylist now, and the structure test reads the rows rather than the files. The
+lesson generalises: **data is a surface too.**
+
+The ids are not the names. `conference_id` is still `'AC'` and `'NC'` -- they
+are foreign keys across five tables and renaming them buys nothing a player can
+see -- so `'NC'` is the id of the Frontier Conference, whose abbreviation is
+`'FC'`. Nothing may derive a label from an id.
+
 ## How team identity is expressed instead
 
 Metro area + original nickname + the two colours stored on the `teams` table

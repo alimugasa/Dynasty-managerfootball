@@ -25,7 +25,6 @@ import { POSITION_GROUPS } from '../../engine/types.ts';
 import { ROUND_LABEL, type PlayoffRound } from '../../engine/playoffs.ts';
 import { OFFSEASON_PHASES } from '../phases.ts';
 import { profileRows, type ProfileRow } from './teamBoard.ts';
-import { shortDivision } from './teamProfiles.ts';
 import {
   fanPressure, mandateStanding, matchupDifficulty, num, overallRating, ownerMandate,
   ownerMood, quarterbackSituation, ratingBand, rosterTimeline, rounded, strongestUnit,
@@ -44,10 +43,16 @@ export interface IdentityOut {
   readonly city: string;
   readonly teamName: string;
   readonly fullName: string;
+  /** The club's placing as structure, so the screen picks the label it has
+   *  room for -- "Atlas Conference East", "Atlas East" or "AC East" -- from
+   *  leaguePlacing.ts rather than being handed one and cutting up the rest. */
+  readonly conferenceId: string;
   readonly conferenceName: string;
+  readonly conferenceAbbr: string;
+  readonly conferenceShort: string;
+  readonly divisionId: string;
+  readonly region: string;
   readonly divisionName: string;
-  /** "North", not "AC North": the conference is already on the line. */
-  readonly divisionShort: string;
   readonly primary: string;
   readonly secondary: string;
 }
@@ -278,10 +283,13 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
         city: mine?.metro_area ?? '',
         teamName: mine?.nickname ?? teamId,
         fullName: `${mine?.metro_area ?? ''} ${mine?.nickname ?? teamId}`.trim(),
+        conferenceId: mine?.conference_id ?? '',
         conferenceName: mine?.conference_name ?? '',
+        conferenceAbbr: mine?.conference_abbr ?? '',
+        conferenceShort: mine?.conference_short ?? '',
+        divisionId: mine?.division_id ?? '',
+        region: mine?.region ?? '',
         divisionName: mine?.division_name ?? '',
-        divisionShort: mine === undefined
-          ? '' : shortDivision(mine.division_name, mine.conference_id),
         primary: mine?.primary_color ?? '',
         secondary: mine?.secondary_color ?? '',
       },

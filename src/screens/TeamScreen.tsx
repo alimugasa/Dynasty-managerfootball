@@ -30,6 +30,7 @@ import { ChecklistCard, stateOf, type ChecklistRow } from './checklistCard';
 import { CHECKLIST_COPY, CHECKLIST_SHEETS } from './checklistCatalogue';
 import type { ChecklistItem } from '../../supabase/functions/_shared/api/checklist';
 import { mandateCopy } from './dashboardMandate';
+import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing';
 import { Screen } from './Screen';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
@@ -163,12 +164,11 @@ export function TeamScreen() {
             recordLabel={done ? 'Final record' : 'Record'}
             tags={tags}
             facts={[
-              {
-                label: 'Division',
-                value: d.identity.divisionShort === ''
-                  ? '—'
-                  : `${d.identity.conferenceName.replace(' Conference', '')} ${d.identity.divisionShort}`,
-              },
+              // The compact-but-readable form, "Atlas East". It used to be
+              // built by deleting the word "Conference" out of the full name,
+              // which is a rename away from printing "Atlas Conference East"
+              // in a tile sized for two words.
+              { label: 'Division', value: divisionShort(d.identity) || '—' },
               { label: 'Roster', value: `${String(d.shape.rosterCount)} players` },
               { label: 'Streak', value: streakOf(d.record) },
               { label: 'Cap space', value: capLabel(d.capSpace) },

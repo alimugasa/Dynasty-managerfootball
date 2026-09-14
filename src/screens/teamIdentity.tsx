@@ -14,6 +14,7 @@
 import { COLOR, ELEV, FONT, R, S, TYPE, colourWash, tint } from '../app/tokens';
 import { SkeletonCircle, SkeletonLine } from '../components/Skeleton';
 import { TeamMark } from '../components/TeamMark';
+import { divisionFull } from '../../supabase/functions/_shared/api/leaguePlacing';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 /** Difficulty coloured by what it is telling you to expect. Amber is this
@@ -101,7 +102,7 @@ export function TeamIdentity({ team }: { readonly team: TeamProfile }) {
             {team.teamName}
           </h2>
           <p style={{ ...TYPE.prose, margin: '3px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
-            {team.conferenceName} · {team.divisionShort}
+            {divisionFull(team)}
           </p>
         </div>
       </div>

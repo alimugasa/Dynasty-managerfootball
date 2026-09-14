@@ -8,6 +8,7 @@
 // The search is the opposite: it matches on strings the client already has, so
 // it filters as fast as the player types and asks nothing of the network.
 
+import { divisionCompact, divisionFull, divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 /** The chip that is no filter at all. Not a tag: it is the absence of one. */
@@ -45,8 +46,13 @@ export const FILTER_DETAIL: Readonly<Record<string, string>> = {
 function haystack(t: TeamProfile): string {
   return [
     t.city, t.teamName, t.fullName, t.abbreviation,
-    t.conferenceId, t.conferenceName,
-    t.divisionId, t.divisionName, t.divisionShort,
+    t.conferenceName, t.conferenceAbbr, t.conferenceShort,
+    t.divisionName, t.region,
+    // Every way the label is written on screen, so a player who searches what
+    // they can see finds it. The ids are deliberately absent: "NC" is the id
+    // of the Frontier Conference and matching it would return the wrong eight
+    // clubs to somebody who typed the letters off a card.
+    divisionShort(t), divisionCompact(t), divisionFull(t),
   ].join(' ').toLowerCase();
 }
 

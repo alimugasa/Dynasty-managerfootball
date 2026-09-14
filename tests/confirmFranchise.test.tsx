@@ -18,8 +18,8 @@ import type { TeamProfile } from '../supabase/functions/_shared/api/reads/teamPr
 const IRONMEN = {
   teamId: 'CLE', abbreviation: 'CLE', city: 'Cleveland', teamName: 'Ironmen',
   fullName: 'Cleveland Ironmen',
-  conferenceId: 'AC', conferenceName: 'American Conference',
-  divisionId: 'AC-N', divisionName: 'AC North', divisionShort: 'North',
+  conferenceId: 'AC', conferenceName: 'Atlas Conference',
+  divisionId: 'AC-N', divisionName: 'Atlas Conference North', divisionShort: 'North',
   primary: '#41230A', secondary: '#F26A21',
   overall: 82, offense: 81.4, defense: 82.9, specialTeams: 74.1,
   capSpace: 18_400_000, draftScore: 56, draftLabel: 'Standard',
@@ -115,7 +115,7 @@ describe('the review', () => {
     mount();
     const card = screen.getByTestId('card-team').textContent ?? '';
     for (const fact of [
-      'Ironmen', 'Cleveland · American Conference · North',
+      'Ironmen', 'Cleveland · Atlas Conference · North',
       'DifficultyPlayoff Push', 'ArchetypeDefensive core', 'Overall82',
       'Offence81.4', 'Defence82.9', 'Special teams74.1', 'Cap space$18.4M',
       'Draft capitalStandard · 56', 'Owner patiencePatient · 72', 'Fan pressureEngaged',
