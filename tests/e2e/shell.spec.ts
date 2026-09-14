@@ -200,14 +200,25 @@ test.describe('app shell', () => {
     await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
   });
 
-  test('the Play tab previews the matchup and simulates the week', async ({ page }) => {
-    // The whole point of the tab: see who you play, see what you are walking
-    // in with, press the one gold button, and watch the save move.
+  // The one test in this file that writes. It runs on a single project rather
+  // than on all five, because every project shares one database and one save:
+  // five workers simulating the same dynasty in parallel race each other into
+  // the offseason, and the first casualty is this test. The other widths cover
+  // how the tab renders; this covers what the button does.
+  test('the Play tab previews the matchup and simulates the week', async ({ page }, info) => {
+    test.skip(info.project.name !== '390', 'one worker simulates; the rest only look');
     await page.goto('/');
     await page.getByRole('button', { name: 'Play', exact: true }).click();
+
+    // The save is shared and long-lived, so it may well be parked in an
+    // offseason left by an earlier run. Start the next year rather than fail:
+    // a test that only passes on a fresh database is a test that fails for the
+    // wrong reason the first time somebody runs the suite twice.
+    if (await page.getByTestId('next-season').count() > 0) {
+      await page.getByTestId('next-season').click();
+      await page.getByTestId('sim-week').waitFor({ timeout: 300_000 });
+    }
     await page.getByTestId('game-prep').waitFor({ timeout: 60_000 });
-    // A bye or a finished season draws no matchup card, and neither is a
-    // failure -- the prep cards are on the tab either way.
     const before = await page.getByRole('heading', { level: 1 }).innerText();
 
     const sim = page.getByTestId('sim-week');
