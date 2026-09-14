@@ -28,6 +28,17 @@ const IP_DENY = [
   // of those however generic the words look on their own. This league votes on
   // its own all-league teams and picks its own all-star rosters.
   'all-pro','all pro','allpro','pro-bowl','probowl',
+  // Venue names. Stadiums reached the screen for the first time with the
+  // scouting board, and until then the list had no reason to carry them --
+  // which meant "Soldier Field" passed a provocation run clean. A ground is
+  // branded as hard as a club is: most of these are a sponsor's mark on top
+  // of a venue's, and either half is somebody's.
+  'lambeau','soldier field','arrowhead stadium','gillette stadium','levi\'s stadium',
+  'metlife stadium','sofi stadium','at&t stadium','lucas oil stadium','mercedes-benz stadium',
+  'heinz field','acrisure stadium','caesars superdome','superdome','allegiant stadium',
+  'raymond james stadium','m&t bank stadium','lincoln financial field','ford field',
+  'paul brown stadium','paycor stadium','empower field','nissan stadium','state farm stadium',
+  'lumen field','bank of america stadium','u.s. bank stadium','nrg stadium','highmark stadium',
 ];
 
 // Allowed uses of a denied term, scoped to one file and one term with a

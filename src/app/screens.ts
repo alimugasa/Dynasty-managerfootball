@@ -11,6 +11,7 @@ import { SlotsScreen } from '../screens/SlotsScreen';
 import { CreateGmScreen } from '../screens/CreateGmScreen';
 import { SelectTeamScreen } from '../screens/SelectTeamScreen';
 import { TeamPreviewScreen } from '../screens/TeamPreviewScreen';
+import { FranchiseSettingsScreen } from '../screens/FranchiseSettingsScreen';
 import { LeagueScreen } from '../screens/LeagueScreen';
 import { PlayoffsScreen } from '../screens/PlayoffsScreen';
 import { OfficeScreen } from '../screens/OfficeScreen';
@@ -40,13 +41,17 @@ export interface ScreenDef {
 
 export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   // Getting in: Home -> New Franchise or Load Franchise -> a save file -> a GM
-  // name -> a club -> its scouting report -> the franchise dashboard. Nothing
-  // is written until the last of those. docs/PLAYING.md walks it.
+  // name -> a club -> its scouting report -> the settings review -> the
+  // franchise dashboard. Nothing is written until the last of those.
+  // docs/PLAYING.md walks it.
   home: { title: 'Dynasty Manager', Component: HomeScreen, root: true, boot: true },
   slots: { title: 'Save files', Component: SlotsScreen, root: false, boot: true },
   gm: { title: 'Create GM', Component: CreateGmScreen, root: false, boot: true },
   pickTeam: { title: 'Select Team', Component: SelectTeamScreen, root: false, boot: true },
   teamPreview: { title: 'Team Preview', Component: TeamPreviewScreen, root: false, boot: true },
+  franchiseSettings: {
+    title: 'Franchise Settings', Component: FranchiseSettingsScreen, root: false, boot: true,
+  },
 
   // The main menu's foot. Boot screens too: they are reachable with no dynasty
   // open, so they must not render a bar of tabs that would go nowhere, and

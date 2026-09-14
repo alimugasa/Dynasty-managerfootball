@@ -1,0 +1,97 @@
+// Choosing a franchise, in the play-test build: the board, the scouting report
+// and the review, which are three views of one decision.
+//
+// Split out of App.tsx because they belong together and because App.tsx is a
+// router with a game in it -- the three of them carry their own state (which
+// club is being looked at, what the board is filtered to) and none of it
+// concerns the rest of the rig.
+//
+// Every screen here is the product's own component, handed the profiles this
+// build measured from the packed seed rather than the ones the server measured
+// from Postgres. Same components, same labels, same flow.
+
+import { COLOR, S } from '../../src/app/tokens';
+import { FranchiseSummary } from '../../src/screens/franchiseSummary';
+import { gmStyleLabel } from '../../src/screens/gmStyles';
+import { TeamPreview } from '../../src/screens/teamPreview';
+import { SelectTeamScreen, type GmDraft } from './boot';
+import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
+
+/** The three routes this module renders. Named here because this is what
+ *  renders them; App.tsx folds them into its own Route union.
+ *
+ *  'franchiseSettings' rather than 'settings': the main menu already has a
+ *  Settings panel on that name, and calling the review the same thing hid it
+ *  behind the menu -- a bug only a walk through the flow finds. */
+export type BootRoute = 'pick' | 'preview' | 'franchiseSettings';
+
+export function FranchiseFlow({
+  route, board, busy, pending, filter, query,
+  onFilter, onQuery, onPending, onRoute, onStart,
+}: {
+  readonly route: string;
+  readonly board: readonly TeamProfile[];
+  readonly busy: string | null;
+  readonly pending: GmDraft | null;
+  readonly filter: string;
+  readonly query: string;
+  readonly onFilter: (next: string) => void;
+  readonly onQuery: (next: string) => void;
+  readonly onPending: (next: GmDraft | null) => void;
+  readonly onRoute: (next: BootRoute) => void;
+  /** Builds the league and opens the dynasty. The only thing here that writes. */
+  readonly onStart: (teamId: string) => void;
+}) {
+  // The club being looked at, held on the draft the way the app holds it, so
+  // walking back to the board and forward again does not lose the pick.
+  const previewing = board.find((t) => t.teamId === pending?.teamId);
+
+  return (
+    <>
+      {route === 'pick' && (
+        <SelectTeamScreen
+          teams={board}
+          busy={busy}
+          filter={filter}
+          query={query}
+          onFilter={onFilter}
+          onQuery={onQuery}
+          onPick={(teamId) => {
+            if (pending !== null) onPending({ ...pending, teamId });
+            onRoute('preview');
+          }}
+        />
+      )}
+
+      {route === 'preview' && previewing !== undefined && (
+        <TeamPreview
+          team={previewing}
+          busy={busy}
+          onBack={() => { onRoute('pick'); }}
+          onConfirm={() => { onRoute('franchiseSettings'); }}
+        />
+      )}
+
+      {route === 'franchiseSettings' && pending !== null && (
+        <FranchiseSummary
+          slot={pending.slot}
+          gmName={`${pending.first.trim()} ${pending.last.trim()}`.trim()}
+          styleLabel={gmStyleLabel(pending.style)}
+          team={previewing ?? null}
+          busy={busy}
+          onBack={() => { onRoute('preview'); }}
+          onCreate={() => { onStart(pending.teamId ?? ''); }}
+        />
+      )}
+
+      {/* A club the board does not have. Reported rather than blanked: the id
+          came from somewhere, and "we cannot find it" is the useful thing to
+          say on the screen that is about that club. */}
+      {(route === 'preview' || route === 'franchiseSettings') && previewing === undefined && (
+        <p style={{ margin: `${String(S[2])}px 0`, color: COLOR.red, fontSize: 13 }}>
+          No club in this league has the id “{pending?.teamId ?? ''}”.
+        </p>
+      )}
+    </>
+  );
+}

@@ -9,7 +9,6 @@
 // "the eight with the most cap space" is not a fact any one club knows about
 // itself. The search filters on strings, here, as fast as the player types.
 
-import { useState } from 'react';
 import { COLOR, R, S, TYPE } from '../app/tokens';
 import { ActionButton } from '../components/ActionButton';
 import { ChipRow } from '../components/ChipRow';
@@ -19,14 +18,22 @@ import { TeamRow } from './teamRow';
 import { ALL, FILTER_DETAIL, TEAM_FILTERS, filterTeams } from './teamFilters';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
-export function SelectTeamBoard({ teams, onPick, disabled = false }: {
+export function SelectTeamBoard({
+  teams, onPick, disabled = false, filter, query, onFilter, onQuery,
+}: {
   readonly teams: readonly TeamProfile[];
   readonly onPick: (teamId: string) => void;
   readonly disabled?: boolean;
+  /** The search and the chip are the caller's state, not this component's.
+   *  They have to survive a walk to the scouting report and back, and state
+   *  held here dies with the component the moment the player taps a club. */
+  readonly filter: string;
+  readonly query: string;
+  readonly onFilter: (next: string) => void;
+  readonly onQuery: (next: string) => void;
 }) {
-  const [filter, setFilter] = useState<string>(ALL);
-  const [query, setQuery] = useState('');
   const shown = filterTeams(teams, filter, query);
+  const clear = (): void => { onFilter(ALL); onQuery(''); };
   const narrowed = filter !== ALL || query !== '';
 
   return (
@@ -39,7 +46,7 @@ export function SelectTeamBoard({ teams, onPick, disabled = false }: {
       <div style={{ display: 'grid', gap: S[3], marginBottom: S[3] }}>
         <SearchField
           value={query}
-          onChange={setQuery}
+          onChange={onQuery}
           label="Search teams"
           placeholder="Search teams by city, name, or division."
           // Deliberately not "team-search": every row is data-testid="team-<id>",
@@ -50,7 +57,7 @@ export function SelectTeamBoard({ teams, onPick, disabled = false }: {
         <ChipRow
           chips={TEAM_FILTERS}
           value={filter}
-          onChange={setFilter}
+          onChange={onFilter}
           label="Filter teams"
         />
       </div>
@@ -87,7 +94,7 @@ export function SelectTeamBoard({ teams, onPick, disabled = false }: {
               tone="quiet"
               compact
               testId="clear-filters"
-              onClick={() => { setFilter(ALL); setQuery(''); }}
+              onClick={clear}
             >
               Clear Filters
             </ActionButton>
@@ -114,7 +121,7 @@ export function SelectTeamBoard({ teams, onPick, disabled = false }: {
             tone="quiet"
             compact
             testId="clear-filters-foot"
-            onClick={() => { setFilter(ALL); setQuery(''); }}
+            onClick={clear}
           >
             Clear Filters
           </ActionButton>

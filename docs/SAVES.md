@@ -255,10 +255,25 @@ against thirty-two round trips or one enormous row set.
 | Owner patience | `owners.patience` |
 | Stadium | `stadiums.capacity` |
 | Conference, division | `league_conferences.name` and `league_divisions.name`, the division with its conference stripped off the front |
-| Fan pressure | **nothing** — no crowd is modelled, so it is null on every club |
+| Roster count | `count(*)` over the club's players |
+| Best player, top young player | the roster's top `overall_rating`, and the top `potential_rating` at 24 or under **excluding the best player** — on a young roster they are often the same man, and a report that names him twice has spent a row saying nothing |
+| Biggest weakness | the position room this club is furthest below the **league's average for that room** — rated flat, specialists come out lowest almost everywhere, which is a fact about how kickers are rated and not about any club |
+| Fan pressure | `teams.market_size`, said in words — the world models a market's size and does not simulate a crowd, so "Demanding" says the measurement without implying one |
 
-Difficulty and archetype are the only judgements, and they live in
-`teamShape.ts` so both builds pass the same one. Difficulty is a **rank** in
+The words on the report -- the six quarterback labels, the fan-pressure and
+owner-patience phrases, the draft label, the roster timeline, the franchise
+status and the suggested first move -- live in `teamOutlook.ts`, as pure
+functions of the measurements above. Every one returns null when its input is
+missing: a phrase like "Find a long-term quarterback" is only worth reading if
+it could not have been printed over a club whose quarterback nobody looked at.
+
+Draft capital is scored against the standard allotment rather than against the
+league: two drafts of seven rounds, none traded, scores **50**. The number is
+"how far from standard", not "how far from the best club in this particular
+league", so it means the same thing in a league where everyone has hoarded picks.
+
+Difficulty and archetype are the only league-relative judgements, and they live
+in `teamShape.ts` so both builds pass the same one. Difficulty is a **rank** in
 this league (top 6 Dynasty Ready, to 14 Playoff Push, to 24 Middle Class, to 29
 Rebuild, the rest Hard Rebuild) with one absolute override: a club with negative
 cap space is Cap Hell whatever its roster is rated, because the first thing that

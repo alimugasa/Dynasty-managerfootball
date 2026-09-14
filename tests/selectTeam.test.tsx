@@ -7,6 +7,7 @@
 // under a chip says what the chip actually selected, and a filter with no
 // matches offers the way out rather than an empty panel.
 
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { SelectTeamBoard } from '../src/screens/selectTeamBoard';
@@ -22,9 +23,18 @@ const club = (over: Partial<TeamProfile>): TeamProfile => ({
   primary: '#41230A', secondary: '#F26A21',
   overall: 82, offense: 81.4, defense: 82.9, specialTeams: 74.1,
   capSpace: 18_400_000, draftCapital: 485, averageAge: 25.5,
-  quarterbackStatus: 'Established', ownerPatience: 72, stadiumCapacity: 71_000,
-  fanPressure: null, archetype: 'Balanced', difficulty: 'Middle Class',
+  quarterbackStatus: 'Bridge QB', ownerPatience: 72, stadiumCapacity: 71_000,
+  fanPressure: 'Engaged', archetype: 'Balanced', difficulty: 'Middle Class',
   tags: ['MID_TIER'],
+  overallBand: 'strong', offenseBand: 'strong', defenseBand: 'strong',
+  specialTeamsBand: 'solid',
+  draftScore: 56, draftLabel: 'Standard', rosterCount: 90,
+  ownerMood: 'Even-handed', marketSize: 6,
+  bestPlayer: { name: 'Lars Stanfield', position: 'EDGE', overall: 89 },
+  youngPlayer: { name: 'Zaire Piscopo', position: 'WR', overall: 76, age: 23 },
+  biggestWeakness: 'Backfield', rosterTimeline: 'Contending soon',
+  suggestedMove: 'Review backfield depth.',
+  franchiseStatus: 'Middle Class · Contending soon',
   ...over,
 });
 
@@ -45,9 +55,32 @@ const LEAGUE: readonly TeamProfile[] = [
   }),
 ];
 
+/** The board is controlled -- its search and chip belong to whatever screen is
+ *  showing it, so that walking to the scouting report and back does not reset
+ *  them. This holds that state the way the screen does. */
+function Harness({ teams, onPick, disabled }: {
+  readonly teams: readonly TeamProfile[];
+  readonly onPick: (teamId: string) => void;
+  readonly disabled?: boolean;
+}) {
+  const [filter, setFilter] = useState(ALL);
+  const [query, setQuery] = useState('');
+  return (
+    <SelectTeamBoard
+      teams={teams}
+      onPick={onPick}
+      disabled={disabled ?? false}
+      filter={filter}
+      query={query}
+      onFilter={setFilter}
+      onQuery={setQuery}
+    />
+  );
+}
+
 const mount = (teams: readonly TeamProfile[] = LEAGUE) => {
   const onPick = vi.fn();
-  render(<SelectTeamBoard teams={teams} onPick={onPick} />);
+  render(<Harness teams={teams} onPick={onPick} />);
   return { onPick };
 };
 
@@ -156,10 +189,34 @@ describe('the board on screen', () => {
     expect(onPick).toHaveBeenCalledWith('AUS');
   });
 
+  it('hands its search and chip to the caller, not to itself', () => {
+    // The board is controlled so the state survives a walk to the scouting
+    // report and back. Held inside the component it would die the moment the
+    // player tapped a club, and Back would land on a reset board.
+    const onFilter = vi.fn();
+    const onQuery = vi.fn();
+    render(
+      <SelectTeamBoard
+        teams={LEAGUE}
+        onPick={() => undefined}
+        filter="CONTENDERS"
+        query=""
+        onFilter={onFilter}
+        onQuery={onQuery}
+      />,
+    );
+    // Rendered from the props it was given, not from anything it decided.
+    expect(shownIds()).toEqual(['team-AUS']);
+    fireEvent.change(screen.getByTestId('board-search'), { target: { value: 'x' } });
+    expect(onQuery).toHaveBeenCalledWith('x');
+    fireEvent.click(screen.getByRole('tab', { name: 'Rebuilds' }));
+    expect(onFilter).toHaveBeenCalledWith('REBUILDS');
+  });
+
   it('ignores taps while a dynasty is already being created', () => {
     cleanup();
     const onPick = vi.fn();
-    render(<SelectTeamBoard teams={LEAGUE} onPick={onPick} disabled />);
+    render(<Harness teams={LEAGUE} onPick={onPick} disabled />);
     fireEvent.click(screen.getByTestId('team-AUS'));
     expect(onPick).not.toHaveBeenCalled();
   });

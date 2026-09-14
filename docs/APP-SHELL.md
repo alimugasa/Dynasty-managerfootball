@@ -317,15 +317,55 @@ which is a different sentence from *Not recorded*, and the screen makes both.
 
 ### Team Preview
 
-The last screen of the boot flow and the only one that writes. It shows the
-club's own scouting report and two buttons: start with this club, or go back to
-the board. Walking back changes nothing, which is the whole reason it is a
-screen and not a confirmation on a list row -- a player can open five clubs and
-start none of them.
+Four sections, in the order a front office reads a scouting report: who they
+are, how good they are, what they can spend, and what the football problem is.
+The last line is the first thing to do about it, which is the point of the four
+sections above it.
 
-While the dynasty is being built, both buttons are closed and the primary says
-what it is doing. Leaving mid-create would strand a save halfway through a
-world clone.
+The identity card is the one place a franchise gets to look like a franchise —
+its two kit colours washed across the card, its badge at a size you can see, and
+a three-pixel accent rule drawn from the same two colours, which is the only
+place on the screen a kit colour is used at full strength. The difficulty sits
+under the name at heading size, because it is the single fact this whole screen
+exists to deliver.
+
+Ratings are rings. The arc carries the value and the colour carries the band —
+teal elite, green strong, neutral solid, amber developing, red weak. Two
+channels for one fact: the arc still reads in greyscale, and on a phone the
+colour reads before the digits do. The bands are the server's (`teamOutlook.ts`);
+the screen decides only what elite *looks* like, never what counts as elite.
+
+Every phrase on it is a pure function of measurements and returns nothing when
+the measurement is missing — a club whose numbers could not be read gets **no**
+suggested first move rather than a generic one, because a generic instruction on
+a decade-long decision is the screen guessing.
+
+The screen has three states beyond the report: skeletons in the same three
+shapes so nothing reflows when the board lands, a `QueryError` when the read
+fails, and a **Team Not Found** panel — dark, titled, with a way back — when the
+board answers but has no club with that id. Reported rather than blanked: the id
+came from somewhere, and "we cannot find it" is the useful thing to say.
+
+**Choose This Team** records the club in the draft and goes to Franchise
+Settings; it writes nothing. **Back to Teams** returns to the board with the
+search and the chips as they were, which is why those two live on the
+navigation frame through `useUiState` rather than inside `SelectTeamBoard` —
+state held in the component dies the moment the player taps a club.
+
+### Franchise Settings
+
+The last screen of the flow and the only one that writes. It reads back the
+file, the GM, the style and the club, then states what `create-save` is about to
+do — opens at week 1, thirty-two clubs, a seed generated on the server — each of
+which is something the handler actually does on the next tap.
+
+It is called Settings because that is what it will be. It holds none today: a
+difficulty, a season length or a simulation speed would each be a control with
+nothing behind it, and the rule about not inventing data applies just as squarely
+to inventing a knob.
+
+While the world is being cloned both buttons are closed and the primary says what
+it is doing. Leaving mid-create would strand a save halfway through 25,000 rows.
 
 ### The franchise being set up
 
@@ -343,8 +383,8 @@ front door.
 
 The club joins the draft when it is tapped on the board, which is what lets
 Back come out of the preview onto the list with the GM, the search and the
-chips intact. `create-save` is called once, from the preview, with everything
-the draft gathered.
+chips intact. `create-save` is called once, from Franchise Settings, with
+everything the draft gathered.
 
 ## Navigation state
 

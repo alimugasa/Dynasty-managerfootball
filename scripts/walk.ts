@@ -78,11 +78,12 @@ await page.getByTestId('gm-first').fill('Walk');
 await page.getByTestId('gm-last').fill('Manager');
 await page.getByTestId('gm-continue').click();
 await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
-// The board, then the scouting report, then the decision: nothing is written
-// until the button on the last of those.
+// The board, the scouting report, then the review: nothing is written until
+// the button on the last of those.
 await page.getByTestId('board-search').fill(TEAM_ID);
 await page.getByTestId(`team-${TEAM_ID}`).click();
 await page.getByTestId('confirm-team').click();
+await page.getByTestId('create-franchise').click();
 await page.getByTestId('sim-week').waitFor({ timeout: 60_000 });
 out(`created a dynasty on ${TEAM_ID}: ${await page.getByRole('heading', { level: 1 }).innerText()}`);
 await counts('after create');

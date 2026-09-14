@@ -15,11 +15,13 @@
 import { COLOR, S, TYPE } from '../app/tokens';
 import { useFranchiseSetup } from '../app/FranchiseSetup';
 import { useNavigator } from '../app/navigation';
+import { useUiState } from '../app/useUiState';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { Loading, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import { SelectTeamBoard } from './selectTeamBoard';
+import { ALL } from './teamFilters';
 import type { TeamProfilesOut } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 export function SelectTeamScreen() {
@@ -27,6 +29,11 @@ export function SelectTeamScreen() {
   const { draft, record } = useFranchiseSetup();
   const { busy, notice, version } = useSave();
   const q = useQuery<TeamProfilesOut>('team-profiles', {}, version);
+  // On the frame rather than in the component, which is what makes Back out of
+  // the scouting report land on the board the player left rather than on a
+  // reset one. docs/NAVIGATION-CONTRACT.md: a frame restores its UI state.
+  const [filter, setFilter] = useUiState<string>('teamFilter', ALL);
+  const [query, setQuery] = useUiState<string>('teamQuery', '');
 
   const first = draft?.firstName.trim() ?? '';
   const last = draft?.lastName.trim() ?? '';
@@ -59,6 +66,10 @@ export function SelectTeamScreen() {
         <SelectTeamBoard
           teams={q.data.teams}
           disabled={busy !== null}
+          filter={filter}
+          query={query}
+          onFilter={setFilter}
+          onQuery={setQuery}
           onPick={(teamId) => {
             record({ teamId });
             nav.push('teamPreview', { teamId });

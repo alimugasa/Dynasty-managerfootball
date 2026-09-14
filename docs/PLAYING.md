@@ -18,8 +18,9 @@ answer. Every handler is the same code the edge function
 The app opens on a main menu with two options, and the way in is five taps:
 
 ```
-Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview -> Dashboard
-     -> Load Franchise -> Save file ------------------------------------------> Dashboard
+Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview
+                                         -> Franchise Settings -> Dashboard
+     -> Load Franchise -> Save file ---------------------------------------> Dashboard
 ```
 
 **New Franchise** asks for three things and one optional fourth: which of the
@@ -62,20 +63,50 @@ from the picks the club owns, owner patience and stadium capacity from their
 own tables. A club the read could not measure shows a dash; nothing is filled
 in with a zero.
 
-**Team Preview** is the scouting report for the club that was tapped, and the
-last screen in the flow: overall, offence, defence, special teams, average age,
-cap space, quarterback, draft capital, owner patience and stadium. Walking back
-out of it changes nothing, which is the point of it being a screen rather than
-a confirmation on a list row.
+**Team Preview** is the scouting report for the club that was tapped, in the
+order a front office reads one.
 
-Nothing before that screen writes anything. The file, the names, the style and
-the club collect in the franchise setup state (`src/app/FranchiseSetup.tsx`),
-which lives above the navigation stack so walking forward and back between the
-questions does not lose them, and which is thrown away the moment the dynasty
-is created from it. Confirming on the preview is what creates it: `create_save()`
-clones the template world under a fresh server-side seed, the engine's state is
-built from the clone, and every roster, contract, cap sheet and opening table is
-written back. Then the franchise dashboard opens on it.
+*Identity* — the club's two kit colours washed across the card with an accent
+rule drawn from them, its badge, market, abbreviation and league placing, and
+underneath, at a size you can read across a room, how hard the job is: Dynasty
+Ready, Playoff Push, Middle Class, Rebuild, Hard Rebuild or Cap Hell.
+
+*Ratings* — overall, offence, defence and special teams as rings, where the arc
+is the number and the colour is the band: teal for elite, green for strong,
+neutral for solid, amber for developing, red for weak. Two channels for one
+fact, so the colour reads before the digits do and the arc still reads in
+greyscale.
+
+*Front office* — cap space (`$24.6M`), draft capital as a word and a score
+(`Strong · 82`, where 50 is exactly the picks every club is given), roster age,
+roster count, owner patience (`Patient · 72`), fan pressure, stadium, and the
+franchise status the first two sections add up to.
+
+*Football situation* — the quarterback in one of six words (Franchise QB, Bridge
+QB, Rookie Project, Veteran Stopgap, Open Competition, No Answer), the best
+player, the top young player, the biggest weakness and the roster timeline. It
+closes on one instruction — *Review offensive line depth.*, *Find a long-term
+quarterback.*, *Protect cap space.*, *Win now, before the veteran core ages
+out.* — derived from the four sections above it.
+
+Walking back out changes nothing, which is the point of it being a screen
+rather than a confirmation on a list row: a player can open five clubs and
+start none of them. **Back to Teams** returns to the board with the search and
+the chips as they were.
+
+**Franchise Settings** is the last screen, and the only one in the flow that
+writes. It reads back the file, the GM, the style and the club, states what
+`create-save` is about to do, and holds no settings beyond that — a difficulty
+or a season length would be a control with nothing behind it.
+
+Nothing before it writes anything. The file, the names, the style and the club
+collect in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives
+above the navigation stack so walking forward and back between the questions
+does not lose them, and which is thrown away the moment the dynasty is created
+from it. *Create Franchise* is what creates it: `create_save()` clones the
+template world under a fresh server-side seed, the engine's state is built from
+the clone, and every roster, contract, cap sheet and opening table is written
+back. Then the franchise dashboard opens on it.
 
 **Load Franchise** shows the same three files. An occupied one shows its team
 and badge, the GM's name, the season and where in it the save is, the team's
@@ -98,7 +129,7 @@ on the server, and opening the app on another device meets the menu. Office →
 
 | Step | Where |
 |---|---|
-| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Start with the …* |
+| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Choose This Team* → *Create Franchise* |
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |

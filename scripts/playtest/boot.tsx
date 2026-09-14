@@ -268,14 +268,30 @@ export function CreateGmScreen({ draft, onDraft, onContinue }: {
  * from the packed seed rather than the ones the server measured from Postgres.
  * Same component, same filters, same labels.
  */
-export function SelectTeamScreen({ teams, busy, onPick }: {
+export function SelectTeamScreen({
+  teams, busy, onPick, filter, query, onFilter, onQuery,
+}: {
   readonly teams: readonly TeamProfile[];
   readonly busy: string | null;
   readonly onPick: (teamId: string) => void;
+  /** Held by the caller, so walking to the scouting report and back lands on
+   *  the board the player left rather than a reset one. */
+  readonly filter: string;
+  readonly query: string;
+  readonly onFilter: (next: string) => void;
+  readonly onQuery: (next: string) => void;
 }) {
   return (
     <>
-      <SelectTeamBoard teams={teams} disabled={busy !== null} onPick={onPick} />
+      <SelectTeamBoard
+        teams={teams}
+        disabled={busy !== null}
+        onPick={onPick}
+        filter={filter}
+        query={query}
+        onFilter={onFilter}
+        onQuery={onQuery}
+      />
       {busy !== null && (
         <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.amber }}>{busy}</p>
       )}

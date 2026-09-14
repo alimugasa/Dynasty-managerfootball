@@ -10,10 +10,11 @@ import { OffseasonScreen } from './offseason';
 import { adoptLegacy, clear, gmOf, persist, rename, restore, styleOf } from './persist';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
 import { DEFAULT_GM_STYLE } from '../../src/screens/gmForm';
-import { TeamPreview } from '../../src/screens/teamPreview';
+import { ALL } from '../../src/screens/teamFilters';
+import { FranchiseFlow, type BootRoute } from './bootFlow';
 import { teamProfiles } from './board';
 import {
-  CreateGmScreen, CreditsPanel, DatabaseToolsScreen, type GmDraft, HomeScreen, SelectTeamScreen,
+  CreateGmScreen, CreditsPanel, DatabaseToolsScreen, type GmDraft, HomeScreen,
   SettingsPanel, SlotsScreen,
 } from './boot';
 import { BracketScreen } from './bracket';
@@ -30,9 +31,9 @@ const TITLES: Readonly<Record<string, string>> = {
 
 interface Drill { readonly screen: string; readonly id: string }
 
-/** Where the player is before a dynasty is open. `play` is in one. */
-type Route =
-  | 'home' | 'slots' | 'gm' | 'pick' | 'preview' | 'play'
+/** Where the player is before a dynasty is open. `play` is in one. The three
+ *  franchise-building routes are named in bootFlow.tsx, which renders them. */
+type Route = BootRoute | 'home' | 'slots' | 'gm' | 'play'
   // The main menu's foot. Reachable with no dynasty open, like the rest of the
   // boot flow, and Back from any of them returns to the menu.
   | 'settings' | 'dbtools' | 'credits';
@@ -84,6 +85,11 @@ export function App() {
   // and re-reading 3,066 players every time the player types a letter into the
   // search box is a frame budget spent on nothing.
   const board = useMemo(() => teamProfiles(), []);
+  // The board's search and chip, held here for the same reason the app holds
+  // them on the navigation frame: walking to the scouting report and back must
+  // not reset them.
+  const [boardFilter, setBoardFilter] = useState(ALL);
+  const [boardQuery, setBoardQuery] = useState('');
 
   const start = (teamId: string): void => {
     if (pending === null) return;
@@ -199,19 +205,17 @@ export function App() {
 
     const title = route === 'slots' ? (creating ? 'New Franchise' : 'Load Franchise')
       : route === 'gm' ? 'Create GM'
-        : route === 'preview' ? 'Team Preview' : 'Select Team';
+        : route === 'preview' ? 'Team Preview'
+          : route === 'franchiseSettings' ? 'Franchise Settings' : 'Select Team';
     const gmLine = `${`${pending?.first ?? ''} ${pending?.last ?? ''}`.trim()} · File ${String(pending?.slot ?? 1)}`;
     const subtitle = route === 'slots' ? (creating ? 'Choose save file' : 'Save files')
       : route === 'gm' ? `File ${String(pending?.slot ?? 1)}` : gmLine;
     const back = (): void => {
       if (route === 'slots') { setPending(null); setRoute('home'); return; }
       if (route === 'preview') { setRoute('pick'); return; }
+      if (route === 'franchiseSettings') { setRoute('preview'); return; }
       setRoute(route === 'gm' ? 'slots' : 'gm');
     };
-    // The club being looked at, held on the draft the way the app holds it, so
-    // walking back to the board and forward again does not lose the pick.
-    const previewing = board.find((t) => t.teamId === pending?.teamId);
-
     return bootShell(title, subtitle, back, (
       <>
         {notice !== null && (
@@ -250,29 +254,19 @@ export function App() {
             onContinue={() => { setRoute('pick'); }}
           />
         )}
-        {route === 'pick' && (
-          <SelectTeamScreen
-            teams={board}
-            busy={busy}
-            onPick={(teamId) => {
-              setPending((d) => (d === null ? null : { ...d, teamId }));
-              setRoute('preview');
-            }}
-          />
-        )}
-        {route === 'preview' && previewing !== undefined && (
-          <TeamPreview
-            team={previewing}
-            busy={busy}
-            onBack={() => { setRoute('pick'); }}
-            onConfirm={() => { start(previewing.teamId); }}
-          />
-        )}
-        {route === 'preview' && previewing === undefined && (
-          <p style={{ margin: `${String(S[2])}px 0`, color: COLOR.red, fontSize: 13 }}>
-            No club in this league has the id “{pending?.teamId ?? ''}”.
-          </p>
-        )}
+        <FranchiseFlow
+          route={route}
+          board={board}
+          busy={busy}
+          pending={pending}
+          filter={boardFilter}
+          query={boardQuery}
+          onFilter={setBoardFilter}
+          onQuery={setBoardQuery}
+          onPending={setPending}
+          onRoute={setRoute}
+          onStart={start}
+        />
       </>
     ));
   }
