@@ -13,6 +13,7 @@ import { createSave } from './createSave.ts';
 import { simWeek } from './simWeek.ts';
 import { deleteSave } from './deleteSave.ts';
 import { renameSave } from './renameSave.ts';
+import { markChecklistItem } from './markChecklist.ts';
 import { advanceSeason } from './advanceSeason.ts';
 import { save } from './reads/save.ts';
 import { slots } from './reads/slots.ts';
@@ -42,6 +43,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'advance-season': advanceSeason,
   'delete-save': deleteSave,
   'rename-save': renameSave,
+  'mark-checklist': markChecklistItem,
   save,
   slots,
   clubs,

@@ -12,7 +12,7 @@
 // one round trip rather than six, and every figure it cannot get is drawn as a
 // dash rather than a zero.
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { COLOR, S } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
@@ -24,9 +24,11 @@ import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { RatingRow } from './ratingRing';
 import { CardFigure, HubCard, HubStack, NotBuilt } from './hubCards';
 import { PerformanceTiles, capLabel } from './dashboardCards';
-import {
-  ChecklistCard, OpponentSheet, OwnerCard, ThisWeekCard, type CheckItem,
-} from './dashboardWeek';
+import { StatTiles } from '../components/StatTiles';
+import { ChecklistSheet, OwnerCard, ThisWeekCard } from './dashboardWeek';
+import { ChecklistCard, stateOf, type ChecklistRow } from './checklistCard';
+import { CHECKLIST_COPY, CHECKLIST_SHEETS } from './checklistCatalogue';
+import type { ChecklistItem } from '../../supabase/functions/_shared/api/checklist';
 import { mandateCopy } from './dashboardMandate';
 import { Screen } from './Screen';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
@@ -47,14 +49,20 @@ const ordinal = (n: number): string => {
 
 export function TeamScreen() {
   const nav = useNavigator();
-  const [sheet, setSheet] = useState(false);
+  /** Which placeholder is open, or null. Named rather than boolean now that
+   *  more than one row can raise one. */
+  const [sheet, setSheet] = useState<ChecklistItem | null>(null);
   // Bumped by "Check again" on a save with no fixture list. It goes into the
   // query's version so the read actually runs again -- re-rendering the same
   // screen would leave the answer cached, and a button that looks like it
   // retried and did not is worse than no button.
   const [attempt, setAttempt] = useState(0);
+  /** The week card, so the last checklist row can put the manager in front of
+   *  the button rather than navigating them somewhere to look for one. */
+  const week = useRef<HTMLDivElement>(null);
   const {
     save, loaded, loadError, version, busy, notice, simWeek,
+    checklist, markChecklist,
   } = useSave();
   const q = useQuery<DashboardOut>(
     'dashboard', { saveId: save?.saveId ?? '' }, version + attempt, save !== null);
@@ -82,51 +90,60 @@ export function TeamScreen() {
       : [{ label: mandateCopy(d.owner?.mandate ?? null)?.label ?? '', kind: 'mandate', accent: true as const }]),
   ];
 
-  const checklist = (data: DashboardOut): readonly CheckItem[] => [
-    {
-      key: 'roster',
-      title: 'Review the roster',
-      detail: `${String(data.shape.rosterCount)} players under contract`,
-      state: data.shape.rosterCount >= 53 ? 'ready' : 'attention',
-      onSelect: () => { nav.push('roster'); },
-    },
-    {
-      key: 'depth',
-      title: 'Set the depth chart',
-      detail: data.shape.depthStarters >= data.shape.positionGroups
-        ? `A starter named in all ${String(data.shape.positionGroups)} groups`
-        : `${String(data.shape.depthStarters)} of ${String(data.shape.positionGroups)} groups have a starter`,
-      state: data.shape.depthStarters >= data.shape.positionGroups ? 'ready' : 'attention',
-      onSelect: () => { nav.push('roster'); },
-    },
-    {
-      key: 'cap',
-      title: 'Check cap space',
-      detail: data.capSpace === null
-        ? 'No cap sheet for this season'
-        : data.capSpace < 0
-          ? `${capLabel(data.capSpace)} over the ceiling`
-          : `${capLabel(data.capSpace)} available · Office tab`,
-      state: data.capSpace === null ? 'open' : data.capSpace < 0 ? 'attention' : 'ready',
-      onSelect: () => { nav.replaceRoot('office'); },
-    },
-    {
-      key: 'opponent',
-      title: 'View the opponent',
-      detail: data.thisWeek.opponentName ?? 'No game scheduled this week',
-      state: 'open',
-      onSelect: () => { setSheet(true); },
-    },
-    {
-      key: 'sim',
-      title: 'Play the game',
-      detail: data.shape.played > 0
-        ? `${String(data.shape.played)} games played across the league`
-        : 'Nothing has been played yet',
-      state: 'open',
-      onSelect: () => { nav.replaceRoot('play'); },
-    },
-  ];
+  /**
+   * The five rows, each with what it is for, what tapping it does, and how far
+   * the manager has got.
+   *
+   * Tapping always records a look. Only two of the five can be finished: the
+   * depth chart, when it is actually reordered (marked beside that write), and
+   * the game, which the league's own results complete without anything being
+   * written down.
+   */
+  const rows = (data: DashboardOut): readonly ChecklistRow[] => {
+    const played = data.record?.played ?? 0;
+    const open = (item: ChecklistItem, go: () => void) => () => {
+      void markChecklist(item, 'VIEWED');
+      go();
+    };
+    const detailFor = (item: ChecklistItem, fallback: string): string => {
+      if (item === 'roster') return `${String(data.shape.rosterCount)} players under contract`;
+      if (item === 'depth') {
+        return data.shape.depthStarters >= data.shape.positionGroups
+          ? `A starter named in all ${String(data.shape.positionGroups)} groups`
+          : `${String(data.shape.depthStarters)} of ${String(data.shape.positionGroups)} groups have a starter`;
+      }
+      if (item === 'cap') {
+        return data.capSpace === null
+          ? 'No cap sheet for this season'
+          : data.capSpace < 0
+            ? `${capLabel(data.capSpace)} over the ceiling`
+            : `${capLabel(data.capSpace)} available`;
+      }
+      if (item === 'opponent') return data.thisWeek.opponentName ?? 'No game scheduled this week';
+      return fallback;
+    };
+    const go: Readonly<Record<ChecklistItem, () => void>> = {
+      roster: () => { nav.push('roster'); },
+      depth: () => { nav.push('roster'); },
+      cap: () => { setSheet('cap'); },
+      opponent: () => { setSheet('opponent'); },
+      // Not a navigation: the button is already on this screen, so this puts
+      // the manager in front of it rather than sending them somewhere else to
+      // find one. Focus as well as scroll, so a keyboard lands on it too.
+      sim: () => {
+        week.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        week.current?.querySelector('button')?.focus();
+      },
+    };
+    return CHECKLIST_COPY.map((c) => ({
+      key: c.key,
+      title: c.title,
+      detail: detailFor(c.key, c.detail),
+      // "Play the game" is finished by the football, not by the tap.
+      state: stateOf(checklist, c.key, c.key === 'sim' && played > 0),
+      onSelect: open(c.key, go[c.key]),
+    }));
+  };
 
   return (
     <Screen title={title} subtitle={subtitle} screen="team">
@@ -182,22 +199,29 @@ export function TeamScreen() {
           />
 
           <div style={{ display: 'grid', gap: S[3], marginTop: S[4], minWidth: 0 }}>
-            <ThisWeekCard
-              week={d.thisWeek}
-              weeks={save.weeks}
-              busy={busy}
-              onSim={() => {
-                if (d.thisWeek.state === 'SEASON_OVER') { nav.replaceRoot('play'); return; }
-                void simWeek();
-              }}
-              onPreview={() => { setSheet(true); }}
-              onDepthChart={() => { nav.push('roster'); }}
-              onRecheck={() => { setAttempt((n) => n + 1); }}
-            />
+            <div ref={week} style={{ minWidth: 0 }}>
+              <ThisWeekCard
+                week={d.thisWeek}
+                weeks={save.weeks}
+                busy={busy}
+                onSim={() => {
+                  if (d.thisWeek.state === 'SEASON_OVER') { nav.replaceRoot('play'); return; }
+                  void simWeek();
+                }}
+                onPreview={() => {
+                  void markChecklist('opponent', 'VIEWED');
+                  setSheet('opponent');
+                }}
+                onDepthChart={() => { nav.push('roster'); }}
+                onRecheck={() => { setAttempt((n) => n + 1); }}
+              />
+            </div>
             <OwnerCard owner={d.owner} />
             <ChecklistCard
-              title={d.shape.played === 0 ? 'Before week 1' : 'This week’s checklist'}
-              items={checklist(d)}
+              rows={rows(d)}
+              opening={(d.record?.played ?? 0) === 0}
+              note={'A tick means the save holds the rows it describes, or the week has '
+                + 'been played. The app does not record what you have read.'}
             />
           </div>
 
@@ -265,7 +289,23 @@ export function TeamScreen() {
         </>
       )}
 
-      {sheet && <OpponentSheet onClose={() => { setSheet(false); }} />}
+      {sheet !== null && CHECKLIST_SHEETS[sheet] !== undefined && (
+        <ChecklistSheet
+          copy={CHECKLIST_SHEETS[sheet]}
+          onClose={() => { setSheet(null); }}
+          {...(sheet === 'cap' ? { onAction: () => { nav.replaceRoot('office'); } } : {})}
+          {...(sheet === 'cap' && d !== null ? {
+            facts: (
+              <StatTiles
+                stats={[
+                  { label: 'Cap space', value: capLabel(d.capSpace), tone: (d.capSpace ?? 0) < 0 ? 'negative' : 'positive' },
+                  { label: 'Roster', value: `${String(d.shape.rosterCount)}` },
+                ]}
+              />
+            ),
+          } : {})}
+        />
+      )}
     </Screen>
   );
 }

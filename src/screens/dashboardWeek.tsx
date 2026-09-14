@@ -1,23 +1,26 @@
-// This week, the owner, and what is left to do before kick-off.
+// This week, the owner, and the sheet a checklist row raises when the screen
+// it points at does not exist.
 //
-// Three cards that each answer one question a manager asks on opening the app:
-// who do we play, what was I hired to do, and what have I not done yet.
+// Two cards that each answer one question a manager asks on opening the app:
+// who do we play, and what was I hired to do. The checklist itself is next
+// door in checklistCard.tsx, which is where its three states live.
 //
 // The week card has four faces rather than one with holes in it, because "you
 // are on a bye", "the season is over" and "this save has no fixture list" are
 // three different facts and only the last is a fault. Drawing a bye where the
 // schedule is missing would hide a broken world behind a rest week.
 
+import type { ReactNode } from 'react';
 import { COLOR, S, TYPE } from '../app/tokens';
 import { EmptyState } from '../components/Surface';
 import { ActionButton } from '../components/ActionButton';
 import { Sheet } from '../components/Sheet';
 import { bandColor } from './ratingRing';
 import {
-  CheckRow, DashCard, PatienceMeter, Pill, WeekActions,
-  difficultyColour, type CheckState,
+  DashCard, PatienceMeter, Pill, WeekActions, difficultyColour,
 } from './dashboardCards';
 import { mandateCopy } from './dashboardMandate';
+import type { SheetCopy } from './checklistCatalogue';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
 const recordOf = (r: { wins: number; losses: number; ties: number } | null): string =>
@@ -181,64 +184,45 @@ export function OwnerCard({ owner }: { readonly owner: DashboardOut['owner'] }) 
   );
 }
 
-export interface CheckItem {
-  readonly key: string;
-  readonly title: string;
-  readonly detail: string;
-  readonly state: CheckState;
-  readonly onSelect: () => void;
-}
-
-export function ChecklistCard({ title, items }: {
-  readonly title: string;
-  readonly items: readonly CheckItem[];
-}) {
-  return (
-    <DashCard title={title} testId="checklist">
-      <div style={{ minWidth: 0 }}>
-        {items.map((item) => (
-          <CheckRow
-            key={item.key}
-            title={item.title}
-            detail={item.detail}
-            state={item.state}
-            onSelect={item.onSelect}
-            testId={`check-${item.key}`}
-          />
-        ))}
-      </div>
-      <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.dim, fontSize: 11 }}>
-        A tick means the save holds the rows it describes, not that you have looked.
-        The app does not record what you have read.
-      </p>
-    </DashCard>
-  );
-}
-
 /**
- * The one destination on this screen that has not been built.
+ * A checklist destination that has not been built.
  *
  * A row that pointed at a screen rendering nothing, or that quietly did
  * nothing at all, are the two dishonest answers. This is the third: it says
- * what will live there, and what the game can truthfully tell you about the
- * opponent today, which is the line already on the week card.
+ * what will live there in the words that screen will use, and what the game
+ * can truthfully tell you today.
+ *
+ * `facts` is what is real right now -- the cap sheet on the cap item -- shown
+ * above the description, so the sheet is worth opening rather than only worth
+ * reading once.
  */
-export function OpponentSheet({ onClose }: { readonly onClose: () => void }) {
+export function ChecklistSheet({ copy, facts, onAction, onClose }: {
+  readonly copy: SheetCopy;
+  readonly facts?: ReactNode;
+  /** The one thing that can be done about it today, where there is one. */
+  readonly onAction?: () => void;
+  readonly onClose: () => void;
+}) {
   return (
     <Sheet
-      title="Opponent report"
-      detail="A scouting report on the club you play next, before you play them."
+      title={copy.title}
+      detail={copy.detail}
       badge="Not built yet"
       onClose={onClose}
-      testId="opponent-sheet"
+      testId="checklist-sheet"
     >
-      <p style={{ ...TYPE.prose, margin: 0, color: COLOR.mut, fontSize: 12.5 }}>
-        It will carry their form, their injuries, the units they are strongest and
-        thinnest in, and how the two rosters match up position by position. None of
-        that is built yet, and the matchup line on the week card — their record and
-        their rating — is everything the game can honestly tell you about them today.
-      </p>
-      <div style={{ marginTop: S[4] }}>
+      {facts !== undefined && <div style={{ marginBottom: S[4] }}>{facts}</div>}
+      <div style={{ display: 'grid', gap: S[3], minWidth: 0 }}>
+        {copy.body.map((line, i) => (
+          <p key={i} style={{ ...TYPE.prose, margin: 0, color: COLOR.mut, fontSize: 12.5 }}>
+            {line}
+          </p>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gap: S[2], marginTop: S[4] }}>
+        {copy.action !== undefined && onAction !== undefined && (
+          <ActionButton onClick={onAction} testId="sheet-action">{copy.action}</ActionButton>
+        )}
         <ActionButton tone="quiet" onClick={onClose} testId="sheet-close">
           Close
         </ActionButton>

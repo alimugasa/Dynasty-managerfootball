@@ -17,21 +17,24 @@ import { TeamHero, type HeroTag } from '../../src/components/TeamHero';
 import { Panel, SectionHeader } from '../../src/components/Surface';
 import { RatingRow } from '../../src/screens/ratingRing';
 import { PerformanceTiles, capLabel } from '../../src/screens/dashboardCards';
+import { ChecklistSheet, OwnerCard, ThisWeekCard } from '../../src/screens/dashboardWeek';
+import { ChecklistCard, stateOf } from '../../src/screens/checklistCard';
+import { CHECKLIST_COPY, CHECKLIST_SHEETS } from '../../src/screens/checklistCatalogue';
 import {
-  ChecklistCard, OpponentSheet, OwnerCard, ThisWeekCard,
-} from '../../src/screens/dashboardWeek';
+  markChecklist as mergeMark,
+  type ChecklistItem, type ChecklistProgress,
+} from '../../supabase/functions/_shared/api/checklist.ts';
 import { mandateCopy } from '../../src/screens/dashboardMandate';
 import {
   matchupDifficulty, mandateStanding, overallRating, ownerMandate, ownerMood,
   quarterbackSituation, ratingBand, rosterTimeline,
 } from '../../supabase/functions/_shared/api/reads/teamOutlook.ts';
 import { ON_FIELD } from '../../supabase/functions/_shared/api/reads/teamBoard.ts';
-import { POSITION_GROUPS } from '../../supabase/functions/_shared/engine/types.ts';
 import { TeamScreen } from './screens';
 import { capFor, ranking, squad, type Game } from './host';
 import { conferences, divisions, owners } from './world';
 import { isWinter } from './winter';
-import { ordinal, record, type ScreenProps as Props } from './common';
+import { record, type ScreenProps as Props } from './common';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard.ts';
 
 // The live league groups players by the engine's position codes rather than
@@ -71,10 +74,14 @@ function turnoversOf(game: Game, teamId: string): DashboardOut['turnovers'] {
 }
 
 export function DashboardScreen(
-  { game, open, busy, onSim }:
-  Props & { busy: string | null; onSim: () => void },
+  { game, open, busy, onSim, checklist, onMark }:
+  Props & {
+    busy: string | null; onSim: () => void;
+    checklist: ChecklistProgress;
+    onMark: (item: ChecklistItem) => void;
+  },
 ) {
-  const [sheet, setSheet] = useState(false);
+  const [sheet, setSheet] = useState<ChecklistItem | null>(null);
   const teamId = game.userTeamId;
   const club = game.clubs.get(teamId);
   const standing = game.standings.get(teamId);
@@ -210,7 +217,7 @@ export function DashboardScreen(
           weeks={game.weeks}
           busy={busy}
           onSim={onSim}
-          onPreview={() => { setSheet(true); }}
+          onPreview={() => { onMark('opponent'); setSheet('opponent'); }}
           onDepthChart={() => { open('roster', ''); }}
           onRecheck={() => { open('schedule', ''); }}
         />
@@ -228,63 +235,64 @@ export function DashboardScreen(
           }}
         />
         <ChecklistCard
-          title={played === 0 ? 'Before week 1' : 'This week’s checklist'}
-          items={[
-            {
-              key: 'roster',
-              title: 'Review the roster',
-              detail: `${String(roster.length)} players under contract`,
-              state: roster.length >= 53 ? 'ready' : 'attention',
-              onSelect: () => { open('roster', ''); },
+          rows={CHECKLIST_COPY.map((c) => ({
+            key: c.key,
+            title: c.title,
+            detail: c.key === 'roster'
+              ? `${String(roster.length)} players under contract`
+              : c.key === 'cap'
+                ? `${capLabel(cap.available)} available`
+                : c.key === 'opponent'
+                  ? week.opponentName ?? 'No game scheduled this week'
+                  : c.detail,
+            state: stateOf(checklist, c.key, c.key === 'sim' && played > 0),
+            onSelect: () => {
+              onMark(c.key);
+              if (c.key === 'roster' || c.key === 'depth') { open('roster', ''); return; }
+              if (c.key === 'cap' || c.key === 'opponent') { setSheet(c.key); return; }
+              onSim();
             },
-            {
-              key: 'depth',
-              title: 'Set the depth chart',
-              detail: `A starter named in all ${String(POSITION_GROUPS.length)} groups`,
-              state: 'ready',
-              onSelect: () => { open('roster', ''); },
-            },
-            {
-              key: 'cap',
-              title: 'Check cap space',
-              detail: cap.available < 0
-                ? `${capLabel(cap.available)} over the ceiling`
-                : `${capLabel(cap.available)} available · Office tab`,
-              state: cap.available < 0 ? 'attention' : 'ready',
-              onSelect: () => { open('office', ''); },
-            },
-            {
-              key: 'opponent',
-              title: 'View the opponent',
-              detail: week.opponentName ?? 'No game scheduled this week',
-              state: 'open',
-              onSelect: () => { setSheet(true); },
-            },
-            {
-              key: 'sim',
-              title: 'Play the game',
-              detail: played === 0
-                ? 'Nothing has been played yet'
-                : `${String(played)} games played${place === 0 ? '' : ` · ${ordinal(place)} in the league`}`,
-              state: 'open',
-              onSelect: onSim,
-            },
-          ]}
+          }))}
+          opening={played === 0}
+          note={'A tick means the save holds the rows it describes, or the week has '
+            + 'been played. The app does not record what you have read.'}
         />
       </div>
 
-      {sheet && <OpponentSheet onClose={() => { setSheet(false); }} />}
+      {sheet !== null && CHECKLIST_SHEETS[sheet] !== undefined && (
+        <ChecklistSheet
+          copy={CHECKLIST_SHEETS[sheet]}
+          onClose={() => { setSheet(null); }}
+          {...(sheet === 'cap' ? { onAction: () => { open('office', ''); } } : {})}
+        />
+      )}
     </>
   );
 }
 
-/** The whole Team tab: the dashboard, and the lists that sit under it. */
+/**
+ * The whole Team tab: the dashboard, and the lists that sit under it.
+ *
+ * The checklist marks live here rather than in the file, because the rig has
+ * no server to keep them and a browser refresh reloads the save from storage
+ * anyway. The app's marks are on the save; these last as long as the dynasty
+ * is open, which is the honest most this build can offer -- and the merge rule
+ * is the shared one, so neither build can invent its own.
+ */
 export function TeamTab(
   { game, open, busy, onSim }: Props & { busy: string | null; onSim: () => void },
 ) {
+  const [checklist, setChecklist] = useState<ChecklistProgress>({});
   return (
     <>
-      <DashboardScreen game={game} open={open} busy={busy} onSim={onSim} />
+      <DashboardScreen
+        game={game}
+        open={open}
+        busy={busy}
+        onSim={onSim}
+        checklist={checklist}
+        onMark={(item) => { setChecklist((held) => mergeMark(held, item, 'VIEWED')); }}
+      />
       <TeamScreen game={game} open={open} />
     </>
   );

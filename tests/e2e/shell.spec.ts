@@ -176,13 +176,28 @@ test.describe('app shell', () => {
     await page.getByRole('button', { name: 'Team', exact: true }).click();
     await page.getByTestId('checklist').waitFor();
     await page.getByTestId('check-opponent').click();
-    const sheet = page.getByTestId('opponent-sheet');
+    const sheet = page.getByTestId('checklist-sheet');
     await expect(sheet).toBeVisible();
     await expect(sheet).toContainText('Not built yet');
     // Escape leaves it, which is the whole reason it is a dialog and not a
     // panel that appeared in the page.
     await page.keyboard.press('Escape');
     await expect(sheet).toBeHidden();
+  });
+
+  test('checklist progress survives a reload, because it is on the save', async ({ page }) => {
+    // The whole argument for putting the marks on the save rather than in this
+    // browser. A checklist that forgets itself is one nobody trusts twice.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await page.getByTestId('check-cap').click();
+    await expect(page.getByTestId('checklist-sheet')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
+
+    await page.reload();
+    await page.getByTestId('checklist').waitFor({ timeout: 60_000 });
+    await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
   });
 
   test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {

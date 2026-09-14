@@ -267,6 +267,25 @@ functions of the measurements above. Every one returns null when its input is
 missing: a phrase like "Find a long-term quarterback" is only worth reading if
 it could not have been printed over a club whose quarterback nobody looked at.
 
+### The checklist on the save
+
+`saves.checklist` (migration 0029) is a jsonb document of at most five keys,
+each `VIEWED` or `DONE`. It is written by `mark-checklist`, which merges one
+mark with `||` in Postgres rather than reading, merging in TypeScript and
+writing back — two taps in quick succession cannot then lose one another — and
+never downgrades a `DONE`.
+
+It holds only what the save cannot work out for itself. Whether a week has been
+played is a question `game_results` already answers, so the screen derives that
+item's tick from the football rather than from a second copy of the fact beside
+it. An unknown item or an unknown mark is refused with a 400 naming it, not
+dropped: a dropped key hides a drift between the two catalogues behind a save
+that looks fine.
+
+Null and `{}` are the same fact — a save from before the column existed reads
+exactly like one nobody has tapped — so the read reports both as an empty
+object and nothing has to be backfilled.
+
 ### The franchise dashboard
 
 `dashboard` answers the screen a manager opens every week, and it answers all

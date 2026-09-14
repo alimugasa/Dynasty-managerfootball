@@ -201,6 +201,7 @@ on the server, and opening the app on another device meets the menu. Office →
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | See where the franchise stands | **Team** tab — the dashboard is the first screen after the world is built |
+| Work through the first week | **Team** → *Before week 1* — five rows; progress is kept on the save |
 | Read the team's rating | **Team** → the four rings under the identity card |
 | See what the owner wants | **Team** → *The owner* |
 | Set a depth chart | **Team** → *Depth chart* → pick a position chip → ↑ / ↓ arrows |

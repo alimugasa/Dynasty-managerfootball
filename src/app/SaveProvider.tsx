@@ -20,6 +20,11 @@ import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
 import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
 import type { FranchiseSettings } from '../../supabase/functions/_shared/api/franchiseOptions';
+import {
+  markChecklist as mergeMark,
+  type ChecklistItem, type ChecklistMark, type ChecklistProgress,
+} from '../../supabase/functions/_shared/api/checklist';
+import type { MarkChecklistOut } from '../../supabase/functions/_shared/api/markChecklist';
 
 export interface SaveApi {
   /** The open save, or null when none is. Meaningful only once `loaded`. */
@@ -45,6 +50,17 @@ export interface SaveApi {
    *  what it says comes back as the notice. */
   offseasonMove: (route: string, input: Record<string, unknown>) => Promise<void>;
   setDepthChart: (group: string, order: readonly string[]) => Promise<void>;
+  /** What the manager has opened and finished on the dashboard checklist.
+   *  Empty until something is tapped; never null, because "nothing yet" and
+   *  "a save from before the checklist" are the same state. */
+  readonly checklist: ChecklistProgress;
+  /** Records a tap, or a finished job.
+   *
+   *  Applied here first and sent after, because a checklist row that waited on
+   *  a round trip before ticking would feel broken on a slow connection. The
+   *  server's answer replaces the guess when it lands; a failure puts the row
+   *  back where it was and says why. */
+  markChecklist: (item: ChecklistItem, mark: ChecklistMark) => Promise<void>;
   /** Creates a dynasty in `slot` under a named GM, and opens it.
    *
    *  Unlike every other action here, this one rejects rather than folding the
@@ -121,8 +137,13 @@ export function SaveProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [settled, setSettled] = useState(false);
+  /** The checklist as this screen has it, ahead of the server. Null means "no
+   *  guess outstanding, use the save's own". Cleared by every reload, so the
+   *  stored document always wins in the end. */
+  const [marks, setMarks] = useState<ChecklistProgress | null>(null);
 
   const reload = useCallback(async (saveId: string | null) => {
+    setMarks(null);
     if (saveId === null) {
       setCurrent(null);
       setLoadError(null);
@@ -216,7 +237,30 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       }),
       setDepthChart: (group, order) => act('Saving…', async () => {
         await api().call('set-depth-chart', { saveId: need(), group, order });
+        // Reordering a chart is the one checklist item with a real action
+        // behind it, so this is the one that can honestly be finished rather
+        // than merely looked at. Marked here, beside the write, so it cannot
+        // be missed by a screen that reorders without knowing about lists.
+        await api().call('mark-checklist', { saveId: need(), item: 'depth', mark: 'DONE' });
       }),
+      checklist: marks ?? save?.checklist ?? {},
+      markChecklist: async (item, mark) => {
+        if (save === null) return;
+        const before = marks ?? save.checklist;
+        const guess = mergeMark(before, item, mark);
+        // Nothing to say: tapping a finished item again must not cost a round
+        // trip to be told so.
+        if (guess === before) return;
+        setMarks(guess);
+        try {
+          const out = await api().call<MarkChecklistOut>(
+            'mark-checklist', { saveId: save.saveId, item, mark });
+          setMarks(out.checklist);
+        } catch (error) {
+          setMarks(before);
+          setNotice(error instanceof Error ? error.message : String(error));
+        }
+      },
       startDynasty: async (input) => {
         setBusy('Creating…');
         setNotice(null);
@@ -268,7 +312,8 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         await api().call('rename-save', { saveId, name });
       }),
     };
-  }, [current, loadError, clubsById, version, busy, notice, act, reload, openSaveId, settled]);
+  }, [current, loadError, clubsById, version, busy, notice, act, reload, openSaveId, settled,
+    marks]);
 
   return <SaveContext.Provider value={value}>{children}</SaveContext.Provider>;
 }

@@ -12,7 +12,6 @@
 import type { ReactNode } from 'react';
 import { COLOR, ELEV, FONT, R, S, TYPE, tint } from '../app/tokens';
 import { Caption } from '../components/Surface';
-import { ChevronRightIcon } from '../components/icons';
 import { bandColor } from './ratingRing';
 import type { RatingBand } from '../../supabase/functions/_shared/api/reads/teamOutlook';
 
@@ -217,61 +216,6 @@ export function PatienceMeter({ patience, mood }: {
         <div style={{ width: `${String(share * 100)}%`, height: '100%', background: colour }} />
       </div>
     </div>
-  );
-}
-
-/** One row of the before-kick-off checklist. */
-export type CheckState = 'ready' | 'attention' | 'open';
-
-const CHECK_MARK: Readonly<Record<CheckState, { glyph: string; colour: string }>> = {
-  ready: { glyph: '✓', colour: COLOR.teal },
-  attention: { glyph: '!', colour: COLOR.amber },
-  open: { glyph: '·', colour: COLOR.dim },
-};
-
-export function CheckRow({ title, detail, state, onSelect, testId }: {
-  readonly title: string;
-  readonly detail: string;
-  readonly state: CheckState;
-  readonly onSelect: () => void;
-  readonly testId: string;
-}) {
-  const mark = CHECK_MARK[state];
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      data-testid={testId}
-      style={{
-        display: 'flex', alignItems: 'center', gap: S[3], width: '100%',
-        minWidth: 0, boxSizing: 'border-box', textAlign: 'left',
-        padding: `${String(S[3])}px 0`, background: 'none', border: 0,
-        borderBottom: `1px solid ${COLOR.line}`, cursor: 'pointer',
-        WebkitTapHighlightColor: 'transparent',
-      }}
-    >
-      <span
-        aria-hidden="true"
-        style={{
-          width: 22, height: 22, flexShrink: 0, borderRadius: R.pill,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: tint(mark.colour, 0.12),
-          border: `1px solid ${tint(mark.colour, 0.4)}`,
-          color: mark.colour, fontSize: 12, lineHeight: 1, fontWeight: 700,
-        }}
-      >
-        {mark.glyph}
-      </span>
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ ...TYPE.body, display: 'block', color: COLOR.tx }}>{title}</span>
-        <span style={{ ...TYPE.prose, display: 'block', color: COLOR.mut, fontSize: 11.5 }}>
-          {detail}
-        </span>
-      </span>
-      <span style={{ color: COLOR.dim, display: 'flex', flexShrink: 0 }}>
-        <ChevronRightIcon />
-      </span>
-    </button>
   );
 }
 

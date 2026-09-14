@@ -47,15 +47,44 @@ manage.
 the page, because weekly management is the game. *Sim to end of season* is a
 quiet button on the Play tab and is meant to look like the shortcut it is.
 
-**A tick means the save holds the rows, not that you have looked.** The app does
-not record what anyone has read, so the checklist reports facts it can check —
-53 under contract, a starter named in all thirteen groups, cap space positive —
-and the rows it cannot are left neutral rather than ticked. The card says so.
+#### The checklist
 
-**A row with nothing behind it opens a sheet.** The opponent report does not
-exist, so tapping it raises a bottom sheet that says what will live there. A row
-that navigated to a screen rendering nothing, or that quietly did nothing, are
-the two dishonest answers.
+Five items — roster, depth chart, cap, opponent, the game — in three states:
+
+| State | Looks like | Means |
+|---|---|---|
+| Pending | hollow ring, muted | never opened |
+| Opened | gold ring with a tick | tapped, and there was nothing more to finish |
+| Done | filled teal disc | the thing it asked for actually happened |
+
+Only two of the five can reach **Done**, and that is the honest part. Setting
+the depth chart is marked finished beside the write that reorders it, so it
+counts from wherever the reorder happened. Playing the game is completed by
+`game_results` — the league's own rows — rather than by a flag written next to
+them; two records of one fact are two records free to disagree. The other three
+stop at Opened, because there is nothing there to finish yet, and a green tick
+for having looked would be measuring the wrong thing on the first screen a
+player sees.
+
+**The marks live on the save** (`saves.checklist`, migration 0029), not in the
+browser. A dynasty opened on a second device is the same dynasty, and a
+checklist that resets is one nobody trusts twice. `mark-checklist` merges a
+single mark in Postgres rather than replacing the document, so two taps in
+quick succession cannot lose one another, and it never downgrades a finished
+item — opening the depth chart again to look at it must not un-set it.
+
+**Before the first game** the card is ringed in amber and shows all five. **After
+it** the same card becomes *Weekly prep*: the count, and only what is still
+outstanding. A manager ten seasons in should not be reading five ticked rows
+every week.
+
+**A row with nothing behind it opens a sheet.** Cap and opponent have no screen,
+so tapping them raises a bottom sheet that says what will live there in the
+words that screen will use — and the cap sheet carries the club's real cap
+number, so the tap is worth making. A row that navigated to a screen rendering
+nothing, or that quietly did nothing, are the two dishonest answers. *Play the
+game* navigates nowhere at all: it scrolls the gold button into view and
+focuses it, because the button is already on this screen.
 
 Schedule and Roster were tabs of their own and neither was a destination: each
 is a list, and it belongs inside the tab whose job it is part of. The roster is

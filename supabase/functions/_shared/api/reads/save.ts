@@ -9,6 +9,7 @@ import type { Db } from '../db.ts';
 import { latestSave, ownedSave, seasonWeeks } from '../save.ts';
 import { optionalString, rawOf } from '../parse.ts';
 import { parseSettings, type FranchiseSettings } from '../franchiseOptions.ts';
+import { parseChecklist, type ChecklistProgress } from '../checklist.ts';
 
 /** Settings off a save row, or null where there are none this build can read.
  *  A document written by a later version -- a ninth setting, a value this
@@ -19,6 +20,19 @@ function readSettings(raw: unknown): FranchiseSettings | null {
     return parseSettings(raw) ?? null;
   } catch {
     return null;
+  }
+}
+
+/** The checklist off a save row, or an empty one where this build cannot read
+ *  what is there. Same rule as the settings above: a document written by a
+ *  later version is reported as nothing rather than shown with a hole in it,
+ *  and an empty checklist is exactly what a manager who has tapped nothing
+ *  has -- so there is no dishonesty in the fallback. */
+function readChecklist(raw: unknown): ChecklistProgress {
+  try {
+    return parseChecklist(raw) ?? {};
+  } catch {
+    return {};
   }
 }
 
@@ -58,6 +72,10 @@ export interface SaveSummary {
    *  before the question was asked. Not the Normal preset by default: that is
    *  an answer, and an unasked question does not have one. */
   readonly settings: FranchiseSettings | null;
+  /** What the manager has opened and finished on the dashboard checklist.
+   *  Empty on a save nobody has tapped, which is also what a save from before
+   *  the checklist existed reports -- the same fact, either way. */
+  readonly checklist: ChecklistProgress;
 }
 
 export interface SaveOut {
@@ -115,6 +133,7 @@ export const save: Handler<SaveIn, SaveOut> = {
         // server can no longer read is reported as absent rather than handed
         // to a screen that would show half of it.
         settings: readSettings(row.franchise_settings),
+        checklist: readChecklist(row.checklist),
       },
       clubs: await clubsOf(sql, row.id),
     };
