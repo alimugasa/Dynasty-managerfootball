@@ -14,6 +14,7 @@ import { simWeek } from './simWeek.ts';
 import { deleteSave } from './deleteSave.ts';
 import { renameSave } from './renameSave.ts';
 import { markChecklistItem } from './markChecklist.ts';
+import { markNewsRead } from './markNewsRead.ts';
 import { advanceSeason } from './advanceSeason.ts';
 import { save } from './reads/save.ts';
 import { slots } from './reads/slots.ts';
@@ -27,6 +28,7 @@ import { schedule } from './reads/schedule.ts';
 import { playoffs } from './reads/playoffs.ts';
 import { game } from './reads/game.ts';
 import { office } from './reads/office.ts';
+import { news } from './reads/news.ts';
 import { staff } from './reads/staff.ts';
 import { recap } from './reads/recap.ts';
 import { offseason } from './reads/offseason.ts';
@@ -44,6 +46,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'delete-save': deleteSave,
   'rename-save': renameSave,
   'mark-checklist': markChecklistItem,
+  'mark-news-read': markNewsRead,
   save,
   slots,
   clubs,
@@ -57,6 +60,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   playoffs,
   game,
   office,
+  news,
   staff,
   recap,
   offseason,

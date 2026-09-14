@@ -25,6 +25,9 @@ import { defaultDepthChart, projectWorld, seedStandings, writeDepthChart } from 
 import { createRng } from '../engine/rng.ts';
 import { primePipeline } from '../engine/offseason/population.ts';
 import { serialize } from '../save/index.ts';
+import { insertNews } from './news.ts';
+import { openingStories } from './franchiseNews.ts';
+import { openingFacts } from './franchiseNewsFacts.ts';
 import type { Db } from './db.ts';
 
 export interface CreateSaveIn {
@@ -198,6 +201,20 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
         await touchSave(tx, saveId, { week: 1, phase: 'REGULAR_SEASON' });
       });
 
+      // The feed a brand new franchise opens on. Four stories, all of them
+      // read back out of the rows this transaction has just written -- the
+      // club's identity, its owner, its roster, its week 1 fixture -- so a
+      // save that failed to get a schedule gets a story saying so rather than
+      // a preview of a game that does not exist. Inside the transaction with
+      // everything else: a dynasty either has its opening feed or does not
+      // exist. The tally below counts what this wrote.
+      await runStep('news', async () => {
+        const gmName = input.gmFirstName === undefined || input.gmLastName === undefined
+          ? null : `${input.gmFirstName} ${input.gmLastName}`;
+        const facts = await openingFacts(tx, saveId, save.season, input.teamId, gmName);
+        if (facts !== null) await insertNews(tx, saveId, openingStories(facts));
+      });
+
       // Counted, not asserted. Every figure the screen shows for a step is the
       // number of rows that step actually left behind, read back inside the
       // same transaction that wrote them.
@@ -233,9 +250,10 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
         step('depth', n(tally?.depth), 'depth chart places'),
         step('schedule', n(tally?.schedule), 'fixtures'),
         step('picks', n(tally?.picks), 'picks'),
-        // The feed starts empty and fills as the season is played, so there is
-        // no count to report -- only that it is ready to be written to.
-        step('news', null, null),
+        // Four opening stories, counted like everything else. A save whose
+        // club had no identity row writes none, and this reports the zero
+        // rather than the four it was supposed to write.
+        step('news', n(tally?.news), 'stories'),
         // Opening the office is work rather than rows; a 1 here would be a
         // number pretending to be a measurement.
         step('office', null, null),

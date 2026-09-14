@@ -19,6 +19,10 @@ import { boardLeague } from './board';
 /** How long the reported steps take to check off, in total. */
 const REVEAL_MS = 900;
 
+/** How many stories openingStories() writes. Named rather than inlined so the
+ *  step's count and the function's output are one fact with one name. */
+const OPENING_STORIES = 4;
+
 export function RigWorldBuild({ team, gmName, slot, onBuild, onMenu }: {
   readonly team: TeamProfile | null;
   readonly gmName: string;
@@ -43,11 +47,15 @@ export function RigWorldBuild({ team, gmName, slot, onBuild, onMenu }: {
           ? league.conferences + league.divisions
           : def.key === 'teams' ? league.teams
             : def.key === 'schedule' ? (league.regularSeasonWeeks === null ? null : 272)
-              : def.key === 'picks' ? league.draftPicks : null;
+              : def.key === 'picks' ? league.draftPicks
+                // The four stories a franchise opens with, which newDynasty()
+                // writes at the same moment the server's transaction does.
+                : def.key === 'news' ? OPENING_STORIES : null;
         const unit = def.key === 'league' ? 'conferences and divisions'
           : def.key === 'teams' ? 'teams'
             : def.key === 'schedule' ? 'fixtures'
-              : def.key === 'picks' ? 'picks' : null;
+              : def.key === 'picks' ? 'picks'
+                : def.key === 'news' ? 'stories' : null;
         return { key: def.key, label: def.label, count, unit };
       }));
       setPhase('reporting');

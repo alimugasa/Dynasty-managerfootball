@@ -9,7 +9,8 @@ import type { Db } from './db.ts';
 import { expectedWins, type League } from '../engine/offseason/index.ts';
 import type { PlayerStatLine, TeamState } from '../engine/types.ts';
 import { STARTERS } from '../engine/types.ts';
-import type { NewsItem, WeekInput } from '../engine/news/types.ts';
+import type { WeekInput } from '../engine/news/types.ts';
+import type { NewsRow } from './franchiseNews.ts';
 import type { PlayedGame, InjuryRow } from './project/stats.ts';
 import type { Standing } from './project/standings.ts';
 
@@ -140,7 +141,15 @@ export async function buildWeekNews(db: Db, saveId: string, f: WeekFacts): Promi
   };
 }
 
-export async function insertNews(db: Db, saveId: string, items: readonly NewsItem[]): Promise<void> {
+/**
+ * The one way a story reaches the table.
+ *
+ * Takes NewsRow rather than the engine's NewsItem so the front office's own
+ * five categories and the engine's six share a single insert. Every NewsItem
+ * is a NewsRow -- the type only widens `category` -- so the week runner passes
+ * its generated stories through unchanged.
+ */
+export async function insertNews(db: Db, saveId: string, items: readonly NewsRow[]): Promise<void> {
   if (items.length === 0) return;
   await db`
     insert into public.news (

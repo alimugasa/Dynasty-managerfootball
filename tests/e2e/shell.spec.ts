@@ -227,7 +227,10 @@ test.describe('app shell', () => {
       await page.getByTestId('sim-week').waitFor({ timeout: 300_000 });
     }
     await page.getByTestId('game-prep').waitFor({ timeout: 60_000 });
-    const before = await page.getByRole('heading', { level: 1 }).innerText();
+    // textContent, not innerText: the h1 is uppercased in CSS, so innerText
+    // reads "WEEK 2" while toHaveText compares against the DOM's "Week 2" and
+    // can never match it.
+    const before = await page.getByRole('heading', { level: 1 }).textContent() ?? '';
 
     const sim = page.getByTestId('sim-week');
     await sim.scrollIntoViewIfNeeded();
@@ -276,10 +279,76 @@ test.describe('app shell', () => {
     await expect(modal).toBeVisible();
     await expect(modal).toContainText('may skip weekly decisions');
     // Cancel closes it and plays nothing.
-    const before = await page.getByRole('heading', { level: 1 }).innerText();
+    // textContent, not innerText: the h1 is uppercased in CSS, so innerText
+    // reads "WEEK 2" while toHaveText compares against the DOM's "Week 2" and
+    // can never match it.
+    const before = await page.getByRole('heading', { level: 1 }).textContent() ?? '';
     await page.getByTestId('season-cancel').click();
     await expect(modal).toBeHidden();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(before);
+  });
+
+  test('the news feed opens, filters, expands and clears its unread mark', async ({ page }) => {
+    // The one claim the tab exists to make: a franchise that has been created
+    // has stories in it. The shared save has been simulated by the tests above,
+    // so this is the mixed feed rather than only the opening four.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'News', exact: true }).click();
+    const cards = page.getByTestId('news-card');
+    await cards.first().waitFor({ timeout: 60_000 });
+    expect(await cards.count()).toBeGreaterThan(0);
+
+    // Every chip is a real filter over the same feed. Team never shows more
+    // than All, and never shows a story about somebody else.
+    const all = await cards.count();
+    await page.getByRole('tab', { name: /^Team/ }).click();
+    const team = await cards.count();
+    expect(team).toBeLessThanOrEqual(all);
+    await page.getByRole('tab', { name: /^All/ }).click();
+    await expect(cards).toHaveCount(all);
+
+    // Opening a card shows the whole body and clears its unread mark. Pick one
+    // that is still unread, because earlier runs share this save file.
+    const unread = page.locator('[data-testid="news-card"][data-unread="true"]').first();
+    if (await unread.count() > 0) {
+      await unread.scrollIntoViewIfNeeded();
+      await unread.getByTestId('news-card-toggle').click();
+      await expect(unread.getByTestId('news-body-full')).toBeVisible();
+      await expect(unread).toHaveAttribute('data-unread', 'false');
+    }
+  });
+
+  test('a news card only offers a button when the screen behind it exists', async ({ page }) => {
+    // The rule the feed is built on. Every button that is drawn has to land on
+    // a screen that renders something, so this opens each one that has a button
+    // and checks the app is still in a dynasty afterwards rather than on a
+    // dead route.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'News', exact: true }).click();
+    await page.getByTestId('news-card').first().waitFor({ timeout: 60_000 });
+
+    const cards = page.getByTestId('news-card');
+    const count = Math.min(await cards.count(), 6);
+    let opened = 0;
+    for (let i = 0; i < count; i += 1) {
+      const card = cards.nth(i);
+      await card.scrollIntoViewIfNeeded();
+      await card.getByTestId('news-card-toggle').click();
+      const action = card.getByTestId('news-action');
+      if (await action.count() === 0) continue;
+      await action.click();
+      // Wherever it went, it is a screen with the tab bar under it -- not an
+      // error, not an empty shell.
+      await expect(page.getByRole('button', { name: 'Team', exact: true }))
+        .toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      opened += 1;
+      await page.getByRole('button', { name: 'News', exact: true }).click();
+      await page.getByTestId('news-card').first().waitFor({ timeout: 30_000 });
+    }
+    // At least one story in a simulated season has somewhere to go; a feed
+    // where nothing was clickable would pass the loop above by doing nothing.
+    expect(opened).toBeGreaterThan(0);
   });
 
   test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {

@@ -20,10 +20,12 @@ import {
 } from '../../supabase/functions/_shared/engine/offseason/index.ts';
 import { retirementReason } from '../../supabase/functions/_shared/engine/offseason/retirement.ts';
 import {
-  cloneLedger, createLedger, type NewsItem, type NewsLedger,
+  cloneLedger, createLedger, type NewsLedger,
 } from '../../supabase/functions/_shared/engine/news/index.ts';
 import { gameStream } from '../../supabase/functions/_shared/api/save.ts';
 import { weekNews, type Absence } from './news.ts';
+import { openingNews, resultNews } from './newsFeed.tsx';
+import type { NewsRow } from '../../supabase/functions/_shared/api/franchiseNews.ts';
 import {
   playoffOutcomes, playRound, seedField, type PlayoffGame,
 } from './postseason.ts';
@@ -87,7 +89,14 @@ export interface Game {
   /** The fourteen, drawn when the regular season ends. Empty before that. */
   readonly seeds: readonly Seed[];
   readonly playoffs: readonly PlayoffGame[];
-  readonly news: readonly NewsItem[];
+  /** Every story, oldest first. Widened past the engine's six categories so
+   *  the front office's own five -- the four a dynasty opens with and the
+   *  weekly result -- sit in the same list the app keeps them in. */
+  readonly news: readonly NewsRow[];
+  /** Which stories have been opened, by their place in `news`. The rig's
+   *  stand-in for the read_at column: appending never renumbers what is
+   *  already there, so an index is as stable an id as an identity column. */
+  readonly newsRead: ReadonlySet<number>;
   readonly ledger: NewsLedger;
   readonly absence: ReadonlyMap<string, number>;
   readonly depthChart: Readonly<Record<PositionGroup, readonly string[]>>;
@@ -115,20 +124,25 @@ export function chartFor(league: League, teamId: string): Record<PositionGroup, 
     { fronts: league.fronts, coaches: league.coaches }).depthChart;
 }
 
-export function newDynasty(userTeamId: string): Game {
+export function newDynasty(userTeamId: string, gmName: string | null = null): Game {
   const seed = freshSeed32();
   const league = newLeague(seed);
   const schedule = openingSchedule();
-  return {
+  const game: Game = {
     league, clubs: clubs(), userTeamId, seed,
     season: league.season, week: 1,
     weeks: schedule.reduce((n, f) => Math.max(n, f.week), 0),
     phase: 'REGULAR_SEASON', schedule, results: [], seeds: [], playoffs: [],
-    standings: freshTable(league.teamIds), news: [], ledger: createLedger(league.season),
+    standings: freshTable(league.teamIds), news: [], newsRead: new Set(),
+    ledger: createLedger(league.season),
     absence: openingAbsences(), depthChart: chartFor(league, userTeamId),
     history: [], awards: [], offers: [], draftOrder: [], nextPick: 1,
     moves: [], abandoned: [],
   };
+  // The opening feed, written the moment the dynasty exists -- as the server
+  // writes it inside the creating transaction. A new franchise that opened its
+  // News tab on an empty list was the whole reason for this.
+  return { ...game, news: openingNews(game, gmName) };
 }
 
 function withUserChart(teams: Map<string, TeamState>, game: Game): Map<string, TeamState> {
@@ -218,8 +232,13 @@ export function simWeek(game: Game): Game {
   }
 
   const ledger = cloneLedger(game.ledger);
-  const news = [...game.news, ...weekNews(
-    game, weekGames, results, standings, injuries, teams, ledger, 'REGULAR_SEASON')];
+  // The league's stories, then the one that is always about your own club.
+  const mine = resultNews(game, game.week, weekGames, standings);
+  const news = [
+    ...game.news,
+    ...weekNews(game, weekGames, results, standings, injuries, teams, ledger, 'REGULAR_SEASON'),
+    ...(mine === null ? [] : [mine]),
+  ];
   for (const [id, left] of absence) {
     if (left <= 1) absence.delete(id); else absence.set(id, left - 1);
   }

@@ -75,10 +75,19 @@ describe('what the build reports', () => {
     expect(reported('schedule')).toBe(Number(row?.n ?? 0));
   });
 
+  it('counts the four stories the franchise opens with', async () => {
+    // The feed used to start empty and this step reported null. It now writes
+    // the four opening stories inside the same transaction, so it has rows to
+    // count like every other step -- and the count comes off the table rather
+    // than from the number four written down twice.
+    expect(reported('news')).toBe(await count('news'));
+    expect(reported('news')).toBe(4);
+  });
+
   it('counts nothing where there is nothing to count', () => {
-    // The news feed starts empty; opening the office is work rather than rows.
-    // Both report null, and the screen says "Ready" rather than "0".
-    for (const key of ['news', 'office']) {
+    // Opening the office is work rather than rows: it reports null, and the
+    // screen says "Ready" rather than "0".
+    for (const key of ['office']) {
       const step = out.steps.find((s) => s.key === key);
       expect(step?.count, key).toBeNull();
       expect(step?.unit, key).toBeNull();

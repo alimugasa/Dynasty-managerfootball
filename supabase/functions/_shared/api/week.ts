@@ -31,6 +31,8 @@ import {
 } from './project/stats.ts';
 import { advanceBracket, PLAYOFF_WEEKS, seedPostseason } from './postseason.ts';
 import { buildWeekNews, insertNews } from './news.ts';
+import { resultStory } from './franchiseNews.ts';
+import { resultFacts } from './franchiseNewsFacts.ts';
 import { createRng, type Rng } from '../engine/rng.ts';
 import { simulateGame } from '../engine/simulateGame.ts';
 import { teamStatesFor } from '../engine/careerBridge.ts';
@@ -180,7 +182,20 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
   });
   const nextLedger = cloneLedger(ledger);
   const items = generateWeeklyNews(input, nextLedger, createRng(newsStream(seed32, season, week)));
-  await insertNews(db, saveId, items);
+  // The engine writes about whatever was remarkable in the league. This adds
+  // the one story that is always about the club being managed, so the feed has
+  // a spine running down it rather than only the weeks something happened to
+  // somebody else. Null on a bye, or on a round this club is not in.
+  const mine = await resultFacts(
+    db, saveId, season, week, save.phase, save.user_team_id,
+    games.played.map((g) => ({
+      gameId: g.gameId,
+      homeTeamId: g.result.homeTeamId, awayTeamId: g.result.awayTeamId,
+      homeScore: g.result.homeScore, awayScore: g.result.awayScore,
+      overtime: g.result.overtime,
+    })),
+    standings.get(save.user_team_id));
+  await insertNews(db, saveId, mine === null ? items : [...items, resultStory(mine)]);
   await writeLedger(db, saveId, nextLedger);
 
   // What follows this week: the next regular week, the seeded bracket, the

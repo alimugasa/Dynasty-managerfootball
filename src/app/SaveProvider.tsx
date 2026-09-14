@@ -25,6 +25,7 @@ import {
   type ChecklistItem, type ChecklistMark, type ChecklistProgress,
 } from '../../supabase/functions/_shared/api/checklist';
 import type { MarkChecklistOut } from '../../supabase/functions/_shared/api/markChecklist';
+import type { MarkNewsReadOut } from '../../supabase/functions/_shared/api/markNewsRead';
 
 export interface SaveApi {
   /** The open save, or null when none is. Meaningful only once `loaded`. */
@@ -61,6 +62,19 @@ export interface SaveApi {
    *  server's answer replaces the guess when it lands; a failure puts the row
    *  back where it was and says why. */
   markChecklist: (item: ChecklistItem, mark: ChecklistMark) => Promise<void>;
+  /** Records that a story in the news feed has been opened, or marks every
+   *  unread story in the season read at once.
+   *
+   *  Unlike every other write here it does not bump `version`. Reading a story
+   *  changes nothing about the dynasty -- not the week, not the roster, not a
+   *  single thing another screen shows -- so re-querying the whole app for it
+   *  would be work spent to display no difference. The News tab carries the
+   *  cleared dot itself until its next read.
+   *
+   *  Resolves with how many stories were actually marked, which is zero for
+   *  one that was already read. Rejects on a refusal, so the caller can decide
+   *  whether it is worth saying; nothing else here turns on it. */
+  markNewsRead: (newsId: number | 'all') => Promise<number>;
   /** Creates a dynasty in `slot` under a named GM, and opens it.
    *
    *  Unlike every other action here, this one rejects rather than folding the
@@ -260,6 +274,12 @@ export function SaveProvider({ children }: { children: ReactNode }) {
           setMarks(before);
           setNotice(error instanceof Error ? error.message : String(error));
         }
+      },
+      markNewsRead: async (newsId) => {
+        if (save === null) return 0;
+        const out = await api().call<MarkNewsReadOut>(
+          'mark-news-read', { saveId: save.saveId, newsId });
+        return out.marked;
       },
       startDynasty: async (input) => {
         setBusy('Creating…');

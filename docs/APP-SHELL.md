@@ -22,7 +22,7 @@ They are the jobs a manager has, not the screens that happened to exist:
 | Team | the football one | the franchise dashboard, then the roster, the depth chart, the schedule and offseason moves |
 | Play | the week | the matchup, game prep, the one gold button, and the result it produced |
 | League | the world outside | standings, leaders, the league schedule, the bracket, awards and records |
-| News | what is being said | the whole feed, as the engine writes it |
+| News | what is being said | the whole feed: the four stories a franchise opens with, the league's week, and your own result |
 
 ### The franchise dashboard
 

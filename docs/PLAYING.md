@@ -152,9 +152,9 @@ other connection, so there is nothing to poll and nothing to stream part-way.
 The steps are therefore *reported* rather than narrated: the handler records what
 each one produced, counted off the rows it wrote, and hands the list back when
 the franchise commits. The screen then checks them off with those counts —
-`3,066 players`, `272 fixtures`, `448 picks` — and says at the foot why nothing
-ticked along before that. A step with nothing to count (the news feed starts
-empty; opening the office is work rather than rows) reads *Ready*, never `0`.
+`3,066 players`, `272 fixtures`, `448 picks`, `4 stories` — and says at the foot
+why nothing ticked along before that. A step with nothing to count (opening the
+office is work rather than rows) reads *Ready*, never `0`.
 
 **A failure names the step.** The handler wraps each phase so a throw carries the
 step it was in, and that name travels across the wire to the failure card:
@@ -216,7 +216,9 @@ on the server, and opening the app on another device meets the menu. Office →
 | Sort the table | **League** → the sort chips, then the ▼/▲ pill to reverse |
 | Read a leaderboard | **League** → *Leaders* → side of the ball, then a board |
 | Playoff leaders | **League** → *Leaders* → **PLAYOFFS** |
-| Read the news | **News** tab |
+| Read the news | **News** tab — four stories are waiting before a single week is played |
+| Filter the feed | **News** → the chips: *All*, *Team*, *League*, *Injuries*, *Transactions*, *Draft*, *Owner* |
+| Read a story in full | **News** → tap the card. It expands, the unread mark clears, and a button appears if there is a screen behind it |
 | Read the cap sheet | **Office** tab → *Finances* |
 | The rules this save is played under | **Office** → *Franchise rules* |
 | Sim to the end | **Play** → *Quick sim* → *Sim to End of Regular Season* — confirms first, then hands over a season summary (one request per week, stops at the bracket) |

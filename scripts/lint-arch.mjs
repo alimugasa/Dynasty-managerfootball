@@ -47,6 +47,25 @@ const IP_DENY = [
   'espn','sportscenter','nfl network','redzone','red zone','sunday ticket',
   'monday night football','thursday night football','sunday night football',
   'fox sports','cbs sports','nbc sports','sky sports','amazon prime video',
+  // Real people. The News tab put player and official names into headlines for
+  // the first time, and a provocation run showed the list caught every club in
+  // "Patrick Mahomes signs with the Green Bay Packers" and not the man: a
+  // person's name is a right of publicity, and a generated league's stories
+  // must not carry one.
+  //
+  // This cannot be exhaustive and does not pretend to be -- there is no finite
+  // list of real footballers. It carries the names a reader would recognise
+  // instantly, which is the set a mistake is actually likely to reach for, and
+  // the surname alone where that surname is unambiguous. The real defence is
+  // that every name in this product is generated from the engine's own name
+  // pools; this is the net under it.
+  'roger goodell','goodell',
+  'patrick mahomes','mahomes','tom brady','josh allen','lamar jackson',
+  'aaron rodgers','travis kelce','kelce','jalen hurts','joe burrow',
+  'justin jefferson','tyreek hill','myles garrett','micah parsons',
+  'saquon barkley','derrick henry','ja\'marr chase','christian mccaffrey',
+  'peyton manning','eli manning','drew brees','jerry rice','tom landry',
+  'vince lombardi','bill belichick','belichick','andy reid',
 ];
 
 // Allowed uses of a denied term, scoped to one file and one term with a

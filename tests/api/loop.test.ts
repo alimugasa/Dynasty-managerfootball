@@ -102,14 +102,36 @@ describe('the loop against Postgres', () => {
   it('never repeats a headline within a season, across requests', async () => {
     const [a] = saves as [string, string];
     for (let i = 0; i < 4; i += 1) await pipe.api.call<WeekOutcome>('sim-week', { saveId: a });
+    // Scoped to the engine's six categories, which is what the guarantee is
+    // about and what the ledger records. The front office's five are written
+    // by the API beside them and are deliberately outside it: a club can
+    // genuinely beat the same opponent by the same score twice in a season,
+    // and "Evergreens beat Prospectors 24-17" appearing twice is two real
+    // games rather than a repeated line.
+    const ENGINE = "and category in ('UPSET','STREAK','MILESTONE','INJURY','HOT_SEAT','AWARD_RACE')";
     const [dupes] = await pipe.sql<{ n: string }[]>`
       select count(*) - count(distinct headline) as n from public.news
-       where save_id = ${a} and season = 2026`;
+       where save_id = ${a} and season = 2026
+         and category in ('UPSET','STREAK','MILESTONE','INJURY','HOT_SEAT','AWARD_RACE')`;
     expect(Number(dupes?.n)).toBe(0);
     const [ledger] = await pipe.sql<{ n: number }[]>`
       select jsonb_array_length(ledger->'headlines') as n from public.save_documents where save_id = ${a}`;
-    expect(ledger?.n).toBe(await countRows(pipe.sql, 'news', a, 'and season = 2026'));
+    expect(ledger?.n).toBe(await countRows(pipe.sql, 'news', a, `and season = 2026 ${ENGINE}`));
   }, 120_000);
+
+  it("adds the franchise's own stories alongside the engine's", async () => {
+    const [a] = saves as [string, string];
+    // Four at creation plus one per week this club played. Counted here so a
+    // change that silently stopped writing them fails rather than showing an
+    // emptier feed nobody notices.
+    const [rows] = await pipe.sql<{ opening: string; results: string }[]>`
+      select
+        count(*) filter (where category in ('FRANCHISE','OWNER','CAMP','MATCHUP'))::text as opening,
+        count(*) filter (where category = 'RESULT')::text as results
+        from public.news where save_id = ${a} and season = 2026`;
+    expect(Number(rows?.opening)).toBe(4);
+    expect(Number(rows?.results)).toBeGreaterThan(0);
+  }, 60_000);
 
   it('answers the team screen from rows, not from a client-side tally', async () => {
     const [a] = saves as [string, string];

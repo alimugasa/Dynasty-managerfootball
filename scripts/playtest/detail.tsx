@@ -198,30 +198,6 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
   );
 }
 
-/** News, in the play-test build: the whole feed, on its own tab. */
-export function NewsScreen({ game }: { game: Game }) {
-  const feed = [...game.news].reverse();
-  if (feed.length === 0) {
-    return (
-      <EmptyState title="Nothing has happened yet" detail="Stories appear as the season is played." />
-    );
-  }
-  return (
-    <Panel padded={false}>
-      <div style={{ padding: '0 12px' }} data-testid="news-feed">
-        {feed.slice(0, 40).map((item, i) => (
-          <ListRow
-            key={`${String(item.week)}-${String(i)}-${item.headline}`}
-            title={item.headline}
-            subtitle={`Wk ${String(item.week)} · ${item.category.replace('_', ' ').toLowerCase()}`}
-            trailing={<Caption>{String(item.importance)}</Caption>}
-          />
-        ))}
-      </div>
-    </Panel>
-  );
-}
-
 export function PlayerScreen({ game, id }: { game: Game; id: string }) {
   const player = game.league.players.find((p) => p.id === id);
   if (player === undefined) return <EmptyState title="No such player" />;

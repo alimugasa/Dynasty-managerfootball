@@ -100,7 +100,7 @@ export const TEMPLATES: Readonly<Record<string, readonly Template[]>> = {
     { id: 'is1', headline: '{player} out for the season', body: 'A {@blow} for {team}, who lose their {position} for the rest of the year.' },
     { id: 'is2', headline: '{team} lose {player} for the year', body: 'The {position} will play no further part this season.' },
     { id: 'is3', headline: 'Season over for {player}', body: 'A serious {@blow} to {team} at {position}.' },
-    { id: 'is4', headline: '{team} without {player} for the rest of the season', body: 'Losing a {position} of his standing reshapes what is possible here.' },
+    { id: 'is4', headline: '{team} without {player} for the rest of the season', body: 'Losing a {position} of that standing reshapes what is possible here.' },
     { id: 'is5', headline: 'Long-term {@blow}: {player} done for the year', body: '{team} must now find another answer at {position}.' },
   ],
   'injury.major': [

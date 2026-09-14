@@ -123,7 +123,7 @@ Integer 0/1 flags become real booleans throughout, so that
 | `player_season_stats` | ~1,750 | regular season and playoffs |
 | `player_season_grades` | ~1,750 | |
 | `transactions` | ~1,200 | draft, free agency, releases |
-| `news` | ~300 | |
+| `news` | ~300 | plus four written at creation; `read_at` (0030) is null until the player opens one |
 | `game_results` | 285 | 272 regular + 13 playoff |
 | `season_schedule.playoff_round` | — | `OPENING`, `QUARTERFINAL`, `CONFERENCE_FINAL`, `LEAGUE_FINAL` (0020) |
 | `standings.conference_seed` | 14 a season | 1-7 per conference, NULL for the eighteen who missed |

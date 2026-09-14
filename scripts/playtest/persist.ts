@@ -188,7 +188,13 @@ export function restore(slot: number): Game | null {
       // empty bracket rather than a wrong one.
       seeds: stored.seeds ?? [], playoffs: stored.playoffs ?? [],
       standings: new Map(stored.standings.map(([id, s]) => [id, { ...s }])),
-      news: stored.news, ledger: ledgerFromJson(stored.ledger),
+      news: stored.news,
+      // Read state is not stored: a reopened dynasty shows its feed unread.
+      // Storing it would mean versioning it, and a wrong answer about which
+      // stories you have seen is worse than the honest fresh start the rig
+      // gives you -- the app, which has a column for it, does keep it.
+      newsRead: new Set<number>(),
+      ledger: ledgerFromJson(stored.ledger),
       absence: new Map(stored.absence), depthChart: stored.depthChart,
       history: stored.history, awards: stored.awards ?? [],
       // A dynasty stored before the offseason could be played reopens with

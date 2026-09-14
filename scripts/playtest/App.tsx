@@ -25,7 +25,8 @@ import {
 import { BracketScreen } from './bracket';
 import { StaffScreen } from './staff';
 import { RecapScreen } from './recap';
-import { BoxScore, NewsScreen, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
+import { BoxScore, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
+import { RigNewsScreen } from './newsFeed';
 
 
 const TITLES: Readonly<Record<string, string>> = {
@@ -108,7 +109,7 @@ export function App() {
       setSlot(pending.slot);
       setGm(`${pending.first.trim()} ${pending.last.trim()}`.trim());
       setGmStyle(pending.style);
-      setGame(newDynasty(teamId));
+      setGame(newDynasty(teamId, `${pending.first.trim()} ${pending.last.trim()}`.trim()));
       setPending(null);
       setTab('team'); setDrill(null); setBusy(null); setRoute('play');
     }, 30);
@@ -365,7 +366,16 @@ export function App() {
           setUi={(key, value) => { setLeagueUi((prev) => ({ ...prev, [key]: value })); }}
         />
       )}
-      {tab === 'news' && <NewsScreen game={game} />}
+      {tab === 'news' && (
+        <RigNewsScreen
+          game={game}
+          onRead={(newsId) => {
+            setGame((g) => (g === null || g.newsRead.has(newsId)
+              ? g : { ...g, newsRead: new Set(g.newsRead).add(newsId) }));
+          }}
+          open={open}
+        />
+      )}
     </>
   );
 
