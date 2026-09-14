@@ -16,6 +16,11 @@ import { COLOR, FONT, R, S, TYPE, tint } from '../app/tokens';
 import { ActionButton } from '../components/ActionButton';
 import { SectionHeader } from '../components/Surface';
 import { TeamMark } from '../components/TeamMark';
+import { CommissionerBadge } from './franchiseSettings';
+import { SETTINGS, difficultyLabel, optionLabel } from './settingsCatalogue';
+import type {
+  Difficulty, FranchiseSettings,
+} from '../../supabase/functions/_shared/api/franchiseOptions';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 function Row({ label, value }: { readonly label: string; readonly value: string | null }) {
@@ -46,7 +51,8 @@ function Row({ label, value }: { readonly label: string; readonly value: string 
 }
 
 export function FranchiseSummary({
-  slot, gmName, styleLabel, team, busy = null, onCreate, onBack,
+  slot, gmName, styleLabel, team, settings, difficulty, season = null,
+  busy = null, onCreate, onBack,
 }: {
   readonly slot: number;
   readonly gmName: string;
@@ -54,6 +60,12 @@ export function FranchiseSummary({
   /** Null where the board could not be read. The review still shows the file
    *  and the GM, because those came from the player rather than the server. */
   readonly team: TeamProfile | null;
+  /** The eight rules, read back one by one. A review that showed only the
+   *  difficulty would hide the seven rows a Custom franchise is actually
+   *  about. */
+  readonly settings: FranchiseSettings;
+  readonly difficulty: Difficulty;
+  readonly season?: number | null;
   readonly busy?: string | null;
   readonly onCreate: () => void;
   readonly onBack: () => void;
@@ -106,13 +118,35 @@ export function FranchiseSummary({
         <Row label="General manager" value={gmName} />
         <Row label="GM style" value={styleLabel} />
         <Row label="Team" value={team?.fullName ?? null} />
+        <Row label="Difficulty" value={difficultyLabel(difficulty)} />
       </div>
+
+      <SectionHeader title="Rules" />
+      <div data-testid="settings-rules" style={{ minWidth: 0 }}>
+        {SETTINGS.map((def) => (
+          <Row
+            key={def.key}
+            label={def.title}
+            // A value this build cannot name is reported as unknown rather
+            // than printed as its raw key.
+            value={optionLabel(def.key, settings[def.key])}
+          />
+        ))}
+      </div>
+      {settings.commissionerMode === 'ON' && (
+        <div style={{ marginTop: S[3] }}>
+          <CommissionerBadge />
+        </div>
+      )}
 
       <SectionHeader title="How it starts" />
       {/* Facts about create-save, not promises: every one of these is
           something the handler does on the next tap. */}
       <div style={{ minWidth: 0 }}>
-        <Row label="Season" value="Opens at week 1" />
+        <Row
+          label="Season"
+          value={season === null ? 'Opens at week 1' : `${String(season)}, week 1`}
+        />
         <Row label="League" value="Thirty-two clubs, full rosters" />
         <Row label="Seed" value="Generated on the server" />
       </div>

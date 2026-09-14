@@ -18,7 +18,14 @@ describe('the style a general manager is created with', () => {
   let pipe: Pipe;
   const created: string[] = [];
 
-  beforeAll(async () => { pipe = await openPipe(OWNER); }, 120_000);
+  beforeAll(async () => {
+    pipe = await openPipe(OWNER);
+    // This user's slots, from a run that was interrupted before its cleanup
+    // ran. A test that can only pass on a pristine database fails for the
+    // wrong reason the next time somebody's laptop sleeps mid-suite.
+    await pipe.sql`delete from public.saves
+                    where user_id = ${OWNER} and not is_template`;
+  }, 300_000);
 
   // Seven dynasties, each cascading its own copy of the world. The default
   // hook timeout is a tenth of what that takes.

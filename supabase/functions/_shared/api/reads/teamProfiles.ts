@@ -89,6 +89,10 @@ export interface TeamProfile {
 
 export interface TeamProfilesOut {
   readonly teams: readonly TeamProfile[];
+  /** The season every new dynasty opens in. Read from the template rather than
+   *  hardcoded on the client, because the template is what create-save clones
+   *  and a client constant would drift the day a new seed ships. */
+  readonly season: number;
 }
 
 /** The seed's group names, as a scouting report would say them. */
@@ -196,6 +200,7 @@ export const teamProfiles: Handler<Record<string, never>, TeamProfilesOut> = {
     const shapes = shapeLeague(measures);
 
     return {
+      season: template.season,
       teams: rows.map((r, i) => {
         const m = measures[i] as TeamMeasure;
         const shape = shapes.get(r.team_id);

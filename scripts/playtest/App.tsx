@@ -11,6 +11,9 @@ import { adoptLegacy, clear, gmOf, persist, rename, restore, styleOf } from './p
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
 import { DEFAULT_GM_STYLE } from '../../src/screens/gmForm';
 import { ALL } from '../../src/screens/teamFilters';
+import {
+  DEFAULT_DIFFICULTY, DEFAULT_SETTINGS,
+} from '../../supabase/functions/_shared/api/franchiseOptions';
 import { FranchiseFlow, type BootRoute } from './bootFlow';
 import { teamProfiles } from './board';
 import {
@@ -206,7 +209,8 @@ export function App() {
     const title = route === 'slots' ? (creating ? 'New Franchise' : 'Load Franchise')
       : route === 'gm' ? 'Create GM'
         : route === 'preview' ? 'Team Preview'
-          : route === 'franchiseSettings' ? 'Franchise Settings' : 'Select Team';
+          : route === 'franchiseSettings' ? 'Franchise Settings'
+            : route === 'confirmFranchise' ? 'Confirm Franchise' : 'Select Team';
     const gmLine = `${`${pending?.first ?? ''} ${pending?.last ?? ''}`.trim()} · File ${String(pending?.slot ?? 1)}`;
     const subtitle = route === 'slots' ? (creating ? 'Choose save file' : 'Save files')
       : route === 'gm' ? `File ${String(pending?.slot ?? 1)}` : gmLine;
@@ -214,6 +218,7 @@ export function App() {
       if (route === 'slots') { setPending(null); setRoute('home'); return; }
       if (route === 'preview') { setRoute('pick'); return; }
       if (route === 'franchiseSettings') { setRoute('preview'); return; }
+      if (route === 'confirmFranchise') { setRoute('franchiseSettings'); return; }
       setRoute(route === 'gm' ? 'slots' : 'gm');
     };
     return bootShell(title, subtitle, back, (
@@ -236,7 +241,10 @@ export function App() {
               // the one they were already filling in.
               setPending((d) => (d !== null && d.slot === n
                 ? d
-                : { slot: n, first: '', last: '', style: DEFAULT_GM_STYLE, teamId: null }));
+                : {
+                  slot: n, first: '', last: '', style: DEFAULT_GM_STYLE, teamId: null,
+                  difficulty: DEFAULT_DIFFICULTY, settings: DEFAULT_SETTINGS,
+                }));
               setRoute('gm');
             }}
             onDelete={(n) => { clear(n); setNotice(null); setRefresh((r) => r + 1); }}

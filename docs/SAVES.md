@@ -292,6 +292,33 @@ compares the two club by club, so a position group that moves on one side or a
 column dropped from the rig's packed world fails a test rather than showing up
 as a screenshot somebody notices weeks later.
 
+### The rules a franchise is played under
+
+Eight settings chosen on Franchise Settings and stored on the save as one
+`jsonb` document, `saves.franchise_settings` (migration 0028). One column rather
+than eight: they are read and written together, a franchise is played under all
+of them at once, and a ninth should not need a migration.
+
+`_shared/api/franchiseOptions.ts` holds the keys, the values each accepts, and
+the three presets. It is what `create-save` validates against, and it refuses
+three things rather than storing them — a document missing a setting, a value it
+does not know, and a key it does not know. Each of those means the client and
+the server have drifted; filling in the gap from a default would write a value
+indistinguishable from one the player chose, and dropping an unknown key would
+hide the drift behind a save that looks fine until a setting turns out to be
+gone. `src/screens/settingsCatalogue.ts` holds the labels and the explanations,
+and a test asserts the two sides name the same eight settings with the same
+values in the same order.
+
+Nothing was backfilled. A save created before 0028 was made by a player who was
+never asked, and the Normal preset is an answer they did not give: it reads back
+as null and the screens say the rules were not recorded.
+
+**Nothing in the simulation reads the column yet.** It exists because the screen
+asks, so that a franchise created today has an honest record of the rules it was
+started under; the screen states this plainly rather than letting a player infer
+that injuries really are lighter on Easy.
+
 `rename-save` is the only write handler that stores a free-text string from the
 client. It trims once, refuses an empty or over-long name rather than
 truncating, and resolves the save through `ownedSave` first, so a rename can

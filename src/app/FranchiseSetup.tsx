@@ -18,6 +18,10 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DEFAULT_GM_STYLE, type GmStyleKey } from '../screens/gmStyles';
+import {
+  DEFAULT_DIFFICULTY, DEFAULT_SETTINGS,
+  type Difficulty, type FranchiseSettings,
+} from '../../supabase/functions/_shared/api/franchiseOptions';
 
 /** What has been answered so far. The names start empty and the style starts at
  *  its default, because the player has to be shown something to change. */
@@ -31,6 +35,13 @@ export interface FranchiseDraft {
    *  until then: the preview screen reads it, and reading it as null is how
    *  that screen knows it was opened without a club rather than about one. */
   readonly teamId: string | null;
+  /** The eight rules the franchise will be played under, and the difficulty
+   *  they amount to. Both are held rather than one derived from the other:
+   *  Easy, Normal and Hard each set all eight, and a player who picked Hard and
+   *  a player who happened to set eight rows to Hard's values made different
+   *  choices even though the rows agree. */
+  readonly difficulty: Difficulty;
+  readonly settings: FranchiseSettings;
 }
 
 export interface FranchiseSetupApi {
@@ -62,7 +73,10 @@ export function FranchiseSetupProvider({ children }: { readonly children: ReactN
   const begin = useCallback((slot: number) => {
     setDraft((d) => (d !== null && d.slot === slot
       ? d
-      : { slot, firstName: '', lastName: '', style: DEFAULT_GM_STYLE, teamId: null }));
+      : {
+        slot, firstName: '', lastName: '', style: DEFAULT_GM_STYLE, teamId: null,
+        difficulty: DEFAULT_DIFFICULTY, settings: DEFAULT_SETTINGS,
+      }));
   }, []);
 
   const record = useCallback((answers: Partial<Omit<FranchiseDraft, 'slot'>>) => {

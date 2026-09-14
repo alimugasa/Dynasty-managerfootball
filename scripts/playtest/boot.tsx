@@ -21,6 +21,9 @@ import { GmForm } from '../../src/screens/gmForm';
 import { SelectTeamBoard } from '../../src/screens/selectTeamBoard';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 import type { GmStyleKey } from '../../src/screens/gmStyles';
+import type {
+  Difficulty, FranchiseSettings,
+} from '../../supabase/functions/_shared/api/franchiseOptions';
 import { NameField } from '../../src/screens/nameField';
 import { EmptySlotCard, SlotCard } from '../../src/screens/slotCard';
 import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
@@ -35,6 +38,10 @@ export interface GmDraft {
   readonly style: GmStyleKey;
   /** The club picked off the board, once one has been. Null until then. */
   readonly teamId: string | null;
+  /** The eight rules the franchise will be played under, and the difficulty
+   *  they amount to. The rig's copy of the app's franchise setup state. */
+  readonly difficulty: Difficulty;
+  readonly settings: FranchiseSettings;
 }
 
 export function HomeScreen({ onNew, onLoad, onUtility }: {

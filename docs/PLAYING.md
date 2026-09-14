@@ -19,8 +19,8 @@ The app opens on a main menu with two options, and the way in is five taps:
 
 ```
 Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview
-                                         -> Franchise Settings -> Dashboard
-     -> Load Franchise -> Save file ---------------------------------------> Dashboard
+              -> Franchise Settings -> Confirm Franchise -> Dashboard
+     -> Load Franchise -> Save file --------------------------------------> Dashboard
 ```
 
 **New Franchise** asks for three things and one optional fourth: which of the
@@ -94,10 +94,33 @@ rather than a confirmation on a list row: a player can open five clubs and
 start none of them. **Back to Teams** returns to the board with the search and
 the chips as they were.
 
-**Franchise Settings** is the last screen, and the only one in the flow that
-writes. It reads back the file, the GM, the style and the club, states what
-`create-save` is about to do, and holds no settings beyond that — a difficulty
-or a season length would be a control with nothing behind it.
+**Franchise Settings** is where the rules are set. A summary card reminds you
+of the GM, the club, the difficulty and the season; a difficulty card offers
+Easy, Normal, Hard and Custom; and eight rows set the rest: injury frequency,
+salary cap, trade difficulty, draft class strength, player development,
+scouting visibility, auto-sim CPU games and Commissioner Mode.
+
+Easy, Normal and Hard each set all eight rows at once and lock them — shown,
+not hidden, because a preset is a statement about all eight and a player
+choosing Hard deserves to read what Hard did rather than take the word for it.
+Custom unlocks them, and changing a row renames the difficulty to match: eight
+rows that happen to equal Hard *are* Hard, and eight that equal nothing are
+Custom.
+
+Commissioner Mode asks before it turns on — *Enable Commissioner Mode?*, "This
+unlocks editing tools and can affect save balance." — and once on, an amber
+*Commissioner Tools Enabled* badge follows the franchise onto the summary card
+and the confirmation.
+
+**Nothing in the simulation reads these settings yet.** The screen says so once,
+at the foot of the rules, and the save records every one of them from today, so
+that the day the engine starts reading them every franchise created from now has
+an honest answer to give. Eight controls promising specific behaviour would be
+worse than none if none of it were true and the screen kept quiet about it.
+
+**Confirm Franchise** is the last screen, and the only one in the flow that
+writes. It reads back the file, the GM, the style, the club and all eight rules,
+states what `create-save` is about to do, and creates the dynasty.
 
 Nothing before it writes anything. The file, the names, the style and the club
 collect in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives
@@ -129,7 +152,7 @@ on the server, and opening the app on another device meets the menu. Office →
 
 | Step | Where |
 |---|---|
-| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Choose This Team* → *Create Franchise* |
+| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Choose This Team* → the rules → *Create Franchise* |
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |

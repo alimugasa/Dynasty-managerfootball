@@ -1,4 +1,4 @@
-// The review before the dynasty exists.
+// The confirmation before the dynasty exists.
 //
 // The whole boot flow's promise is that nothing is written until this screen,
 // so what is worth pinning is that the review states what the player actually
@@ -8,6 +8,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { FranchiseSummary } from '../src/screens/franchiseSummary';
+import { DEFAULT_SETTINGS } from '../supabase/functions/_shared/api/franchiseOptions';
 import type { TeamProfile } from '../supabase/functions/_shared/api/reads/teamProfiles';
 
 const IRONMEN = {
@@ -28,6 +29,8 @@ function mount(over: Partial<Parameters<typeof FranchiseSummary>[0]> = {}) {
       gmName="Durk Banks"
       styleLabel="Negotiator"
       team={IRONMEN}
+      settings={DEFAULT_SETTINGS}
+      difficulty="NORMAL"
       onCreate={onCreate}
       onBack={onBack}
       {...over}

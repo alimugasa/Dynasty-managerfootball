@@ -1,27 +1,39 @@
-// The last screen of the boot flow, wired to the save.
+// How this franchise will be played, wired to the flow.
 //
-// Everything before it gathered answers into the franchise setup draft without
-// touching the server. Confirming here is the one call to create-save, with the
-// file, the two names, the style and the club it has been carrying since Select
-// Team -- and the draft is thrown away as the dynasty it described is created.
+// Still nothing written. The eight rules and the difficulty land in the
+// franchise setup draft beside the file, the names, the style and the club;
+// Confirm Franchise is the screen that turns all of it into a dynasty.
+//
+// Two things happen here that are not just recording a choice. Picking Easy,
+// Normal or Hard sets all eight rows at once, because that is what a preset
+// is. And turning on Commissioner Mode asks first: it unlocks tools that can
+// rewrite a save, and a tap that far-reaching should take two.
 
+import { useState } from 'react';
 import { COLOR, S, TYPE } from '../app/tokens';
 import { useFranchiseSetup } from '../app/FranchiseSetup';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { ActionButton } from '../components/ActionButton';
+import { Modal } from '../components/Modal';
 import { QueryError } from '../components/QueryState';
+import { SetupBar } from '../components/SetupBar';
 import { SkeletonLine, SkeletonRegion } from '../components/Skeleton';
 import { Screen } from './Screen';
-import { FranchiseSummary } from './franchiseSummary';
-import { gmStyleLabel } from './gmStyles';
+import { FranchiseSettingsBody } from './franchiseSettings';
+import {
+  PRESETS, difficultyOf, type Difficulty, type SettingKey,
+} from '../../supabase/functions/_shared/api/franchiseOptions';
 import type { TeamProfilesOut } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 
 export function FranchiseSettingsScreen() {
   const nav = useNavigator();
-  const { draft, clear } = useFranchiseSetup();
-  const { startDynasty, busy, notice, version } = useSave();
+  const { draft, record } = useFranchiseSetup();
+  const { notice, version } = useSave();
   const q = useQuery<TeamProfilesOut>('team-profiles', {}, version);
+  // Open only while the player is being asked whether they meant it.
+  const [asking, setAsking] = useState(false);
 
   const first = draft?.firstName.trim() ?? '';
   const last = draft?.lastName.trim() ?? '';
@@ -31,10 +43,36 @@ export function FranchiseSettingsScreen() {
     ? q.data.teams.find((t) => t.teamId === teamId) ?? null
     : null;
 
+  const setDifficulty = (next: Difficulty): void => {
+    if (draft === null) return;
+    // Custom keeps whatever the rows are; the three presets replace all eight.
+    record(next === 'CUSTOM'
+      ? { difficulty: next }
+      : { difficulty: next, settings: PRESETS[next] });
+  };
+
+  const setSetting = (key: SettingKey, value: string): void => {
+    if (draft === null) return;
+    if (key === 'commissionerMode' && value === 'ON') { setAsking(true); return; }
+    const settings = { ...draft.settings, [key]: value } as typeof draft.settings;
+    // The difficulty follows the rows: eight rows that happen to match Hard are
+    // Hard, and eight that match nothing are Custom.
+    record({ settings, difficulty: difficultyOf(settings) });
+  };
+
+  const enableCommissioner = (): void => {
+    if (draft === null) return;
+    const settings = { ...draft.settings, commissionerMode: 'ON' } as typeof draft.settings;
+    record({ settings, difficulty: difficultyOf(settings) });
+    setAsking(false);
+  };
+
   return (
     <Screen
       title="Franchise Settings"
-      subtitle={ready ? `${first} ${last} · File ${String(draft.slot)}` : ''}
+      subtitle={ready && team !== null
+        ? `${team.teamName} · File ${String(draft.slot)}`
+        : ready ? `File ${String(draft.slot)}` : ''}
       screen="franchiseSettings"
     >
       {!ready && (
@@ -53,29 +91,55 @@ export function FranchiseSettingsScreen() {
       {q.status === 'loading' && (
         <SkeletonRegion label="Loading the franchise">
           <div style={{ display: 'grid', gap: S[3], marginTop: S[4] }}>
-            <SkeletonLine height={76} radius={16} />
-            <SkeletonLine height={132} radius={10} />
+            <SkeletonLine height={92} radius={16} />
+            <SkeletonLine height={120} radius={10} />
+            <SkeletonLine height={240} radius={10} />
           </div>
         </SkeletonRegion>
       )}
 
       {q.status === 'ready' && ready && (
-        <FranchiseSummary
-          slot={draft.slot}
-          gmName={`${first} ${last}`}
-          styleLabel={gmStyleLabel(draft.style)}
-          team={team}
-          busy={busy}
-          onBack={() => { nav.back(); }}
-          onCreate={() => {
-            const setup = draft;
-            void startDynasty({
-              slot: setup.slot, teamId: teamId,
-              gmFirstName: first, gmLastName: last,
-              gmStyle: setup.style,
-            }).finally(clear);
-          }}
-        />
+        <>
+          <FranchiseSettingsBody
+            gmName={`${first} ${last}`}
+            team={team}
+            season={q.data.season}
+            settings={draft.settings}
+            difficulty={draft.difficulty}
+            onDifficulty={setDifficulty}
+            onSetting={setSetting}
+          />
+          <SetupBar
+            onBack={() => { nav.back(); }}
+            onContinue={() => { nav.push('confirmFranchise'); }}
+          />
+        </>
+      )}
+
+      {asking && (
+        <Modal
+          title="Enable Commissioner Mode?"
+          detail="This unlocks editing tools and can affect save balance."
+          onClose={() => { setAsking(false); }}
+          testId="commissioner-modal"
+          actions={(
+            <>
+              <ActionButton tone="quiet" compact onClick={() => { setAsking(false); }}>
+                Cancel
+              </ActionButton>
+              <ActionButton compact testId="commissioner-enable" onClick={enableCommissioner}>
+                Enable
+              </ActionButton>
+            </>
+          )}
+        >
+          <p style={{ ...TYPE.body, margin: 0, color: COLOR.tx }}>
+            Ratings, rosters, teams and saves become editable.
+          </p>
+          <p style={{ ...TYPE.micro, margin: `${String(S[1])}px 0 0`, color: COLOR.mut }}>
+            It can be turned off again from this screen.
+          </p>
+        </Modal>
       )}
     </Screen>
   );

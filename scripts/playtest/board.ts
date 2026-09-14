@@ -120,6 +120,10 @@ function playerOut(p: Roster | undefined, withAge = false): TeamProfile['bestPla
   };
 }
 
+/** The season the packed world opens in, so the rig's screens name the same
+ *  year the app's do. */
+export const BOARD_SEASON = FIRST_SEASON;
+
 /** Every club in the packed world, measured and labelled. */
 export function teamProfiles(): TeamProfile[] {
   const conferenceName = new Map(

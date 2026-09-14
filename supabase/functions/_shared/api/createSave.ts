@@ -14,6 +14,7 @@
 import { ApiError, badRequest, type Handler } from './context.ts';
 import { optionalInt, optionalString, rawOf } from './parse.ts';
 import { isGmStyle } from './gmStyles.ts';
+import { parseSettings, type FranchiseSettings } from './franchiseOptions.ts';
 import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
@@ -37,6 +38,9 @@ export interface CreateSaveIn {
   /** How the player said this manager sees the job. Optional: a save whose
    *  creator skipped the question stores null and reports it as unanswered. */
   readonly gmStyle?: string;
+  /** The eight rules the franchise is played under. All eight or none: a save
+   *  recorded with five of them is one nobody can say was played on Hard. */
+  readonly settings?: FranchiseSettings;
 }
 
 export interface CreateSaveOut {
@@ -85,12 +89,22 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
     if (gmStyle !== undefined && !isGmStyle(gmStyle)) {
       throw badRequest(`unknown general manager style "${gmStyle}"`);
     }
+    // Refused rather than dropped, for the same reason: a settings document the
+    // server cannot read means the catalogues have drifted, and storing null
+    // would hide that behind a save that looks fine.
+    let settings: FranchiseSettings | undefined;
+    try {
+      settings = parseSettings(r['settings']);
+    } catch (error) {
+      throw badRequest(error instanceof Error ? error.message : String(error));
+    }
     return {
       name, teamId,
       ...(slot === undefined ? {} : { slot }),
       ...(gmFirstName === undefined ? {} : { gmFirstName }),
       ...(gmLastName === undefined ? {} : { gmLastName }),
       ...(gmStyle === undefined ? {} : { gmStyle }),
+      ...(settings === undefined ? {} : { settings }),
     };
   },
   run: async ({ sql, userId }, input) => {
@@ -128,7 +142,9 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
            set slot = ${slot},
                gm_first_name = ${input.gmFirstName ?? null},
                gm_last_name = ${input.gmLastName ?? null},
-               gm_style = ${input.gmStyle ?? null}
+               gm_style = ${input.gmStyle ?? null},
+               franchise_settings = ${
+                 input.settings === undefined ? null : tx.json(input.settings)}
          where id = ${saveId}`;
 
       const save = await ownedSave(tx, userId, saveId);

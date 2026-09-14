@@ -8,6 +8,19 @@ import type { Handler } from '../context.ts';
 import type { Db } from '../db.ts';
 import { latestSave, ownedSave, seasonWeeks } from '../save.ts';
 import { optionalString, rawOf } from '../parse.ts';
+import { parseSettings, type FranchiseSettings } from '../franchiseOptions.ts';
+
+/** Settings off a save row, or null where there are none this build can read.
+ *  A document written by a later version -- a ninth setting, a value this
+ *  build has never heard of -- is reported as absent rather than shown with a
+ *  hole in it, which is the same rule the rest of these reads follow. */
+function readSettings(raw: unknown): FranchiseSettings | null {
+  try {
+    return parseSettings(raw) ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export interface Club {
   readonly id: string;
@@ -41,6 +54,10 @@ export interface SaveSummary {
    *  never asked or skipped the question. Not "ARCHITECT" by default: that is
    *  an answer, and an unanswered question does not have one. */
   readonly gmStyle: string | null;
+  /** The eight rules this franchise is played under, or null on a save made
+   *  before the question was asked. Not the Normal preset by default: that is
+   *  an answer, and an unasked question does not have one. */
+  readonly settings: FranchiseSettings | null;
 }
 
 export interface SaveOut {
@@ -94,6 +111,10 @@ export const save: Handler<SaveIn, SaveOut> = {
         gmName: row.gm_first_name === null || row.gm_last_name === null
           ? null : `${row.gm_first_name} ${row.gm_last_name}`.trim(),
         gmStyle: row.gm_style,
+        // Read back through the same validator that wrote it. A document the
+        // server can no longer read is reported as absent rather than handed
+        // to a screen that would show half of it.
+        settings: readSettings(row.franchise_settings),
       },
       clubs: await clubsOf(sql, row.id),
     };

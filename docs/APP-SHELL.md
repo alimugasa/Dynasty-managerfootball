@@ -367,6 +367,50 @@ to inventing a knob.
 While the world is being cloned both buttons are closed and the primary says what
 it is doing. Leaving mid-create would strand a save halfway through 25,000 rows.
 
+### Franchise Settings
+
+A summary card, a difficulty card, and eight rows.
+
+The **presets lock the rows**. Easy, Normal and Hard each write all eight and
+disable them; Custom re-enables them. Shown-but-locked rather than hidden: a
+preset is a statement about all eight, and a player who picks Hard should be
+able to read what Hard did. The difficulty follows the rows in the other
+direction too — change a row under Custom and the label becomes Custom; set the
+rows back to a preset's values and it becomes that preset again, because eight
+rows that equal Hard *are* Hard.
+
+The segmented control wraps rather than scrolls: four labels as long as "Hidden
+Potential" do not fit across 320px, and a control the player must swipe hides
+options behind an edge. The chosen segment is *filled*, not outlined — unlike a
+chip row, where several may be on, exactly one of these is true at all times, so
+a fill reads as state where an outline reads as availability.
+
+**Commissioner Mode is the one row that asks.** Turning it on opens a dialog —
+*Enable Commissioner Mode?* — because it unlocks tools that can rewrite a save,
+and a tap that far-reaching should take two. Cancelling leaves it off. Once on,
+an amber badge follows the franchise onto this screen's summary card and onto
+the confirmation.
+
+At the foot, one line: **the simulation does not read any of this yet.** Once,
+in one place, rather than eight apologies on eight rows. Eight controls that
+promise specific behaviour would be worse than no controls if nothing behind
+them were true and the screen said nothing — this is the same argument that put
+`gm_style` on the saves table, with the stakes raised, because "injuries are
+lighter" is a much more specific claim than "Architect".
+
+`SetupBar` runs along the foot: sticky rather than fixed, inside the content
+column rather than across the viewport so it never overhangs a wider layout, and
+carrying the home indicator's safe area — a Continue button under the bar on an
+iPhone is a Continue button nobody can press.
+
+### Confirm Franchise
+
+The last screen of the flow and the only one that writes. It reads back the
+file, the GM, the style, the club and all eight rules, then states what
+`create-save` is about to do — the season it opens in, thirty-two clubs, a seed
+generated on the server — each of which the handler actually does on the next
+tap.
+
 ### The franchise being set up
 
 Create GM and Select Team are two questions about one thing that does not exist
@@ -381,9 +425,10 @@ longer on would be a worse lie than asking twice. The draft is cleared when the
 dynasty is created from it, and again whenever the player is standing on the
 front door.
 
-The club joins the draft when it is tapped on the board, which is what lets
-Back come out of the preview onto the list with the GM, the search and the
-chips intact. `create-save` is called once, from Franchise Settings, with
+The club joins the draft when it is tapped on the board, and the eight rules
+join it on Franchise Settings. That is what lets Back come out of any of these
+screens onto the one before with everything intact — the GM, the search, the
+chips, the rules. `create-save` is called once, from Confirm Franchise, with
 everything the draft gathered.
 
 ## Navigation state

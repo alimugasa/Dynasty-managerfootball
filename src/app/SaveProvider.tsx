@@ -19,6 +19,7 @@ import type { Club, SaveOut, SaveSummary } from '../../supabase/functions/_share
 import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
 import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
 import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
+import type { FranchiseSettings } from '../../supabase/functions/_shared/api/franchiseOptions';
 
 export interface SaveApi {
   /** The open save, or null when none is. Meaningful only once `loaded`. */
@@ -65,6 +66,8 @@ export interface NewDynasty {
   /** One of the keys in src/screens/gmStyles.ts. Omitted by a caller that
    *  never asked, which stores null rather than a style nobody chose. */
   readonly gmStyle?: string;
+  /** The eight rules the franchise is played under. All eight or none. */
+  readonly settings?: FranchiseSettings;
 }
 
 /** Where this browser remembers the open save. A convenience for this viewer
@@ -217,6 +220,7 @@ export function SaveProvider({ children }: { children: ReactNode }) {
           gmFirstName: input.gmFirstName,
           gmLastName: input.gmLastName,
           ...(input.gmStyle === undefined ? {} : { gmStyle: input.gmStyle }),
+          ...(input.settings === undefined ? {} : { settings: input.settings }),
         });
         setOpenSaveId(out.saveId);
         remember(out.saveId);

@@ -12,6 +12,7 @@ import { CreateGmScreen } from '../screens/CreateGmScreen';
 import { SelectTeamScreen } from '../screens/SelectTeamScreen';
 import { TeamPreviewScreen } from '../screens/TeamPreviewScreen';
 import { FranchiseSettingsScreen } from '../screens/FranchiseSettingsScreen';
+import { ConfirmFranchiseScreen } from '../screens/ConfirmFranchiseScreen';
 import { LeagueScreen } from '../screens/LeagueScreen';
 import { PlayoffsScreen } from '../screens/PlayoffsScreen';
 import { OfficeScreen } from '../screens/OfficeScreen';
@@ -41,8 +42,9 @@ export interface ScreenDef {
 
 export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   // Getting in: Home -> New Franchise or Load Franchise -> a save file -> a GM
-  // name -> a club -> its scouting report -> the settings review -> the
-  // franchise dashboard. Nothing is written until the last of those.
+  // name -> a club -> its scouting report -> the rules it is played under ->
+  // a confirmation -> the franchise dashboard. Nothing is written until the
+  // last of those.
   // docs/PLAYING.md walks it.
   home: { title: 'Dynasty Manager', Component: HomeScreen, root: true, boot: true },
   slots: { title: 'Save files', Component: SlotsScreen, root: false, boot: true },
@@ -51,6 +53,9 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   teamPreview: { title: 'Team Preview', Component: TeamPreviewScreen, root: false, boot: true },
   franchiseSettings: {
     title: 'Franchise Settings', Component: FranchiseSettingsScreen, root: false, boot: true,
+  },
+  confirmFranchise: {
+    title: 'Confirm Franchise', Component: ConfirmFranchiseScreen, root: false, boot: true,
   },
 
   // The main menu's foot. Boot screens too: they are reachable with no dynasty
