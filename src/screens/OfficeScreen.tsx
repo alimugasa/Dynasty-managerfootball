@@ -1,6 +1,18 @@
-// Office: the news feed, cap position, and the dynasty's history.
+// Office: the executive job.
+//
+// Not the football -- that is Team -- and not the week, which is Play. This is
+// the desk the owner rings: what the club is spending, who is on staff, what
+// this dynasty has done so far, and the rules it is played under.
+//
+// The news feed used to live here as a band halfway down the screen. It moved
+// to its own tab, because it is the one part of the product that changes every
+// week and it was competing with the cap sheet for the same eye.
+//
+// Four of this tab's jobs -- owner goals, job security, facilities, direction
+// -- do not exist in the simulation. They are named and marked rather than
+// mocked up: see the note on NotBuilt in hubCards.tsx.
 
-import { COLOR, R, S, TYPE, tint } from '../app/tokens';
+import { COLOR, S, TYPE } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
@@ -9,44 +21,11 @@ import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
+import { HubCard, HubStack, NotBuilt } from './hubCards';
 import { Screen } from './Screen';
 import type { OfficeOut } from '../../supabase/functions/_shared/api/reads/office';
 
 const money = (n: number) => `${(n / 1e6).toFixed(1)}M`;
-
-// A story is one of six kinds and the kind changes how you read the headline:
-// an injury is bad news whoever it happened to, a milestone is not. A dot in
-// the kind's colour says which before the eye reaches the words, and costs a
-// row eight pixels rather than a second line of text.
-const NEWS_TONE: Readonly<Record<string, string>> = {
-  UPSET: COLOR.violet,
-  STREAK: COLOR.teal,
-  MILESTONE: COLOR.amber,
-  INJURY: COLOR.red,
-  HOT_SEAT: '#D9743F',
-  AWARD_RACE: COLOR.blue,
-};
-
-/** Sentence case from a SCREAMING_SNAKE category, for reading rather than parsing. */
-const kindLabel = (category: string): string => {
-  const words = category.toLowerCase().split('_');
-  const [first = '', ...rest] = words;
-  return [first.charAt(0).toUpperCase() + first.slice(1), ...rest].join(' ');
-};
-
-function NewsDot({ category }: { readonly category: string }) {
-  // An unlisted category is drawn in the neutral grey rather than guessed at.
-  const colour = NEWS_TONE[category] ?? COLOR.dim;
-  return (
-    <span
-      aria-hidden="true"
-      style={{
-        width: 8, height: 8, borderRadius: R.pill, flexShrink: 0,
-        background: colour, boxShadow: `0 0 0 3px ${tint(colour, 0.16)}`,
-      }}
-    />
-  );
-}
 
 export function OfficeScreen() {
   const nav = useNavigator();
@@ -54,14 +33,18 @@ export function OfficeScreen() {
   const q = useQuery<OfficeOut>('office', { saveId: save?.saveId ?? '' }, version, save !== null);
 
   return (
-    <Screen title="Office" subtitle={save === null ? '' : String(save.season)} screen="office">
+    <Screen
+      title="Office"
+      subtitle={save === null ? '' : `${save.gmName ?? 'General manager'} · ${String(save.season)}`}
+      screen="office"
+    >
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
       {save !== null && q.status === 'error' && <QueryError error={q.error} />}
       {save !== null && q.status === 'loading' && <Loading label="Loading office" rows={8} />}
       {save !== null && q.status === 'ready' && (
         <>
-          <SectionHeader title="Salary cap" />
+          <SectionHeader title="Finances" />
           {q.data.cap === null ? (
             <EmptyState title="No cap sheet for this season" />
           ) : (
@@ -87,32 +70,56 @@ export function OfficeScreen() {
             />
           )}
 
-          <SectionHeader title="News" />
-          {q.data.news.length === 0 ? (
-            <EmptyState title="Nothing has happened yet" detail="Stories appear as the season is played." />
-          ) : (
-            <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="news-feed">
-                {q.data.news.map((item) => (
-                  <ListRow
-                    key={item.newsId}
-                    leading={<NewsDot category={item.category} />}
-                    title={item.headline}
-                    subtitle={item.week === null
-                      ? kindLabel(item.category)
-                      : `Week ${String(item.week)} · ${kindLabel(item.category)}`}
-                  />
-                ))}
-              </div>
-            </Panel>
-          )}
+          <SectionHeader title="The front office" />
+          <HubStack>
+            <HubCard
+              title="Coaching staff"
+              detail="Who calls the plays and develops your players"
+              onSelect={() => { nav.push('staff'); }}
+              testId="to-staff"
+            />
+            <HubCard
+              title="Season recap"
+              detail="Champions, awards, all-league, the record book"
+              onSelect={() => { nav.push('recap'); }}
+              testId="to-recap"
+            />
+            <HubCard
+              title="Franchise rules"
+              detail="The difficulty and the eight settings this save is played under"
+              onSelect={() => { nav.push('rules'); }}
+              testId="to-rules"
+            />
+            <NotBuilt
+              title="Owner goals"
+              detail="What the owner has asked of you this season, and where you stand
+                against it."
+              testId="soon-goals"
+            />
+            <NotBuilt
+              title="Job security"
+              detail="How safe the chair is, and what would change that."
+              testId="soon-job"
+            />
+            <NotBuilt
+              title="Facilities"
+              detail="The stadium, the training ground, and what investing in either buys."
+              testId="soon-facilities"
+            />
+            <NotBuilt
+              title="Franchise direction"
+              detail="Whether this club is building, competing or rebuilding, and who is
+                told about it."
+              testId="soon-direction"
+            />
+          </HubStack>
 
           <SectionHeader title="Dynasty history" />
           {q.data.history.length === 0 ? (
             <EmptyState title="No completed seasons yet" />
           ) : (
             <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }}>
+              <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="history-list">
                 {q.data.history.map((h) => (
                   <ListRow
                     key={h.season}
@@ -124,29 +131,6 @@ export function OfficeScreen() {
               </div>
             </Panel>
           )}
-
-          <SectionHeader title="The franchise" />
-          <Panel padded={false}>
-            <div style={{ padding: `0 ${String(S[3])}px` }}>
-              <ListRow
-                title="Season recap"
-                subtitle="Champions, awards, all-league, the record book"
-                navigable
-                onSelect={() => { nav.push('recap'); }}
-              />
-              <ListRow
-                title="Coaching staff"
-                subtitle="Who calls the plays and develops your players"
-                navigable
-                onSelect={() => { nav.push('staff'); }}
-              />
-              <ListRow
-                title="Full roster and depth chart"
-                navigable
-                onSelect={() => { nav.replaceRoot('roster'); }}
-              />
-            </div>
-          </Panel>
 
           <div style={{ marginTop: S[5] }}>
             <ActionButton

@@ -5,28 +5,38 @@
 // docs/NAVIGATION-CONTRACT.md, tapping Team from four levels deep inside League
 // must not grow the stack forever.
 //
+// The five are the jobs a manager actually has, not the screens that happened
+// to exist: the executive one, the football one, the weekly one, the world
+// outside, and what is being said about it. Schedule and Roster used to sit
+// here and were never destinations -- they are a list each, and they belong
+// inside the tab whose job they are part of.
+//
 // Active state is carried by three signals at once -- amber tint, a filled icon,
 // and the rule above the tab -- so it survives greyscale and colour-blindness
 // rather than depending on the amber alone.
 
-import { COLOR, FONT, LAYOUT, MOTION } from './tokens';
+import { COLOR, FONT, LAYOUT, MOTION, tint } from './tokens';
 import { useNavigator } from './navigation';
 import {
-  CalendarIcon, LeagueIcon, OfficeIcon, RosterIcon, ShieldIcon,
+  LeagueIcon, NewsIcon, OfficeIcon, PlayIcon, ShieldIcon,
 } from '../components/icons';
 
 export interface Tab {
   readonly key: string;
   readonly label: string;
   readonly Icon: typeof ShieldIcon;
+  /** The one tab that moves the season on. Marked, not enlarged: a tab twice
+   *  the size of its neighbours is a toy, and this bar sits under a game a
+   *  person is meant to spend a decade in. */
+  readonly primary?: true;
 }
 
 export const TABS: readonly Tab[] = [
-  { key: 'team', label: 'Team', Icon: ShieldIcon },
-  { key: 'league', label: 'League', Icon: LeagueIcon },
-  { key: 'schedule', label: 'Schedule', Icon: CalendarIcon },
-  { key: 'roster', label: 'Roster', Icon: RosterIcon },
   { key: 'office', label: 'Office', Icon: OfficeIcon },
+  { key: 'team', label: 'Team', Icon: ShieldIcon },
+  { key: 'play', label: 'Play', Icon: PlayIcon, primary: true },
+  { key: 'league', label: 'League', Icon: LeagueIcon },
+  { key: 'news', label: 'News', Icon: NewsIcon },
 ];
 
 export function TabBar({ active }: { readonly active: string }) {
@@ -72,6 +82,7 @@ export function TabBar({ active }: { readonly active: string }) {
                   alignItems: 'center', justifyContent: 'center', gap: 3,
                   background: 'none', border: 0, cursor: 'pointer',
                   color: isActive ? COLOR.amber : COLOR.mut,
+                  zIndex: 0,
                   padding: 0, minWidth: 0, position: 'relative',
                   transition: `color ${MOTION.base} ${MOTION.ease}`,
                   WebkitTapHighlightColor: 'transparent',
@@ -92,6 +103,21 @@ export function TabBar({ active }: { readonly active: string }) {
                     transition: `width ${MOTION.base} ${MOTION.ease}, margin-left ${MOTION.base} ${MOTION.ease}`,
                   }}
                 />
+                {/* The centre tab carries a faint amber disc behind its icon.
+                    Enough to say "this is the one that advances the game",
+                    and not enough to shout over the four beside it. */}
+                {tab.primary === true && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute', top: 8, left: '50%', marginLeft: -17,
+                      width: 34, height: 34, borderRadius: '50%', zIndex: -1,
+                      background: tint(COLOR.amber, isActive ? 0.16 : 0.07),
+                      border: `1px solid ${tint(COLOR.amber, isActive ? 0.45 : 0.18)}`,
+                      transition: `background-color ${MOTION.base} ${MOTION.ease}`,
+                    }}
+                  />
+                )}
                 <tab.Icon size={21} active={isActive} />
                 <span
                   style={{

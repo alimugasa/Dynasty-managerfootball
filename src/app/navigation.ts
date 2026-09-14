@@ -20,6 +20,11 @@ import { createContext, useContext } from 'react';
  */
 export interface NavigationState {
   readonly screen: string;
+  /** The screen at the bottom of the stack: the tab this journey started in.
+   *  The bottom navigation lights that tab rather than the screen on top, so
+   *  drilling from League into the schedule keeps League lit and drilling from
+   *  Team into the same screen keeps Team lit. */
+  readonly root: string;
   readonly params: Readonly<Record<string, string>>;
   readonly depth: number;
   /** UI state of the frame on top: filters, sort order, active tab. */
@@ -27,7 +32,7 @@ export interface NavigationState {
 }
 
 export const EMPTY_STATE: NavigationState = {
-  screen: '', params: {}, depth: 0, ui: {},
+  screen: '', root: '', params: {}, depth: 0, ui: {},
 };
 
 export const NavigationStateContext = createContext<NavigationState>(EMPTY_STATE);

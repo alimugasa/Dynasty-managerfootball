@@ -9,6 +9,7 @@ import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from '.
 import { OffseasonScreen } from './offseason';
 import { adoptLegacy, clear, gmOf, persist, rename, restore, styleOf } from './persist';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
+import { PlayScreen } from './play';
 import { DEFAULT_GM_STYLE } from '../../src/screens/gmForm';
 import { ALL } from '../../src/screens/teamFilters';
 import {
@@ -23,12 +24,15 @@ import {
 import { BracketScreen } from './bracket';
 import { StaffScreen } from './staff';
 import { RecapScreen } from './recap';
-import { BoxScore, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
+import { BoxScore, NewsScreen, OfficeScreen, PlayerScreen, RosterScreen } from './detail';
 
 
 const TITLES: Readonly<Record<string, string>> = {
-  team: 'Team', league: 'League', schedule: 'Schedule', roster: 'Roster',
-  office: 'Office', player: 'Player', game: 'Box score', playoffs: 'Playoffs',
+  team: 'Team', play: 'Play', league: 'League', news: 'News', office: 'Office',
+  // Both were tabs of their own and are now opened from the tab whose job
+  // they are part of, the way the app opens them.
+  schedule: 'Schedule', roster: 'Roster',
+  player: 'Player', game: 'Box score', playoffs: 'Playoffs',
   staff: 'Staff', recap: 'Season recap',
 };
 
@@ -158,7 +162,7 @@ export function App() {
       const next = all ? runWinter(game) : stepWinter(game);
       setGame(next);
       setNotice(null);
-      if (next.phase === 'REGULAR_SEASON') { setTab('team'); setDrill(null); }
+      if (next.phase === 'REGULAR_SEASON') { setTab('play'); setDrill(null); }
       setBusy(null);
     }, 30);
   };
@@ -288,78 +292,79 @@ export function App() {
   const club = game.clubs.get(game.userTeamId);
   const screen = drill?.screen ?? tab;
   const title = screen === 'team'
-    ? (isWinter(game.phase) ? 'Offseason' : club?.nickname ?? 'Team')
-    : (TITLES[screen] ?? 'Dynasty');
+    ? (club?.nickname ?? 'Team')
+    : screen === 'play' && isWinter(game.phase)
+      ? 'Offseason'
+      : (TITLES[screen] ?? 'Dynasty');
   const subtitle = `${String(game.season)} · ${isWinter(game.phase)
     ? PHASE_LABEL[game.phase]
     : game.phase === 'PLAYOFFS'
       ? 'Playoffs'
       : `Week ${String(game.week)} of ${String(game.weeks)}`}`;
 
-  const body = drill !== null
-    ? (drill.screen === 'player'
-      ? <PlayerScreen game={game} id={drill.id} />
-      : drill.screen === 'playoffs'
-        ? <BracketScreen game={game} open={open} />
-        : drill.screen === 'staff'
-          ? <StaffScreen game={game} open={open} />
-          : drill.screen === 'recap'
-            ? <RecapScreen game={game} open={open} />
-            : <BoxScore game={game} id={drill.id} open={open} />)
-    : (
-      <>
-        {tab === 'team' && isWinter(game.phase) && (
-          <OffseasonScreen
-            game={game}
-            open={open}
-            phase={game.phase}
-            busy={busy}
-            notice={notice}
-            onStep={() => { winter(false); }}
-            onRunAll={() => { winter(true); }}
-            onMove={move}
-          />
-        )}
-        {tab === 'team' && !isWinter(game.phase) && (
-          <TeamScreen
-            game={game}
-            open={open}
-            busy={busy}
-            onWeek={() => { void runWeeks(false); }}
-            onSeason={() => { void runWeeks(true); }}
-            onOffseason={() => { winter(false); }}
-            onBracket={() => { open('playoffs', ''); }}
-          />
-        )}
-        {tab === 'league' && (
-          <LeagueScreen
-            game={game}
-            open={open}
-            ui={leagueUi}
-            setUi={(key, value) => { setLeagueUi((prev) => ({ ...prev, [key]: value })); }}
-          />
-        )}
-        {tab === 'schedule' && (
-          <ScheduleScreen game={game} open={open} week={week} setWeek={setWeek} />
-        )}
-        {tab === 'roster' && (
-          <RosterScreen
-            game={game}
-            open={open}
-            group={group}
-            setGroup={setGroup}
-            move={(id, d) => { setGame(reorder(game, group as PositionGroup, id, d)); }}
-          />
-        )}
-        {tab === 'office' && (
-          <OfficeScreen
-            game={game}
-            open={open}
-            onRestart={toMenu}
-          />
-        )}
-      </>
-    );
+  /** A drill-down, or null when the tab itself is what is on screen. */
+  const drilled = (d: Drill) => {
+    if (d.screen === 'player') return <PlayerScreen game={game} id={d.id} />;
+    if (d.screen === 'playoffs') return <BracketScreen game={game} open={open} />;
+    if (d.screen === 'staff') return <StaffScreen game={game} open={open} />;
+    if (d.screen === 'recap') return <RecapScreen game={game} open={open} />;
+    if (d.screen === 'schedule') {
+      return <ScheduleScreen game={game} open={open} week={week} setWeek={setWeek} />;
+    }
+    if (d.screen === 'roster') {
+      return (
+        <RosterScreen
+          game={game}
+          open={open}
+          group={group}
+          setGroup={setGroup}
+          move={(id, dir) => { setGame(reorder(game, group as PositionGroup, id, dir)); }}
+        />
+      );
+    }
+    return <BoxScore game={game} id={d.id} open={open} />;
+  };
+
+  const body = drill !== null ? drilled(drill) : (
+    <>
+      {tab === 'office' && <OfficeScreen game={game} open={open} onRestart={toMenu} />}
+      {tab === 'team' && <TeamScreen game={game} open={open} />}
+      {/* The week and the offseason are the same job -- moving the season on --
+          so they share the tab that does it. */}
+      {tab === 'play' && isWinter(game.phase) && (
+        <OffseasonScreen
+          game={game}
+          open={open}
+          phase={game.phase}
+          busy={busy}
+          notice={notice}
+          onStep={() => { winter(false); }}
+          onRunAll={() => { winter(true); }}
+          onMove={move}
+        />
+      )}
+      {tab === 'play' && !isWinter(game.phase) && (
+        <PlayScreen
+          game={game}
+          open={open}
+          busy={busy}
+          onWeek={() => { void runWeeks(false); }}
+          onSeason={() => { void runWeeks(true); }}
+          onOffseason={() => { winter(false); }}
+          onBracket={() => { open('playoffs', ''); }}
+        />
+      )}
+      {tab === 'league' && (
+        <LeagueScreen
+          game={game}
+          open={open}
+          ui={leagueUi}
+          setUi={(key, value) => { setLeagueUi((prev) => ({ ...prev, [key]: value })); }}
+        />
+      )}
+      {tab === 'news' && <NewsScreen game={game} />}
+    </>
+  );
 
   return (
     <>

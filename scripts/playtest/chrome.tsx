@@ -6,17 +6,20 @@
 // what to draw.
 
 import type { ReactNode } from 'react';
-import { COLOR, FONT, LAYOUT } from '../../src/app/tokens';
+import { COLOR, FONT, LAYOUT, tint } from '../../src/app/tokens';
 import {
-  CalendarIcon, LeagueIcon, OfficeIcon, RosterIcon, ShieldIcon,
+  LeagueIcon, NewsIcon, OfficeIcon, PlayIcon, ShieldIcon,
 } from '../../src/components/icons';
 
+/** The same five the app has, in the same order: the executive job, the
+ *  football job, the week, the world outside, and what is being said about it.
+ *  Mirrors src/app/TabBar.tsx, including which one is marked. */
 export const TABS = [
-  { key: 'team', label: 'Team', Icon: ShieldIcon },
-  { key: 'league', label: 'League', Icon: LeagueIcon },
-  { key: 'schedule', label: 'Schedule', Icon: CalendarIcon },
-  { key: 'roster', label: 'Roster', Icon: RosterIcon },
-  { key: 'office', label: 'Office', Icon: OfficeIcon },
+  { key: 'office', label: 'Office', Icon: OfficeIcon, primary: false },
+  { key: 'team', label: 'Team', Icon: ShieldIcon, primary: false },
+  { key: 'play', label: 'Play', Icon: PlayIcon, primary: true },
+  { key: 'league', label: 'League', Icon: LeagueIcon, primary: false },
+  { key: 'news', label: 'News', Icon: NewsIcon, primary: false },
 ] as const;
 
 /** The column, its sticky title, and whatever sits under it.
@@ -104,7 +107,7 @@ export function TabBar({ tab, onTab }: {
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        {TABS.map(({ key, label, Icon }) => {
+        {TABS.map(({ key, label, Icon, primary }) => {
           const active = tab === key;
           return (
             <button
@@ -117,7 +120,7 @@ export function TabBar({ tab, onTab }: {
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', gap: 3, padding: 0,
                 color: active ? COLOR.amber : COLOR.mut,
-                position: 'relative',
+                position: 'relative', zIndex: 0,
               }}
             >
               {/* A short bar centred over the icon rather than a rule across
@@ -136,6 +139,20 @@ export function TabBar({ tab, onTab }: {
                     + ' margin-left 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
                 }}
               />
+              {/* The centre tab carries a faint amber disc behind its icon:
+                  enough to say "this is the one that advances the game", and
+                  not enough to shout over the four beside it. */}
+              {primary && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute', top: 8, left: '50%', marginLeft: -17,
+                    width: 34, height: 34, borderRadius: '50%', zIndex: -1,
+                    background: tint(COLOR.amber, active ? 0.16 : 0.07),
+                    border: `1px solid ${tint(COLOR.amber, active ? 0.45 : 0.18)}`,
+                  }}
+                />
+              )}
               <Icon size={20} active={active} />
               <span style={{ fontSize: 10, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                 {label}

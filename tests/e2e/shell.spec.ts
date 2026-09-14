@@ -4,7 +4,15 @@ import { expect, test, type Page } from '@playwright/test';
 // A control scrolling inside its own .tscroll container is correct and is not
 // what these assert.
 
-const TABS = ['Team', 'League', 'Schedule', 'Roster', 'Office'];
+const TABS = ['Office', 'Team', 'Play', 'League', 'News'];
+
+/** Opens the roster, which is reached from the Team tab now that it is a list
+ *  inside a tab rather than a tab of its own. */
+async function openRoster(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Team', exact: true }).click();
+  await page.getByTestId('to-roster').click();
+  await page.getByTestId('depth-list').waitFor({ timeout: 30_000 });
+}
 
 /**
  * A dynasty to look at, opened through the front door.
@@ -104,10 +112,11 @@ test.describe('app shell', () => {
   });
 
   test('a drill-down renders without overflow and offers a way back', async ({ page }) => {
-    // Opens a player from the roster. This used to open the Office's Scouting
-    // placeholder, which was removed when the screens were wired to the game.
+    // Opens a player from the roster, which is two taps now: Team, then the
+    // roster card. It used to open the Office's Scouting placeholder, which was
+    // removed when the screens were wired to the game.
     await page.goto('/');
-    await page.getByRole('button', { name: 'Roster', exact: true }).click();
+    await openRoster(page);
     await page.locator('[data-testid="depth-list"] button').first().click();
     await expect(page.getByRole('button', { name: 'Back' })).toBeVisible();
     expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
@@ -115,7 +124,7 @@ test.describe('app shell', () => {
 
   test('the browser back button returns to the previous screen', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Roster', exact: true }).click();
+    await openRoster(page);
     await page.locator('[data-testid="depth-list"] button').first().click();
     await expect(page.getByRole('button', { name: 'Back' })).toBeVisible();
     await page.goBack();
@@ -124,7 +133,9 @@ test.describe('app shell', () => {
 
   test('long chip rows scroll inside themselves, not the page', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Schedule', exact: true }).click();
+    // The league-wide schedule, opened from the League tab.
+    await page.getByRole('button', { name: 'League', exact: true }).click();
+    await page.getByTestId('to-schedule').click();
     // Nineteen week chips is exactly the control that would otherwise widen a
     // 375px page.
     const row = page.locator('.tscroll').first();
@@ -144,10 +155,12 @@ test.describe('app shell', () => {
     await expect(page.locator('[aria-busy="true"]').first()).toBeVisible();
   });
 
-  test('the bottom bar keeps the current tab lit inside a drill-down', async ({ page }) => {
+  test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {
+    // The roster is opened from Team, so Team stays lit while it is on screen:
+    // the bar reports which job you are doing, not which list you are reading.
     await page.goto('/');
-    await page.getByRole('button', { name: 'Roster', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Roster', exact: true }))
+    await openRoster(page);
+    await expect(page.getByRole('button', { name: 'Team', exact: true }))
       .toHaveAttribute('aria-current', 'page');
   });
 });

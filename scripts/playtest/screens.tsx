@@ -1,13 +1,13 @@
 // Team, League and Schedule, in the play-test build. Same components and
-// tokens as the app.
+// tokens as the app. Play is next door in play.tsx, for the same reason the
+// app has a Play tab: the week and the roster are two different jobs.
 
-import { COLOR, R, S } from '../../src/app/tokens';
+import { COLOR, S } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
 import { StatTiles } from '../../src/components/StatTiles';
 import { TeamHero } from '../../src/components/TeamHero';
 import { ChipRow } from '../../src/components/ChipRow';
-import { ActionButton } from '../../src/components/ActionButton';
 import { ranking, squad } from './host';
 import { boardsFor, leagueGroups, tableFor } from './leaders';
 import { CompetitionToggle } from '../../src/components/CompetitionToggle';
@@ -26,33 +26,12 @@ const streakOf = (s: { streak: number } | undefined): string =>
 
 const signed = (n: number): string => (n > 0 ? `+${String(n)}` : String(n));
 
-export function TeamScreen(
-  { game, open, busy, onWeek, onSeason, onOffseason, onBracket }:
-  Props & {
-    busy: string | null; onWeek: () => void; onSeason: () => void;
-    onOffseason: () => void; onBracket: () => void;
-  },
-) {
+export function TeamScreen({ game, open }: Props) {
   const club = game.clubs.get(game.userTeamId);
   const standing = game.standings.get(game.userTeamId);
   const done = game.phase === 'OFFSEASON';
-  const inPlayoffs = game.phase === 'PLAYOFFS';
-  const { round, champion } = game.seeds.length === 0
-    ? { round: null, champion: null } : nextRound(game);
-  const roundLabel = round === null ? null : ROUND_LABEL[round];
-  const mine = [...game.results, ...game.playoffs].filter(
-    (g) => g.homeTeamId === game.userTeamId || g.awayTeamId === game.userTeamId);
-  const alive = game.playoffs.length === 0
-    ? game.seeds.some((s) => s.teamId === game.userTeamId)
-    : lastRoundSurvivor(game);
-  const last = mine[mine.length - 1];
-  const next = game.schedule.find((f) => f.week === game.week
-    && (f.homeTeamId === game.userTeamId || f.awayTeamId === game.userTeamId));
-  const name = (id: string): string => game.clubs.get(id)?.name ?? id;
-  const nick = (id: string): string => game.clubs.get(id)?.nickname ?? id;
   const place = ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1;
   const played = standing === undefined ? 0 : standing.wins + standing.losses + standing.ties;
-  const finish = done ? place : 0;
   const roster = squad(game, game.userTeamId);
 
   return (
@@ -92,105 +71,24 @@ export function TeamScreen(
         />
       </div>
 
-      {game.abandoned.length > 0 && (
-        <p
-          data-testid="notice"
-          style={{
-            margin: `${String(S[3])}px 0 0`, padding: `${String(S[2])}px ${String(S[3])}px`,
-            borderRadius: R.md,
-            background: 'rgba(226,87,76,0.12)', border: `1px solid ${COLOR.red}`,
-            color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
-          }}
-        >
-          {game.abandoned.length} game(s) could not be played: {game.abandoned.join(', ')}
-        </p>
-      )}
-
-      <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
-      <div style={{ display: 'grid', gap: 8 }}>
-        {done ? (
-          <>
-            <p style={{ margin: '0 0 2px', color: COLOR.mut, fontSize: 13, lineHeight: 1.5 }}>
-              {String(game.season)} is over. You finished <strong style={{ color: COLOR.tx }}>{record(standing)}</strong>,
-              {' '}{ordinal(finish)} of {game.league.teamIds.length}.{' '}
-              {champion === null ? '' : (
-                <>Champions: <strong style={{ color: COLOR.amber }}>{nick(champion)}</strong>.</>
-              )}
-            </p>
-            <ActionButton onClick={onOffseason} disabled={busy !== null} testId="next-season">
-              {busy ?? `Run offseason → ${String(game.season + 1)}`}
-            </ActionButton>
-            <ActionButton onClick={onBracket} tone="quiet" testId="view-bracket">
-              See the bracket
-            </ActionButton>
-            <ActionButton onClick={() => { open('recap', ''); }} tone="quiet" testId="view-recap">
-              Season recap
-            </ActionButton>
-          </>
-        ) : inPlayoffs ? (
-          <>
-            <p style={{ margin: '0 0 2px', color: COLOR.mut, fontSize: 13, lineHeight: 1.5 }}>
-              {alive
-                ? <>You are in the bracket. {roundLabel ?? 'The next round'} is next.</>
-                : <>You did not make the fourteen. {roundLabel ?? 'The next round'} is next.</>}
-            </p>
-            <ActionButton onClick={onWeek} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Play the ${roundLabel ?? 'next round'}`}
-            </ActionButton>
-            <ActionButton onClick={onBracket} tone="quiet" testId="view-bracket">
-              See the bracket
-            </ActionButton>
-          </>
-        ) : (
-          <>
-            <ActionButton onClick={onWeek} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Sim week ${String(game.week)}`}
-            </ActionButton>
-            <ActionButton onClick={onSeason} disabled={busy !== null} tone="quiet" testId="sim-season">
-              Sim to end of season
-            </ActionButton>
-          </>
-        )}
-      </div>
-
-      <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
-      {next === undefined || inPlayoffs ? (
-        <EmptyState
-          title={done ? 'The season is over' : inPlayoffs
-            ? (alive ? 'Waiting on the bracket' : 'Your season is over')
-            : 'Bye week'}
-          {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
-          {...(inPlayoffs
-            ? { detail: alive ? 'Play the round to see who you get.' : 'Play it out to see who takes it.' }
-            : {})}
-        />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            <ListRow
-              title={next.homeTeamId === game.userTeamId
-                ? `vs ${name(next.awayTeamId)}` : `at ${name(next.homeTeamId)}`}
-              subtitle={`Week ${String(next.week)}`}
-            />
-          </div>
-        </Panel>
-      )}
-
-      <SectionHeader title="Last result" />
-      {last === undefined ? (
-        <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }}>
-            <ListRow
-              title={`${nick(last.awayTeamId)} ${String(last.awayScore)} — ${String(last.homeScore)} ${nick(last.homeTeamId)}`}
-              subtitle={`${roundOf(last) ?? `Week ${String(last.week)}`}${last.overtime ? ' · OT' : ''}`}
-              navigable
-              onSelect={() => { open('game', last.gameId); }}
-            />
-          </div>
-        </Panel>
-      )}
+      <SectionHeader title="Football operations" />
+      <Panel padded={false}>
+        <div style={{ padding: '0 12px' }}>
+          <ListRow
+            title="Depth chart"
+            subtitle="Who plays ahead of whom, position by position"
+            trailing={<Caption>{String(roster.length)}</Caption>}
+            navigable
+            onSelect={() => { open('roster', ''); }}
+          />
+          <ListRow
+            title="Schedule"
+            subtitle="Your season, fixture by fixture"
+            navigable
+            onSelect={() => { open('schedule', ''); }}
+          />
+        </div>
+      </Panel>
 
       <SectionHeader title="Roster" />
       <Panel padded={false}>
@@ -212,13 +110,13 @@ export function TeamScreen(
 }
 
 /** The round's name when the game was a playoff game, else null. */
-function roundOf(game: { readonly gameId: string }): string | null {
+export function roundOf(game: { readonly gameId: string }): string | null {
   const round = (game as { readonly round?: PlayoffRound }).round;
   return round === undefined ? null : ROUND_LABEL[round];
 }
 
 /** Whether the club you manage won its latest playoff game. */
-function lastRoundSurvivor(game: Props['game']): boolean {
+export function lastRoundSurvivor(game: Props['game']): boolean {
   const mine = game.playoffs.filter(
     (g) => g.homeTeamId === game.userTeamId || g.awayTeamId === game.userTeamId);
   const latest = mine[mine.length - 1];

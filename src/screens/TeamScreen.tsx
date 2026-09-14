@@ -1,16 +1,22 @@
-// Team: the franchise you manage, and the button that advances the game.
+// Team: football operations.
+//
+// Who you are and what the roster looks like -- the record, the differential,
+// the squad, and the way into every list that is about players rather than
+// about the league or the week. The button that advances the game used to sit
+// here, under a hero and a roster list, which put the most-used control in the
+// product below the fold on a phone; it is its own tab now.
 
-import { COLOR, R, S } from '../app/tokens';
+import { COLOR, S } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
-import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
+import { Caption, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { StatTiles } from '../components/StatTiles';
 import { TeamHero } from '../components/TeamHero';
-import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { isOffseasonPhase } from '../domain/phase';
+import { CardFigure, HubCard, HubStack, NotBuilt } from './hubCards';
 import { Screen } from './Screen';
 import type { TeamOut } from '../../supabase/functions/_shared/api/reads/team';
 import type { PlayoffsOut } from '../../supabase/functions/_shared/api/reads/playoffs';
@@ -27,7 +33,7 @@ const signed = (n: number): string => (n > 0 ? `+${String(n)}` : String(n));
 
 export function TeamScreen() {
   const nav = useNavigator();
-  const { save, loaded, loadError, clubsById, version, busy, notice, simWeek, simSeason, nextSeason } = useSave();
+  const { save, loaded, loadError, clubsById, version } = useSave();
   const q = useQuery<TeamOut>('team', { saveId: save?.saveId ?? '' }, version, save !== null);
   // The bracket is only asked for once there is one: through the regular
   // season this stays unfetched.
@@ -43,12 +49,6 @@ export function TeamScreen() {
   const done = isOffseasonPhase(save.phase);
   const inPlayoffs = save.phase === 'PLAYOFFS';
   const roundLabel = post.status === 'ready' ? post.data.nextLabel : null;
-  const champion = post.status === 'ready' ? post.data.champion : null;
-  const stillIn = post.status === 'ready'
-    && post.data.games.some((g) => g.homeScore === null
-      && (g.homeTeamId === save.userTeamId || g.awayTeamId === save.userTeamId));
-  const nickname = (id: string): string => clubsById.get(id)?.nickname ?? id;
-  const fullName = (id: string): string => clubsById.get(id)?.name ?? id;
   const ordinal = (n: number): string => {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
@@ -99,108 +99,59 @@ export function TeamScreen() {
               ]}
             />
           </div>
-        </>
-      )}
 
-      {notice !== null && (
-        <p
-          data-testid="notice"
-          style={{
-            margin: `${String(S[3])}px 0 0`, padding: `${String(S[2])}px ${String(S[3])}px`,
-            borderRadius: R.md,
-            background: 'rgba(226,87,76,0.12)', border: `1px solid ${COLOR.red}`,
-            color: COLOR.tx, fontSize: 12, lineHeight: 1.5,
-          }}
-        >
-          {notice}
-        </p>
-      )}
-
-      <SectionHeader title={done ? 'Offseason' : inPlayoffs ? 'Playoffs' : 'Advance'} />
-      <div style={{ display: 'grid', gap: S[2] }}>
-        {done ? (
-          <>
-            <ActionButton onClick={() => { nav.push('offseason'); }} testId="play-offseason">
-              Play the offseason
-            </ActionButton>
-            <ActionButton
-              onClick={() => { void nextSeason(); }}
-              disabled={busy !== null}
-              tone="quiet"
-              testId="next-season"
-            >
-              {busy ?? `Simulate it → ${String(save.season + 1)}`}
-            </ActionButton>
-            <ActionButton
-              onClick={() => { nav.push('recap'); }}
-              tone="quiet"
-              testId="view-recap"
-            >
-              {champion === null ? 'Season recap' : `Season recap · ${nickname(champion)} champions`}
-            </ActionButton>
-          </>
-        ) : inPlayoffs ? (
-          <>
-            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Play the ${roundLabel ?? 'next round'}`}
-            </ActionButton>
-            <ActionButton onClick={() => { nav.push('playoffs'); }} tone="quiet" testId="view-bracket">
-              {stillIn ? 'See the bracket' : 'See the bracket · your team is out'}
-            </ActionButton>
-          </>
-        ) : (
-          <>
-            <ActionButton onClick={() => { void simWeek(); }} disabled={busy !== null} testId="sim-week">
-              {busy ?? `Sim week ${String(save.week)}`}
-            </ActionButton>
-            <ActionButton onClick={() => { void simSeason(); }} disabled={busy !== null} tone="quiet" testId="sim-season">
-              Sim to end of season
-            </ActionButton>
-          </>
-        )}
-      </div>
-
-      {q.status === 'ready' && (
-        <>
-          <SectionHeader title={inPlayoffs ? 'This round' : 'This week'} />
-          {q.data.next === null ? (
-            <EmptyState
-              title={done ? 'The season is over' : inPlayoffs ? 'Nothing to play this round' : 'No game this week'}
-              {...(done ? { detail: 'Run the offseason to start the next year.' } : {})}
-              {...(inPlayoffs && !stillIn ? { detail: 'Your team is not in the bracket. Play it out to see who takes it.' } : {})}
+          <SectionHeader title="Football operations" />
+          <HubStack>
+            <HubCard
+              title="Depth chart"
+              detail="Who plays ahead of whom, position by position"
+              trailing={<CardFigure value={String(q.data.squadSize)} />}
+              onSelect={() => { nav.push('roster'); }}
+              testId="to-roster"
             />
-          ) : (
-            <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }}>
-                <ListRow
-                  title={q.data.next.homeTeamId === save.userTeamId
-                    ? `vs ${fullName(q.data.next.awayTeamId)}`
-                    : `at ${fullName(q.data.next.homeTeamId)}`}
-                  subtitle={q.data.next.round ?? `Week ${String(q.data.next.week)}`}
-                />
-              </div>
-            </Panel>
-          )}
-
-          <SectionHeader title="Last result" />
-          {q.data.last === null ? (
-            <EmptyState title="No games played yet" detail="Sim a week to see a result here." />
-          ) : (
-            <Panel padded={false}>
-              <div style={{ padding: `0 ${String(S[3])}px` }}>
-                <ListRow
-                  title={`${nickname(q.data.last.awayTeamId)} ${String(q.data.last.awayScore)} — ${String(q.data.last.homeScore)} ${nickname(q.data.last.homeTeamId)}`}
-                  subtitle={q.data.last.round ?? `Week ${String(q.data.last.week)}`}
-                  navigable
-                  onSelect={() => { nav.push('game', { id: q.data.last?.gameId ?? '' }); }}
-                />
-              </div>
-            </Panel>
-          )}
+            <HubCard
+              title="Schedule"
+              detail="Your season, fixture by fixture"
+              onSelect={() => { nav.push('schedule'); }}
+              testId="to-schedule"
+            />
+            <HubCard
+              title="Offseason moves"
+              detail="Re-signings, free agency, the draft and trades"
+              onSelect={() => { nav.push('offseason'); }}
+              testId="to-offseason"
+            />
+            {/* Named because the tab promises them and dimmed because they do
+                not exist. A card that looked tappable and did nothing would
+                put the five above it in doubt. */}
+            <NotBuilt
+              title="Contracts"
+              detail="What every player is owed, and for how long."
+              testId="soon-contracts"
+            />
+            <NotBuilt
+              title="Injuries"
+              detail="Who is out, with what, and for how many weeks."
+              testId="soon-injuries"
+            />
+            <NotBuilt
+              title="Practice squad and training"
+              detail="Develop the players who are not starting yet."
+              testId="soon-training"
+            />
+            {/* The table is written every time the dynasty signs, releases or
+                trades anyone; nothing reads it back yet, so this says so
+                rather than opening a screen that would load forever. */}
+            <NotBuilt
+              title="Transaction log"
+              detail="Every signing, release and trade this dynasty has made."
+              testId="soon-transactions"
+            />
+          </HubStack>
 
           <SectionHeader title="Roster" />
           <Panel padded={false}>
-            <div style={{ padding: `0 ${String(S[3])}px` }}>
+            <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="roster-list">
               {q.data.squad.map((p) => (
                 <ListRow
                   key={p.playerId}

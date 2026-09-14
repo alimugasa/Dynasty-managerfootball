@@ -12,12 +12,43 @@ npm run test:e2e            # overflow and navigation at five widths
 
 ## Bottom navigation
 
-Five destinations: **Team, League, Schedule, Roster, Office**.
+Five destinations: **Office, Team, Play, League, News**.
+
+They are the jobs a manager has, not the screens that happened to exist:
+
+| Tab | Its job | What is on it |
+|---|---|---|
+| Office | the executive one | finances, the front office, dynasty history, the franchise rules |
+| Team | the football one | the roster, the depth chart, the schedule, offseason moves |
+| Play | the week | advance the week, round or offseason; this week's game; the last result |
+| League | the world outside | standings, leaders, the league schedule, the bracket, awards and records |
+| News | what is being said | the whole feed, as the engine writes it |
+
+Schedule and Roster were tabs of their own and neither was a destination: each
+is a list, and it belongs inside the tab whose job it is part of. The roster is
+opened from Team; the schedule from Team (your season) and from League (all
+thirty-two). Weekly simulation moved to Play, which is why it sits in the
+middle of the bar and carries a faint amber disc behind its icon — marked, not
+enlarged, because a tab twice the size of its neighbours is a toy.
+
+A tab's job is larger than what the game currently does. The parts that do not
+exist yet — owner goals, job security, facilities, franchise direction,
+contracts, injuries, the practice squad, the transaction log, the draft order —
+are named on the tab that will carry them and drawn as `NotBuilt` cards:
+dashed, dimmed, not buttons, and labelled "Not built yet". A placeholder that
+looks like a feature is worse than an empty tab, because a player taps it,
+nothing happens, and now they distrust the cards beside it that do work
+(`src/screens/hubCards.tsx`).
 
 Tapping a tab calls `replaceRoot`, never `push`. Per
 `docs/NAVIGATION-CONTRACT.md`, tapping Team from four levels deep inside League
 must not grow the stack forever, and a test asserts the back affordance
 disappears when you do it.
+
+Inside a drill-down the bar lights the tab at the *bottom of the stack*, not a
+tab looked up from the screen on top: the schedule is opened from Team and from
+League, and it belongs to whichever one opened it this time. That is what
+`NavigationState.root` is for.
 
 Active state carries three signals at once — amber tint, a filled icon, and the
 rule above the tab — so it survives greyscale and colour-blindness rather than
@@ -146,10 +177,11 @@ vocabulary is fixed, because a screen that says "club" next to one that says
 | GM, front office, coaching staff | manager, boss |
 
 **Team** is a specific team; **franchise** is the organisation across years --
-"The franchise" heads the Office section that leads to the record book and the
-staff, while a standings column is headed "Team". League, Conference, Division,
-Roster, Schedule, Staff, Office, Standings, Salary Cap, Depth Chart, Playoffs
-and Dynasty History are the screen names and stay exactly as they are.
+"The front office" heads the Office section that leads to the record book and
+the staff, while a standings column is headed "Team". League, Conference, Division,
+Roster, Schedule, Staff, Office, Play, News, Standings, Salary Cap, Depth Chart,
+Playoffs, Franchise Rules and Dynasty History are the screen names and stay
+exactly as they are.
 
 Internal names are not part of this. The `clubs` route, the `Club` type and
 `clubsById` predate the rule and are invisible; renaming them would touch the

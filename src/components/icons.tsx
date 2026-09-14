@@ -115,6 +115,33 @@ export function CheckIcon({ size = 18, stroke = 'currentColor' }: IconProps) {
   );
 }
 
+/** Play: the weekly command centre. A play button inside a ring -- the one
+ *  tab that makes the season move, so it is the one icon that reads as a
+ *  control rather than a place. */
+export function PlayIcon({ size = 22, stroke = 'currentColor', active = false }: IconProps) {
+  return (
+    <Frame size={size}>
+      <circle cx="12" cy="12" r="8.4" {...strokeProps(stroke, active)} />
+      <path
+        d="M10.4 8.8 15.6 12l-5.2 3.2z"
+        {...strokeProps(stroke, active)}
+        {...(active ? { fill: stroke } : {})}
+      />
+    </Frame>
+  );
+}
+
+/** News: a folded paper with a column of text down it. */
+export function NewsIcon({ size = 22, stroke = 'currentColor', active = false }: IconProps) {
+  return (
+    <Frame size={size}>
+      <path d="M5 5.5h11.5v13H6.4A1.4 1.4 0 0 1 5 17.1z" {...strokeProps(stroke, active)} />
+      <path d="M16.5 9h2.1v8.1a1.4 1.4 0 0 1-2.1 1.2" {...strokeProps(stroke, active)} />
+      <path d="M8 9h5.5M8 12h5.5M8 15h3.5" {...strokeProps(stroke, active)} />
+    </Frame>
+  );
+}
+
 // ---------------------------------------------------------------- utilities
 // The three quiet actions along the foot of the main menu. Drawn a hair
 // thinner than the navigation icons: they sit at 15px beside 11px text and

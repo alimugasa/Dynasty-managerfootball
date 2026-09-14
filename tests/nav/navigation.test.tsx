@@ -72,6 +72,19 @@ async function renderApp(): Promise<void> {
   await screen.findByRole('button', { name: /^Team$/i }, { timeout: 15_000 });
 }
 
+/**
+ * Opens the roster.
+ *
+ * Two taps now: the roster is a list inside Team rather than a tab of its own,
+ * so this is also the journey these suites are really about -- a tab, then a
+ * push out of it.
+ */
+async function openRoster(): Promise<Element> {
+  fireEvent.click(tab('Team'));
+  fireEvent.click(await screen.findByTestId('to-roster', undefined, { timeout: 15_000 }));
+  return depthList();
+}
+
 /** Opens the first player on the roster. The Office rows these tests used to
  *  push through opened placeholder screens; those were removed when the screens
  *  were wired to the game, so the drill-down here is a real one. */
@@ -124,14 +137,14 @@ describe('bottom navigation', () => {
     await renderApp();
     fireEvent.click(tab('League'));
     expect(screen.getByRole('heading', { level: 1, name: /league/i })).toBeTruthy();
-    fireEvent.click(tab('Roster'));
-    expect(screen.getByRole('heading', { level: 1, name: /roster/i })).toBeTruthy();
+    fireEvent.click(tab('News'));
+    expect(screen.getByRole('heading', { level: 1, name: /news/i })).toBeTruthy();
   });
 
   it('marks the current destination', async () => {
     await renderApp();
-    fireEvent.click(tab('Schedule'));
-    expect(tab('Schedule').getAttribute('aria-current')).toBe('page');
+    fireEvent.click(tab('Play'));
+    expect(tab('Play').getAttribute('aria-current')).toBe('page');
     expect(tab('Team').getAttribute('aria-current')).toBeNull();
   });
 
@@ -139,7 +152,7 @@ describe('bottom navigation', () => {
     await renderApp();
     // Drill in, then tap a tab. Tapping Office from inside a drill-down must
     // land at depth one, not depth three.
-    fireEvent.click(tab('Roster'));
+    await openRoster();
     await openFirstPlayer();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
 
@@ -151,7 +164,7 @@ describe('bottom navigation', () => {
 describe('frame state', () => {
   it('restores a filter after a round trip', async () => {
     await renderApp();
-    fireEvent.click(tab('Roster'));
+    await openRoster();
 
     // Filter to corners, exactly as the contract's example does. The chips
     // arrive with the save, so they are awaited.
@@ -160,15 +173,15 @@ describe('frame state', () => {
 
     // Drill in and come back.
     fireEvent.click(tab('Office'));
-    fireEvent.click(tab('Roster'));
-    // A tab tap is a replaceRoot, so this is a fresh frame and the filter is
-    // reset to the default group: that is correct behaviour, not a regression.
+    await openRoster();
+    // Leaving by a tab is a replaceRoot, so coming back opens a fresh frame and
+    // the filter is reset to the default group: correct, not a regression.
     expect(screen.getByRole('tab', { name: 'QB' }).getAttribute('aria-selected')).toBe('true');
   });
 
   it('restores filter and sort when returning by back()', async () => {
     await renderApp();
-    fireEvent.click(tab('Roster'));
+    await openRoster();
     fireEvent.click(await screen.findByRole('tab', { name: 'CB' }, { timeout: 15_000 }));
 
     // Drill into a player from the filtered roster, which is the contract's
@@ -211,7 +224,7 @@ describe('back affordance', () => {
   it('is absent at the root and present after a push', async () => {
     await renderApp();
     expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
-    fireEvent.click(tab('Roster'));
+    await openRoster();
     await openFirstPlayer();
     expect(screen.getByRole('button', { name: 'Back' })).toBeTruthy();
   });

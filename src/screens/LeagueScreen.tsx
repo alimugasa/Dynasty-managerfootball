@@ -1,4 +1,7 @@
-// League: the table, split how you want it, and who leads it in what.
+// League: the world outside your club.
+//
+// The table, the fixtures, who leads it in what, and how the year ended. Your
+// own club appears here only as one of thirty-two rows.
 //
 // Two splits are on this screen and they are not the same split. The table is
 // split by where a club sits -- league, conference, division -- because that is
@@ -13,11 +16,11 @@ import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { CompetitionToggle } from '../components/CompetitionToggle';
 import { ChipRow } from '../components/ChipRow';
-import { EmptyState, Panel, SectionHeader } from '../components/Surface';
-import { ListRow } from '../components/ListRow';
+import { EmptyState, SectionHeader } from '../components/Surface';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { useUiState } from '../app/useUiState';
 import { COMPETITION_PARAM, type Competition } from '../domain/competition';
+import { HubCard, HubStack, NotBuilt } from './hubCards';
 import { Screen } from './Screen';
 import {
   DEFAULT_SORT, LEAGUE_ORDER, LeadersPanel, SPLIT_CHIPS, StandingsPanel,
@@ -41,29 +44,50 @@ export function LeagueScreen() {
 
   const nameOf = (teamId: string): string => clubsById.get(teamId)?.nickname ?? teamId;
 
+  // The postseason card says where the bracket has got to rather than
+  // describing itself twice a year. Before the field is set it describes
+  // itself, because there is nothing yet to report.
+  const seeded = q.status === 'ready' && q.data.standings.some((r) => r.seed !== null);
+  const champion = q.status === 'ready' ? q.data.champion : null;
+  const postseason = champion !== null
+    ? `${clubsById.get(champion)?.name ?? champion} are champions`
+    : seeded ? 'The bracket is live: fourteen teams, four rounds'
+      : 'Seeds, the bracket, and who is left';
+
   return (
     <Screen title="League" subtitle={save === null ? '' : String(save.season)} screen="league">
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
       {save !== null && (
         <>
-          {q.status === 'ready' && q.data.standings.some((r) => r.seed !== null) && (
-            <>
-              <SectionHeader title="Postseason" />
-              <Panel padded={false}>
-                <div style={{ padding: '0 12px' }}>
-                  <ListRow
-                    title={q.data.champion === null
-                      ? 'The bracket is live'
-                      : `${clubsById.get(q.data.champion)?.name ?? q.data.champion} are champions`}
-                    subtitle={q.data.champion === null ? 'Fourteen teams, four rounds' : String(save.season)}
-                    navigable
-                    onSelect={() => { nav.push('playoffs'); }}
-                  />
-                </div>
-              </Panel>
-            </>
-          )}
+          <SectionHeader title="Around the league" />
+          <HubStack>
+            <HubCard
+              title="Schedule"
+              detail="Every fixture in the league, week by week"
+              onSelect={() => { nav.push('schedule'); }}
+              testId="to-schedule"
+            />
+            <HubCard
+              title="Playoffs"
+              detail={postseason}
+              onSelect={() => { nav.push('playoffs'); }}
+              testId="to-playoffs"
+            />
+            <HubCard
+              title="Awards and records"
+              detail="How the season ended, and the book it went into"
+              onSelect={() => { nav.push('recap'); }}
+              testId="to-recap"
+            />
+            {/* The picks exist and are traded in the offseason; nothing orders
+                them into a board yet, so this says so. */}
+            <NotBuilt
+              title="Draft order"
+              detail="Where all thirty-two pick, and who owns each selection."
+              testId="soon-draft-order"
+            />
+          </HubStack>
 
           <SectionHeader title="Standings" />
           {q.status === 'error' && <QueryError error={q.error} />}

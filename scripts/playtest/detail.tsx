@@ -1,4 +1,4 @@
-// Roster, Office and the two drill-downs, in the play-test build.
+// Roster, Office, News and the two drill-downs, in the play-test build.
 
 import { COLOR } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
@@ -120,7 +120,6 @@ const PLAYOFF_RESULT: Readonly<Record<string, string>> = {
 
 export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () => void }) {
   const sheet = capFor(game, game.userTeamId);
-  const feed = [...game.news].reverse();
   return (
     <>
       <SectionHeader title="Salary cap" />
@@ -167,24 +166,6 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
         </div>
       </Panel>
 
-      <SectionHeader title="News" />
-      {feed.length === 0 ? (
-        <EmptyState title="Nothing has happened yet" detail="Stories appear as the season is played." />
-      ) : (
-        <Panel padded={false}>
-          <div style={{ padding: '0 12px' }} data-testid="news-feed">
-            {feed.slice(0, 40).map((item, i) => (
-              <ListRow
-                key={`${String(item.week)}-${String(i)}-${item.headline}`}
-                title={item.headline}
-                subtitle={`Wk ${String(item.week)} · ${item.category.replace('_', ' ').toLowerCase()}`}
-                trailing={<Caption>{String(item.importance)}</Caption>}
-              />
-            ))}
-          </div>
-        </Panel>
-      )}
-
       <SectionHeader title="Dynasty history" />
       {game.history.length === 0 ? <EmptyState title="No completed seasons yet" /> : (
         <Panel padded={false}>
@@ -214,6 +195,30 @@ export function OfficeScreen({ game, open, onRestart }: Props & { onRestart: () 
         </p>
       </div>
     </>
+  );
+}
+
+/** News, in the play-test build: the whole feed, on its own tab. */
+export function NewsScreen({ game }: { game: Game }) {
+  const feed = [...game.news].reverse();
+  if (feed.length === 0) {
+    return (
+      <EmptyState title="Nothing has happened yet" detail="Stories appear as the season is played." />
+    );
+  }
+  return (
+    <Panel padded={false}>
+      <div style={{ padding: '0 12px' }} data-testid="news-feed">
+        {feed.slice(0, 40).map((item, i) => (
+          <ListRow
+            key={`${String(item.week)}-${String(i)}-${item.headline}`}
+            title={item.headline}
+            subtitle={`Wk ${String(item.week)} · ${item.category.replace('_', ' ').toLowerCase()}`}
+            trailing={<Caption>{String(item.importance)}</Caption>}
+          />
+        ))}
+      </div>
+    </Panel>
   );
 }
 

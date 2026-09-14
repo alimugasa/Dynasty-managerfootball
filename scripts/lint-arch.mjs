@@ -39,6 +39,14 @@ const IP_DENY = [
   'raymond james stadium','m&t bank stadium','lincoln financial field','ford field',
   'paul brown stadium','paycor stadium','empower field','nissan stadium','state farm stadium',
   'lumen field','bank of america stadium','u.s. bank stadium','nrg stadium','highmark stadium',
+  // Broadcasters and their programme names. The feed reached the bottom bar as
+  // a tab of its own, so headlines are now a surface a person reads dozens of
+  // times a season -- and a provocation run showed the list had no media marks
+  // in it at all: "espn" passed clean. A network's name is a mark exactly as a
+  // club's is, and a story that cited one would ship it.
+  'espn','sportscenter','nfl network','redzone','red zone','sunday ticket',
+  'monday night football','thursday night football','sunday night football',
+  'fox sports','cbs sports','nbc sports','sky sports','amazon prime video',
 ];
 
 // Allowed uses of a denied term, scoped to one file and one term with a

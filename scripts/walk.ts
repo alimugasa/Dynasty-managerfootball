@@ -85,12 +85,15 @@ await page.getByTestId(`team-${TEAM_ID}`).click();
 await page.getByTestId('confirm-team').click();
 await page.getByTestId('setup-continue').click();
 await page.getByTestId('create-franchise').click();
-await page.getByTestId('sim-week').waitFor({ timeout: 60_000 });
+// The franchise opens on Team; the button that moves the season lives on Play.
+await page.getByTestId('to-roster').waitFor({ timeout: 60_000 });
 out(`created a dynasty on ${TEAM_ID}: ${await page.getByRole('heading', { level: 1 }).innerText()}`);
 await counts('after create');
 
-// Depth chart: swap the first two quarterbacks.
-await tab(page, 'Roster').click();
+// Depth chart: swap the first two quarterbacks. The roster is a list inside
+// Team now rather than a tab of its own.
+await tab(page, 'Team').click();
+await page.getByTestId('to-roster').click();
 await page.getByTestId('depth-list').waitFor();
 const nameOf = async (row: number): Promise<string> =>
   (await page.getByTestId(`depth-row-${String(row)}`).locator('button').first().innerText()).split('\n')[0] ?? '';
@@ -112,14 +115,16 @@ const [starter] = await sql<{ player_id: string; display_name: string; is_starte
 out(`   team_depth_charts QB1 now ${starter?.player_id ?? '?'} ${starter?.display_name ?? ''} (starter ${String(starter?.is_starter)})`);
 
 // Sim a week.
-await tab(page, 'Team').click();
+await tab(page, 'Play').click();
+await page.getByTestId('sim-week').waitFor({ timeout: 30_000 });
 await page.getByTestId('sim-week').click();
 await page.getByText(/Week 2 of/).waitFor({ timeout: 60_000 });
 await counts('after sim week 1');
 
 // Box score.
-await page.getByText('Last result').waitFor();
-await page.locator('text=Last result').locator('xpath=following::*[@role="button" or self::button][1]').click().catch(() => undefined);
+await page.getByText(/Last result/).first().waitFor();
+await page.locator('text=Last result').first()
+  .locator('xpath=following::*[@role="button" or self::button][1]').click().catch(() => undefined);
 await page.getByTestId('home-score').waitFor({ timeout: 15_000 });
 const box = await page.getByTestId('box-team-stats').innerText();
 out(`box score: ${(await page.getByTestId('away-score').innerText())}-${await page.getByTestId('home-score').innerText()}; rows: ${box.split('\n').slice(0, 6).join(' | ')}`);
@@ -134,15 +139,42 @@ await page.getByTestId('leader-board').waitFor();
 out(`standings rows: ${String(await page.locator('[data-testid="standings-body"] tr').count())}; leaderboard rows: ${String(await page.locator('[data-testid="leader-board"] > *').count())}`);
 
 // News.
-await tab(page, 'Office').click();
+await tab(page, 'News').click();
 await page.getByTestId('news-feed').waitFor({ timeout: 15_000 });
 out(`news rows on screen: ${String(await page.locator('[data-testid="news-feed"] > *').count())}`);
 
-// Sim to the end.
-await tab(page, 'Team').click();
+// Sim to the end of the regular season. It stops at the bracket by design, so
+// this then plays the bracket a round at a time -- which is what a player does,
+// and the only way the season reaches the offseason.
+await tab(page, 'Play').click();
+await page.getByTestId('sim-season').waitFor({ timeout: 30_000 });
 await page.getByTestId('sim-season').click();
+await page.getByTestId('view-bracket').waitFor({ timeout: 300_000 });
+await counts('after sim to end of regular season');
+
+// Four rounds, and a bound rather than a while(true): a bracket that stopped
+// making progress should fail the walk, not hang it.
+for (let round = 0; round < 6; round += 1) {
+  if (await page.getByTestId('next-season').count() > 0) break;
+  // The button names the round it plays, so the round it names next is the
+  // signal that this one finished. Waiting on the button to re-enable would
+  // race the request; waiting on the text does not.
+  const was = await page.getByTestId('sim-week').innerText();
+  await page.getByTestId('sim-week').click();
+  await page.waitForFunction(
+    (before) => {
+      if (document.querySelector('[data-testid="next-season"]') !== null) return true;
+      const btn = document.querySelector('[data-testid="sim-week"]');
+      return btn !== null && (btn.textContent ?? '') !== before;
+    },
+    was, { timeout: 300_000 });
+  const now = await page.getByTestId('next-season').count() > 0
+    ? 'the season is over'
+    : await page.getByTestId('sim-week').innerText();
+  out(`played a round: "${was}" -> next: ${now}`);
+}
 await page.getByTestId('next-season').waitFor({ timeout: 300_000 });
-await counts('after sim to end of season');
+await counts('after the bracket');
 
 // Offseason.
 await page.getByTestId('next-season').click();

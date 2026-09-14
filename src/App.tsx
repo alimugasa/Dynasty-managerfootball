@@ -42,14 +42,18 @@ function ShellForCurrentScreen({ children }: { readonly children: ReactNode }) {
 }
 
 function TabsForCurrentScreen() {
-  const { screen } = useNavigationState();
+  const { screen, root } = useNavigationState();
   // The boot flow has no bottom navigation: there is nothing to navigate to
   // until a dynasty is open, and a bar of dead tabs under the main menu would
   // be five promises the app cannot keep.
   if (isBootScreen(screen)) return null;
   // A drill-down keeps its originating tab lit rather than clearing the bar,
-  // so the bottom navigation never looks like it lost its place.
-  const active = TABS.some((t) => t.key === screen) ? screen : '';
+  // so the bottom navigation never looks like it lost its place. Which tab that
+  // is comes from the bottom of the stack, not from a table: the schedule is
+  // opened from Team and from League, and it belongs to whichever one opened
+  // it this time.
+  const onTab = TABS.some((t) => t.key === screen);
+  const active = onTab ? screen : TABS.some((t) => t.key === root) ? root : '';
   return <TabBar active={active} />;
 }
 

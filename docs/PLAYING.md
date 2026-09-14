@@ -200,22 +200,26 @@ on the server, and opening the app on another device meets the menu. Office →
 | Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Choose This Team* → the rules → *Create Franchise* |
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
-| Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |
-| Sim a week | **Team** tab → *Sim week N* |
-| Read the box score | **Team** → *Last result* row, or **Schedule** → any played game |
+| Set a depth chart | **Team** → *Depth chart* → pick a position chip → ↑ / ↓ arrows |
+| Sim a week | **Play** tab → *Sim week N* |
+| Read the box score | **Play** → *Last result* row, or the schedule → any played game |
+| Read your schedule | **Team** → *Schedule* |
 | Standings and leaders | **League** tab |
+| The league's schedule | **League** → *Schedule* |
 | Split the table | **League** → *League* / *Conference* / *Division* |
 | Sort the table | **League** → the sort chips, then the ▼/▲ pill to reverse |
 | Read a leaderboard | **League** → *Leaders* → side of the ball, then a board |
 | Playoff leaders | **League** → *Leaders* → **PLAYOFFS** |
-| Read the news | **Office** tab → News |
-| Sim to the end | **Team** → *Sim to end of season* (one request per week, stops at the bracket) |
-| Play a playoff round | **Team** → *Play the Opening Round*, then one button per round |
-| Follow the bracket | **Team** or **League** → *See the bracket*, or **Schedule** → the round chips |
-| See the awards | **Team** → *Play the offseason*, then *Close the season* |
-| Play the offseason | **Team** → *Play the offseason* (appears once the final is played) |
-| Skip the offseason | **Team** → *Simulate it → next year*, or *Let the staff handle the rest* at any step |
-| Play year two | **Team** → *Sim week 1* again |
+| Read the news | **News** tab |
+| Read the cap sheet | **Office** tab → *Finances* |
+| The rules this save is played under | **Office** → *Franchise rules* |
+| Sim to the end | **Play** → *Sim to end of season* (one request per week, stops at the bracket) |
+| Play a playoff round | **Play** → *Play the Opening Round*, then one button per round |
+| Follow the bracket | **Play** or **League** → *See the bracket*, or the schedule's round chips |
+| See the awards | **League** → *Awards and records*, once the season is closed |
+| Play the offseason | **Play** → *Play the offseason* (appears once the final is played) |
+| Skip the offseason | **Play** → *Simulate it → next year*, or *Let the staff handle the rest* at any step |
+| Play year two | **Play** → *Sim week 1* again |
 
 The depth chart is load-bearing, not decoration: the order you set is stored in
 `team_depth_charts` and is the order the engine fields next week. The season is
@@ -441,7 +445,7 @@ Honestly, and in the order you will notice it:
   pool.
 - **No in-season roster moves.** You cannot sign, cut, or trade during the
   year. If your only kicker gets hurt, you play without one. Very rarely a team
-  cannot field a unit and the game is skipped -- the Team tab says so in a red
+  cannot field a unit and the game is skipped -- the Play tab says so in a red
   notice rather than inventing a scoreline, and the game stays `SCHEDULED`.
 - **The offseason runs itself.** Development, retirement, the draft, the market
   and compliance happen when you press the button; the AI runs your team too.

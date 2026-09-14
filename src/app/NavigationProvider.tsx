@@ -197,12 +197,14 @@ export function NavigationProvider({ children, initialScreen, rootOf }: Props) {
   }), [push, back, backTo, replaceRoot]);
 
   const top = topOf(stack);
+  const rootScreen = stack[0]?.screen ?? '';
   const state = useMemo<NavigationState>(() => ({
     screen: top?.screen ?? '',
+    root: rootScreen,
     params: top?.params ?? {},
     depth: stack.length,
     ui: top?.ui ?? {},
-  }), [top, stack.length]);
+  }), [top, rootScreen, stack.length]);
 
   return (
     <NavigationContext.Provider value={navigator}>

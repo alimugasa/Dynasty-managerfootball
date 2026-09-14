@@ -20,6 +20,9 @@ import { OfficeScreen } from '../screens/OfficeScreen';
 import { RosterScreen } from '../screens/RosterScreen';
 import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { TeamScreen } from '../screens/TeamScreen';
+import { PlayScreen } from '../screens/PlayScreen';
+import { NewsScreen } from '../screens/NewsScreen';
+import { FranchiseRulesScreen } from '../screens/FranchiseRulesScreen';
 import { StaffScreen } from '../screens/StaffScreen';
 import { RecapScreen } from '../screens/RecapScreen';
 import { OffseasonScreen } from '../screens/OffseasonScreen';
@@ -69,12 +72,21 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   dbtools: { title: 'Database Tools', Component: DatabaseToolsScreen, root: false, boot: true },
   credits: { title: 'Credits', Component: CreditsScreen, root: false, boot: true },
 
-  // Bottom navigation.
-  team: { title: 'Team', Component: TeamScreen, root: true },
-  league: { title: 'League', Component: LeagueScreen, root: true },
-  schedule: { title: 'Schedule', Component: ScheduleScreen, root: true },
-  roster: { title: 'Roster', Component: RosterScreen, root: true },
+  // Bottom navigation, in the order the bar renders them. Five jobs rather
+  // than five screens: the executive one, the football one, the week, the
+  // world outside, and what is being said about it.
   office: { title: 'Office', Component: OfficeScreen, root: true },
+  team: { title: 'Team', Component: TeamScreen, root: true },
+  play: { title: 'Play', Component: PlayScreen, root: true },
+  league: { title: 'League', Component: LeagueScreen, root: true },
+  news: { title: 'News', Component: NewsScreen, root: true },
+
+  // Both were tabs of their own and neither was a destination: a list each,
+  // belonging to the tab whose job it is part of. Roster is reached from Team,
+  // the schedule from Team and from League -- so both are pushed now, and
+  // Back from either goes where it was opened from.
+  schedule: { title: 'Schedule', Component: ScheduleScreen, root: false },
+  roster: { title: 'Roster', Component: RosterScreen, root: false },
 
   // Reached from League, from Team while the bracket is live, and from the
   // Schedule's playoff weeks.
@@ -89,7 +101,12 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   game: { title: 'Game', Component: GameScreen, root: false },
   draftPick: { title: 'Draft pick', Component: DraftPickScreen, root: false },
 
-  // Reached from the Office list.
+  // Reached from the Office.
+  rules: { title: 'Franchise rules', Component: FranchiseRulesScreen, root: false },
+
+  // Registered so resolveEntityRoute has somewhere to land. Neither is linked
+  // from a hub card: both render a loading state that never resolves, and a
+  // card that opens one would be the dead end the hub cards exist to avoid.
   scouting: { title: 'Scouting', Component: ScoutingScreen, root: false },
   staff: { title: 'Staff', Component: StaffScreen, root: false },
   transactions: { title: 'Transactions', Component: TransactionsScreen, root: false },
