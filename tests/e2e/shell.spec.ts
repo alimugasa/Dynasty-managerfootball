@@ -308,14 +308,26 @@ test.describe('app shell', () => {
     await expect(cards).toHaveCount(all);
 
     // Opening a card shows the whole body and clears its unread mark. Pick one
-    // that is still unread, because earlier runs share this save file.
-    const unread = page.locator('[data-testid="news-card"][data-unread="true"]').first();
-    if (await unread.count() > 0) {
-      await unread.scrollIntoViewIfNeeded();
-      await unread.getByTestId('news-card-toggle').click();
-      await expect(unread.getByTestId('news-body-full')).toBeVisible();
-      await expect(unread).toHaveAttribute('data-unread', 'false');
+    // that is still unread, because earlier runs share this save file -- and
+    // hold it by POSITION, not by its unread state. A locator that selects on
+    // [data-unread="true"] stops matching the moment the click clears the mark,
+    // so .first() then re-resolves to the next unread card, which is not the
+    // one that was opened and has no expanded body to find.
+    //
+    // Falling back to the first card if nothing is unread is not a way out of
+    // the assertion: "open a card, its mark is clear afterwards" is true of
+    // both, and read state lives in a database these five projects share and
+    // never reset, so a suite run often enough would otherwise start failing
+    // for having already read the feed.
+    let index = 0;
+    for (let i = 0; i < all; i += 1) {
+      if (await cards.nth(i).getAttribute('data-unread') === 'true') { index = i; break; }
     }
+    const card = cards.nth(index);
+    await card.scrollIntoViewIfNeeded();
+    await card.getByTestId('news-card-toggle').click();
+    await expect(card.getByTestId('news-body-full')).toBeVisible();
+    await expect(card).toHaveAttribute('data-unread', 'false');
   });
 
   test('a news card only offers a button when the screen behind it exists', async ({ page }) => {
