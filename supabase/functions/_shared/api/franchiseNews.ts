@@ -196,6 +196,58 @@ export function openingStories(f: OpeningFacts): readonly NewsRow[] {
   return [appointment, owner, camp, opener];
 }
 
+// ------------------------------------------------------------ the final 53
+
+export interface FinalRosterFacts {
+  readonly season: number;
+  readonly club: ClubName;
+  readonly rosterCount: number;
+  readonly rookies: number;
+  readonly averageAge: number;
+  /** Everyone released this camp, newest first. */
+  readonly cutNames: readonly string[];
+  /** How many of them went through waivers rather than straight to the market. */
+  readonly waived: number;
+}
+
+/**
+ * The roster is set.
+ *
+ * Written from the rows -- the count, the rookies kept, the names released --
+ * rather than from a tally carried alongside them. A club that cut nobody gets
+ * a story that says so instead of an empty clause, because a 90-man roster
+ * that was already 53 is a fact worth reading.
+ */
+export function finalRosterNews(f: FinalRosterFacts): NewsRow {
+  const cuts = f.cutNames.length;
+  const named = f.cutNames.slice(0, 3);
+  const body = `The ${f.club.nickname} open the ${String(f.season)} season with `
+    + `${String(f.rosterCount)} players, `
+    + `${f.rookies === 0 ? 'none of them rookies' : `${String(f.rookies)} of them `
+      + `${f.rookies === 1 ? 'a rookie' : 'rookies'}`}`
+    + (f.averageAge > 0 ? `, at an average age of ${f.averageAge.toFixed(1)}.` : '.')
+    + (cuts === 0
+      ? ' Nobody was released to get there.'
+      : ` ${String(cuts)} ${cuts === 1 ? 'player was' : 'players were'} released`
+        + (f.waived > 0
+          ? `, ${String(f.waived)} of them subject to waivers.`
+          : ', all of them free to sign anywhere.')
+        + (named.length === 0 ? '' : ` Among them: ${named.join(', ')}.`));
+
+  return {
+    season: f.season,
+    week: 1,
+    phase: 'REGULAR_SEASON',
+    category: 'FRANCHISE',
+    importance: 4,
+    headline: `${f.club.nickname} set the ${String(f.season)} roster`,
+    body,
+    teamId: f.club.teamId,
+    playerId: null,
+    gameId: null,
+  };
+}
+
 // ------------------------------------------------------------ after a week
 
 export interface ResultFacts {

@@ -124,7 +124,10 @@ export async function campStageOn(
   const { id: saveId, season } = save;
   const seed32 = rngSeed32(save.rng_seed);
   const before = snapshotPlayers(league);
-  const released = campStage(league, createRng(OFFSEASON_STREAMS.camp(seed32, season)));
+  // The manager's club keeps its ninety: cutting to the limit is what camp is
+  // for, and doing it for them here is what made camp a formality.
+  const released = campStage(
+    league, createRng(OFFSEASON_STREAMS.camp(seed32, season)), undefined, save.user_team_id);
   if (league.season !== season + 1) {
     throw new Error(`The offseason left the league at ${String(league.season)}, expected ${String(season + 1)}`);
   }
@@ -136,7 +139,12 @@ export async function campStageOn(
   await seedStandings(db, saveId, league.season, league.teamIds);
   await writeDepthChart(db, saveId, save.user_team_id, defaultDepthChart(league, save.user_team_id));
 
-  await touchSave(db, saveId, { season: league.season, week: 1, phase: 'REGULAR_SEASON' });
+  // The offseason hands over to camp, not to week 1. Everything below still
+  // says REGULAR_SEASON because the save *document* records the season the
+  // league is now in and the week it will open on; the phase on the save row
+  // is what says where the manager actually is, and that is training camp
+  // until they have cut to the limit and signed the roster off.
+  await touchSave(db, saveId, { season: league.season, week: 1, phase: 'TRAINING_CAMP' });
   // The career totals and the record book were rebuilt when the season was
   // settled, which is when they stopped changing. Only the pruning belongs
   // here: it drops the oldest per-game lines, and it must come after anything
@@ -147,7 +155,7 @@ export async function campStageOn(
   await new PostgresSaveStore(db).write(saveId, serialize(league, {
     meta: {
       saveId, name: save.name, userTeamId: save.user_team_id,
-      season: league.season, week: 1, phase: 'REGULAR_SEASON',
+      season: league.season, week: 1, phase: 'TRAINING_CAMP',
       seed: seed32, engineVersion: ENGINE_VERSION, createdAt: now, updatedAt: now,
     },
   }));

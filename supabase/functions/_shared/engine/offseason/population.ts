@@ -177,14 +177,22 @@ export function marketStage(
   return runFreeAgency(league, index, rules, rng, offers);
 }
 
-/** Camp: every roster made legal, the unsigned pruned, the year turned over. */
+/**
+ * Camp: every roster made legal, the unsigned pruned, the year turned over.
+ *
+ * `managedTeamId` is the club that keeps its ninety. Cutting to the
+ * season-opening limit is the decision training camp exists to hand the
+ * manager, so this stage stops doing it for them -- and only for them. Left
+ * undefined (the reports, the play-test rig, a headless run) every club cuts
+ * itself exactly as it always did.
+ */
 export function campStage(
-  league: League, rng: Rng, sharedIndex?: RosterIndex,
+  league: League, rng: Rng, sharedIndex?: RosterIndex, managedTeamId?: string,
 ): readonly Release[] {
   const rules = capRules(league.season);
   const index = sharedIndex ?? buildIndex(league.teamIds, league.players);
   const released: Release[] = [];
-  enforceCompliance(league, index, rules, released);
+  enforceCompliance(league, index, rules, released, { skipQuotaFor: managedTeamId });
   pruneUnsigned(league);
   league.season += 1;
   // The generator is taken so every stage has the same shape and a caller

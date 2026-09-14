@@ -58,8 +58,26 @@ function signMinimum(
  * at the minimum, from whoever is left. A club that drafted and signed well has
  * little for this pass to do.
  */
+export interface ComplianceOptions {
+  /**
+   * A club the quota pass leaves alone.
+   *
+   * The club the player manages breaks camp carrying its whole offseason
+   * roster, because cutting it to the season-opening limit is the decision
+   * training camp exists to hand them. Every other club still cuts itself:
+   * thirty-one computer-run clubs asking a manager to approve their cuts
+   * would be a worse game, not a better one.
+   *
+   * Only the quota pass skips it. The cap pass does not -- a club over the
+   * ceiling is over it whoever runs it, and the cap is the one rule the
+   * manager does not get to opt out of.
+   */
+  readonly skipQuotaFor?: string | undefined;
+}
+
 export function enforceCompliance(
   league: League, index: RosterIndex, rules: CapRules, released: Release[] = [],
+  options: ComplianceOptions = {},
 ): number {
   let moves = 0;
 
@@ -70,8 +88,10 @@ export function enforceCompliance(
   // short while spare quarterbacks sat unsigned -- a shortage created purely by
   // the order the clubs were visited in.
 
-  // 1. Everyone cuts down to quota, worst first.
+  // 1. Everyone cuts down to quota, worst first -- except the manager's club,
+  // which keeps its ninety and cuts them itself in camp.
   for (const teamId of league.teamIds) {
+    if (teamId === options.skipQuotaFor) continue;
     for (const group of POSITION_GROUPS) {
       const held = indexedRoster(index, teamId)
         .filter((p) => p.group === group)

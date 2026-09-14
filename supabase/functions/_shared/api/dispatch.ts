@@ -29,12 +29,16 @@ import { playoffs } from './reads/playoffs.ts';
 import { game } from './reads/game.ts';
 import { office } from './reads/office.ts';
 import { news } from './reads/news.ts';
+import { camp } from './reads/camp.ts';
 import { staff } from './reads/staff.ts';
 import { recap } from './reads/recap.ts';
 import { offseason } from './reads/offseason.ts';
 import {
   advanceOffseason, makeDraftPick, makeOffer, releasePlayer, reSignPlayer, tradeOffer,
 } from './handlers/offseasonMoves.ts';
+import {
+  advanceCamp, finalize53, previewCut, releaseFromRoster,
+} from './handlers/campMoves.ts';
 import { player } from './reads/player.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -61,10 +65,15 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   game,
   office,
   news,
+  camp,
   staff,
   recap,
   offseason,
   'advance-offseason': advanceOffseason,
+  'advance-camp': advanceCamp,
+  'preview-cut': previewCut,
+  'cut-player': releaseFromRoster,
+  'finalize-roster': finalize53,
   're-sign': reSignPlayer,
   release: releasePlayer,
   'draft-pick': makeDraftPick,

@@ -84,16 +84,19 @@ function withoutAbsent(team: TeamState, out: ReadonlySet<string>): TeamState {
   return { ...team, depthChart };
 }
 
-interface WeekGames {
+export interface WeekGames {
   readonly played: PlayedGame[];
   readonly abandoned: string[];
   readonly injuries: InjuryRow[];
 }
 
-/** Plays the fixtures and writes each result as it lands. A regular-season
- *  fixture nobody can field is abandoned and named; a playoff fixture cannot
- *  be, because the bracket has nowhere to go without it. */
-async function playFixtures(
+/** Plays the fixtures and writes each result as it lands. A regular-season or
+ *  preseason fixture nobody can field is abandoned and named; a playoff fixture
+ *  cannot be, because the bracket has nowhere to go without it.
+ *
+ *  Exported for the preseason runner, which plays games the same way and books
+ *  them completely differently. */
+export async function playFixtures(
   db: Db, saveId: string, season: number, week: number, lastWeek: number,
   competition: Competition, fixtures: readonly FixtureRow[],
   teams: ReadonlyMap<string, TeamState>, out: ReadonlySet<string>, rng: Rng,
@@ -108,10 +111,11 @@ async function playFixtures(
     let result;
     try {
       result = simulateGame(withoutAbsent(home, out), withoutAbsent(away, out), rng, {
-        allowTie: competition === 'REGULAR', neutralSite: f.neutral_site,
+        // Only a bracket game must have a winner; August may end level.
+        allowTie: competition !== 'PLAYOFF', neutralSite: f.neutral_site,
       });
     } catch (error) {
-      if (error instanceof MissingUnitError && competition === 'REGULAR') {
+      if (error instanceof MissingUnitError && competition !== 'PLAYOFF') {
         games.abandoned.push(`${f.home_team_id} vs ${f.away_team_id} (${error.group})`);
         continue;
       }

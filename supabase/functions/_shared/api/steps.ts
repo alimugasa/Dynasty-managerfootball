@@ -145,9 +145,9 @@ async function stepCamp(db: Db, save: SaveRow): Promise<StepOutcome> {
     headCoachBefore: state.headCoachBefore,
   }, state.counts);
   return {
-    phase: 'REGULAR_SEASON', season: outcome.season, waitingOnPick: null,
+    phase: 'TRAINING_CAMP', season: outcome.season, waitingOnPick: null,
     seasonStarted: outcome,
-    summary: `${String(outcome.season)} is open`,
+    summary: `${String(outcome.season)} camp is open. Ninety in, fifty-three out.`,
   };
 }
 

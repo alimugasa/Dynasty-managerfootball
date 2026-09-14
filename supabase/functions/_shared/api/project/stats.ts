@@ -11,7 +11,11 @@
 import type { Db } from '../db.ts';
 import type { GameResult, PlayerStatLine } from '../../engine/types.ts';
 
-export type Competition = 'REGULAR' | 'PLAYOFF';
+/** Preseason totals roll up alongside the other two and are never mixed with
+ *  them: rollUpSeasonStats groups by this column, so a career, a leader board
+ *  and a league record all exclude August by construction rather than by every
+ *  query remembering to. */
+export type Competition = 'PRESEASON' | 'REGULAR' | 'PLAYOFF';
 
 export interface PlayedGame {
   readonly gameId: string;
