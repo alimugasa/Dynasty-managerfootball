@@ -1,4 +1,4 @@
-import { COLOR, ELEV, FONT, MOTION, R } from '../app/tokens';
+import { COLOR, ELEV, FONT, MOTION, R, TAP } from '../app/tokens';
 import { COMPETITIONS, COMPETITION_LABEL, type Competition } from '../domain/competition';
 
 /** The REGULAR SEASON | PLAYOFFS control. ONE component, used identically on
@@ -32,7 +32,7 @@ export function CompetitionToggle({ value, onChange }: Props) {
             type="button"
             onClick={() => onChange(c)}
             style={{
-              flex: 1, minHeight: 34, border: 0, borderRadius: R.sm, cursor: 'pointer',
+              flex: 1, minHeight: TAP, border: 0, borderRadius: R.sm, cursor: 'pointer',
               background: active ? COLOR.raise : 'transparent',
               boxShadow: active ? ELEV.low : 'none',
               color: active ? COLOR.tx : COLOR.mut,

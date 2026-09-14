@@ -39,7 +39,7 @@ function Position({ code }: { readonly code: string }) {
         minWidth: 34, flexShrink: 0, borderRadius: R.sm,
         padding: `3px ${String(S[1])}px`, textAlign: 'center',
         background: 'rgba(0,0,0,0.22)', border: `1px solid ${COLOR.line}`,
-        ...TYPE.micro, fontSize: 10.5, color: COLOR.mut,
+        ...TYPE.micro, fontSize: 11, color: COLOR.mut,
       }}
     >
       {code}

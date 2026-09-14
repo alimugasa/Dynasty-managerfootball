@@ -90,7 +90,7 @@ export function LeagueScreen() {
           </HubStack>
 
           <SectionHeader title="Standings" />
-          {q.status === 'error' && <QueryError error={q.error} />}
+          {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
           {q.status === 'loading' && <Loading label="Loading standings" rows={8} />}
           {q.status === 'ready' && (
             <>

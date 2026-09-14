@@ -135,7 +135,7 @@ export function WorldBuildScreen() {
           {message}
         </p>
       )}
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
 
       {ready && (
         <WorldBuild

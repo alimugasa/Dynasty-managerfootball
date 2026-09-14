@@ -210,7 +210,25 @@ a seventh grey gap by accident. Both files carry the same values,
 | Elevation `ELEV` | flat / low / mid / high | how far a surface sits above the one behind |
 | Space `S` | 4 8 12 16 20 24 32 40 | every gap and pad |
 | Type `TYPE` | display / heading / micro / body / prose / figure | six roles, two faces |
+| Size `SIZE` | 10 11 12 13 14 15 17 20 24 28 34 48 | the sizes text is allowed to be |
+| Tap `TAP` | 40 | the floor for anything you press |
 | Motion `MOTION` | 110ms / 200ms, one curve | press feedback, never animation |
+
+`SIZE` was added after an audit found **twenty-four** distinct font sizes in
+the shipped screens, six of them fractional -- 8.5, 9.5, 10.5, 11.5, 12.5.
+Those were nudges rather than decisions: a label shaved half a pixel to fit a
+column that had since changed twice, which is what "the text feels randomly
+sized from screen to screen" looks like in a stylesheet. The fractional steps
+are gone; the ramp is there to be copied from. Nothing enforces it but review,
+because there is no lint rule for a number in a style object.
+
+`TAP` is a floor on the touch target, not on the ink. The same audit found
+filter chips at 32px, a save file's overflow menu at 34, a compact button at
+34, and the team name in a standings row at **15** -- a control the size of its
+own text, in a thirty-two row table, on a phone. A chip still looks like a
+chip; the thing that takes the tap is now 40 tall. An end-to-end test walks all
+five tabs and fails on anything shorter, because every one of those regressions
+was in how a control was *placed* rather than how it was built.
 
 Navigating cross-fades the new screen in over 220ms (`.screen-in` in
 `base.css`). A fade and not a rise: a rise needs a transform, a transformed
@@ -274,6 +292,39 @@ Accessibility: every placeholder is `aria-hidden`, and they sit inside a
 `SkeletonRegion` marked `aria-busy` with a label. A screen reader hears
 "loading roster" once, not a description of two dozen grey rectangles. The
 shimmer is removed under `prefers-reduced-motion`.
+
+## A failed read is not a dead end
+
+`QueryError` names what failed in the server's own words -- a friendlier
+sentence written on the client would be the screen guessing -- and then offers
+somewhere to go: **Try again** wherever the caller can re-run the read, and
+**Go back** whenever there is anywhere to go back to. It used to be a red box
+and a message, which is a dead end wearing an explanation.
+
+`useQuery` returns a `retry()` on every state, not only the failed one: a
+screen holding a stale answer has as much right to ask for a fresh one. It
+bumps a counter private to that query, so retrying one failed read does not
+re-query the whole app the way bumping the save's `version` would.
+
+Red edges the card rather than filling it. A whole panel of red for a read that
+can be retried is the wrong size of alarm.
+
+## Motion
+
+Four kinds, and each says something different:
+
+| What | How | Why |
+|---|---|---|
+| Route change | `.screen-in`, 220ms cross-fade | opacity only: a transform on the wrapper would make it the containing block for `position: fixed` children |
+| Button press | down 1px, `scale(0.98)` | the dip reads as movement, the shrink reads as *pressed* |
+| Dialog | `dmp-modal-in` -- fade, rise 6px | a thing that appears over what you were reading should look like it came from somewhere |
+| Bottom sheet | `dmp-sheet-in` -- fade, slide 16px | further, because a sheet's whole idea is that it came from off-screen |
+
+The scrim behind a dialog or sheet only ever fades (`dmp-scrim-in`), and the
+transform stays on the panel: a transformed ancestor becomes the containing
+block for fixed children, which is the bug that trapped these under the tab bar
+once already. Every one of these collapses to nothing under
+`prefers-reduced-motion`.
 
 ## The words on the screen
 

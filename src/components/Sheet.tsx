@@ -57,7 +57,7 @@ export function Sheet({ title, detail, badge, onClose, children, testId }: Props
         background: 'rgba(6, 10, 14, 0.68)',
         backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-        animation: `dmp-screen-in ${MOTION.base} ${MOTION.ease} both`,
+        animation: `dmp-scrim-in ${MOTION.base} ${MOTION.ease} both`,
       }}
       onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -70,6 +70,9 @@ export function Sheet({ title, detail, badge, onClose, children, testId }: Props
         {...(testId === undefined ? {} : { 'data-testid': testId })}
         style={{
           width: '100%', maxWidth: 520, boxSizing: 'border-box',
+          // Slides up from the edge it is attached to. A sheet that faded in
+          // where it was going to sit never looked like it came from anywhere.
+          animation: `dmp-sheet-in ${MOTION.base} ${MOTION.ease} both`,
           background: COLOR.raise,
           borderTop: `1px solid ${COLOR.line2}`,
           // Rounded at the top only: it is attached to the bottom of the
@@ -99,7 +102,7 @@ export function Sheet({ title, detail, badge, onClose, children, testId }: Props
           {badge !== undefined && (
             <span
               style={{
-                ...TYPE.micro, fontSize: 9, color: COLOR.dim, flexShrink: 0,
+                ...TYPE.micro, fontSize: 10, color: COLOR.dim, flexShrink: 0,
                 background: 'rgba(0,0,0,0.25)',
                 border: `1px solid ${COLOR.line2}`,
                 borderRadius: R.pill, padding: '3px 8px', whiteSpace: 'nowrap',

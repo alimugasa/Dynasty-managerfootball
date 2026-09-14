@@ -109,7 +109,7 @@ function Row({ row, last }: { readonly row: ChecklistRow; readonly last: boolean
         >
           {row.title}
         </span>
-        <span style={{ ...TYPE.prose, display: 'block', color: COLOR.dim, fontSize: 11.5 }}>
+        <span style={{ ...TYPE.prose, display: 'block', color: COLOR.dim, fontSize: 12 }}>
           {row.detail}
         </span>
       </span>

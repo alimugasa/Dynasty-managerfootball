@@ -120,7 +120,7 @@ export function PlayScreen() {
           {notice}
         </p>
       )}
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading the week" rows={6} />}
 
       {d !== null && done && (
@@ -229,7 +229,7 @@ export function PlayScreen() {
             </ActionButton>
             <div style={{ display: 'grid', gap: S[2], gridTemplateColumns: '1fr 1fr' }}>
               <ActionButton tone="quiet" onClick={() => { nav.replaceRoot('team'); }} testId="to-preview">
-                Game preview
+                Preview
               </ActionButton>
               <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }} testId="to-depth">
                 Depth chart
@@ -248,7 +248,7 @@ export function PlayScreen() {
             )}
           </div>
 
-          <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
+          <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 12 }}>
             Simulating plays every club&rsquo;s week, not only yours. The results, the table,
             the statistics and the news all move with it.
           </p>

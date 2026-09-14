@@ -177,7 +177,7 @@ export function WorldBuild({
             >
               {team?.fullName ?? 'Your franchise'}
             </p>
-            <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
+            <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 12 }}>
               {gmName} · File {slot}
             </p>
           </div>
@@ -254,7 +254,7 @@ export function WorldBuild({
       {!failed && (
         <p
           data-testid="build-note"
-          style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}
+          style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 12 }}
         >
           The world is written in one transaction, so nothing exists part-way. Each count
           below a step is the rows that step actually wrote, reported when the franchise

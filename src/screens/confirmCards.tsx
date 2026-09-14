@@ -162,7 +162,7 @@ export function TeamCard({ team, onChange, disabled }: {
               >
                 {team.teamName}
               </p>
-              <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
+              <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 12 }}>
                 {team.city} · {divisionShort(team)}
               </p>
             </div>
@@ -261,13 +261,13 @@ export function RulesCard({ settings, difficulty }: {
           ? (
             <>
               <CommissionerBadge />
-              <span style={{ ...TYPE.prose, color: COLOR.amber, fontSize: 11.5, minWidth: 0 }}>
+              <span style={{ ...TYPE.prose, color: COLOR.amber, fontSize: 12, minWidth: 0 }}>
                 This save allows editing tools.
               </span>
             </>
           )
           : (
-            <span style={{ ...TYPE.prose, color: COLOR.mut, fontSize: 11.5 }}>
+            <span style={{ ...TYPE.prose, color: COLOR.mut, fontSize: 12 }}>
               Realistic franchise rules.
             </span>
           )}

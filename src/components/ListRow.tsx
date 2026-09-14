@@ -57,7 +57,7 @@ export function ListRow({
         {subtitle !== undefined && (
           <span
             style={{
-              ...TYPE.micro, fontSize: 11.5, color: COLOR.mut,
+              ...TYPE.micro, fontSize: 12, color: COLOR.mut,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
           >

@@ -28,7 +28,7 @@ export function PlayoffsScreen() {
     <Screen title="Playoffs" subtitle={subtitle} screen="playoffs">
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && save !== null && <Loading label="Loading the bracket" rows={6} />}
       {q.status === 'ready' && !q.data.seeded && (
         <EmptyState

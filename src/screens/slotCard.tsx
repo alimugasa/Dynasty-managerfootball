@@ -12,7 +12,7 @@
 // dollars of space (ARCHITECTURE.md rule 3).
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { COLOR, ELEV, FONT, MOTION, R, S, TYPE, colourWash } from '../app/tokens';
+import { COLOR, ELEV, FONT, MOTION, R, S, TAP, TYPE, colourWash } from '../app/tokens';
 import { TeamMark } from '../components/TeamMark';
 import { ChevronRightIcon, MoreIcon } from '../components/icons';
 import { capOf, recordOf, savedAt, whenIn } from './slotFacts';
@@ -176,7 +176,8 @@ function Overflow({ slot, onRename, onDelete }: {
         data-testid={`slot-menu-${String(slot)}`}
         onClick={() => { setOpen((v) => !v); }}
         style={{
-          width: 34, height: 34, display: 'flex', alignItems: 'center',
+          // TAP square. The glyph stays small; the target around it does not.
+          width: TAP, height: TAP, display: 'flex', alignItems: 'center',
           justifyContent: 'center', borderRadius: R.sm,
           background: open ? 'rgba(255,255,255,0.06)' : 'none',
           border: 0, cursor: 'pointer', color: open ? COLOR.tx : COLOR.dim,

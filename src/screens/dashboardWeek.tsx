@@ -45,7 +45,7 @@ export function ThisWeekCard({ week, weeks, busy, onSim, onPreview, onDepthChart
           detail="This save has no fixtures for the season. The world was built without a
             schedule, or it was removed; nothing can be played until it is there."
         />
-        <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.dim, fontSize: 12 }}>
           There is no repair for this in the game yet, and a button that claimed to fix
           it would not. Check again in case the build was still finishing; if it stays
           empty, the save was not created successfully and starting a new franchise is
@@ -100,7 +100,7 @@ export function ThisWeekCard({ week, weeks, busy, onSim, onPreview, onDepthChart
           >
             {week.home === true ? 'vs ' : 'at '}{week.opponentName ?? week.opponentId ?? 'Opponent'}
           </div>
-          <div style={{ ...TYPE.prose, color: COLOR.mut, fontSize: 11.5, marginTop: 2 }}>
+          <div style={{ ...TYPE.prose, color: COLOR.mut, fontSize: 12, marginTop: 2 }}>
             {recordOf(week.opponentRecord)} this season
             {week.opponentOverall === null ? '' : ' · rated '}
             {week.opponentOverall !== null && (
@@ -121,7 +121,7 @@ export function ThisWeekCard({ week, weeks, busy, onSim, onPreview, onDepthChart
         secondary={(
           <>
             <ActionButton tone="quiet" onClick={onPreview} testId="week-preview">
-              Game preview
+              Preview
             </ActionButton>
             <ActionButton tone="quiet" onClick={onDepthChart} testId="week-depth">
               Depth chart
@@ -214,7 +214,7 @@ export function ChecklistSheet({ copy, facts, onAction, onClose }: {
       {facts !== undefined && <div style={{ marginBottom: S[4] }}>{facts}</div>}
       <div style={{ display: 'grid', gap: S[3], minWidth: 0 }}>
         {copy.body.map((line, i) => (
-          <p key={i} style={{ ...TYPE.prose, margin: 0, color: COLOR.mut, fontSize: 12.5 }}>
+          <p key={i} style={{ ...TYPE.prose, margin: 0, color: COLOR.mut, fontSize: 12 }}>
             {line}
           </p>
         ))}

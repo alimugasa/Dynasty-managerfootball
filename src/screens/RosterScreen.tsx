@@ -55,7 +55,7 @@ export function RosterScreen() {
             Top of the list starts. Use the arrows to change who plays.
           </p>
 
-          {q.status === 'error' && <QueryError error={q.error} />}
+          {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
           {q.status === 'loading' && <Loading label="Loading depth chart" />}
           {q.status === 'ready' && q.data.order.length === 0 && (
             <EmptyState title={`No ${group} on the roster`} detail="The engine will field a backup out of position." />

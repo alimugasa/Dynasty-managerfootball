@@ -40,7 +40,7 @@ export function OfficeScreen() {
     >
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
-      {save !== null && q.status === 'error' && <QueryError error={q.error} />}
+      {save !== null && q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {save !== null && q.status === 'loading' && <Loading label="Loading office" rows={8} />}
       {save !== null && q.status === 'ready' && (
         <>
@@ -140,7 +140,7 @@ export function OfficeScreen() {
             >
               Main menu
             </ActionButton>
-            <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+            <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 0 0`, color: COLOR.dim, fontSize: 12 }}>
               Closes this dynasty and returns to the save files. Nothing is deleted; the
               server keeps it exactly where you left it.
             </p>

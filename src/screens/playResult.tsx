@@ -80,7 +80,7 @@ export function SimWarningModal({ warnings, week, onCancel, onConfirm }: {
       >
         {warnings.map((w) => <li key={w.key}>{w.text}</li>)}
       </ul>
-      <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.dim, fontSize: 12 }}>
         Week {String(week)} cannot be un-played. The save moves on either way.
       </p>
     </Modal>
@@ -237,7 +237,9 @@ export function SeasonWarningModal({ weeks, record, onCancel, onConfirm }: {
                 ? '—'
                 : `${String(record.wins)}-${String(record.losses)}${record.ties > 0 ? `-${String(record.ties)}` : ''}`,
             },
-            { label: 'Point diff', value: record === null ? '—' : signed(record.differential) },
+            // One word: three tiles across a 320px dialog give each about
+            // eighty pixels, and "Point diff" clipped to "POINT ...".
+            { label: 'Diff', value: record === null ? '—' : signed(record.differential) },
           ]}
         />
       </div>
@@ -253,7 +255,7 @@ function MarginLine({ label, margin, nameOf }: {
 }) {
   return (
     <div style={{ display: 'flex', gap: S[3], alignItems: 'baseline', minWidth: 0 }}>
-      <span style={{ ...TYPE.micro, fontSize: 9.5, color: COLOR.dim, width: 74, flexShrink: 0 }}>
+      <span style={{ ...TYPE.micro, fontSize: 10, color: COLOR.dim, width: 74, flexShrink: 0 }}>
         {label}
       </span>
       <span
@@ -343,7 +345,7 @@ export function SeasonSummaryModal({ season, record, seed, bestWin, worstLoss, n
         <MarginLine label="Worst loss" margin={worstLoss} nameOf={nameOf} />
       </div>
 
-      <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[4])}px 0 0`, color: COLOR.dim, fontSize: 12 }}>
         {made
           ? 'The bracket is drawn and waiting. Nothing has been played in it: the '
             + 'postseason is yours to start when you are ready.'

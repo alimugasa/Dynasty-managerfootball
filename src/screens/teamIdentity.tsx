@@ -88,7 +88,7 @@ export function TeamIdentity({ team }: { readonly team: TeamProfile }) {
           size={62}
         />
         <div style={{ minWidth: 0, flex: 1 }}>
-          <p style={{ ...TYPE.micro, margin: 0, color: COLOR.mut, fontSize: 10.5 }}>
+          <p style={{ ...TYPE.micro, margin: 0, color: COLOR.mut, fontSize: 11 }}>
             {team.city} · {team.abbreviation}
           </p>
           <h2
@@ -101,7 +101,7 @@ export function TeamIdentity({ team }: { readonly team: TeamProfile }) {
           >
             {team.teamName}
           </h2>
-          <p style={{ ...TYPE.prose, margin: '3px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
+          <p style={{ ...TYPE.prose, margin: '3px 0 0', color: COLOR.mut, fontSize: 12 }}>
             {divisionFull(team)}
           </p>
         </div>

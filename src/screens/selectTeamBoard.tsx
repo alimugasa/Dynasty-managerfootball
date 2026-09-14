@@ -66,7 +66,7 @@ export function SelectTeamBoard({
           is a filter the player has to reverse-engineer from its results. */}
       <p
         data-testid="filter-detail"
-        style={{ ...TYPE.prose, margin: `0 2px ${String(S[3])}px`, color: COLOR.dim, fontSize: 11.5 }}
+        style={{ ...TYPE.prose, margin: `0 2px ${String(S[3])}px`, color: COLOR.dim, fontSize: 12 }}
       >
         {FILTER_DETAIL[filter] ?? 'Every club in the league.'}
         {' '}

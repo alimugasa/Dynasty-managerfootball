@@ -89,7 +89,7 @@ export function TeamPreviewScreen() {
         </p>
       )}
 
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && (
         <SkeletonRegion label="Loading the scouting report">
           <TeamPreviewSkeleton />

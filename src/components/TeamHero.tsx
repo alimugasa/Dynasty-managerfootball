@@ -124,7 +124,7 @@ export function TeamHero({
                 key={t.label}
                 data-testid={`hero-tag-${t.kind}`}
                 style={{
-                  ...TYPE.micro, fontSize: 9.5, whiteSpace: 'nowrap',
+                  ...TYPE.micro, fontSize: 10, whiteSpace: 'nowrap',
                   color: t.accent === true ? COLOR.amber : COLOR.mut,
                   background: t.accent === true ? tint(COLOR.amber, 0.1) : 'rgba(0,0,0,0.22)',
                   border: `1px solid ${t.accent === true ? tint(COLOR.amber, 0.4) : COLOR.line2}`,

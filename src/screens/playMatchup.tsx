@@ -31,7 +31,7 @@ function Units({ offense, defense, overall, band }: {
 }) {
   const cell = (label: string, value: number | null, colour: string) => (
     <div key={label} style={{ minWidth: 0 }}>
-      <div style={{ ...TYPE.micro, fontSize: 9, color: COLOR.dim }}>{label}</div>
+      <div style={{ ...TYPE.micro, fontSize: 10, color: COLOR.dim }}>{label}</div>
       <div
         className="numeric"
         style={{ fontFamily: FONT.display, fontSize: 15, fontWeight: 600, color: colour }}
@@ -137,7 +137,7 @@ export function MatchupCard({ identity, ratings, record, week, competition, club
         >
           <div aria-hidden="true" style={{ flex: 1, height: 1, background: COLOR.line }} />
           <div style={{ textAlign: 'center', minWidth: 0 }}>
-            <div style={{ ...TYPE.micro, fontSize: 9.5, color: COLOR.dim }}>{competition}</div>
+            <div style={{ ...TYPE.micro, fontSize: 10, color: COLOR.dim }}>{competition}</div>
             <div
               data-testid="matchup-location"
               style={{
@@ -216,13 +216,13 @@ export function PrepCard({ label, value, detail, tone }: {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: S[2], minWidth: 0 }}>
-        <span style={{ ...TYPE.micro, fontSize: 9.5, color: COLOR.dim, flex: 1, minWidth: 0 }}>
+        <span style={{ ...TYPE.micro, fontSize: 10, color: COLOR.dim, flex: 1, minWidth: 0 }}>
           {label}
         </span>
         {absent && (
           <span
             style={{
-              ...TYPE.micro, fontSize: 8.5, color: COLOR.dim, whiteSpace: 'nowrap',
+              ...TYPE.micro, fontSize: 10, color: COLOR.dim, whiteSpace: 'nowrap',
               border: `1px solid ${tint(COLOR.line2, 0.8)}`, borderRadius: R.pill,
               padding: '1px 6px',
             }}

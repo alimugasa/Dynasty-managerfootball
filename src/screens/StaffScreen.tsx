@@ -46,7 +46,7 @@ export function StaffScreen() {
     <Screen title="Staff" subtitle={club?.name ?? ''} screen="staff">
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
-      {save !== null && q.status === 'error' && <QueryError error={q.error} />}
+      {save !== null && q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {save !== null && q.status === 'loading' && <Loading label="Loading the coaching staff" rows={6} />}
       {q.status === 'ready' && q.data.coaches.length === 0 && (
         <EmptyState

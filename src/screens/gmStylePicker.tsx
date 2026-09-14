@@ -90,7 +90,7 @@ export function GmStylePicker({ value, onChange }: {
       </div>
       {/* Said plainly, because the alternative is a player choosing Negotiator
           and spending a season wondering why nothing negotiates differently. */}
-      <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 12 }}>
         Kept on the save file. No effect on the simulation yet.
       </p>
     </div>

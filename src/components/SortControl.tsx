@@ -12,7 +12,7 @@
 // same control serve the standings, the roster, a leaderboard and the record
 // book.
 
-import { COLOR, FONT } from '../app/tokens';
+import { COLOR, FONT, R, TAP } from '../app/tokens';
 import { ChipRow, type Chip } from './ChipRow';
 
 export interface SortField {
@@ -51,7 +51,7 @@ export function SortControl({ fields, value, direction, onField, onReverse, labe
         aria-label={direction === 'desc' ? 'Sorted high to low' : 'Sorted low to high'}
         title={reversible ? 'Reverse the order' : 'This order does not reverse'}
         style={{
-          flexShrink: 0, minWidth: 44, minHeight: 32, borderRadius: 999,
+          flexShrink: 0, minWidth: 44, minHeight: TAP, borderRadius: R.pill,
           cursor: reversible ? 'pointer' : 'default',
           background: COLOR.panel,
           border: `1px solid ${COLOR.line}`,

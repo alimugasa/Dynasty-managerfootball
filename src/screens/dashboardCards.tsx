@@ -56,7 +56,7 @@ export function Pill({ label, colour, testId }: {
     <span
       {...(testId === undefined ? {} : { 'data-testid': testId })}
       style={{
-        ...TYPE.micro, fontSize: 9.5, color: colour, whiteSpace: 'nowrap',
+        ...TYPE.micro, fontSize: 10, color: colour, whiteSpace: 'nowrap',
         background: tint(colour, 0.12), border: `1px solid ${tint(colour, 0.42)}`,
         borderRadius: R.pill, padding: '3px 9px',
       }}
@@ -170,7 +170,7 @@ export function PerformanceTiles({ pointsFor, pointsAgainst, differential, turno
           </div>
           <div
             style={{
-              ...TYPE.micro, fontSize: 9.5, marginTop: 2,
+              ...TYPE.micro, fontSize: 10, marginTop: 2,
               color: quiet ? COLOR.dim : COLOR.mut,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
@@ -225,7 +225,7 @@ export function BandLegend({ band, label }: {
   readonly label: string;
 }) {
   return (
-    <span style={{ ...TYPE.micro, fontSize: 9.5, color: bandColor(band) }}>{label}</span>
+    <span style={{ ...TYPE.micro, fontSize: 10, color: bandColor(band) }}>{label}</span>
   );
 }
 

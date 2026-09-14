@@ -47,7 +47,7 @@ export function ScheduleScreen() {
             ? (playoffChips.find((c) => c.key === String(shown))?.label ?? `Week ${String(shown)}`)
             : `Week ${String(shown)}`}
           />
-          {q.status === 'error' && <QueryError error={q.error} />}
+          {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
           {q.status === 'loading' && <Loading label="Loading the schedule" rows={8} />}
           {q.status === 'ready' && q.data.fixtures.length === 0 && <EmptyState title="No games this week" />}
           {q.status === 'ready' && q.data.fixtures.length > 0 && (

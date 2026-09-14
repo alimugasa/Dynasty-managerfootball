@@ -3,8 +3,13 @@
 // Marked .tscroll so it scrolls inside itself. A chip row is exactly the control
 // that quietly widens a page past 375px: eight position filters do not fit, and
 // the fix is to let the row scroll rather than to let the document scroll.
+//
+// Chips are TAP tall. They were 32, which looks right and misses: this is the
+// most-tapped control in the product -- the team filters, the standings split,
+// the leader boards, the news feed all run on it -- and it was the shortest
+// thing on any of those screens.
 
-import { COLOR, FONT, MOTION, R, S, tint } from '../app/tokens';
+import { COLOR, FONT, MOTION, R, S, TAP, tint } from '../app/tokens';
 
 export interface Chip {
   readonly key: string;
@@ -42,7 +47,7 @@ export function ChipRow({ chips, value, onChange, label }: Props) {
               aria-selected={active}
               onClick={() => onChange(chip.key)}
               style={{
-                flexShrink: 0, minHeight: 32, padding: `0 ${String(S[3])}px`,
+                flexShrink: 0, minHeight: TAP, padding: `0 ${String(S[3])}px`,
                 borderRadius: R.pill, cursor: 'pointer',
                 // Marked with amber, not filled with it: the primary action
                 // button is the one amber fill in the product, and a row of

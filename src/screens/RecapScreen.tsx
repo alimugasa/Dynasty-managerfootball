@@ -49,7 +49,7 @@ export function RecapScreen() {
     >
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
-      {save !== null && q.status === 'error' && <QueryError error={q.error} />}
+      {save !== null && q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {save !== null && q.status === 'loading' && <Loading label="Loading the season" rows={8} />}
       {q.status === 'ready' && !q.data.complete && (
         <EmptyState

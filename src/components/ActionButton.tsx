@@ -12,7 +12,7 @@
 // to look like what it does.
 
 import { useState, type ReactNode } from 'react';
-import { COLOR, ELEV, FONT, MOTION, R, S } from '../app/tokens';
+import { COLOR, ELEV, FONT, MOTION, R, S, TAP } from '../app/tokens';
 
 interface Props {
   readonly children: ReactNode;
@@ -46,7 +46,9 @@ export function ActionButton({
       {...(testId === undefined ? {} : { 'data-testid': testId })}
       style={{
         width: compact ? 'auto' : '100%',
-        minHeight: compact ? 34 : 48,
+        // Compact is smaller ink, not a smaller target: it was 34, which put
+        // every row action and every dialog button under the tap floor.
+        minHeight: compact ? TAP : 48,
         padding: compact ? `0 ${String(S[3])}px` : `0 ${String(S[4])}px`,
         whiteSpace: 'nowrap',
         flexShrink: 0,
@@ -80,7 +82,10 @@ export function ActionButton({
         letterSpacing: 0.2,
         opacity: disabled ? 0.4 : 1,
         boxShadow: disabled || !(primary || danger) ? 'none' : down ? ELEV.low : ELEV.mid,
-        transform: down ? 'translateY(1px)' : 'none',
+        // Down a pixel and in by two percent. The dip alone reads as the
+        // button moving; the shrink is what reads as the button being pressed,
+        // and at 0.98 it is felt rather than seen.
+        transform: down ? 'translateY(1px) scale(0.98)' : 'none',
         transition: `transform ${MOTION.fast} ${MOTION.ease},`
           + ` box-shadow ${MOTION.fast} ${MOTION.ease},`
           + ` background-color ${MOTION.fast} ${MOTION.ease}`,

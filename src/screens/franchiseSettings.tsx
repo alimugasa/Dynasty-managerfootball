@@ -28,7 +28,7 @@ export function CommissionerBadge() {
     <span
       data-testid="commissioner-badge"
       style={{
-        ...TYPE.micro, fontSize: 9.5, color: COLOR.amber,
+        ...TYPE.micro, fontSize: 10, color: COLOR.amber,
         background: tint(COLOR.amber, 0.13),
         border: `1px solid ${tint(COLOR.amber, 0.5)}`,
         borderRadius: R.pill, padding: '3px 8px', whiteSpace: 'nowrap',
@@ -77,7 +77,7 @@ function SetupSummary({ gmName, team, difficulty, season, commissioner }: {
           >
             {team?.fullName ?? 'No team chosen'}
           </p>
-          <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 11.5 }}>
+          <p style={{ ...TYPE.prose, margin: '2px 0 0', color: COLOR.mut, fontSize: 12 }}>
             {gmName}
           </p>
         </div>
@@ -86,7 +86,7 @@ function SetupSummary({ gmName, team, difficulty, season, commissioner }: {
         <span
           data-testid="summary-difficulty"
           style={{
-            ...TYPE.micro, fontSize: 9.5, color: COLOR.tx,
+            ...TYPE.micro, fontSize: 10, color: COLOR.tx,
             background: 'rgba(0,0,0,0.24)', border: `1px solid ${COLOR.line2}`,
             borderRadius: R.pill, padding: '3px 8px', whiteSpace: 'nowrap',
           }}
@@ -95,7 +95,7 @@ function SetupSummary({ gmName, team, difficulty, season, commissioner }: {
         </span>
         <span
           style={{
-            ...TYPE.micro, fontSize: 9.5, color: COLOR.mut,
+            ...TYPE.micro, fontSize: 10, color: COLOR.mut,
             background: 'rgba(0,0,0,0.24)', border: `1px solid ${COLOR.line2}`,
             borderRadius: R.pill, padding: '3px 8px', whiteSpace: 'nowrap',
           }}
@@ -131,7 +131,7 @@ function SettingRow({ title, detail, options, value, onChange, locked, testId }:
     >
       <div style={{ minWidth: 0 }}>
         <p style={{ ...TYPE.body, margin: 0, color: COLOR.tx }}>{title}</p>
-        <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 0`, color: COLOR.mut, fontSize: 11.5 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 0`, color: COLOR.mut, fontSize: 12 }}>
           {detail}
         </p>
       </div>
@@ -202,7 +202,7 @@ export function FranchiseSettingsBody({
       <SectionHeader title="Rules" />
       <p
         data-testid="rules-note"
-        style={{ ...TYPE.prose, margin: `0 2px ${String(S[2])}px`, color: COLOR.dim, fontSize: 11.5 }}
+        style={{ ...TYPE.prose, margin: `0 2px ${String(S[2])}px`, color: COLOR.dim, fontSize: 12 }}
       >
         {locked
           ? `Set by ${difficultyLabel(difficulty)}. Choose Custom to change them.`
@@ -230,7 +230,7 @@ export function FranchiseSettingsBody({
           lighter injuries and delivers none is worse than no control. */}
       <p
         data-testid="rules-honesty"
-        style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}
+        style={{ ...TYPE.prose, margin: `${String(S[4])}px 2px 0`, color: COLOR.dim, fontSize: 12 }}
       >
         Saved with the franchise. The simulation does not read these yet.
       </p>

@@ -60,7 +60,7 @@ export function SelectTeamScreen() {
         </p>
       )}
 
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Scouting the league" rows={8} />}
       {q.status === 'ready' && ready && (
         <SelectTeamBoard

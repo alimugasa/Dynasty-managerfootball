@@ -82,6 +82,46 @@ button {
  * reduced-motion rule above collapses its duration to nothing, which stops it
  * spinning while leaving the lit arc visible -- so the active step is still the
  * one that looks different from the nine around it. */
+/* A dialog arrives: fades, and rises the last few pixels into place.
+ *
+ * It shared the screen cross-fade, which is right for a route and flat for a
+ * dialog -- a thing that appears over what you were reading should look like
+ * it came from somewhere. Six pixels is enough to read as arrival and short
+ * enough not to feel like an animation you are waiting through.
+ *
+ * The transform is on the dialog, never on the backdrop: a transformed
+ * ancestor becomes the containing block for fixed children, which is the bug
+ * that trapped these under the tab bar once already. */
+@keyframes dmp-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A bottom sheet slides up from the edge it is attached to. Further than the
+ * dialog rises, because a sheet's whole idea is that it came from off-screen. */
+@keyframes dmp-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The scrim behind either, which only ever fades. */
+@keyframes dmp-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes dmp-spin {
   to { transform: rotate(360deg); }
 }

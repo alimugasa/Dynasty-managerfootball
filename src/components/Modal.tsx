@@ -67,7 +67,7 @@ export function Modal({ title, detail, onClose, children, actions, testId }: Pro
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
         padding: S[3],
         paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${String(S[3])}px)`,
-        animation: `dmp-screen-in ${MOTION.base} ${MOTION.ease} both`,
+        animation: `dmp-scrim-in ${MOTION.base} ${MOTION.ease} both`,
       }}
       onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -82,6 +82,10 @@ export function Modal({ title, detail, onClose, children, actions, testId }: Pro
           // Sheet on a phone, card on anything wider: it rises from the thumb
           // rather than landing in the middle of the screen.
           width: '100%', maxWidth: 420, boxSizing: 'border-box',
+          // The dialog's own arrival, separate from the scrim's fade: it rises
+          // the last six pixels rather than simply appearing at full opacity
+          // where it will sit.
+          animation: `dmp-modal-in ${MOTION.base} ${MOTION.ease} both`,
           background: COLOR.raise,
           border: `1px solid ${COLOR.line2}`,
           borderRadius: R.lg,

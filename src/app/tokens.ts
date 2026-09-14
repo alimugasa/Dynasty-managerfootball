@@ -39,6 +39,21 @@ export const FONT = {
 
 export const LAYOUT = { navHeight: 60, shellMax: 520, minWidth: 320 } as const;
 
+/**
+ * The smallest a thing you tap may be.
+ *
+ * Forty pixels, which is the floor every mobile platform's guidance settles
+ * around and about the width of an adult fingertip. An audit of the shipped
+ * screens found filter chips at 32, a save file's overflow menu at 34, and the
+ * team name in a standings row at 15 -- a control the size of its own text,
+ * which is a control you miss.
+ *
+ * It is a minimum on the touch target, not on the ink: a chip may still look
+ * like a chip and a table row may still be tight, as long as the thing that
+ * takes the tap is this tall.
+ */
+export const TAP = 40;
+
 /** Corner radius. A chip, a card, a hero, a control -- and nothing between. */
 export const R = { sm: 6, md: 10, lg: 16, pill: 999 } as const;
 
@@ -60,6 +75,49 @@ export const ELEV = {
 /** A four-based space scale. Nothing lands between two steps. */
 export const S = {
   1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 7: 32, 8: 40,
+} as const;
+
+/**
+ * The sizes text is allowed to be.
+ *
+ * An audit of the shipped screens found twenty-four distinct font sizes, six of
+ * them fractional -- 8.5, 9.5, 10.5, 11.5, 12.5 -- which is what "the text
+ * feels randomly sized from screen to screen" actually looks like in a
+ * stylesheet. Those were nudges, not decisions: a label shaved half a pixel to
+ * fit a column that has since changed twice.
+ *
+ * This is the ramp. Every size in the product is one of these, and the three
+ * smallest steps are one pixel apart because a micro-label, a caption and a
+ * table cell genuinely do different jobs at that end of the scale.
+ *
+ * Nothing enforces it but review -- there is no lint rule for a number in a
+ * style object -- so the list is here to be read and copied from rather than
+ * to be checked against.
+ */
+export const SIZE = {
+  /** Micro-labels over a figure, and the smallest legible uppercase. */
+  xs: 10,
+  /** A caption, a chip's count, a secondary line under a row. */
+  sm: 11,
+  /** Supporting prose and dense table text. */
+  md: 12,
+  /** Running prose, and the standings table. */
+  base: 13,
+  /** A row's first line. */
+  lg: 14,
+  /** A section heading, and a card's title. */
+  xl: 15,
+  /** A card's name -- a club, a player, a save file. */
+  x2: 17,
+  /** A figure worth reading across a room. */
+  x3: 20,
+  /** A screen title. */
+  x4: 24,
+  /** The number a tile exists for. */
+  x5: 28,
+  /** The front door's lockup, and nothing else. */
+  x6: 34,
+  x7: 48,
 } as const;
 
 /**

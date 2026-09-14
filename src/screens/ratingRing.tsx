@@ -83,7 +83,7 @@ export function RatingRing({ label, rating, band, size = 54 }: {
           {rating === null ? '—' : Math.round(rating)}
         </span>
       </div>
-      <span style={{ ...TYPE.micro, fontSize: 9.5, color: COLOR.mut, textAlign: 'center' }}>
+      <span style={{ ...TYPE.micro, fontSize: 10, color: COLOR.mut, textAlign: 'center' }}>
         {label}
       </span>
     </div>

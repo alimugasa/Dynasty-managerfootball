@@ -195,7 +195,7 @@ export function FranchiseSummary({
       </div>
 
       {season !== null && !creating && (
-        <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
+        <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 2px 0`, color: COLOR.dim, fontSize: 12 }}>
           Creating writes the franchise into file {slot} and opens it at week 1 of {season}.
         </p>
       )}

@@ -174,7 +174,7 @@ export function TeamPreview({ team, onConfirm, onBack, busy = null }: {
             borderLeft: `2px solid ${COLOR.amber}`,
           }}
         >
-          <p style={{ ...TYPE.micro, margin: 0, color: COLOR.amber, fontSize: 9.5 }}>
+          <p style={{ ...TYPE.micro, margin: 0, color: COLOR.amber, fontSize: 10 }}>
             Suggested first move
           </p>
           <p style={{ ...TYPE.body, margin: `${String(S[1])}px 0 0`, color: COLOR.tx }}>

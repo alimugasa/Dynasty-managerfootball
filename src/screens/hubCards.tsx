@@ -44,7 +44,7 @@ export function HubCard({ title, detail, trailing, onSelect, testId }: {
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ ...TYPE.body, display: 'block', color: COLOR.tx }}>{title}</span>
         <span
-          style={{ ...TYPE.prose, display: 'block', color: COLOR.mut, fontSize: 11.5 }}
+          style={{ ...TYPE.prose, display: 'block', color: COLOR.mut, fontSize: 12 }}
         >
           {detail}
         </span>
@@ -104,7 +104,7 @@ export function NotBuilt({ title, detail, testId }: {
         <span style={{ ...TYPE.body, color: COLOR.mut, flex: 1, minWidth: 0 }}>{title}</span>
         <span
           style={{
-            ...TYPE.micro, fontSize: 9, color: COLOR.dim, flexShrink: 0,
+            ...TYPE.micro, fontSize: 10, color: COLOR.dim, flexShrink: 0,
             background: 'rgba(0,0,0,0.25)',
             border: `1px solid ${tint(COLOR.line2, 0.8)}`,
             borderRadius: R.pill, padding: '2px 7px', whiteSpace: 'nowrap',
@@ -113,7 +113,7 @@ export function NotBuilt({ title, detail, testId }: {
           Not built yet
         </span>
       </div>
-      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 0`, color: COLOR.dim, fontSize: 11.5 }}>
+      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 0`, color: COLOR.dim, fontSize: 12 }}>
         {detail}
       </p>
     </div>

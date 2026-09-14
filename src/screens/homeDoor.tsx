@@ -141,7 +141,7 @@ function Utility({
         minHeight: 44, padding: `0 ${String(S[2])}px`,
         background: 'none', border: 0, cursor: 'pointer',
         color: lit ? COLOR.mut : COLOR.dim,
-        ...TYPE.micro, fontSize: 10.5,
+        ...TYPE.micro, fontSize: 11,
         transition: `color ${MOTION.base} ${MOTION.ease}`,
         WebkitTapHighlightColor: 'transparent',
       }}
@@ -211,7 +211,7 @@ export function HomeDoor({ onNew, onLoad, onUtility, disabled = false, notice }:
                   padding: '3px 11px 2px', borderRadius: R.pill,
                   border: `1px solid ${tint(COLOR.amber, 0.45)}`,
                   background: tint(COLOR.amber, 0.08),
-                  ...TYPE.micro, fontSize: 10.5, color: COLOR.amber,
+                  ...TYPE.micro, fontSize: 11, color: COLOR.amber,
                 }}
               >
                 Pro
@@ -232,7 +232,7 @@ export function HomeDoor({ onNew, onLoad, onUtility, disabled = false, notice }:
               style={{
                 ...TYPE.micro, margin: `0 0 ${String(S[7])}px`,
                 textAlign: 'center', color: COLOR.mut,
-                fontSize: 11.5, letterSpacing: '0.18em',
+                fontSize: 12, letterSpacing: '0.18em',
               }}
             >
               Thirty-two teams. One chair.

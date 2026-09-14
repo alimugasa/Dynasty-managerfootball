@@ -66,7 +66,7 @@ export function OffseasonScreen() {
     >
       {loadError !== null && <QueryError error={loadError} />}
       {loaded && save === null && <NoDynasty />}
-      {save !== null && q.status === 'error' && <QueryError error={q.error} />}
+      {save !== null && q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {save !== null && q.status === 'loading' && <Loading label="Loading the offseason" rows={8} />}
       {q.status === 'ready' && q.data.label === '' && (
         <EmptyState
@@ -164,7 +164,7 @@ export function OffseasonScreen() {
             </>
           )}
 
-          {showing && year.status === 'error' && <QueryError error={year.error} />}
+          {showing && year.status === 'error' && <QueryError error={year.error} onRetry={year.retry} />}
           {showing && year.status === 'loading' && <Loading label="Loading the season" rows={6} />}
           {showing && year.status === 'ready' && (
             q.data.phase === 'AWARDS'

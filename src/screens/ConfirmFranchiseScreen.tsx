@@ -83,7 +83,7 @@ export function ConfirmFranchiseScreen() {
         </p>
       )}
 
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && (
         <SkeletonRegion label="Loading the franchise">
           <div style={{ display: 'grid', gap: S[3], marginTop: S[4] }}>

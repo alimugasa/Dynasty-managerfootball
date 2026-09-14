@@ -127,7 +127,7 @@ export function NewsScreen() {
         : unreadLine(data.season, unread, data.items.length)}
       screen="news"
     >
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading the feed" rows={6} />}
       {data !== null && (
         <>
@@ -178,7 +178,7 @@ export function NewsScreen() {
           )}
 
           <SectionHeader title="About this feed" />
-          <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 11.5 }}>
+          <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 12 }}>
             Stories are written when the franchise is created and as each week is
             simulated. Nothing here is placed by hand, and a story only carries a
             button when there is a screen behind it.

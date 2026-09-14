@@ -69,7 +69,7 @@ export function AppBar({ title, subtitle, trailing }: Props) {
           {subtitle !== undefined && (
             <p
               style={{
-                margin: '1px 0 0', fontSize: 11.5, color: COLOR.mut,
+                margin: '1px 0 0', fontSize: 12, color: COLOR.mut,
                 fontFamily: FONT.display, letterSpacing: '0.07em',
                 textTransform: 'uppercase',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',

@@ -51,7 +51,7 @@ export function FranchiseRulesScreen() {
           <RulesCard settings={settings} difficulty={difficultyOf(settings)} />
 
           <SectionHeader title="What these do today" />
-          <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 11.5 }}>
+          <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 12 }}>
             Stored with the save and shown here, and nothing more: the simulation does not
             read them yet. Injuries, trades, development and scouting all run the same way
             on every difficulty. They are kept because a question the save discards is a
@@ -60,7 +60,7 @@ export function FranchiseRulesScreen() {
           </p>
 
           <div style={{ marginTop: S[4] }}>
-            <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 11.5 }}>
+            <p style={{ ...TYPE.prose, margin: '0 2px', color: COLOR.dim, fontSize: 12 }}>
               The rules are fixed for the life of a dynasty. A record set under one set of
               rules should mean the same thing in ten seasons as it did in the first.
             </p>

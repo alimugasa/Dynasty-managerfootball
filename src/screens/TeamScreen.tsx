@@ -148,7 +148,7 @@ export function TeamScreen() {
 
   return (
     <Screen title={title} subtitle={subtitle} screen="team">
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading the franchise" rows={8} />}
       {d !== null && (
         <>

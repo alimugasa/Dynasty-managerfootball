@@ -56,7 +56,7 @@ export function PlayerScreen() {
       <Screen title="Player" screen="player">
         {q.error.message.includes('not found')
           ? <EmptyState title="No such player" detail={`Nothing on file for "${id}".`} />
-          : <QueryError error={q.error} />}
+          : <QueryError error={q.error} onRetry={q.retry} />}
       </Screen>
     );
   }
@@ -201,7 +201,7 @@ export function GameScreen() {
     return (
       <Screen title="Box score" screen="game">
         {q.status === 'error' && !q.error.message.includes('not found')
-          ? <QueryError error={q.error} />
+          ? <QueryError error={q.error} onRetry={q.retry} />
           : <EmptyState title="No such game" detail="It may belong to a season that has already rolled over." />}
       </Screen>
     );

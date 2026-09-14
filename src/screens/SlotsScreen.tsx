@@ -17,6 +17,7 @@ import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { ActionButton } from '../components/ActionButton';
 import { Modal } from '../components/Modal';
+import { EmptyState } from '../components/Surface';
 import { Loading, QueryError } from '../components/QueryState';
 import { NameField } from './nameField';
 import { Screen } from './Screen';
@@ -61,7 +62,7 @@ export function SlotsScreen() {
         </p>
       )}
 
-      {q.status === 'error' && <QueryError error={q.error} />}
+      {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading save files" rows={3} />}
       {q.status === 'ready' && (
         <div style={{ display: 'grid', gap: S[3] }} data-testid="slot-list">
@@ -117,10 +118,18 @@ export function SlotsScreen() {
         </div>
       )}
 
+      {/* Nowhere to put a new franchise. It was a grey sentence under the
+          cards, which reads as a footnote rather than as the answer to the
+          question the screen was opened with. The action is on the cards
+          themselves, so this says which one to use rather than repeating it. */}
       {q.status === 'ready' && creating && q.data.slots.every((s) => s.saveId !== null) && (
-        <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 2px 0`, color: COLOR.mut }}>
-          Every file is in use. Delete one to start a new franchise in it.
-        </p>
+        <div style={{ marginTop: S[4] }} data-testid="slots-full">
+          <EmptyState
+            title="No free save file"
+            detail={`All ${String(q.data.slots.length)} files are in use. Open the menu on a `
+              + 'file above to rename or delete it, and the space is yours.'}
+          />
+        </div>
       )}
 
       {renaming !== null && (

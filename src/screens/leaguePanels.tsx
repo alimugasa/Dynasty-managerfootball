@@ -15,7 +15,7 @@
 // there is one implementation of the control, not two that drift.
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { COLOR, FONT, tint } from '../app/tokens';
+import { COLOR, FONT, TAP, tint } from '../app/tokens';
 import { type Chip } from '../components/ChipRow';
 import { TableScroll } from '../components/TableScroll';
 import { Caption, Panel } from '../components/Surface';
@@ -307,7 +307,14 @@ export function StandingsPanel({
                               type="button"
                               onClick={() => { onSelect(r.teamId); }}
                               style={{
-                                background: 'none', border: 0, padding: 0, font: 'inherit',
+                                // Fills the cell rather than wrapping the
+                                // letters. The hit area used to be the height
+                                // of the text -- fifteen pixels -- in a
+                                // thirty-two row table on a phone.
+                                display: 'flex', alignItems: 'center',
+                                width: '100%', minHeight: TAP,
+                                margin: '-6px 0', padding: '6px 0',
+                                background: 'none', border: 0, font: 'inherit',
                                 color: 'inherit', cursor: 'pointer', textAlign: 'left',
                               }}
                             >

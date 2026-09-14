@@ -69,7 +69,7 @@ export function TeamRow({ team, onSelect, last = false }: {
       />
 
       <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 1 }}>
-        <span style={{ ...TYPE.micro, color: COLOR.dim, fontSize: 10.5 }}>
+        <span style={{ ...TYPE.micro, color: COLOR.dim, fontSize: 11 }}>
           {team.city}
         </span>
         {/* 17px, not 18: "Windjammers" is the longest nickname in the league
@@ -97,13 +97,13 @@ export function TeamRow({ team, onSelect, last = false }: {
             gap: `2px ${String(S[2])}px`, marginTop: 2, minWidth: 0,
           }}
         >
-          <span style={{ ...TYPE.prose, fontSize: 11.5, color: COLOR.mut, minWidth: 0 }}>
+          <span style={{ ...TYPE.prose, fontSize: 12, color: COLOR.mut, minWidth: 0 }}>
             {divisionShort(team)}
           </span>
           {team.difficulty !== null && (
             <span
               style={{
-                ...TYPE.micro, fontSize: 9.5, color: tone,
+                ...TYPE.micro, fontSize: 10, color: tone,
                 background: tint(tone, 0.12),
                 border: `1px solid ${tint(tone, 0.4)}`,
                 borderRadius: R.pill, padding: '2px 7px',
