@@ -227,19 +227,33 @@ describe('an offseason played through', () => {
     expect(signed.some((r) => r.team_id === TEAM)).toBe(true);
   }, 180_000);
 
-  it('breaks camp into a legal roster and a new season', async () => {
+  it('breaks the winter up into a new season, and hands it to camp', async () => {
+    // This asserted REGULAR_SEASON until training camp became a real phase,
+    // and then went on asserting it: the offseason now hands over to camp
+    // rather than to week 1, and camp is what starts the season. The club
+    // being managed therefore carries a camp roster here rather than a legal
+    // 53 -- deciding which thirty-seven of them go is the whole point of
+    // August, and doing it for the manager was exactly what the camp work
+    // stopped happening.
     const out = await step();
-    expect(out.phase).toBe('REGULAR_SEASON');
+    expect(out.phase).toBe('TRAINING_CAMP');
     expect(out.seasonStarted?.season).toBe(season + 1);
 
     const [save] = await pipe.sql<{ season: number; week: number; phase: string }[]>`
       select season, week, phase from public.saves where id = ${saveId}`;
-    expect(save).toEqual({ season: season + 1, week: 1, phase: 'REGULAR_SEASON' });
+    expect(save).toEqual({ season: season + 1, week: 1, phase: 'TRAINING_CAMP' });
     const rosters = await pipe.sql<{ team_id: string; n: string }[]>`
       select team_id, count(*)::text as n from public.team_rosters
        where save_id = ${saveId} group by team_id`;
     expect(rosters.length).toBe(32);
-    for (const r of rosters) expect(Number(r.n)).toBe(53);
+    for (const r of rosters) {
+      if (r.team_id === TEAM) {
+        expect(Number(r.n), 'the managed club goes to camp with a camp roster')
+          .toBeGreaterThan(53);
+      } else {
+        expect(Number(r.n), r.team_id).toBe(53);
+      }
+    }
     // The winter's decisions are finished with; nothing is left in flight.
     const [state] = await pipe.sql<{ offseason: unknown }[]>`
       select offseason from public.save_documents where save_id = ${saveId}`;

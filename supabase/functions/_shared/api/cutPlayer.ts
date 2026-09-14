@@ -19,6 +19,10 @@ import type { Db } from './db.ts';
 import { badRequest, notFound } from './context.ts';
 import type { SaveRow } from './save.ts';
 import { MAX_DEAD_MONEY_SHARE } from '../engine/offseason/contracts.ts';
+import { postToWaivers } from './waivers.ts';
+import { enterFreeAgency } from './freeAgentPool.ts';
+import { refreshCapSheet } from './rosterSpace.ts';
+import { clubNames, logMove, money } from './transactionLog.ts';
 
 /** Accrued seasons below which a released player passes through waivers. */
 export const WAIVER_THRESHOLD_YEARS = 4;
@@ -112,16 +116,32 @@ export async function cutTerms(
 export async function cutPlayer(
   db: Db, save: SaveRow, playerId: string,
 ): Promise<CutTerms> {
-  const terms = await cutTerms(db, save.id, save.user_team_id, playerId);
+  return releaseFrom(db, save, save.user_team_id, playerId);
+}
+
+/**
+ * The release itself, for any club in the league.
+ *
+ * Split out when the computer-run clubs needed to release players too. One
+ * path rather than two on purpose: a second release that forgot the wire, or
+ * the cap sheet, or the transaction record, would be a second path through
+ * which a player could vanish -- which is the exact defect this whole feature
+ * exists to fix, and it would have been reintroduced by the clubs nobody is
+ * watching.
+ */
+export async function releaseFrom(
+  db: Db, save: SaveRow, teamId: string, playerId: string,
+): Promise<CutTerms> {
+  const terms = await cutTerms(db, save.id, teamId, playerId);
 
   // Off the roster and off the depth chart. A released player left on a chart
   // is a player the week runner will try to field.
   await db`
     delete from public.team_rosters
-     where save_id = ${save.id} and team_id = ${save.user_team_id} and player_id = ${playerId}`;
+     where save_id = ${save.id} and team_id = ${teamId} and player_id = ${playerId}`;
   await db`
     delete from public.team_depth_charts
-     where save_id = ${save.id} and team_id = ${save.user_team_id} and player_id = ${playerId}`;
+     where save_id = ${save.id} and team_id = ${teamId} and player_id = ${playerId}`;
   await db`
     update public.player_contracts set contract_status = 'TERMINATED'
      where save_id = ${save.id} and player_id = ${playerId} and contract_status = 'ACTIVE'`;
@@ -131,32 +151,43 @@ export async function cutPlayer(
     update public.players set team_id = null
      where save_id = ${save.id} and player_id = ${playerId}`;
 
-  // Where he goes. A waived player is on waivers rather than in the market,
-  // and the distinction is recorded even though no club claims him yet --
-  // the free_agents row is what the market reads, so a player on waivers is
-  // deliberately not in it.
-  if (!terms.waivers) {
-    await db`
-      insert into public.free_agents (
-        save_id, player_id, display_name, position, age, experience_years,
-        overall_rating, previous_team_id, market_asking_aav)
-      select ${save.id}, p.player_id, p.display_name, p.position, p.age,
-             p.experience_years, p.overall_rating, ${save.user_team_id},
-             ${Math.round(terms.capHit * 0.6)}
-        from public.players p
-       where p.save_id = ${save.id} and p.player_id = ${playerId}
-      on conflict do nothing`;
+  // Where he goes. Under four accrued seasons and he is posted to the wire,
+  // where another club may claim him and the contract with him; four or more
+  // and the market gets him at once. The distinction was already made here and
+  // had nowhere to send him -- a waived player came off the roster and out of
+  // the game -- which is the hole the wire closes.
+  let deadlineWeek: number | null = null;
+  if (terms.waivers) {
+    const posted = await postToWaivers(
+      db, save.id, save.season, save.week, playerId, teamId);
+    deadlineWeek = posted.deadlineWeek;
+  } else {
+    await enterFreeAgency(db, save.id, save.season, {
+      playerId, previousTeamId: teamId,
+      week: save.week, fallbackAsk: terms.capHit,
+    });
   }
 
-  await db`
-    insert into public.transactions (
-      save_id, season, week, phase, kind, team_id, player_id, player_name,
-      detail, cap_impact)
-    values (${save.id}, ${save.season}, ${save.week}, ${save.phase},
-            'RELEASE', ${save.user_team_id},
-            ${playerId}, ${terms.name},
-            ${terms.waivers ? 'Released and subject to waivers' : 'Released; free agent'},
-            ${terms.deadMoney})`;
+  // The cap moves the moment he does. Without this the sheet every screen
+  // reads stayed at whatever the last rollover projected, so a club could cut
+  // its way to nothing and still be told it had no room.
+  await refreshCapSheet(db, save.id, save.season, teamId, terms.deadMoney);
+
+  const [player] = await db<{ overall_rating: number }[]>`
+    select overall_rating from public.players
+     where save_id = ${save.id} and player_id = ${playerId}`;
+  await logMove(db, {
+    saveId: save.id, season: save.season, week: save.week, phase: save.phase,
+    userTeamId: save.user_team_id, clubNames: await clubNames(db, save.id),
+  }, {
+    kind: 'RELEASE', teamId, playerId, playerName: terms.name,
+    position: terms.position, overall: player?.overall_rating ?? 0,
+    capImpact: terms.deadMoney, fromTeamId: null,
+    detail: terms.waivers
+      ? `Subject to waivers through week ${String(deadlineWeek ?? save.week)}; `
+        + `${money(terms.deadMoney)} dead money`
+      : `Now an unrestricted free agent; ${money(terms.deadMoney)} dead money`,
+  });
 
   // The evaluation goes with him. A cut player on the camp board is a player
   // the manager already dealt with, and leaving him there would make the

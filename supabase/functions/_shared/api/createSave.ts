@@ -21,6 +21,7 @@ import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
 import { ownedSave, rngSeed32, touchSave } from './save.ts';
+import { refreshWaiverPriority } from './waivers.ts';
 import { defaultDepthChart, projectWorld, seedStandings, writeDepthChart } from './project/index.ts';
 import { createRng } from '../engine/rng.ts';
 import { primePipeline } from '../engine/offseason/population.ts';
@@ -198,6 +199,11 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
             seed: seed32, engineVersion: ENGINE_VERSION, createdAt: now, updatedAt: now,
           },
         }));
+        // The waiver queue a season opens with. There is no table yet, so
+        // this is last season's finish in reverse -- and in a league's first
+        // season there is no finish either, and the order falls back to
+        // something stable and visibly arbitrary rather than to a guess.
+        await refreshWaiverPriority(tx, saveId, save.season);
         await touchSave(tx, saveId, { week: 1, phase: 'REGULAR_SEASON' });
       });
 

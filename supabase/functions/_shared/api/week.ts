@@ -31,6 +31,9 @@ import {
 } from './project/stats.ts';
 import { advanceBracket, PLAYOFF_WEEKS, seedPostseason } from './postseason.ts';
 import { buildWeekNews, insertNews } from './news.ts';
+import { resolveWaivers, waiverStories } from './waiverResolution.ts';
+import { refreshWaiverPriority } from './waivers.ts';
+import { cpuMarketRound, logCpuMoves } from './cpuMarket.ts';
 import { resultStory } from './franchiseNews.ts';
 import { resultFacts } from './franchiseNewsFacts.ts';
 import { createRng, type Rng } from '../engine/rng.ts';
@@ -160,6 +163,14 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
   if (competition === 'PLAYOFF' && fixtures.length === 0) {
     throw new Error(`Week ${String(week)} of the ${String(season)} playoffs has no games written`);
   }
+  // Before a ball is kicked: settle every claim window whose deadline has
+  // passed. A player claimed this morning plays for his new club this
+  // afternoon, which is the only ordering that makes a waiver claim worth
+  // making -- resolving after the games would hand a manager a player for a
+  // week that had already been played.
+  const awards = await resolveWaivers(db, save, week);
+  await insertNews(db, saveId, await waiverStories(db, save, awards));
+
   const chart = await readDepthChart(db, saveId, save.user_team_id);
   const out = await absentPlayers(db, saveId, season, week);
 
@@ -215,6 +226,27 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
     phase = champion === null ? 'PLAYOFFS' : 'OFFSEASON';
   }
   await touchSave(db, saveId, { week: nextWeek, phase });
+
+  // The other thirty-one clubs work the market, now the week's injuries are on
+  // record: a club that lost a starter this afternoon is short at that
+  // position from this moment, and looks for a replacement from it.
+  //
+  // After the save has been moved on, not before, and that ordering is the
+  // whole point. A club that releases a player here posts him to the wire in
+  // the week the manager is about to play -- so the manager opens the Waiver
+  // Wire screen and can actually claim him. Running this before the save
+  // advanced posted every computer-run club's cuts under the week that had
+  // just finished, which meant their windows were already shut by the time
+  // anybody could see them: the wire filled up and emptied between screens,
+  // and no claim was ever possible on any of it.
+  if (competition === 'REGULAR') {
+    const next: SaveRow = { ...save, week: nextWeek, phase };
+    await logCpuMoves(db, next, await cpuMarketRound(db, next, nextWeek, weeks));
+    // The queue follows the table. Recomputed after the round rather than
+    // before it, so a club awarded a player this week keeps the place at the
+    // back that the award gave it until the table itself moves it.
+    await refreshWaiverPriority(db, saveId, season);
+  }
 
   return { season, week: nextWeek, phase, played: games.played.length, abandoned: games.abandoned, champion };
 }

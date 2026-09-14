@@ -22,6 +22,7 @@ import { playPreseasonWeek, writePreseasonSchedule, type PreseasonOutcome } from
 import { gradePreseason, writeEvaluations } from '../campEvaluation.ts';
 import { finalRosterNews } from '../franchiseNews.ts';
 import { insertNews } from '../news.ts';
+import { refreshWaiverPriority } from '../waivers.ts';
 
 interface SaveOnly { readonly saveId: string }
 
@@ -216,6 +217,11 @@ export async function finalizeRoster(db: Db, save: SaveRow): Promise<FinalizeOut
 
   await db`
     update public.saves set roster_finalized_season = ${save.season} where id = ${save.id}`;
+  // The season opens with a waiver queue in place. Set here rather than left
+  // to the first week: a player cut on the Tuesday of week one can be claimed
+  // before a single game has been played, and a claim needs an order to be
+  // settled by.
+  await refreshWaiverPriority(db, save.id, save.season);
   await touchSave(db, save.id, { week: 1, phase: 'REGULAR_SEASON' });
 
   return {
