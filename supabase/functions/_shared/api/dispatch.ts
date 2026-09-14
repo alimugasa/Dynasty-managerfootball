@@ -7,6 +7,7 @@
 // which handler -- there is only one table to disagree with.
 
 import { ApiError, unauthorized, type HandlerContext, type Handler } from './context.ts';
+import { BuildStepError } from './buildSteps.ts';
 import { health } from './health.ts';
 import { createSave } from './createSave.ts';
 import { simWeek } from './simWeek.ts';
@@ -79,7 +80,17 @@ export async function dispatch(
   if (handler === undefined) throw new ApiError(404, 'no_such_route', `No route named "${name}"`);
   if (handler.auth === 'required' && ctx.userId === null) throw unauthorized();
   const input: unknown = handler.parse(raw);
-  return handler.run(ctx, input);
+  try {
+    return await handler.run(ctx, input);
+  } catch (error) {
+    // A step that named itself keeps its name across the wire, so the screen
+    // watching the build can say which one failed. Everything else is passed
+    // through untouched.
+    if (error instanceof BuildStepError) {
+      throw new ApiError(500, 'build_failed', error.message, error.step);
+    }
+    throw error;
+  }
 }
 
 export { ApiError };

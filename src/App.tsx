@@ -70,6 +70,11 @@ function OpenSaveRouter() {
   useEffect(() => {
     if (!loaded) return;
     const onBoot = isBootScreen(screen);
+    // The world screen is the one boot screen allowed to have a save open: it
+    // is the screen that just created it, and it is showing what was built
+    // before it hands the player on. Yanking it to the dashboard the instant
+    // the transaction commits would mean nobody ever saw the thing.
+    if (screen === 'worldGen') return;
     if (save !== null && onBoot) {
       // A save is open, so the franchise that was being set up is now a
       // franchise. The draft is dropped here rather than beside the call that

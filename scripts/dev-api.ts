@@ -73,8 +73,11 @@ const server = createServer((req, res) => {
       const status = error instanceof ApiError ? error.status : 500;
       const code = error instanceof ApiError ? error.code : 'internal';
       const message = error instanceof Error ? error.message : String(error);
+      // The build step travels with the failure, so the world screen can say
+      // which one went wrong rather than printing a message and hoping.
+      const step = error instanceof ApiError ? error.step : undefined;
       res.writeHead(status, { ...CORS, 'content-type': 'application/json' });
-      res.end(JSON.stringify({ error: code, message }));
+      res.end(JSON.stringify({ error: code, message, ...(step === undefined ? {} : { step }) }));
     }
   })();
 });

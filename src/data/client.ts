@@ -26,12 +26,15 @@ export interface ApiFailure {
 export class ApiRequestError extends Error implements ApiFailure {
   readonly status: number;
   readonly code: string;
+  /** The build step the server was on when it failed, where it was on one. */
+  readonly step: string | undefined;
 
-  constructor(status: number, code: string, message: string) {
+  constructor(status: number, code: string, message: string, step?: string) {
     super(message);
     this.name = 'ApiRequestError';
     this.status = status;
     this.code = code;
+    this.step = step;
   }
 }
 
@@ -59,7 +62,8 @@ export function createApi(options: ClientOptions): ApiClient {
         // Typed against the transport's own declaration of the failure shape.
         const failure = body as Partial<ApiErrorBody>;
         throw new ApiRequestError(
-          response.status, failure.error ?? 'unknown', failure.message ?? response.statusText);
+          response.status, failure.error ?? 'unknown', failure.message ?? response.statusText,
+          failure.step);
       }
       return body as Out;
     },

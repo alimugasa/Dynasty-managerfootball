@@ -45,8 +45,13 @@ export interface SaveApi {
    *  what it says comes back as the notice. */
   offseasonMove: (route: string, input: Record<string, unknown>) => Promise<void>;
   setDepthChart: (group: string, order: readonly string[]) => Promise<void>;
-  /** Creates a dynasty in `slot` under a named GM, and opens it. */
-  startDynasty: (input: NewDynasty) => Promise<void>;
+  /** Creates a dynasty in `slot` under a named GM, and opens it.
+   *
+   *  Unlike every other action here, this one rejects rather than folding the
+   *  failure into `notice`: the screen that calls it is a build screen, and it
+   *  has to know which step failed to say so. It resolves with what each step
+   *  of the build produced. */
+  startDynasty: (input: NewDynasty) => Promise<CreateSaveOut>;
   /** Opens an existing save. */
   openSave: (saveId: string) => Promise<void>;
   /** Closes the open save and returns to the menu. Deletes nothing. */
@@ -212,19 +217,34 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       setDepthChart: (group, order) => act('Saving…', async () => {
         await api().call('set-depth-chart', { saveId: need(), group, order });
       }),
-      startDynasty: (input) => act('Creating…', async () => {
-        const out = await api().call<CreateSaveOut>('create-save', {
-          name: input.name,
-          teamId: input.teamId,
-          slot: input.slot,
-          gmFirstName: input.gmFirstName,
-          gmLastName: input.gmLastName,
-          ...(input.gmStyle === undefined ? {} : { gmStyle: input.gmStyle }),
-          ...(input.settings === undefined ? {} : { settings: input.settings }),
-        });
-        setOpenSaveId(out.saveId);
-        remember(out.saveId);
-      }),
+      startDynasty: async (input) => {
+        setBusy('Creating…');
+        setNotice(null);
+        try {
+          const out = await api().call<CreateSaveOut>('create-save', {
+            name: input.name,
+            teamId: input.teamId,
+            slot: input.slot,
+            gmFirstName: input.gmFirstName,
+            gmLastName: input.gmLastName,
+            ...(input.gmStyle === undefined ? {} : { gmStyle: input.gmStyle }),
+            ...(input.settings === undefined ? {} : { settings: input.settings }),
+          });
+          setOpenSaveId(out.saveId);
+          remember(out.saveId);
+          // The reload the other actions get from act(), so the save is read
+          // before the build screen hands the player to the dashboard.
+          await reload(out.saveId);
+          setBusy(null);
+          return out;
+        } catch (error) {
+          // Said in both places: the notice for any screen watching it, and the
+          // rejection for the one that has to name the step that failed.
+          setNotice(error instanceof Error ? error.message : String(error));
+          setBusy(null);
+          throw error;
+        }
+      },
       openSave: (saveId) => act('Opening…', async () => {
         // Read before it is opened, so a save that cannot be read leaves the
         // player on the menu instead of inside a screen with nothing behind it.
@@ -248,7 +268,7 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         await api().call('rename-save', { saveId, name });
       }),
     };
-  }, [current, loadError, clubsById, version, busy, notice, act, openSaveId, settled]);
+  }, [current, loadError, clubsById, version, busy, notice, act, reload, openSaveId, settled]);
 
   return <SaveContext.Provider value={value}>{children}</SaveContext.Provider>;
 }

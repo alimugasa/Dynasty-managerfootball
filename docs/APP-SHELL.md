@@ -441,6 +441,51 @@ back to a named screen further down the stack in one `history.go`. Pushing would
 stack a second Select Team whose search and chips start empty, and calling
 `back()` twice races the history it delegates to.
 
+### Building Franchise World
+
+The screen that runs `create-save` and shows what it built. Ten steps over a
+backdrop made from the club's own two colours — two soft floodlight pools and a
+faint grid, laid over the app's ink rather than used neat.
+
+**The honesty problem, and how it is answered.** A ten-step checklist ticking
+through a build is the most tempting thing in this product to fake, because the
+build is a single opaque transaction. Rows written inside an uncommitted
+transaction are invisible to every other connection: there is nothing to poll,
+and nothing to stream without giving up the atomicity that lets a failure leave
+the save file empty. So the steps are **reported, not narrated**. `createSave`
+records what each phase produced — counted off the rows it wrote, in the same
+transaction that wrote them — and returns the manifest when the franchise
+commits. The screen renders all ten from the first frame, checks nothing off
+until the server has spoken, and then reveals them with their real counts.
+`tests/api/buildSteps` compares every reported figure against a fresh count of
+the rows.
+
+The note at the foot says all of this in two sentences, because a checklist that
+animated to a timer would be a progress bar with no progress behind it, and the
+player deserves to know which kind they are looking at.
+
+A step with nothing to count says *Ready* rather than `0` — the news feed starts
+empty and fills as the season is played, and opening the front office is work
+rather than rows, so a `1` there would be a number pretending to be a
+measurement.
+
+**Failure names the step.** `runStep()` wraps each phase and rethrows a
+`BuildStepError` carrying the step key; `dispatch` turns that into an `ApiError`
+with a `step` field, both transports serialise it, and `ApiRequestError` exposes
+it. So the card can say *Generating schedule failed* rather than printing a
+message and hoping. A request refused before the build began — a taken slot, a
+settings document the server could not read — names no step, and the card says
+*The franchise was not created* instead of pointing at the wrong thing.
+
+**Retry, not "retry this step".** One transaction means there is no half-built
+world to resume from. The button re-runs the whole creation, which is the only
+thing it could honestly do.
+
+`OpenSaveRouter` exempts this screen by name. It is the one boot screen allowed
+to have a save open — it is the screen that just created it — and without the
+exemption the router would replace the root the instant the transaction
+committed, so nobody would ever see what was built.
+
 ### The franchise being set up
 
 Create GM and Select Team are two questions about one thing that does not exist

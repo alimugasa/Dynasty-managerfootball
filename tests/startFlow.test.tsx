@@ -134,7 +134,7 @@ describe('what a save file reports', () => {
 
 describe('where the stack rests', () => {
   it('registers every screen the start flow walks through', () => {
-    for (const key of ['home', 'slots', 'gm', 'pickTeam', 'teamPreview', 'franchiseSettings', 'confirmFranchise']) {
+    for (const key of ['home', 'slots', 'gm', 'pickTeam', 'teamPreview', 'franchiseSettings', 'confirmFranchise', 'worldGen']) {
       expect(SCREENS[key], `no screen for ${key}`).toBeDefined();
       expect(isBootScreen(key)).toBe(true);
     }
@@ -142,7 +142,7 @@ describe('where the stack rests', () => {
 
   it('falls back to Home from the start flow, and to Team from the game', () => {
     expect(rootFor('home')).toBe(HOME_SCREEN);
-    for (const key of ['slots', 'gm', 'pickTeam', 'teamPreview', 'franchiseSettings', 'confirmFranchise']) {
+    for (const key of ['slots', 'gm', 'pickTeam', 'teamPreview', 'franchiseSettings', 'confirmFranchise', 'worldGen']) {
       expect(rootFor(key)).toBe(HOME_SCREEN);
     }
     // A drill-down inside the game still rests on Team, which has a dynasty

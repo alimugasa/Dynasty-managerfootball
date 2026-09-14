@@ -15,13 +15,16 @@ describe('create-save', () => {
   let pipe: Pipe;
   let sql: Pipe['sql'];
 
+  // Clearing this user cascades a whole cloned world per save, and the suite
+  // runs several world-building files at once. The default ten-second hook
+  // timeout is a fraction of what that can take under that contention.
   beforeAll(async () => {
     pipe = await openPipe();
     sql = pipe.sql;
     await sql`delete from public.saves where user_id = ${USER}`;
-  });
+  }, 300_000);
 
-  afterAll(async () => { await pipe.close(); });
+  afterAll(async () => { await pipe.close(); }, 300_000);
 
   it('clones the whole template world under a fresh seed', async () => {
     const api = pipe.api;

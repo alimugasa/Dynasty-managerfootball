@@ -76,3 +76,16 @@ button {
 .screen-in {
   animation: dmp-screen-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+/* The one thing on the build screen that moves: a ring with a lit arc, turning
+ * once a second, marking the step the server is working through. The universal
+ * reduced-motion rule above collapses its duration to nothing, which stops it
+ * spinning while leaving the lit arc visible -- so the active step is still the
+ * one that looks different from the nine around it. */
+@keyframes dmp-spin {
+  to { transform: rotate(360deg); }
+}
+
+.dmp-spin {
+  animation: dmp-spin 1s linear infinite;
+}

@@ -62,6 +62,8 @@ async function ensureDynasty(page: Page): Promise<void> {
   await page.getByTestId('club-list').locator('[data-testid^="team-"]').first().click();
   await page.getByTestId('confirm-team').click();
   await page.getByTestId('setup-continue').click();
+  // Create Franchise hands over to the world screen, which runs the single
+  // call that writes the league and then opens the front office.
   await page.getByTestId('create-franchise').click();
   await inDynasty(page);
 }

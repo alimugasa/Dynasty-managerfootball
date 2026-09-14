@@ -20,6 +20,7 @@ import { FranchiseSummary } from '../../src/screens/franchiseSummary';
 import { gmStyleLabel } from '../../src/screens/gmStyles';
 import { TeamPreview } from '../../src/screens/teamPreview';
 import { SelectTeamScreen, type GmDraft } from './boot';
+import { RigWorldBuild } from './worldGen';
 import { PRESETS, difficultyOf } from '../../supabase/functions/_shared/api/franchiseOptions';
 import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 import { BOARD_SEASON, boardLeague } from './board';
@@ -30,11 +31,12 @@ import { BOARD_SEASON, boardLeague } from './board';
  *  'franchiseSettings' rather than 'settings': the main menu already has a
  *  Settings panel on that name, and calling the review the same thing hid it
  *  behind the menu -- a bug only a walk through the flow finds. */
-export type BootRoute = 'pick' | 'preview' | 'franchiseSettings' | 'confirmFranchise';
+export type BootRoute =
+  | 'pick' | 'preview' | 'franchiseSettings' | 'confirmFranchise' | 'worldGen';
 
 export function FranchiseFlow({
   route, board, busy, pending, filter, query,
-  onFilter, onQuery, onPending, onRoute, onStart,
+  onFilter, onQuery, onPending, onRoute, onStart, onMenu,
 }: {
   readonly route: string;
   readonly board: readonly TeamProfile[];
@@ -48,6 +50,8 @@ export function FranchiseFlow({
   readonly onRoute: (next: BootRoute) => void;
   /** Builds the league and opens the dynasty. The only thing here that writes. */
   readonly onStart: (teamId: string) => void;
+  /** Back to the front door, from the world screen's failure card. */
+  readonly onMenu: () => void;
 }) {
   // The club being looked at, held on the draft the way the app holds it, so
   // walking back to the board and forward again does not lose the pick.
@@ -122,7 +126,17 @@ export function FranchiseFlow({
           busy={busy}
           onBack={() => { onRoute('franchiseSettings'); }}
           onChangeTeam={() => { onRoute('preview'); }}
-          onCreate={() => { onStart(pending.teamId ?? ''); }}
+          onCreate={() => { onRoute('worldGen'); }}
+        />
+      )}
+
+      {route === 'worldGen' && pending !== null && (
+        <RigWorldBuild
+          team={previewing ?? null}
+          gmName={`${pending.first.trim()} ${pending.last.trim()}`.trim()}
+          slot={pending.slot}
+          onBuild={() => { onStart(pending.teamId ?? ''); }}
+          onMenu={onMenu}
         />
       )}
 
@@ -165,8 +179,8 @@ export function FranchiseFlow({
       {/* A club the board does not have. Reported rather than blanked: the id
           came from somewhere, and "we cannot find it" is the useful thing to
           say on the screen that is about that club. */}
-      {(route === 'preview' || route === 'franchiseSettings' || route === 'confirmFranchise')
-        && previewing === undefined && (
+      {(route === 'preview' || route === 'franchiseSettings' || route === 'confirmFranchise'
+        || route === 'worldGen') && previewing === undefined && (
         <p style={{ margin: `${String(S[2])}px 0`, color: COLOR.red, fontSize: 13 }}>
           No club in this league has the id “{pending?.teamId ?? ''}”.
         </p>

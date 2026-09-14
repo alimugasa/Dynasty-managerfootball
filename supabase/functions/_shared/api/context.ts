@@ -13,18 +13,25 @@ export interface HandlerContext {
 export interface ApiErrorBody {
   readonly error: string;
   readonly message: string;
+  /** The build step that failed, where the failure happened inside one. Lets
+   *  the world screen say which step went wrong rather than showing a message
+   *  and hoping the player can place it. */
+  readonly step?: string;
 }
 
 /** An error the transport should turn into an HTTP status rather than a 500. */
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
+  /** Set only on a failure that happened inside a named build step. */
+  readonly step: string | undefined;
 
-  constructor(status: number, code: string, message: string) {
+  constructor(status: number, code: string, message: string, step?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
+    this.step = step;
   }
 }
 

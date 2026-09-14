@@ -210,7 +210,8 @@ export function App() {
       : route === 'gm' ? 'Create GM'
         : route === 'preview' ? 'Team Preview'
           : route === 'franchiseSettings' ? 'Franchise Settings'
-            : route === 'confirmFranchise' ? 'Confirm Franchise' : 'Select Team';
+            : route === 'confirmFranchise' ? 'Confirm Franchise'
+              : route === 'worldGen' ? 'Building Franchise World' : 'Select Team';
     const gmLine = `${`${pending?.first ?? ''} ${pending?.last ?? ''}`.trim()} · File ${String(pending?.slot ?? 1)}`;
     const subtitle = route === 'slots' ? (creating ? 'Choose save file' : 'Save files')
       : route === 'gm' ? `File ${String(pending?.slot ?? 1)}` : gmLine;
@@ -219,6 +220,9 @@ export function App() {
       if (route === 'preview') { setRoute('pick'); return; }
       if (route === 'franchiseSettings') { setRoute('preview'); return; }
       if (route === 'confirmFranchise') { setRoute('franchiseSettings'); return; }
+      // Nothing to go back to once the world is being built: the only way out
+      // is the failure card's own Return to Main Menu.
+      if (route === 'worldGen') return;
       setRoute(route === 'gm' ? 'slots' : 'gm');
     };
     return bootShell(title, subtitle, back, (
@@ -275,6 +279,7 @@ export function App() {
           onPending={setPending}
           onRoute={setRoute}
           onStart={start}
+          onMenu={() => { setPending(null); setNotice(null); setRoute('home'); }}
         />
       </>
     ));

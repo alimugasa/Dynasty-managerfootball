@@ -1,7 +1,9 @@
-// The last screen, wired to the save.
+// The last screen the player answers on.
 //
-// Six screens asked six questions and none of them wrote anything. This is the
-// one call to create-save. It is also the only place in the product where a
+// Six screens asked six questions and none of them wrote anything. This one
+// does not write either: it reviews, and Create Franchise hands over to the
+// world screen, which runs the single call to create-save and shows what it
+// built. It is also the only place in the product where a
 // double tap could do real damage, so the guard is a ref rather than the busy
 // flag: busy is React state and lands a render later, and a second press inside
 // that window would ask the server for a second franchise in the same file.
@@ -18,7 +20,7 @@
 // not here. Clearing it beside the call threw away every answer on a failure
 // as well as on a success.
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { COLOR, S, TYPE } from '../app/tokens';
 import { useFranchiseSetup } from '../app/FranchiseSetup';
 import { useNavigator } from '../app/navigation';
@@ -34,13 +36,13 @@ import type { TeamProfilesOut } from '../../supabase/functions/_shared/api/reads
 export function ConfirmFranchiseScreen() {
   const nav = useNavigator();
   const { draft, record } = useFranchiseSetup();
-  const { startDynasty, busy, notice, version } = useSave();
+  const { busy, notice, version } = useSave();
   const q = useQuery<TeamProfilesOut>('team-profiles', {}, version);
   // Set the moment the button is pressed and cleared only when the attempt has
   // come back, so a second press inside the same render cannot start a second
   // franchise.
   const creating = useRef(false);
-  const [failed, setFailed] = useState(false);
+  const failed = false;
 
   const first = draft?.firstName.trim() ?? '';
   const last = draft?.lastName.trim() ?? '';
@@ -50,33 +52,18 @@ export function ConfirmFranchiseScreen() {
     ? q.data.teams.find((t) => t.teamId === teamId) ?? null
     : null;
 
+  // Creating moved to the world screen, which is the thing that watches it
+  // happen. This one hands over and stops being responsible: the guard against
+  // a double tap is now "have we already left".
   const create = (): void => {
     if (draft === null || teamId === null || creating.current) return;
-    const name = saveNameOf(draft.saveName, team).trim();
-    if (name === '') return;
+    if (saveNameOf(draft.saveName, team).trim() === '') return;
     creating.current = true;
-    setFailed(false);
-    void startDynasty({
-      slot: draft.slot, teamId, name,
-      gmFirstName: first, gmLastName: last,
-      gmStyle: draft.style,
-      settings: draft.settings,
-    })
-      .then(() => {
-        // startDynasty swallows the server's complaint into `notice` rather
-        // than rejecting, so success is "a save is open", which the provider
-        // decides. The notice being set is what says otherwise.
-        creating.current = false;
-      })
-      .catch(() => {
-        creating.current = false;
-        setFailed(true);
-      });
+    nav.push('worldGen');
   };
 
-  // A refusal from the server arrives as a notice with no save open. That is
-  // the failed case, and the screen says so where the button is.
-  const errored = failed || (notice !== null && !creating.current);
+  // A refusal the player came back from still shows here.
+  const errored = failed || notice !== null;
 
   return (
     <Screen

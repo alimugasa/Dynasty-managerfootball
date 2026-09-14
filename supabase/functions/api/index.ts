@@ -40,7 +40,11 @@ Deno.serve(async (req: Request) => {
     const status = error instanceof ApiError ? error.status : 500;
     const code = error instanceof ApiError ? error.code : 'internal';
     const message = error instanceof Error ? error.message : String(error);
-    return Response.json({ error: code, message }, { status });
+    // The build step travels with the failure, so the world screen can name
+    // the one that went wrong. Same shape the dev shim sends.
+    const step = error instanceof ApiError ? error.step : undefined;
+    return Response.json(
+      { error: code, message, ...(step === undefined ? {} : { step }) }, { status });
   }
 });
 

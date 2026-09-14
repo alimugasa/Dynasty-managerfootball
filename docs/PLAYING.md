@@ -19,8 +19,9 @@ The app opens on a main menu with two options, and the way in is five taps:
 
 ```
 Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview
-              -> Franchise Settings -> Confirm Franchise -> Dashboard
-     -> Load Franchise -> Save file --------------------------------------> Dashboard
+              -> Franchise Settings -> Confirm Franchise -> Building the world
+                                                         -> Dashboard
+     -> Load Franchise -> Save file ---------------------------------------> Dashboard
 ```
 
 **New Franchise** asks for three things and one optional fourth: which of the
@@ -138,16 +139,33 @@ writes. *Review your setup before taking the office.* Four cards:
   amber warning where the editing tools are open and *Realistic franchise rules*
   where they are not.
 
-Create Franchise is the single call to `create-save`, and it is guarded by a ref
-rather than by the busy flag: busy is React state and lands a render later, so a
-fast double tap would otherwise ask for a second franchise in the same file.
-While it runs, every control is closed and the screen shows what is being built.
+Create Franchise hands over to **Building Franchise World**, which is the screen
+that runs the single call to `create-save`. It shows the club's badge, the GM and
+the file over a backdrop built from the club's own two colours, and a checklist
+of the ten steps the build performs: league structure, teams, players, rosters,
+contracts, depth charts, schedule, draft picks, news feed, front office.
 
-**A failure leaves nothing behind.** `create-save` runs in one transaction —
-the clone, the engine state, the projection and the save document either all
-landed or none of them did — so the screen says the file is still empty and
-offers to try again, and the draft survives, because six screens is a lot to
-answer twice.
+**What that checklist can honestly show is set by how the world is written.**
+`create-save` is one transaction, which is what lets it promise a failure leaves
+the save file empty — and rows inside an open transaction are invisible to every
+other connection, so there is nothing to poll and nothing to stream part-way.
+The steps are therefore *reported* rather than narrated: the handler records what
+each one produced, counted off the rows it wrote, and hands the list back when
+the franchise commits. The screen then checks them off with those counts —
+`3,066 players`, `272 fixtures`, `448 picks` — and says at the foot why nothing
+ticked along before that. A step with nothing to count (the news feed starts
+empty; opening the office is work rather than rows) reads *Ready*, never `0`.
+
+**A failure names the step.** The handler wraps each phase so a throw carries the
+step it was in, and that name travels across the wire to the failure card:
+*Generating schedule failed*. The card promises the file is still empty, because
+the transaction guarantees it, and offers **Retry** and **Return to Main Menu**.
+Retry rather than "retry this step": there is no half-built world to resume from,
+and a button claiming otherwise would describe an architecture this one does not
+have. The draft survives a failure, because six screens is a lot to answer twice.
+
+When every step is checked, the screen pauses on *Opening front office…* and then
+the franchise dashboard takes over.
 
 Nothing before it writes anything. The file, the names, the style and the club
 collect in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives

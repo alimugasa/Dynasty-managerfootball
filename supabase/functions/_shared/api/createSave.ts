@@ -16,6 +16,7 @@ import { optionalInt, optionalString, rawOf } from './parse.ts';
 import { isGmStyle } from './gmStyles.ts';
 import { parseSettings, type FranchiseSettings } from './franchiseOptions.ts';
 import { MAX_SAVE_NAME } from './renameSave.ts';
+import { BuildStepError, runStep, step, type BuildStep } from './buildSteps.ts';
 import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
@@ -49,6 +50,10 @@ export interface CreateSaveOut {
   readonly season: number;
   readonly userTeamId: string;
   readonly slot: number;
+  /** What each step of the build produced, counted from the rows it wrote.
+   *  Reported after the transaction commits, because rows inside an open one
+   *  are invisible to everything else -- see buildSteps.ts. */
+  readonly steps: readonly BuildStep[];
 }
 
 export const ENGINE_VERSION = '0.1.0';
@@ -141,7 +146,7 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
         // the caller's problem, not a 500.
         const message = error instanceof Error ? error.message : String(error);
         if (/team|template/i.test(message)) throw badRequest(message);
-        throw error;
+        throw new BuildStepError('league', error);
       }
 
       await tx`
@@ -160,10 +165,13 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
       // The world from the save's own rows, then the draft classes the first
       // offseasons will draw on: a league with an empty pipeline drafts nobody
       // for three years, which the reports guard against the same way.
-      const league = await loadWorld(tx, saveId, save.season);
-      primePipeline(league, createRng(seed32));
+      const league = await runStep('players', async () => {
+        const world = await loadWorld(tx, saveId, save.season);
+        primePipeline(world, createRng(seed32));
+        return world;
+      });
 
-      await projectWorld(tx, saveId, league);
+      await runStep('rosters', () => projectWorld(tx, saveId, league));
       // The seed's injury list describes the clubs as the season opens: a
       // player it lists as out for n weeks misses the first n-1. Dating those
       // rows to week 0 of this season is what lets the week runner read them.
@@ -173,20 +181,67 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
       await tx`
         update public.player_injuries set injured_season = ${save.season}, injured_week = 0
          where save_id = ${saveId} and injured_season is null`;
-      await writeDepthChart(tx, saveId, input.teamId, defaultDepthChart(league, input.teamId));
-      await seedStandings(tx, saveId, save.season, league.teamIds);
+      await runStep('depth', () => writeDepthChart(
+        tx, saveId, input.teamId, defaultDepthChart(league, input.teamId)));
+      // Opening the front office: the league table the season starts from, the
+      // engine's own document, and the save marked as sitting at week 1.
+      await runStep('office', async () => {
+        await seedStandings(tx, saveId, save.season, league.teamIds);
+        const now = new Date().toISOString();
+        await new PostgresSaveStore(tx).write(saveId, serialize(league, {
+          meta: {
+            saveId, name: input.name, userTeamId: input.teamId,
+            season: save.season, week: 1, phase: 'REGULAR_SEASON',
+            seed: seed32, engineVersion: ENGINE_VERSION, createdAt: now, updatedAt: now,
+          },
+        }));
+        await touchSave(tx, saveId, { week: 1, phase: 'REGULAR_SEASON' });
+      });
 
-      const now = new Date().toISOString();
-      await new PostgresSaveStore(tx).write(saveId, serialize(league, {
-        meta: {
-          saveId, name: input.name, userTeamId: input.teamId,
-          season: save.season, week: 1, phase: 'REGULAR_SEASON',
-          seed: seed32, engineVersion: ENGINE_VERSION, createdAt: now, updatedAt: now,
-        },
-      }));
-      await touchSave(tx, saveId, { week: 1, phase: 'REGULAR_SEASON' });
+      // Counted, not asserted. Every figure the screen shows for a step is the
+      // number of rows that step actually left behind, read back inside the
+      // same transaction that wrote them.
+      const [tally] = await tx<{
+        teams: string; players: string; rosters: string; contracts: string;
+        depth: string; schedule: string; picks: string; news: string;
+        conferences: string; divisions: string;
+      }[]>`
+        select
+          (select count(*) from public.teams where save_id = ${saveId})::text as teams,
+          (select count(*) from public.players where save_id = ${saveId})::text as players,
+          (select count(*) from public.team_rosters where save_id = ${saveId})::text as rosters,
+          (select count(*) from public.player_contracts
+            where save_id = ${saveId})::text as contracts,
+          (select count(*) from public.team_depth_charts
+            where save_id = ${saveId})::text as depth,
+          (select count(*) from public.season_schedule
+            where save_id = ${saveId} and season = ${save.season})::text as schedule,
+          (select count(*) from public.draft_picks where save_id = ${saveId})::text as picks,
+          (select count(*) from public.news where save_id = ${saveId})::text as news,
+          (select count(*) from public.league_conferences
+            where save_id = ${saveId})::text as conferences,
+          (select count(*) from public.league_divisions
+            where save_id = ${saveId})::text as divisions`;
+      const n = (v: string | undefined): number => Number(v ?? 0);
 
-      return { saveId, season: save.season, userTeamId: input.teamId, slot };
+      const steps: BuildStep[] = [
+        step('league', n(tally?.conferences) + n(tally?.divisions), 'conferences and divisions'),
+        step('teams', n(tally?.teams), 'teams'),
+        step('players', n(tally?.players), 'players'),
+        step('rosters', n(tally?.rosters), 'roster places'),
+        step('contracts', n(tally?.contracts), 'contracts'),
+        step('depth', n(tally?.depth), 'depth chart places'),
+        step('schedule', n(tally?.schedule), 'fixtures'),
+        step('picks', n(tally?.picks), 'picks'),
+        // The feed starts empty and fills as the season is played, so there is
+        // no count to report -- only that it is ready to be written to.
+        step('news', null, null),
+        // Opening the office is work rather than rows; a 1 here would be a
+        // number pretending to be a measurement.
+        step('office', null, null),
+      ];
+
+      return { saveId, season: save.season, userTeamId: input.teamId, slot, steps };
     });
   },
 };
