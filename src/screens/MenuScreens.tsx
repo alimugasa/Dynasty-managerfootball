@@ -12,6 +12,7 @@ import { Panel, SectionHeader } from '../components/Surface';
 import { PHASE_LABEL } from '../domain/phase';
 import { readEnv } from '../lib/env';
 import { CreditsPanel, DatabaseToolsPanel, SettingsPanel, type Fact } from './menuPanels';
+import { gmStyleLabel } from './gmStyles';
 import { Screen } from './Screen';
 
 export function SettingsScreen() {
@@ -52,6 +53,9 @@ export function DatabaseToolsScreen() {
     { label: 'Save', value: save?.saveId ?? null },
     { label: 'File', value: save?.slot === undefined || save.slot === null ? null : `Slot ${String(save.slot)}` },
     { label: 'GM', value: save?.gmName ?? null },
+    // Null on a save from before the question was asked, and the panel already
+    // renders a missing fact as missing rather than as a blank.
+    { label: 'GM style', value: gmStyleLabel(save?.gmStyle ?? null) },
     { label: 'Season', value: save === null ? null : String(save.season) },
     {
       label: 'Phase',

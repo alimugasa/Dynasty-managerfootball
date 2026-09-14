@@ -9,6 +9,8 @@
 // two builds cannot open on different screens. This file is only the wiring:
 // where the buttons go, and what a failed reopen looks like.
 
+import { useEffect } from 'react';
+import { useFranchiseSetup } from '../app/FranchiseSetup';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { QueryError } from '../components/QueryState';
@@ -18,6 +20,12 @@ import { Screen } from './Screen';
 export function HomeScreen() {
   const nav = useNavigator();
   const { loadError, busy } = useSave();
+  const { clear } = useFranchiseSetup();
+
+  // Standing on the front door means no franchise is half set up. Whatever was
+  // typed into Create GM before walking back out is dropped here rather than
+  // waiting to reappear under a save file the player picks next time.
+  useEffect(() => { clear(); }, [clear]);
 
   return (
     <Screen title="Dynasty Manager" subtitle="Pro" screen="home" bare>

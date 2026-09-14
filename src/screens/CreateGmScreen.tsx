@@ -1,54 +1,49 @@
-// Who you are: a first name and a last name.
+// Who you are, and the file it goes in.
 //
-// That is the whole screen. No traits, no difficulty, no avatar, no
-// reputation, no start date -- a new game always opens at week 1 of the
-// regular season, so there is nothing to choose. The two names travel to the
-// club screen as navigation params, which is what makes Back work here for
-// free: leave, come back, and what you typed is still on the frame.
+// The answers land in the franchise setup state rather than in navigation
+// params, because they are not about this route: they are the first half of a
+// franchise that does not exist yet, and the screens after this one read them
+// from there. Nothing here touches the server -- the dynasty is created at the
+// end of the flow, from everything gathered along the way.
+//
+// Back works for free as a result. Leave, return, and the form is as you left
+// it, because the draft outlives the frame.
 
-import { COLOR, S, TYPE } from '../app/tokens';
+import { useEffect } from 'react';
 import { useNavigationState, useNavigator } from '../app/navigation';
-import { useUiState } from '../app/useUiState';
-import { ActionButton } from '../components/ActionButton';
-import { Panel } from '../components/Surface';
-import { NameField } from './nameField';
+import { useFranchiseSetup } from '../app/FranchiseSetup';
+import { DEFAULT_GM_STYLE, GmForm } from './gmForm';
 import { Screen } from './Screen';
 
 export function CreateGmScreen() {
   const nav = useNavigator();
   const { params } = useNavigationState();
-  const [first, setFirst] = useUiState<string>('gmFirst', '');
-  const [last, setLast] = useUiState<string>('gmLast', '');
-  const slot = params['slot'] ?? '';
+  const { draft, begin, record } = useFranchiseSetup();
 
-  const ready = first.trim() !== '' && last.trim() !== '';
-  const go = () => {
-    if (!ready) return;
-    nav.push('pickTeam', { slot, first: first.trim(), last: last.trim() });
-  };
+  const asked = Number(params['slot']);
+  const slot = Number.isInteger(asked) && asked >= 1 ? asked : null;
+
+  // The route names the file; the draft is opened for it on arrival. Already
+  // open for this file, begin() leaves it alone, which is what makes coming
+  // back from Select Team show the name you typed rather than a blank form.
+  useEffect(() => { if (slot !== null) begin(slot); }, [slot, begin]);
 
   return (
-    <Screen title="Create GM" subtitle={slot === '' ? '' : `File ${slot}`} screen="gm">
-      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
-        Your name goes on the save file and on the office door. Nothing else is asked for.
-      </p>
-      <Panel>
-        <form
-          style={{ display: 'grid', gap: S[4] }}
-          onSubmit={(e) => { e.preventDefault(); go(); }}
-        >
-          <NameField label="First name" value={first} onChange={setFirst} autoFocus testId="gm-first" />
-          <NameField label="Last name" value={last} onChange={setLast} testId="gm-last" />
-          <ActionButton onClick={go} disabled={!ready} testId="gm-continue">
-            Continue
-          </ActionButton>
-        </form>
-      </Panel>
-      {!ready && (
-        <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
-          Both names are needed. Half a name on a save file tells you nothing.
-        </p>
-      )}
+    <Screen
+      title="Create GM"
+      subtitle={slot === null ? '' : `File ${String(slot)}`}
+      screen="gm"
+    >
+      <GmForm
+        slot={slot}
+        first={draft?.firstName ?? ''}
+        last={draft?.lastName ?? ''}
+        style={draft?.style ?? DEFAULT_GM_STYLE}
+        onFirst={(next) => { record({ firstName: next }); }}
+        onLast={(next) => { record({ lastName: next }); }}
+        onStyle={(next) => { record({ style: next }); }}
+        onContinue={() => { nav.push('pickTeam'); }}
+      />
     </Screen>
   );
 }

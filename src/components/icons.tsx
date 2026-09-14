@@ -104,6 +104,17 @@ export function ChevronRightIcon({ size = 18, stroke = 'currentColor' }: IconPro
   );
 }
 
+/** Chosen: a tick. Marks the selected option in a group where only one can be
+ *  selected, and is drawn with the same stroke as the chevrons so a row of
+ *  controls reads as one family. */
+export function CheckIcon({ size = 18, stroke = 'currentColor' }: IconProps) {
+  return (
+    <Frame size={size}>
+      <path d="M5 12.4 9.6 17 19 7.4" {...strokeProps(stroke, false)} />
+    </Frame>
+  );
+}
+
 // ---------------------------------------------------------------- utilities
 // The three quiet actions along the foot of the main menu. Drawn a hair
 // thinner than the navigation icons: they sit at 15px beside 11px text and

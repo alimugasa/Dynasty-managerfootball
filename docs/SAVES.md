@@ -173,10 +173,10 @@ a newer build, and cannot be invoked by a client.
 ## Save files
 
 A save sits in a numbered slot the player chooses, and carries the name of the
-general manager who runs it. Both live on `public.saves` -- `slot`,
-`gm_first_name`, `gm_last_name` -- and not in the engine document, because the
-menu has to read them before anything is opened and opening a 12MB document per
-slot to print a record is not a menu.
+general manager who runs it and the style he was created with. All of it lives
+on `public.saves` -- `slot`, `gm_first_name`, `gm_last_name`, `gm_style` -- and
+not in the engine document, because the menu has to read them before anything is
+opened and opening a 12MB document per slot to print a record is not a menu.
 
 | | |
 |---|---|
@@ -184,6 +184,7 @@ slot to print a record is not a menu.
 | One save per slot | `saves_user_slot`, a unique index on `(user_id, slot)` |
 | Every player save has a slot | `saves_slot_presence`, a **deferred** constraint trigger |
 | A GM has both names or neither | `saves_gm_name_pair` |
+| A style is one of the five, or absent | `saves_gm_style_known` |
 
 The presence rule is a deferred constraint trigger rather than a `CHECK` because
 `create_save()` inserts the row and then clones the world under it, and the slot
@@ -195,9 +196,25 @@ still the null the INSERT wrote.
 Nothing is invented for a save that predates this. Slots were backfilled in
 creation order -- a slot is an ordering the player chooses, not a fact about the
 world -- but GM names were left null, and the menu prints *No GM recorded*.
+`gm_style` was neither backfilled nor defaulted for the same reason: the picker
+opens on `ARCHITECT`, but that is where a control starts, not an answer a save
+whose creator was never asked may claim to have given. It reads back as null,
+and the screens say the style was not recorded.
 
-`create-save` takes an optional `slot` (the lowest free one when omitted) and an
-optional GM name, and refuses a slot that is occupied before it clones anything.
+Nothing in the simulation reads `gm_style` yet. It is stored because the Create
+GM screen asks for it, and a question the save discards is a question that
+should not have been asked; the column is there so that the day the engine does
+read it, every franchise created from now has an honest answer. The five keys
+live in `_shared/api/gmStyles.ts`, which is what `create-save` validates
+against -- a style the server does not know is **refused**, not stored as null,
+because dropping it would hide a drift between the catalogue and the migration's
+`CHECK` behind a save that looks fine. `src/screens/gmStyles.ts` holds the
+labels and the one-line explanations, and a test asserts the two lists name the
+same five keys.
+
+`create-save` takes an optional `slot` (the lowest free one when omitted), an
+optional GM name and an optional style, and refuses a slot that is occupied
+before it clones anything.
 The `slots` read answers the menu from `saves`, `teams`, `standings`,
 `salary_cap` and `league_history` in one query; `save` opens the save it is
 given, or the most recently touched when it is given none.

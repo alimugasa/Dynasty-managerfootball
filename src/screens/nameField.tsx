@@ -17,15 +17,26 @@ interface Props {
   readonly onChange: (next: string) => void;
   readonly autoFocus?: boolean;
   readonly testId: string;
+  /** What is wrong with this field, shown under it. Set only once the player
+   *  has tried to go on without it: a form that turns red while you are still
+   *  filling in the first box is telling you off for not having finished. */
+  readonly error?: string | null;
 }
 
-export function NameField({ label, value, onChange, autoFocus = false, testId }: Props) {
+export function NameField({
+  label, value, onChange, autoFocus = false, testId, error = null,
+}: Props) {
   // A text field with no focus state is a field you cannot tell you are in.
   // The ring is amber because amber is what this app uses to mean "here".
   const [focused, setFocused] = useState(false);
+  // Focus wins over the complaint: once you are back in the field you are
+  // fixing it, and a red ring under your cursor is the app still shouting
+  // about something you have started to answer.
+  const wrong = error !== null && !focused;
+  const edge = wrong ? COLOR.red : focused ? COLOR.amber : COLOR.line2;
   return (
     <label style={{ display: 'grid', gap: S[2], minWidth: 0 }}>
-      <span style={{ ...TYPE.micro, color: focused ? COLOR.amber : COLOR.mut }}>
+      <span style={{ ...TYPE.micro, color: focused ? COLOR.amber : wrong ? COLOR.red : COLOR.mut }}>
         {label}
       </span>
       <input
@@ -38,6 +49,8 @@ export function NameField({ label, value, onChange, autoFocus = false, testId }:
         // player tapped a save file to get here.
         autoFocus={autoFocus}
         data-testid={testId}
+        aria-invalid={error !== null}
+        {...(error === null ? {} : { 'aria-describedby': `${testId}-error` })}
         onChange={(e) => { onChange(e.target.value); }}
         onFocus={() => { setFocused(true); }}
         onBlur={() => { setFocused(false); }}
@@ -45,8 +58,12 @@ export function NameField({ label, value, onChange, autoFocus = false, testId }:
           width: '100%', boxSizing: 'border-box', minHeight: 48,
           padding: `0 ${String(S[3])}px`, borderRadius: R.md,
           background: COLOR.ink, color: COLOR.tx,
-          border: `1px solid ${focused ? COLOR.amber : COLOR.line2}`,
-          boxShadow: focused ? `0 0 0 3px ${tint(COLOR.amber, 0.16)}` : 'inset 0 1px 2px rgba(0,0,0,0.3)',
+          border: `1px solid ${edge}`,
+          boxShadow: focused
+            ? `0 0 0 3px ${tint(COLOR.amber, 0.16)}`
+            : wrong
+              ? `0 0 0 3px ${tint(COLOR.red, 0.14)}`
+              : 'inset 0 1px 2px rgba(0,0,0,0.3)',
           transition: `border-color ${MOTION.fast} ${MOTION.ease}, box-shadow ${MOTION.fast} ${MOTION.ease}`,
           outline: 'none',
           // 16px exactly: anything smaller and iOS Safari zooms the page on
@@ -54,6 +71,16 @@ export function NameField({ label, value, onChange, autoFocus = false, testId }:
           fontFamily: FONT.ui, fontSize: 16,
         }}
       />
+      {error !== null && (
+        <span
+          id={`${testId}-error`}
+          role="alert"
+          data-testid={`${testId}-error`}
+          style={{ ...TYPE.prose, fontSize: 12, color: COLOR.red }}
+        >
+          {error}
+        </span>
+      )}
     </label>
   );
 }

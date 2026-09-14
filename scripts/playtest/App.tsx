@@ -7,10 +7,11 @@ import type { PositionGroup } from '../../supabase/functions/_shared/engine/type
 import { newDynasty, reorder, simWeek, type Game } from './host';
 import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
 import { OffseasonScreen } from './offseason';
-import { adoptLegacy, clear, gmOf, persist, rename, restore } from './persist';
+import { adoptLegacy, clear, gmOf, persist, rename, restore, styleOf } from './persist';
 import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
+import { DEFAULT_GM_STYLE } from '../../src/screens/gmForm';
 import {
-  CreateGmScreen, CreditsPanel, DatabaseToolsScreen, HomeScreen, SelectTeamScreen,
+  CreateGmScreen, CreditsPanel, DatabaseToolsScreen, type GmDraft, HomeScreen, SelectTeamScreen,
   SettingsPanel, SlotsScreen,
 } from './boot';
 import { BracketScreen } from './bracket';
@@ -50,7 +51,10 @@ export function App() {
   // Which file is open and who manages it. Both travel with every save.
   const [slot, setSlot] = useState(1);
   const [gm, setGm] = useState<string | null>(null);
-  const [pending, setPending] = useState<{ slot: number; gm: string } | null>(null);
+  const [gmStyle, setGmStyle] = useState<string | null>(null);
+  // The franchise being set up: held here rather than inside the GM screen, so
+  // walking on to the team list and back does not lose what was typed.
+  const [pending, setPending] = useState<GmDraft | null>(null);
   // Which errand the save-file screen is on: starting a game, or opening one.
   const [creating, setCreating] = useState(true);
   // Bumped when a file is deleted, so the file list re-reads storage.
@@ -65,7 +69,9 @@ export function App() {
   const [week, setWeek] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
 
-  useEffect(() => { if (game !== null) persist(game, slot, gm); }, [game, slot, gm]);
+  useEffect(
+    () => { if (game !== null) persist(game, slot, gm, gmStyle); },
+    [game, slot, gm, gmStyle]);
 
   const open = useCallback((screen: string, id: string) => {
     setDrill({ screen, id });
@@ -79,7 +85,8 @@ export function App() {
     // built: loading 3,000 players is a second of work on a phone.
     setTimeout(() => {
       setSlot(pending.slot);
-      setGm(pending.gm);
+      setGm(`${pending.first.trim()} ${pending.last.trim()}`.trim());
+      setGmStyle(pending.style);
       setGame(newDynasty(teamId));
       setPending(null);
       setTab('team'); setDrill(null); setBusy(null); setRoute('play');
@@ -98,6 +105,7 @@ export function App() {
       }
       setSlot(n);
       setGm(gmOf(n));
+      setGmStyle(styleOf(n));
       setGame(loaded);
       setNotice(null);
       setTab('team'); setDrill(null); setRoute('play');
@@ -186,7 +194,7 @@ export function App() {
       : route === 'gm' ? 'Create GM' : 'Select Team';
     const subtitle = route === 'slots' ? (creating ? 'Choose save file' : 'Save files')
       : route === 'gm' ? `File ${String(pending?.slot ?? 1)}`
-        : `${pending?.gm ?? ''} · File ${String(pending?.slot ?? 1)}`;
+        : `${`${pending?.first ?? ''} ${pending?.last ?? ''}`.trim()} · File ${String(pending?.slot ?? 1)}`;
     const back = (): void => {
       if (route === 'slots') { setPending(null); setRoute('home'); return; }
       setRoute(route === 'gm' ? 'slots' : 'gm');
@@ -207,7 +215,14 @@ export function App() {
             key={refresh}
             creating={creating}
             onOpen={openSlot}
-            onStart={(n) => { setPending({ slot: n, gm: '' }); setRoute('gm'); }}
+            onStart={(n) => {
+              // A fresh draft per file, unless the player is walking back into
+              // the one they were already filling in.
+              setPending((d) => (d !== null && d.slot === n
+                ? d
+                : { slot: n, first: '', last: '', style: DEFAULT_GM_STYLE }));
+              setRoute('gm');
+            }}
             onDelete={(n) => { clear(n); setNotice(null); setRefresh((r) => r + 1); }}
             onRename={(n, name) => {
               if (!rename(n, name)) setNotice(`File ${String(n)} could not be renamed.`);
@@ -216,12 +231,11 @@ export function App() {
             }}
           />
         )}
-        {route === 'gm' && (
+        {route === 'gm' && pending !== null && (
           <CreateGmScreen
-            onContinue={(first, last) => {
-              setPending({ slot: pending?.slot ?? 1, gm: `${first} ${last}` });
-              setRoute('pick');
-            }}
+            draft={pending}
+            onDraft={setPending}
+            onContinue={() => { setRoute('pick'); }}
           />
         )}
         {route === 'pick' && <SelectTeamScreen busy={busy} onPick={start} />}

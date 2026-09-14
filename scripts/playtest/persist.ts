@@ -31,6 +31,10 @@ const LEGACY_KEY = 'dmp.playtest.v1';
  *  opening the league. */
 interface Header {
   readonly gmName: string | null;
+  /** The GM style the player chose at creation, or null on a file written
+   *  before the question was asked. Kept the way the app keeps it: stored
+   *  because the screen asked for it, and read by nothing in the simulation. */
+  readonly gmStyle: string | null;
   /** What the player calls this file. Defaults to the GM's name, as the app's
    *  create-save does, and is renameable from the save-file screen. */
   readonly name: string;
@@ -77,7 +81,8 @@ interface Stored {
 }
 
 export function persist(
-  game: Game, slot: number, gmName: string | null, name?: string,
+  game: Game, slot: number, gmName: string | null, gmStyle: string | null,
+  name?: string,
 ): void {
   const mine = game.standings.get(game.userTeamId);
   // A rename already on the file survives a save: the name belongs to the
@@ -87,6 +92,10 @@ export function persist(
     const stored = {
       header: {
         gmName,
+        // A style already on the file survives a save that does not carry one,
+        // the same way a rename does: playing a week is not a reason to forget
+        // an answer the player gave.
+        gmStyle: gmStyle ?? read(slot)?.header?.gmStyle ?? null,
         name: called,
         capSpace: capFor(game, game.userTeamId).available,
         titles: game.history.filter((h) => h.playoffResult === 'CHAMPION').length,
@@ -135,6 +144,11 @@ function read(slot: number): Stored | null {
 /** The GM whose name is on a file, or null where none was ever recorded. */
 export function gmOf(slot: number): string | null {
   return read(slot)?.header?.gmName ?? null;
+}
+
+/** The GM style on a file, or null where the file predates the question. */
+export function styleOf(slot: number): string | null {
+  return read(slot)?.header?.gmStyle ?? null;
 }
 
 /**

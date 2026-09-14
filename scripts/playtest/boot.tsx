@@ -20,11 +20,22 @@ import { HomeDoor, type DoorDestination } from '../../src/screens/homeDoor';
 import {
   CreditsPanel, DatabaseToolsPanel, SettingsPanel, type Fact,
 } from '../../src/screens/menuPanels';
+import { GmForm } from '../../src/screens/gmForm';
+import type { GmStyleKey } from '../../src/screens/gmStyles';
 import { NameField } from '../../src/screens/nameField';
 import { EmptySlotCard, SlotCard } from '../../src/screens/slotCard';
 import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
 import { SCHEMA_VERSION, slotRows, storageReport } from './persist';
 import { clubs as allClubs } from './world';
+
+/** The franchise being set up: which file, who runs it, and how he sees the
+ *  job. The rig's copy of the app's franchise setup state. */
+export interface GmDraft {
+  readonly slot: number;
+  readonly first: string;
+  readonly last: string;
+  readonly style: GmStyleKey;
+}
 
 export function HomeScreen({ onNew, onLoad, onUtility }: {
   readonly onNew: () => void;
@@ -222,38 +233,31 @@ export function SlotsScreen({ creating, onOpen, onStart, onDelete, onRename }: {
   );
 }
 
-/** Who you are: a first name and a last name, and nothing else at all. */
-export function CreateGmScreen({ onContinue }: {
-  readonly onContinue: (first: string, last: string) => void;
+/**
+ * Who you are: two names, a preview of the manager they add up to, and one
+ * optional question about how he sees the job.
+ *
+ * The form itself is the product's, imported rather than copied. The draft it
+ * edits is held by the caller for the same reason the app holds it above the
+ * navigation stack: walking on to the team list and back must not lose what
+ * was typed.
+ */
+export function CreateGmScreen({ draft, onDraft, onContinue }: {
+  readonly draft: GmDraft;
+  readonly onDraft: (next: GmDraft) => void;
+  readonly onContinue: () => void;
 }) {
-  const [first, setFirst] = useState('');
-  const [last, setLast] = useState('');
-  const ready = first.trim() !== '' && last.trim() !== '';
-  const go = (): void => { if (ready) onContinue(first.trim(), last.trim()); };
-
   return (
-    <>
-      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
-        Your name goes on the save file and on the office door. Nothing else is asked for.
-      </p>
-      <Panel>
-        <form
-          style={{ display: 'grid', gap: S[4] }}
-          onSubmit={(e) => { e.preventDefault(); go(); }}
-        >
-          <NameField label="First name" value={first} onChange={setFirst} autoFocus testId="gm-first" />
-          <NameField label="Last name" value={last} onChange={setLast} testId="gm-last" />
-          <ActionButton onClick={go} disabled={!ready} testId="gm-continue">
-            Continue
-          </ActionButton>
-        </form>
-      </Panel>
-      {!ready && (
-        <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 2px 0`, color: COLOR.dim, fontSize: 11.5 }}>
-          Both names are needed. Half a name on a save file tells you nothing.
-        </p>
-      )}
-    </>
+    <GmForm
+      slot={draft.slot}
+      first={draft.first}
+      last={draft.last}
+      style={draft.style}
+      onFirst={(first) => { onDraft({ ...draft, first }); }}
+      onLast={(last) => { onDraft({ ...draft, last }); }}
+      onStyle={(style) => { onDraft({ ...draft, style }); }}
+      onContinue={onContinue}
+    />
   );
 }
 

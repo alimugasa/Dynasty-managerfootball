@@ -13,6 +13,7 @@
 
 import { ApiError, badRequest, type Handler } from './context.ts';
 import { optionalInt, optionalString, rawOf } from './parse.ts';
+import { isGmStyle } from './gmStyles.ts';
 import { freshSeed62 } from '../seed.ts';
 import { loadWorld } from './world.ts';
 import { PostgresSaveStore } from './saveStore.ts';
@@ -33,6 +34,9 @@ export interface CreateSaveIn {
    *  rather than being given a placeholder one. */
   readonly gmFirstName?: string;
   readonly gmLastName?: string;
+  /** How the player said this manager sees the job. Optional: a save whose
+   *  creator skipped the question stores null and reports it as unanswered. */
+  readonly gmStyle?: string;
 }
 
 export interface CreateSaveOut {
@@ -74,11 +78,19 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
     if ((gmFirstName === undefined) !== (gmLastName === undefined)) {
       throw badRequest('a general manager needs both a first and a last name');
     }
+    // Refused rather than dropped. A style the server does not know means the
+    // two catalogues have drifted, and silently storing null would hide that
+    // behind a save that looks fine until someone notices the answer is gone.
+    const gmStyle = optionalString(r, 'gmStyle');
+    if (gmStyle !== undefined && !isGmStyle(gmStyle)) {
+      throw badRequest(`unknown general manager style "${gmStyle}"`);
+    }
     return {
       name, teamId,
       ...(slot === undefined ? {} : { slot }),
       ...(gmFirstName === undefined ? {} : { gmFirstName }),
       ...(gmLastName === undefined ? {} : { gmLastName }),
+      ...(gmStyle === undefined ? {} : { gmStyle }),
     };
   },
   run: async ({ sql, userId }, input) => {
@@ -115,7 +127,8 @@ export const createSave: Handler<CreateSaveIn, CreateSaveOut> = {
         update public.saves
            set slot = ${slot},
                gm_first_name = ${input.gmFirstName ?? null},
-               gm_last_name = ${input.gmLastName ?? null}
+               gm_last_name = ${input.gmLastName ?? null},
+               gm_style = ${input.gmStyle ?? null}
          where id = ${saveId}`;
 
       const save = await ownedSave(tx, userId, saveId);

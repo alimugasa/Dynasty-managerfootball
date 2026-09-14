@@ -62,6 +62,9 @@ export interface NewDynasty {
   readonly teamId: string;
   readonly gmFirstName: string;
   readonly gmLastName: string;
+  /** One of the keys in src/screens/gmStyles.ts. Omitted by a caller that
+   *  never asked, which stores null rather than a style nobody chose. */
+  readonly gmStyle?: string;
 }
 
 /** Where this browser remembers the open save. A convenience for this viewer
@@ -213,6 +216,7 @@ export function SaveProvider({ children }: { children: ReactNode }) {
           slot: input.slot,
           gmFirstName: input.gmFirstName,
           gmLastName: input.gmLastName,
+          ...(input.gmStyle === undefined ? {} : { gmStyle: input.gmStyle }),
         });
         setOpenSaveId(out.saveId);
         remember(out.saveId);

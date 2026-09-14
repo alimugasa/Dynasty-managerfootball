@@ -5,9 +5,13 @@
 // the save is about to be created from. Picking one creates the dynasty on the
 // server -- its own seed, its own copy of the world -- and opens it at week 1
 // of the regular season, which is where create-save always starts.
+//
+// Who the manager is comes from the franchise setup state rather than from
+// this route's params: it was answered on the screen before, and forwarding it
+// through the URL would make two copies of one fact that can disagree.
 
 import { COLOR, S, TYPE } from '../app/tokens';
-import { useNavigationState } from '../app/navigation';
+import { useFranchiseSetup } from '../app/FranchiseSetup';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { ListRow } from '../components/ListRow';
@@ -18,27 +22,26 @@ import { Screen } from './Screen';
 import type { ClubsOut } from '../../supabase/functions/_shared/api/reads/clubs';
 
 export function SelectTeamScreen() {
-  const { params } = useNavigationState();
+  const { draft, clear } = useFranchiseSetup();
   const { startDynasty, busy, notice, version } = useSave();
   const q = useQuery<ClubsOut>('clubs', {}, version);
 
-  const slot = Number(params['slot']);
-  const first = params['first'] ?? '';
-  const last = params['last'] ?? '';
+  const first = draft?.firstName.trim() ?? '';
+  const last = draft?.lastName.trim() ?? '';
   // Arriving here without what the two screens before were for is a routing
   // defect, and it says so rather than creating a save with half the answers.
-  const ready = Number.isInteger(slot) && slot >= 1 && first !== '' && last !== '';
+  const ready = draft !== null && first !== '' && last !== '';
 
   return (
     <Screen
       title="Select Team"
-      subtitle={ready ? `${first} ${last} · File ${String(slot)}` : ''}
+      subtitle={ready ? `${first} ${last} · File ${String(draft.slot)}` : ''}
       screen="pickTeam"
     >
       {!ready && (
         <p style={{ ...TYPE.prose, margin: `${String(S[2])}px 0`, color: COLOR.red }}>
           This screen was opened without a save file and a GM name. Go back and start again
-          from New Game.
+          from New Franchise.
         </p>
       )}
       {notice !== null && (
@@ -73,9 +76,15 @@ export function SelectTeamScreen() {
                 {...(busy === null
                   ? {
                     onSelect: () => {
+                      // The draft's last use. It is thrown away as the
+                      // dynasty it described is created, so nothing half
+                      // answered survives into a game.
+                      const setup = draft;
                       void startDynasty({
-                        slot, teamId: club.id, gmFirstName: first, gmLastName: last,
-                      });
+                        slot: setup.slot, teamId: club.id,
+                        gmFirstName: first, gmLastName: last,
+                        gmStyle: setup.style,
+                      }).finally(clear);
                     },
                   }
                   : {})}

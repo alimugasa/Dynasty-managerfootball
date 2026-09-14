@@ -7,6 +7,7 @@ import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from '.
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
 import { SaveProvider, useSave } from './app/SaveProvider';
+import { FranchiseSetupProvider } from './app/FranchiseSetup';
 import { Loading } from './components/QueryState';
 
 /** Resolves the frame on top of the stack to a screen and renders it. */
@@ -95,16 +96,21 @@ function Booted() {
     );
   }
   return (
-    <NavigationProvider
-      initialScreen={save === null ? HOME_SCREEN : DEFAULT_SCREEN}
-      rootOf={rootFor}
-    >
-      <OpenSaveRouter />
-      <ShellForCurrentScreen>
-        <CurrentScreen />
-      </ShellForCurrentScreen>
-      <TabsForCurrentScreen />
-    </NavigationProvider>
+    // The setup state sits outside the stack: the franchise being built spans
+    // Create GM and Select Team, and a draft held on a frame would die with the
+    // frame the moment the player walked to the next question.
+    <FranchiseSetupProvider>
+      <NavigationProvider
+        initialScreen={save === null ? HOME_SCREEN : DEFAULT_SCREEN}
+        rootOf={rootFor}
+      >
+        <OpenSaveRouter />
+        <ShellForCurrentScreen>
+          <CurrentScreen />
+        </ShellForCurrentScreen>
+        <TabsForCurrentScreen />
+      </NavigationProvider>
+    </FranchiseSetupProvider>
   );
 }
 

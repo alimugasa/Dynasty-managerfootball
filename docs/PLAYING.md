@@ -18,31 +18,52 @@ answer. Every handler is the same code the edge function
 The app opens on a main menu with two options, and the way in is five taps:
 
 ```
-Home  ->  New Game   ->  Save file  ->  Create GM  ->  Select Team  ->  Franchise dashboard
-      ->  Load Game  ->  Save file  ------------------------------->  Franchise dashboard
+Home  ->  New Franchise   ->  Save file  ->  Create GM  ->  Select Team  ->  Franchise dashboard
+      ->  Load Franchise  ->  Save file  ------------------------------->  Franchise dashboard
 ```
 
-**New Game** asks for three things and nothing else: which of the three save
-files to start in, a first and last name for the general manager, and one of
-the thirty-two teams. There is no difficulty, no traits, no avatar, no
-reputation and no start date, because a new game always opens at week 1 of the
-regular season -- `create-save` writes `week = 1, phase = 'REGULAR_SEASON'` and
-has no other setting.
+**New Franchise** asks for three things and one optional fourth: which of the
+three save files to start in, a first and last name for the general manager,
+one of the thirty-two teams, and -- optionally -- how that manager sees the job.
+There is no difficulty, no traits, no avatar, no reputation and no start date,
+because a new game always opens at week 1 of the regular season --
+`create-save` writes `week = 1, phase = 'REGULAR_SEASON'` and has no other
+setting.
 
-Picking the team is what creates the dynasty: `create_save()` clones the
-template world under a fresh server-side seed, the engine's state is built from
-the clone, and every roster, contract, cap sheet and opening table is written
-back. Then the franchise dashboard opens on it.
+**Create GM** takes the two names and shows what they add up to while you type:
+a preview card with the GM's monogram, his role, and the facts that are true of
+a manager who has not worked a day -- reputation unknown, career record 0-0,
+legacy not started -- over the save file he is being created in. Continue is
+held until both names are there, and a refused tap says which field is missing
+rather than sitting dead.
 
-**Load Game** shows the same three files. An occupied one shows its team and
-badge, the GM's name, the season and where in it the save is, the team's record
-and when it was last saved; an empty one says it is empty and is what New Game
-starts in. Deleting lives here too, behind a second tap, because three files
-with no way to clear one is a dead end.
+Under the preview is the one optional question: **GM style**, one of Architect,
+Talent Scout, Negotiator, Culture Builder or Strategist. It opens on Architect,
+it is kept on the save file, and nothing in the simulation reads it yet -- which
+the screen says on itself. It is stored rather than discarded so that the day
+the engine does read it, every franchise created from today has an honest
+answer to give.
+
+Nothing before the team list writes anything. The names and the style collect
+in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives above
+the navigation stack so walking forward and back between the questions does not
+lose them, and which is thrown away the moment the dynasty is created from it.
+Picking the team is what creates it: `create_save()` clones the template world
+under a fresh server-side seed, the engine's state is built from the clone, and
+every roster, contract, cap sheet and opening table is written back. Then the
+franchise dashboard opens on it.
+
+**Load Franchise** shows the same three files. An occupied one shows its team
+and badge, the GM's name, the season and where in it the save is, the team's
+record, cap space, titles won and when it was last saved; an empty one says it
+is empty and is what New Franchise starts in. Renaming and deleting live here
+too, behind the card's overflow menu, because three files with no way to clear
+one is a dead end.
 
 A save made before general managers were named says *No GM recorded* rather
-than being given a name it never had, and a save whose table has not been
-written yet shows a dash rather than 0-0.
+than being given a name it never had; one made before styles were asked for
+reports no style rather than claiming Architect; and a save whose table has not
+been written yet shows a dash rather than 0-0.
 
 Which save is open is remembered in the browser, so a reload puts you back in
 the game rather than at the menu. It is remembered nowhere else: the save lives
@@ -53,8 +74,8 @@ on the server, and opening the app on another device meets the menu. Office →
 
 | Step | Where |
 |---|---|
-| Start a dynasty | **Home** → *New Game* → a save file → a GM name → a team |
-| Reopen one | **Home** → *Load Game* → the save file |
+| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team |
+| Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |
 | Sim a week | **Team** tab → *Sim week N* |

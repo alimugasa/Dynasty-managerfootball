@@ -247,6 +247,57 @@ An occupied save file wears its franchise's colours and an empty one is drawn
 as a dashed outline, so which of the three files is free reads before any of
 the words do.
 
+### Create GM
+
+Two names, a preview of what they add up to, and one optional question.
+
+The preview updates as you type and states only what it can: before a name,
+*GM Preview* and *Name not entered yet* — no role, no record, no empty circle
+pretending to be an avatar. Once both names are there, the monogram appears and
+the card fills in with the facts that are true of a manager who has not worked
+a day: **General Manager**, reputation *Unknown*, career record *0-0*, legacy
+*Not started*, and the file he is being created in. Rendered outside the flow
+with no file chosen it says *Not chosen* rather than printing File 1.
+
+**GM style** is the optional question — Architect, Talent Scout, Negotiator,
+Culture Builder, Strategist — stacked rather than scrolled sideways, because
+five options with a line of explanation each do not fit across a 320px phone
+and a swiped row hides the last two behind an edge. It opens on Architect. The
+card says on itself that the simulation does not read it yet, because the
+alternative is a player choosing Negotiator and spending a season wondering why
+nothing negotiates differently.
+
+Continue stays `disabled` until both names are filled, and a refused attempt
+still says why: submitting the form (the keyboard's Go, which is how a phone
+finishes a form) runs the same check, and a transparent catcher sits over the
+disabled button so a tap lands somewhere that can answer. Each field then
+carries its own message — *Enter a first name.* under the one that is empty,
+not one complaint about both. Nothing reddens until the player says they are
+done, and focus clears a field's complaint: a form that shouts while you are
+still typing is telling you off for not having finished.
+
+The whole form is `src/screens/gmForm.tsx`, imported by the play-test rig, for
+the same reason the front door and the name field are: four screens stand
+between the app icon and a dynasty, and four screens are easy to let drift.
+
+### The franchise being set up
+
+Create GM and Select Team are two questions about one thing that does not exist
+yet, so the answers collect in `src/app/FranchiseSetup.tsx` — a draft holding
+the file, the two names and the style — which sits **above** the navigation
+stack. Held on a frame it would die the moment the player walked to the next
+question; held here, walking back shows what was typed.
+
+It is in memory and nowhere else. A reload with no save open lands on the front
+door, and half an answered franchise restored behind a screen the player is no
+longer on would be a worse lie than asking twice. The draft is cleared when the
+dynasty is created from it, and again whenever the player is standing on the
+front door.
+
+Nothing in the flow writes to the server until the team is picked. That is
+still the last screen: `create-save` is called once, with everything the draft
+gathered.
+
 ## Navigation state
 
 A frame stores three things: screen identity, params, and UI state including

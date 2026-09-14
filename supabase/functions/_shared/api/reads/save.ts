@@ -37,6 +37,10 @@ export interface SaveSummary {
   readonly slot: number | null;
   /** Null on a save made before a GM was ever named; never a placeholder. */
   readonly gmName: string | null;
+  /** One of the keys in _shared/api/gmStyles.ts, or null where the player was
+   *  never asked or skipped the question. Not "ARCHITECT" by default: that is
+   *  an answer, and an unanswered question does not have one. */
+  readonly gmStyle: string | null;
 }
 
 export interface SaveOut {
@@ -89,6 +93,7 @@ export const save: Handler<SaveIn, SaveOut> = {
         slot: row.slot,
         gmName: row.gm_first_name === null || row.gm_last_name === null
           ? null : `${row.gm_first_name} ${row.gm_last_name}`.trim(),
+        gmStyle: row.gm_style,
       },
       clubs: await clubsOf(sql, row.id),
     };
