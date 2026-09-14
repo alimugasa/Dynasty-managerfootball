@@ -16,6 +16,7 @@ import { advanceSeason } from './advanceSeason.ts';
 import { save } from './reads/save.ts';
 import { slots } from './reads/slots.ts';
 import { clubs } from './reads/clubs.ts';
+import { teamProfiles } from './reads/teamProfiles.ts';
 import { team } from './reads/team.ts';
 import { roster, setDepthChart } from './reads/roster.ts';
 import { league } from './reads/league.ts';
@@ -42,6 +43,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   save,
   slots,
   clubs,
+  'team-profiles': teamProfiles,
   team,
   roster,
   'set-depth-chart': setDepthChart,

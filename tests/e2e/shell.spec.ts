@@ -56,7 +56,10 @@ async function ensureDynasty(page: Page): Promise<void> {
   await page.getByTestId('gm-last').fill('Manager');
   await page.getByTestId('gm-continue').click();
   await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
-  await page.getByTestId('club-list').locator('button').first().click();
+  // Picking a club opens its scouting report; the dynasty is created from
+  // there, which is the last screen of the flow and the only one that writes.
+  await page.getByTestId('club-list').locator('[data-testid^="team-"]').first().click();
+  await page.getByTestId('confirm-team').click();
   await inDynasty(page);
 }
 

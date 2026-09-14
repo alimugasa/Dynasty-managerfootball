@@ -235,6 +235,48 @@ Every join is a left join, and every missing value reaches the card as null
 rather than as zero: a season with no cap sheet has unknown space, which is not
 the same fact as no space.
 
+### Choosing a club
+
+`team-profiles` answers the one screen where a manager is comparing clubs
+rather than opening one, so it is its own route: `clubs` stays the cheap read
+that anything needing a name and a colour uses, and this is the expensive one.
+It reads the template world, because it is asked before any save exists, and it
+aggregates in Postgres -- 3,066 players and 448 picks in one query, about 30ms,
+against thirty-two round trips or one enormous row set.
+
+| On the board | From |
+|---|---|
+| Offence, defence, special teams | the mean of the best 11, 11 and 3 by `overall_rating` in the matching `position_group`s — the players who would be on the field, not the depth of the practice squad |
+| Overall | 45% offence, 45% defence, 10% special teams |
+| Average age | `players.age` over the whole roster |
+| Cap space | `salary_cap.available`, cast `::text` |
+| Draft capital | picks in `draft_picks` the club owns now, weighted 100/60/36/22/13/8/5 by round |
+| Quarterback | the best `overall_rating` at QB, banded — 88+ is Elite |
+| Owner patience | `owners.patience` |
+| Stadium | `stadiums.capacity` |
+| Conference, division | `league_conferences.name` and `league_divisions.name`, the division with its conference stripped off the front |
+| Fan pressure | **nothing** — no crowd is modelled, so it is null on every club |
+
+Difficulty and archetype are the only judgements, and they live in
+`teamShape.ts` so both builds pass the same one. Difficulty is a **rank** in
+this league (top 6 Dynasty Ready, to 14 Playoff Push, to 24 Middle Class, to 29
+Rebuild, the rest Hard Rebuild) with one absolute override: a club with negative
+cap space is Cap Hell whatever its roster is rated, because the first thing that
+manager does is cut somebody. No club in the shipped league starts over the cap,
+so that band is empty on a fresh world — which is the honest outcome, not a
+reason to push a club into it.
+
+Archetype is **absolute**, because it is a description and not a placing: the
+eighth most offence-leaning club in a balanced league is not an offensive
+engine. Its thresholds are calibrated against the spread this seed actually has,
+and `tests/api/teamProfiles` fails if any one label has swallowed the league.
+
+The play-test rig measures the same thirty-two from the seed packed into its own
+page and puts them through the same `shapeLeague`. `tests/api/boardParity`
+compares the two club by club, so a position group that moves on one side or a
+column dropped from the rig's packed world fails a test rather than showing up
+as a screenshot somebody notices weeks later.
+
 `rename-save` is the only write handler that stores a free-text string from the
 client. It trims once, refuses an empty or over-long name rather than
 truncating, and resolves the save through `ownedSave` first, so a rename can

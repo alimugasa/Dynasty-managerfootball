@@ -280,6 +280,53 @@ The whole form is `src/screens/gmForm.tsx`, imported by the play-test rig, for
 the same reason the front door and the name field are: four screens stand
 between the app icon and a dynasty, and four screens are easy to let drift.
 
+### Select Team, and the scouting board
+
+Thirty-two rows is a list; thirty-two rows you are choosing between is a board.
+The search matches word by word across city, nickname, full name, abbreviation,
+conference id and name, and both division forms, so "iron north" lands and
+"AC-N" lands. Nine chips sit under it in a `ChipRow`, which scrolls inside
+itself -- nine chips do not fit across a phone, and the fix is never to let the
+document scroll.
+
+Where the work is split matters. The **search** runs on the client, on strings
+it already has, so it filters as fast as the player types. The **chips** filter
+on tags the server attached, because every one of them is a statement about the
+league rather than about a club: "the eight with the most cap space" is not a
+fact any one club knows about itself, and computing it in the browser would be
+a simulation outcome decided in frontend code. `teamShape.ts` holds the keys
+and the rules; `teamFilters.ts` holds the labels; a test asserts the two lists
+name the same eight tags.
+
+Under the chips, one line says what the chip actually selected and how many it
+left. A filter whose rule is a secret is a filter the player reverse-engineers
+from its results.
+
+A row carries the badge, the market in small caps above the nickname, the
+league placing spelled out, the roster rating, and a difficulty pill coloured
+by what it is telling you to expect -- amber for Dynasty Ready, teal for
+Playoff Push, blue for a rebuild, red for Cap Hell. Rows divide with a hairline
+and lift on press; the last row drops its divider rather than ending the panel
+on a line that separates nothing from nothing.
+
+Every number on the board is measured by `team-profiles` from the template
+world (docs/SAVES.md records where each comes from). Fan pressure is the one
+field the screen names and cannot fill: nothing in the world models a crowd
+yet, so it is null on every club and the preview says *Not modelled yet* --
+which is a different sentence from *Not recorded*, and the screen makes both.
+
+### Team Preview
+
+The last screen of the boot flow and the only one that writes. It shows the
+club's own scouting report and two buttons: start with this club, or go back to
+the board. Walking back changes nothing, which is the whole reason it is a
+screen and not a confirmation on a list row -- a player can open five clubs and
+start none of them.
+
+While the dynasty is being built, both buttons are closed and the primary says
+what it is doing. Leaving mid-create would strand a save halfway through a
+world clone.
+
 ### The franchise being set up
 
 Create GM and Select Team are two questions about one thing that does not exist
@@ -294,9 +341,10 @@ longer on would be a worse lie than asking twice. The draft is cleared when the
 dynasty is created from it, and again whenever the player is standing on the
 front door.
 
-Nothing in the flow writes to the server until the team is picked. That is
-still the last screen: `create-save` is called once, with everything the draft
-gathered.
+The club joins the draft when it is tapped on the board, which is what lets
+Back come out of the preview onto the list with the GM, the search and the
+chips intact. `create-save` is called once, from the preview, with everything
+the draft gathered.
 
 ## Navigation state
 

@@ -25,7 +25,14 @@ const KEEP: Readonly<Record<string, readonly string[]>> = {
   players: ['player_id', 'display_name', 'team_id', 'position', 'position_group',
     'age', 'experience_years', 'overall_rating', 'potential_rating'],
   player_attributes: ['player_id', 'work_ethic', 'durability', 'football_iq'],
-  owners: ['team_id', 'spending_willingness', 'win_now_bias'],
+  owners: ['team_id', 'spending_willingness', 'win_now_bias', 'patience'],
+  // Carried for the scouting board on Select Team, which measures the same
+  // things the server's team-profiles read measures. Four hundred and eighty
+  // short rows between them; the alternative is a board whose cap and draft
+  // columns are blank in the build people actually play.
+  stadiums: ['team_id', 'capacity'],
+  draft_picks: ['round', 'current_owner_team_id'],
+  salary_cap: ['team_id', 'season', 'available'],
   coaches: ['coach_id', 'display_name', 'team_id', 'role', 'age', 'years_experience',
     'coaching_tree', 'prior_head_coach', 'hot_seat_rating', 'overall_rating'],
   coach_attributes: ['coach_id', 'play_calling', 'game_management', 'player_development',

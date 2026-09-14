@@ -18,8 +18,8 @@ answer. Every handler is the same code the edge function
 The app opens on a main menu with two options, and the way in is five taps:
 
 ```
-Home  ->  New Franchise   ->  Save file  ->  Create GM  ->  Select Team  ->  Franchise dashboard
-      ->  Load Franchise  ->  Save file  ------------------------------->  Franchise dashboard
+Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview -> Dashboard
+     -> Load Franchise -> Save file ------------------------------------------> Dashboard
 ```
 
 **New Franchise** asks for three things and one optional fourth: which of the
@@ -44,14 +44,38 @@ the screen says on itself. It is stored rather than discarded so that the day
 the engine does read it, every franchise created from today has an honest
 answer to give.
 
-Nothing before the team list writes anything. The names and the style collect
-in the franchise setup state (`src/app/FranchiseSetup.tsx`), which lives above
-the navigation stack so walking forward and back between the questions does not
-lose them, and which is thrown away the moment the dynasty is created from it.
-Picking the team is what creates it: `create_save()` clones the template world
-under a fresh server-side seed, the engine's state is built from the clone, and
-every roster, contract, cap sheet and opening table is written back. Then the
-franchise dashboard opens on it.
+**Select Team** is a scouting board rather than a list. A search box matches on
+city, nickname, abbreviation, conference and division, word by word, so "iron
+north" finds the Cleveland Ironmen. Nine chips cut the league: All, Contenders,
+Playoff Push, Mid-Tier, Rebuilds, Cap Space, Young Roster, Elite QB and High
+Draft Picks, and the line under them says what the chip actually selected --
+"the eight clubs with the most room under the cap" -- rather than leaving the
+rule to be reverse-engineered from the results. A filter that matches nothing
+says so and offers Clear Filters.
+
+Each row carries the club's badge, its market over its nickname, its place in
+the league in words ("American Conference · North", never "AC · AC-N"), its
+roster rating and how hard the job is. All of that is measured from the
+template world's own rows by the `team-profiles` read -- unit ratings from the
+players who would be on the field, cap space from the cap sheet, draft capital
+from the picks the club owns, owner patience and stadium capacity from their
+own tables. A club the read could not measure shows a dash; nothing is filled
+in with a zero.
+
+**Team Preview** is the scouting report for the club that was tapped, and the
+last screen in the flow: overall, offence, defence, special teams, average age,
+cap space, quarterback, draft capital, owner patience and stadium. Walking back
+out of it changes nothing, which is the point of it being a screen rather than
+a confirmation on a list row.
+
+Nothing before that screen writes anything. The file, the names, the style and
+the club collect in the franchise setup state (`src/app/FranchiseSetup.tsx`),
+which lives above the navigation stack so walking forward and back between the
+questions does not lose them, and which is thrown away the moment the dynasty
+is created from it. Confirming on the preview is what creates it: `create_save()`
+clones the template world under a fresh server-side seed, the engine's state is
+built from the clone, and every roster, contract, cap sheet and opening table is
+written back. Then the franchise dashboard opens on it.
 
 **Load Franchise** shows the same three files. An occupied one shows its team
 and badge, the GM's name, the season and where in it the save is, the team's
@@ -74,7 +98,7 @@ on the server, and opening the app on another device meets the menu. Office →
 
 | Step | Where |
 |---|---|
-| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team |
+| Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Start with the …* |
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
 | Set a depth chart | **Roster** tab → pick a position chip → ↑ / ↓ arrows |

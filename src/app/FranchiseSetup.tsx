@@ -27,6 +27,10 @@ export interface FranchiseDraft {
   readonly firstName: string;
   readonly lastName: string;
   readonly style: GmStyleKey;
+  /** The club being looked at, once one has been picked off the board. Null
+   *  until then: the preview screen reads it, and reading it as null is how
+   *  that screen knows it was opened without a club rather than about one. */
+  readonly teamId: string | null;
 }
 
 export interface FranchiseSetupApi {
@@ -58,7 +62,7 @@ export function FranchiseSetupProvider({ children }: { readonly children: ReactN
   const begin = useCallback((slot: number) => {
     setDraft((d) => (d !== null && d.slot === slot
       ? d
-      : { slot, firstName: '', lastName: '', style: DEFAULT_GM_STYLE }));
+      : { slot, firstName: '', lastName: '', style: DEFAULT_GM_STYLE, teamId: null }));
   }, []);
 
   const record = useCallback((answers: Partial<Omit<FranchiseDraft, 'slot'>>) => {

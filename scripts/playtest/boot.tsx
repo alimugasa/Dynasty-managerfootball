@@ -13,20 +13,18 @@ import { useState } from 'react';
 import { COLOR, R, S, TYPE, tint } from '../../src/app/tokens';
 import { ActionButton } from '../../src/components/ActionButton';
 import { Modal } from '../../src/components/Modal';
-import { Panel } from '../../src/components/Surface';
-import { ListRow } from '../../src/components/ListRow';
-import { TeamMark } from '../../src/components/TeamMark';
 import { HomeDoor, type DoorDestination } from '../../src/screens/homeDoor';
 import {
   CreditsPanel, DatabaseToolsPanel, SettingsPanel, type Fact,
 } from '../../src/screens/menuPanels';
 import { GmForm } from '../../src/screens/gmForm';
+import { SelectTeamBoard } from '../../src/screens/selectTeamBoard';
+import type { TeamProfile } from '../../supabase/functions/_shared/api/reads/teamProfiles';
 import type { GmStyleKey } from '../../src/screens/gmStyles';
 import { NameField } from '../../src/screens/nameField';
 import { EmptySlotCard, SlotCard } from '../../src/screens/slotCard';
 import type { SlotRow } from '../../supabase/functions/_shared/api/reads/slots';
 import { SCHEMA_VERSION, slotRows, storageReport } from './persist';
-import { clubs as allClubs } from './world';
 
 /** The franchise being set up: which file, who runs it, and how he sees the
  *  job. The rig's copy of the app's franchise setup state. */
@@ -35,6 +33,8 @@ export interface GmDraft {
   readonly first: string;
   readonly last: string;
   readonly style: GmStyleKey;
+  /** The club picked off the board, once one has been. Null until then. */
+  readonly teamId: string | null;
 }
 
 export function HomeScreen({ onNew, onLoad, onUtility }: {
@@ -261,39 +261,21 @@ export function CreateGmScreen({ draft, onDraft, onContinue }: {
   );
 }
 
-/** The team you manage. The last question a new game asks. */
-export function SelectTeamScreen({ busy, onPick }: {
+/**
+ * The team you manage: the scouting board, in the play-test build.
+ *
+ * The board itself is the product's, handed the profiles this build measured
+ * from the packed seed rather than the ones the server measured from Postgres.
+ * Same component, same filters, same labels.
+ */
+export function SelectTeamScreen({ teams, busy, onPick }: {
+  readonly teams: readonly TeamProfile[];
   readonly busy: string | null;
   readonly onPick: (teamId: string) => void;
 }) {
-  const clubList = [...allClubs().values()];
   return (
     <>
-      <p style={{ ...TYPE.prose, margin: `${String(S[1])}px 0 ${String(S[3])}px`, color: COLOR.mut }}>
-        Thirty-two teams, 3,066 players, the season the seed ships with. Your dynasty is
-        saved in this browser only.
-      </p>
-      <Panel padded={false}>
-        <div style={{ padding: `0 ${String(S[3])}px` }} data-testid="club-list">
-          {clubList.map((club) => (
-            <ListRow
-              key={club.id}
-              leading={(
-                <TeamMark
-                  abbreviation={club.id}
-                  primary={club.primary}
-                  secondary={club.secondary}
-                  size={32}
-                />
-              )}
-              title={club.name}
-              subtitle={`${club.conferenceId} · ${club.divisionId}`}
-              navigable={busy === null}
-              {...(busy === null ? { onSelect: () => { onPick(club.id); } } : {})}
-            />
-          ))}
-        </div>
-      </Panel>
+      <SelectTeamBoard teams={teams} disabled={busy !== null} onPick={onPick} />
       {busy !== null && (
         <p style={{ ...TYPE.prose, margin: `${String(S[3])}px 0 0`, color: COLOR.amber }}>{busy}</p>
       )}
