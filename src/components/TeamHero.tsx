@@ -12,8 +12,19 @@
 // The record is set as the one large figure on the screen. A season is a
 // number; it should be read as one.
 
-import { COLOR, ELEV, FONT, R, S, TYPE, colourWash } from '../app/tokens';
+import { COLOR, ELEV, FONT, R, S, TYPE, colourWash, tint } from '../app/tokens';
 import { TeamMark } from './TeamMark';
+
+/** A short phrase about the club, worn under its name. Two at most: three
+ *  pills in a row stop being a summary and start being a paragraph. */
+export interface HeroTag {
+  readonly label: string;
+  /** What the phrase is, in one word, so "Win now" is not mistaken for the
+   *  owner having asked for it. */
+  readonly kind: string;
+  /** Amber for what the owner wants, quiet for what the roster is. */
+  readonly accent?: boolean;
+}
 
 interface Props {
   readonly abbreviation: string;
@@ -27,10 +38,13 @@ interface Props {
   readonly recordLabel: string;
   /** Short facts along the foot: division, league position, squad size. */
   readonly facts: readonly { readonly label: string; readonly value: string }[];
+  /** Where the club stands and what has been asked of it. */
+  readonly tags?: readonly HeroTag[];
 }
 
 export function TeamHero({
   abbreviation, metro, nickname, primary, secondary, record, recordLabel, facts,
+  tags = [],
 }: Props) {
   return (
     <section
@@ -93,13 +107,36 @@ export function TeamHero({
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
             <div
               className="numeric"
-              style={{ ...TYPE.figure, fontSize: 30, color: COLOR.tx }}
+              // The one large figure on the screen. A season is a number and
+              // should be read as one, from across a desk.
+              style={{ ...TYPE.figure, fontSize: 34, color: COLOR.tx, lineHeight: 1 }}
             >
               {record}
             </div>
             <div style={{ ...TYPE.micro, color: COLOR.mut, marginTop: 3 }}>{recordLabel}</div>
           </div>
         </div>
+
+        {tags.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: S[3], minWidth: 0 }}>
+            {tags.map((t) => (
+              <span
+                key={t.label}
+                data-testid={`hero-tag-${t.kind}`}
+                style={{
+                  ...TYPE.micro, fontSize: 9.5, whiteSpace: 'nowrap',
+                  color: t.accent === true ? COLOR.amber : COLOR.mut,
+                  background: t.accent === true ? tint(COLOR.amber, 0.1) : 'rgba(0,0,0,0.22)',
+                  border: `1px solid ${t.accent === true ? tint(COLOR.amber, 0.4) : COLOR.line2}`,
+                  borderRadius: R.pill, padding: '3px 9px',
+                  maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}
+              >
+                {t.label}
+              </span>
+            ))}
+          </div>
+        )}
 
         {facts.length > 0 && (
           <>

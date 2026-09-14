@@ -19,6 +19,7 @@ import { slots } from './reads/slots.ts';
 import { clubs } from './reads/clubs.ts';
 import { teamProfiles } from './reads/teamProfiles.ts';
 import { team } from './reads/team.ts';
+import { dashboard } from './reads/dashboard.ts';
 import { roster, setDepthChart } from './reads/roster.ts';
 import { league } from './reads/league.ts';
 import { schedule } from './reads/schedule.ts';
@@ -46,6 +47,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   clubs,
   'team-profiles': teamProfiles,
   team,
+  dashboard,
   roster,
   'set-depth-chart': setDepthChart,
   league,

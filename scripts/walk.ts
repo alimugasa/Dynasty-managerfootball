@@ -85,9 +85,15 @@ await page.getByTestId(`team-${TEAM_ID}`).click();
 await page.getByTestId('confirm-team').click();
 await page.getByTestId('setup-continue').click();
 await page.getByTestId('create-franchise').click();
-// The franchise opens on Team; the button that moves the season lives on Play.
-await page.getByTestId('to-roster').waitFor({ timeout: 60_000 });
+// The franchise opens on the dashboard.
+await page.getByTestId('this-week').waitFor({ timeout: 60_000 });
 out(`created a dynasty on ${TEAM_ID}: ${await page.getByRole('heading', { level: 1 }).innerText()}`);
+// What the first screen after the world is built actually says. Every one of
+// these is read off the save, so a dashboard that rendered before the rows
+// landed would show up here as a dash.
+out(`   dashboard: ${(await page.getByTestId('rating-rings').innerText()).replace(/\n/g, ' ')}`);
+out(`   owner: ${(await page.getByTestId('owner-goal').innerText())}`
+  + ` · week: ${(await page.getByTestId('week-opponent').innerText())}`);
 await counts('after create');
 
 // Depth chart: swap the first two quarterbacks. The roster is a list inside

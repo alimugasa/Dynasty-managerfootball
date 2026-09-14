@@ -21,9 +21,9 @@ import {
   groupRows, leagueShape, profileRows, type LeagueShape, type ProfileRow,
 } from './teamBoard.ts';
 import {
-  draftLabel, draftScore, fanPressure, franchiseStatus, ownerMood,
-  quarterbackSituation, ratingBand, rosterTimeline, suggestedMove,
-  type RatingBand,
+  draftLabel, draftScore, fanPressure, franchiseStatus, num, overallRating,
+  ownerMood, quarterbackSituation, ratingBand, rosterTimeline, rounded,
+  suggestedMove, type RatingBand,
 } from './teamOutlook.ts';
 import { shapeLeague, type TeamMeasure, type TeamTag } from './teamShape.ts';
 
@@ -114,19 +114,9 @@ const GROUP_LABEL: Readonly<Record<string, string>> = {
 
 /** postgres.js hands back numerics and bigints as text so no digit is lost on
  *  the way. Nothing downstream may see the string. */
-const num = (v: string | null): number | null => (v === null ? null : Number(v));
-
-/** One decimal, rounded once, here -- so the screen and the label agree about
- *  what a club is rated. Two roundings of the same number is how a 74 gets
- *  filtered as a 73. */
-const rounded = (v: string | null): number | null => {
-  const n = num(v);
-  return n === null ? null : Math.round(n * 10) / 10;
-};
-
 /** "AC North" under conference AC is "North". A division whose name does not
  *  start with its conference is returned whole rather than cut at a guess. */
-function shortDivision(name: string, conferenceId: string): string {
+export function shortDivision(name: string, conferenceId: string): string {
   const prefix = `${conferenceId} `;
   return name.startsWith(prefix) ? name.slice(prefix.length) : name;
 }
@@ -192,11 +182,7 @@ export const teamProfiles: Handler<Record<string, never>, TeamProfilesOut> = {
       return {
         teamId: r.team_id,
         offense, defense, specialTeams,
-        // The kicking game is a tenth of a club, which is about what it is
-        // worth and well short of what it feels like in December.
-        overall: offense === null || defense === null
-          ? null
-          : Math.round(offense * 0.45 + defense * 0.45 + (specialTeams ?? defense) * 0.1),
+        overall: overallRating(offense, defense, specialTeams),
         averageAge: rounded(r.average_age),
         capSpace: num(r.cap_space),
         draftCapital: num(r.draft_capital),

@@ -200,8 +200,11 @@ on the server, and opening the app on another device meets the menu. Office →
 | Start a dynasty | **Home** → *New Franchise* → a save file → a GM name → a team → *Choose This Team* → the rules → *Create Franchise* |
 | Reopen one | **Home** → *Load Franchise* → the save file |
 | Leave to the menu | **Office** → *Main menu* |
+| See where the franchise stands | **Team** tab — the dashboard is the first screen after the world is built |
+| Read the team's rating | **Team** → the four rings under the identity card |
+| See what the owner wants | **Team** → *The owner* |
 | Set a depth chart | **Team** → *Depth chart* → pick a position chip → ↑ / ↓ arrows |
-| Sim a week | **Play** tab → *Sim week N* |
+| Sim a week | **Team** → *Sim week N* on the week card, or the **Play** tab |
 | Read the box score | **Play** → *Last result* row, or the schedule → any played game |
 | Read your schedule | **Team** → *Schedule* |
 | Standings and leaders | **League** tab |

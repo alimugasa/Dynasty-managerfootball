@@ -2,13 +2,11 @@
 // tokens as the app. Play is next door in play.tsx, for the same reason the
 // app has a Play tab: the week and the roster are two different jobs.
 
-import { COLOR, S } from '../../src/app/tokens';
+import { COLOR } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
-import { StatTiles } from '../../src/components/StatTiles';
-import { TeamHero } from '../../src/components/TeamHero';
 import { ChipRow } from '../../src/components/ChipRow';
-import { ranking, squad } from './host';
+import { squad } from './host';
 import { boardsFor, leagueGroups, tableFor } from './leaders';
 import { CompetitionToggle } from '../../src/components/CompetitionToggle';
 import { COMPETITION_PARAM, type Competition } from '../../src/domain/competition';
@@ -17,60 +15,21 @@ import {
   type Sort, type Split,
 } from '../../src/screens/leaguePanels';
 import { nextRound, ROUND_LABEL, type PlayoffRound } from './postseason';
-import { ordinal, record, type ScreenProps as Props } from './common';
+import { type ScreenProps as Props } from './common';
 
-
-/** A run of wins or losses, written the way a broadcast writes it. */
-const streakOf = (s: { streak: number } | undefined): string =>
-  s === undefined || s.streak === 0 ? '—' : `${s.streak > 0 ? 'W' : 'L'}${String(Math.abs(s.streak))}`;
-
-const signed = (n: number): string => (n > 0 ? `+${String(n)}` : String(n));
-
+/**
+ * What sits under the dashboard on the Team tab: the ways into the lists, and
+ * the top of the roster.
+ *
+ * The identity card, the ratings, the season tiles, the week, the owner and
+ * the checklist are all in dashboard.tsx, rendered above this. They were here
+ * until the Team tab became a franchise home screen.
+ */
 export function TeamScreen({ game, open }: Props) {
-  const club = game.clubs.get(game.userTeamId);
-  const standing = game.standings.get(game.userTeamId);
-  const done = game.phase === 'OFFSEASON';
-  const place = ranking(game.standings).findIndex((s) => s.teamId === game.userTeamId) + 1;
-  const played = standing === undefined ? 0 : standing.wins + standing.losses + standing.ties;
   const roster = squad(game, game.userTeamId);
 
   return (
     <>
-      <TeamHero
-        abbreviation={game.userTeamId}
-        metro={club?.metro ?? ''}
-        nickname={club?.nickname ?? game.userTeamId}
-        primary={club?.primary ?? COLOR.line2}
-        secondary={club?.secondary ?? COLOR.mut}
-        record={record(standing)}
-        recordLabel={done ? 'Final record' : 'Record'}
-        facts={[
-          // Before anybody has played, every team is 0-0 and the "order" is
-          // only the tie-break. A position nobody has earned is not a fact
-          // (ARCHITECTURE.md rule 3), so it reports a dash instead.
-          { label: 'League', value: played === 0 || place === 0
-            ? '—'
-            : `${ordinal(place)} of ${String(game.league.teamIds.length)}` },
-          { label: 'Streak', value: streakOf(standing) },
-          { label: 'Roster', value: `${String(roster.length)} players` },
-        ]}
-      />
-
-      <div style={{ marginTop: S[2] }}>
-        <StatTiles stats={[
-          { label: 'Points for', value: String(standing?.pointsFor ?? 0) },
-          { label: 'Against', value: String(standing?.pointsAgainst ?? 0) },
-          {
-            label: 'Point diff',
-            value: signed((standing?.pointsFor ?? 0) - (standing?.pointsAgainst ?? 0)),
-            tone: (standing?.pointsFor ?? 0) === (standing?.pointsAgainst ?? 0)
-              ? 'default'
-              : (standing?.pointsFor ?? 0) > (standing?.pointsAgainst ?? 0) ? 'positive' : 'negative',
-          },
-        ]}
-        />
-      </div>
-
       <SectionHeader title="Football operations" />
       <Panel padded={false}>
         <div style={{ padding: '0 12px' }}>

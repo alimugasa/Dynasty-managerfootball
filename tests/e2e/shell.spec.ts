@@ -155,6 +155,36 @@ test.describe('app shell', () => {
     await expect(page.locator('[aria-busy="true"]').first()).toBeVisible();
   });
 
+  test('the franchise dashboard leads with identity, rating and the week', async ({ page }) => {
+    // The first screen after the world is built. Each of these is a different
+    // question a manager opens the app with, and all of them are answered
+    // above the operations cards.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await expect(page.getByTestId('rating-rings')).toBeVisible();
+    await expect(page.getByTestId('performance-tiles')).toBeVisible();
+    await expect(page.getByTestId('this-week')).toBeVisible();
+    await expect(page.getByTestId('owner-card')).toBeVisible();
+    await expect(page.getByTestId('checklist')).toBeVisible();
+    // The one gold button on the page is the one that advances the week.
+    await expect(page.getByTestId('dash-sim-week')).toBeVisible();
+    expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  });
+
+  test('a checklist row with nothing behind it opens a sheet rather than a dead screen', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await page.getByTestId('checklist').waitFor();
+    await page.getByTestId('check-opponent').click();
+    const sheet = page.getByTestId('opponent-sheet');
+    await expect(sheet).toBeVisible();
+    await expect(sheet).toContainText('Not built yet');
+    // Escape leaves it, which is the whole reason it is a dialog and not a
+    // panel that appeared in the page.
+    await page.keyboard.press('Escape');
+    await expect(sheet).toBeHidden();
+  });
+
   test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {
     // The roster is opened from Team, so Team stays lit while it is on screen:
     // the bar reports which job you are doing, not which list you are reading.

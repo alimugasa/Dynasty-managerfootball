@@ -20,6 +20,17 @@ const table = (name: string): Record<string, string>[] => {
   return unpack(packed);
 };
 
+/** The owner rows the seed ships, by club. The engine reads two of these
+ *  columns for its front-office model; the dashboard reads the rest. */
+export function owners(): Map<string, Record<string, string>> {
+  const out = new Map<string, Record<string, string>>();
+  for (const row of table('owners')) {
+    const id = row['team_id'] ?? '';
+    if (id !== '') out.set(id, row);
+  }
+  return out;
+}
+
 export interface Club {
   readonly id: string;
   readonly metro: string;

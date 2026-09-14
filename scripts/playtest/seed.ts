@@ -25,7 +25,9 @@ const KEEP: Readonly<Record<string, readonly string[]>> = {
   players: ['player_id', 'display_name', 'team_id', 'position', 'position_group',
     'age', 'experience_years', 'overall_rating', 'potential_rating'],
   player_attributes: ['player_id', 'work_ethic', 'durability', 'football_iq'],
-  owners: ['team_id', 'spending_willingness', 'win_now_bias', 'patience'],
+  // owner_name and archetype are carried so the rig's dashboard can name the
+  // owner the way the app's does. The engine does not read either.
+  owners: ['team_id', 'owner_name', 'archetype', 'spending_willingness', 'win_now_bias', 'patience'],
   // Carried for the scouting board on Select Team, which measures the same
   // things the server's team-profiles read measures. Four hundred and eighty
   // short rows between them; the alternative is a board whose cap and draft

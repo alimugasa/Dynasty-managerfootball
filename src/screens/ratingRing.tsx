@@ -18,11 +18,19 @@ import type { RatingBand } from '../../supabase/functions/_shared/api/reads/team
  *  fifth green invented for this screen would be a fifth green. */
 const GREEN = GRADE_RAMP.find((s) => s.key === 'good')?.color ?? COLOR.teal;
 
-/** Restrained on purpose. Elite and weak are the only two that shout; the
- *  middle of the league is meant to look like the middle of the league. */
+/**
+ * The tiers, descending: green at the top, teal just under it, the middle of
+ * the league in plain text, amber for a room that is a problem, and red kept
+ * for a real one.
+ *
+ * Restrained on purpose. Elite and weak are the only two that shout, and the
+ * middle of the league is meant to look like the middle of the league -- a
+ * scale where four fifths of the clubs are amber has stopped being a warning
+ * and become a background.
+ */
 const BAND_COLOR: Readonly<Record<RatingBand, string>> = {
-  elite: COLOR.teal,
-  strong: GREEN,
+  elite: GREEN,
+  strong: COLOR.teal,
   solid: COLOR.tx,
   developing: COLOR.amber,
   weak: COLOR.red,

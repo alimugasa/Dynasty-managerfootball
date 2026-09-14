@@ -19,10 +19,43 @@ They are the jobs a manager has, not the screens that happened to exist:
 | Tab | Its job | What is on it |
 |---|---|---|
 | Office | the executive one | finances, the front office, dynasty history, the franchise rules |
-| Team | the football one | the roster, the depth chart, the schedule, offseason moves |
+| Team | the football one | the franchise dashboard, then the roster, the depth chart, the schedule and offseason moves |
 | Play | the week | advance the week, round or offseason; this week's game; the last result |
 | League | the world outside | standings, leaders, the league schedule, the bracket, awards and records |
 | News | what is being said | the whole feed, as the engine writes it |
+
+### The franchise dashboard
+
+Team is the first screen after the world is built, so it is a dashboard rather
+than a team card. In order, it answers the questions somebody actually has on
+opening it:
+
+| Band | Question |
+|---|---|
+| Identity card | who am I — badge, city, name, the record as the one large figure, the roster timeline and the owner's mandate as pills, then division, roster, streak and cap space |
+| Rating rings | what am I rated — overall, offense, defense, special teams, banded green / teal / plain / amber / red |
+| Season tiles | how is the year going — points for, against, differential, turnover differential, league rank |
+| This week | who do we play — opponent, home or away, their record and rating, how hard it looks |
+| The owner | what was I hired to do — the mandate, who set it, and his patience |
+| Checklist | what have I not done — roster, depth chart, cap, opponent, the game |
+
+The club's two kit colours run across the top edge of the identity card and
+wash faintly behind it, so opening the app looks different depending on who you
+manage.
+
+**One gold button.** *Sim week N* on the week card is the only primary action on
+the page, because weekly management is the game. *Sim to end of season* is a
+quiet button on the Play tab and is meant to look like the shortcut it is.
+
+**A tick means the save holds the rows, not that you have looked.** The app does
+not record what anyone has read, so the checklist reports facts it can check —
+53 under contract, a starter named in all thirteen groups, cap space positive —
+and the rows it cannot are left neutral rather than ticked. The card says so.
+
+**A row with nothing behind it opens a sheet.** The opponent report does not
+exist, so tapping it raises a bottom sheet that says what will live there. A row
+that navigated to a screen rendering nothing, or that quietly did nothing, are
+the two dishonest answers.
 
 Schedule and Roster were tabs of their own and neither was a destination: each
 is a list, and it belongs inside the tab whose job it is part of. The roster is

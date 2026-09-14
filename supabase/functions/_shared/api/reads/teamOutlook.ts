@@ -24,6 +24,36 @@ export function ratingBand(rating: number | null): RatingBand | null {
   return 'weak';
 }
 
+/** A numeric column as a number, or null where the row was not there. */
+export const num = (v: string | null): number | null => (v === null ? null : Number(v));
+
+/** One decimal, rounded once, here -- so the screen and the label agree about
+ *  what a club is rated. Two roundings of the same number is how a 74 gets
+ *  filtered as a 73. */
+export const rounded = (v: string | null): number | null => {
+  const n = num(v);
+  return n === null ? null : Math.round(n * 10) / 10;
+};
+
+/**
+ * A club in one number, from its three units.
+ *
+ * The kicking game is a tenth of a club, which is about what it is worth and
+ * well short of what it feels like in December. A club with no special teams
+ * measured is rated as though its kickers were its defence rather than as
+ * though it had none.
+ *
+ * It lives here rather than in either screen because the scouting board and
+ * the franchise dashboard both print it, and two copies of one formula is how
+ * the same club comes to be rated 78 on one screen and 79 on the next.
+ */
+export function overallRating(
+  offense: number | null, defense: number | null, specialTeams: number | null,
+): number | null {
+  if (offense === null || defense === null) return null;
+  return Math.round(offense * 0.45 + defense * 0.45 + (specialTeams ?? defense) * 0.1);
+}
+
 /**
  * The quarterback, in the six words a front office would use.
  *
@@ -168,4 +198,117 @@ export function suggestedMove(o: Outlook): string | null {
   if (capSpace !== null && capSpace < 8_000_000) return 'Protect cap space.';
   if (quarterback === 'Rookie Project') return 'Build around the young quarterback.';
   return 'Extend the core before the market sets the price.';
+}
+
+// ------------------------------------------------------------------ the owner
+//
+// What the owner has asked for this season, and how the season is going
+// against it.
+//
+// Everything below is a function of rows the save actually holds: the owner's
+// patience and win-now bias from public.owners, the roster's rating and age
+// from the players, the cap sheet, and the quarterback. It is a reading of
+// those numbers, not a mechanic -- nothing in the simulation reads the mandate
+// back, no owner fires anybody, and the screen that shows this says so in as
+// many words. A goal the game silently ignored would be worse than no goal.
+
+/** The five mandates an owner hands a new manager, by their keys. The screen
+ *  writes them out; the server decides which one it is. */
+export type Mandate =
+  | 'CLEAR_CAP' | 'WIN_DIVISION' | 'MAKE_PLAYOFFS' | 'DEVELOP_QB' | 'REBUILD';
+
+export interface OwnerInput {
+  /** 0-100 from public.owners. Null on a world that shipped no owner row. */
+  readonly patience: number | null;
+  /** How far the owner leans on this year over the next one, 0-1. */
+  readonly winNowBias: number | null;
+  readonly overall: number | null;
+  readonly averageAge: number | null;
+  readonly capSpace: number | null;
+  /** The label quarterbackSituation() returned for this club. */
+  readonly quarterback: string | null;
+}
+
+/**
+ * What the owner wants first.
+ *
+ * Ordered the way suggestedMove is ordered -- by what would sink the franchise
+ * soonest -- with one difference: the owner's own temperament breaks the tie
+ * between winning the division and reaching the playoffs, because those two
+ * mandates sit on the same roster and it is the man upstairs who decides which
+ * one he said out loud.
+ */
+export function ownerMandate(o: OwnerInput): Mandate | null {
+  const { overall, capSpace, quarterback, averageAge, patience, winNowBias } = o;
+  // No rating means no roster was measured, and an owner with no idea what he
+  // has does not get to have an opinion about it.
+  if (overall === null) return null;
+  if (capSpace !== null && capSpace < 0) return 'CLEAR_CAP';
+  // An impatient owner of a good team wants the division. A patient one with
+  // the same roster will settle for January. Absent an owner row, the roster
+  // decides alone and the bar is the higher one.
+  const winNow = (winNowBias !== null && winNowBias >= 0.6)
+    || (patience !== null && patience < 45);
+  if (overall >= 82) return winNow ? 'WIN_DIVISION' : 'MAKE_PLAYOFFS';
+  if (quarterback === 'No Answer') return overall >= 74 ? 'MAKE_PLAYOFFS' : 'REBUILD';
+  if (quarterback === 'Rookie Project' || quarterback === 'Open Competition') return 'DEVELOP_QB';
+  if (overall >= 76) return 'MAKE_PLAYOFFS';
+  if (overall < 70) return 'REBUILD';
+  // The middle of the league, with a settled quarterback and nothing forcing
+  // the decision. This is where the owner earns his place on the card: one who
+  // wants it now asks for January off a roster that probably cannot get there,
+  // and one who can wait asks for the roster to be better in two years. Age
+  // breaks the tie for the patient owner, because a young middling roster is
+  // a thing to build on and an old one is a thing to take apart.
+  if (winNow) return 'MAKE_PLAYOFFS';
+  return averageAge !== null && averageAge >= 25.8 ? 'REBUILD' : 'DEVELOP_QB';
+}
+
+/**
+ * Where the season stands against the mandate.
+ *
+ * A reading of the record, and only of the record: null before a game is
+ * played, because a club that has not taken the field is neither on track nor
+ * behind, and saying either would be inventing a judgement out of nothing.
+ *
+ * `winPace` is wins as a share of games played. The thresholds are the shape
+ * of the competition rather than the club: a division is won around two thirds
+ * of the time and the bracket takes roughly the top half.
+ */
+export function mandateStanding(
+  mandate: Mandate | null, wins: number, losses: number, ties: number,
+): string | null {
+  const played = wins + losses + ties;
+  if (mandate === null || played === 0) return null;
+  if (mandate === 'CLEAR_CAP' || mandate === 'REBUILD' || mandate === 'DEVELOP_QB') {
+    // These are not judged by a win column, and pretending otherwise would
+    // rate a rebuild a failure for doing exactly what it was asked to do.
+    return null;
+  }
+  const pace = (wins + ties * 0.5) / played;
+  const bar = mandate === 'WIN_DIVISION' ? 0.66 : 0.5;
+  if (pace >= bar + 0.12) return 'Ahead of it';
+  if (pace >= bar) return 'On track';
+  if (pace >= bar - 0.15) return 'Just short';
+  return 'Behind it';
+}
+
+/**
+ * How hard next week looks, from the two ratings.
+ *
+ * A margin, not a ranking: eight rating points is roughly the gap between a
+ * playoff team and a bad one, so it is where "tough" starts. Null unless both
+ * clubs were measured, because a matchup against a club we could not rate is
+ * not an even one -- it is an unknown one.
+ */
+export function matchupDifficulty(
+  mine: number | null, theirs: number | null,
+): string | null {
+  if (mine === null || theirs === null) return null;
+  const margin = mine - theirs;
+  if (margin >= 8) return 'Comfortable';
+  if (margin >= 3) return 'Favoured';
+  if (margin > -3) return 'Even';
+  if (margin > -8) return 'Tough';
+  return 'Severe';
 }

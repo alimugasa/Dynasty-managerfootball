@@ -9,8 +9,10 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  draftLabel, draftScore, fanPressure, franchiseStatus, ownerMood,
-  quarterbackSituation, ratingBand, rosterTimeline, suggestedMove, type Outlook,
+  draftLabel, draftScore, fanPressure, franchiseStatus, mandateStanding,
+  matchupDifficulty, overallRating, ownerMandate, ownerMood, quarterbackSituation,
+  ratingBand, rosterTimeline, suggestedMove,
+  type Outlook, type OwnerInput,
 } from '../supabase/functions/_shared/api/reads/teamOutlook';
 
 const outlook = (over: Partial<Outlook> = {}): Outlook => ({
@@ -160,5 +162,123 @@ describe('the first move', () => {
 
   it('says nothing at all about a club it could not measure', () => {
     expect(suggestedMove(outlook({ overall: null }))).toBeNull();
+  });
+});
+
+// ------------------------------------------------------------------ the owner
+
+const ownerOf = (over: Partial<OwnerInput> = {}): OwnerInput => ({
+  patience: 55, winNowBias: 0.5, overall: 78, averageAge: 25.5,
+  capSpace: 18_000_000, quarterback: 'Bridge QB', ...over,
+});
+
+describe('the owner mandate', () => {
+  it('says nothing about a roster nobody rated', () => {
+    expect(ownerMandate(ownerOf({ overall: null }))).toBeNull();
+    // Even with every other number present: the rating is the one input the
+    // whole reading rests on.
+    expect(ownerMandate(ownerOf({ overall: null, capSpace: -1, patience: 10 }))).toBeNull();
+  });
+
+  it('puts the cap before everything else', () => {
+    // A club over the ceiling cannot do anything else until it is not, whoever
+    // owns it and however good the roster is.
+    expect(ownerMandate(ownerOf({ capSpace: -4_000_000, overall: 88 }))).toBe('CLEAR_CAP');
+    expect(ownerMandate(ownerOf({ capSpace: -1, overall: 60 }))).toBe('CLEAR_CAP');
+  });
+
+  it('lets the owner decide what a good roster is asked for', () => {
+    const good = { overall: 84 } as const;
+    // The same roster, two owners: one wants the division, one takes January.
+    expect(ownerMandate(ownerOf({ ...good, winNowBias: 0.8 }))).toBe('WIN_DIVISION');
+    expect(ownerMandate(ownerOf({ ...good, patience: 20, winNowBias: 0.3 }))).toBe('WIN_DIVISION');
+    expect(ownerMandate(ownerOf({ ...good, patience: 85, winNowBias: 0.3 }))).toBe('MAKE_PLAYOFFS');
+  });
+
+  it('asks about the quarterback when the job is unsettled', () => {
+    expect(ownerMandate(ownerOf({ quarterback: 'Rookie Project' }))).toBe('DEVELOP_QB');
+    expect(ownerMandate(ownerOf({ quarterback: 'Open Competition' }))).toBe('DEVELOP_QB');
+    // No answer at all on a bad roster is a rebuild, not a development year.
+    expect(ownerMandate(ownerOf({ quarterback: 'No Answer', overall: 68 }))).toBe('REBUILD');
+    expect(ownerMandate(ownerOf({ quarterback: 'No Answer', overall: 78 }))).toBe('MAKE_PLAYOFFS');
+  });
+
+  it('breaks the middle of the league on the owner, then on age', () => {
+    const middling = { overall: 73, quarterback: 'Bridge QB' } as const;
+    expect(ownerMandate(ownerOf({ ...middling, winNowBias: 0.9 }))).toBe('MAKE_PLAYOFFS');
+    // A patient owner of an old middling roster is told to take it apart; of a
+    // young one, to keep building it.
+    expect(ownerMandate(ownerOf({ ...middling, patience: 90, winNowBias: 0.2, averageAge: 27 })))
+      .toBe('REBUILD');
+    expect(ownerMandate(ownerOf({ ...middling, patience: 90, winNowBias: 0.2, averageAge: 24.5 })))
+      .toBe('DEVELOP_QB');
+  });
+
+  it('rebuilds a bad roster whoever owns it', () => {
+    expect(ownerMandate(ownerOf({ overall: 62, winNowBias: 0.95 }))).toBe('REBUILD');
+  });
+});
+
+describe('where the season stands against the mandate', () => {
+  it('says nothing before a game is played', () => {
+    // A club that has not taken the field is neither on track nor behind, and
+    // saying either would be inventing a judgement out of nothing.
+    expect(mandateStanding('MAKE_PLAYOFFS', 0, 0, 0)).toBeNull();
+    expect(mandateStanding(null, 6, 2, 0)).toBeNull();
+  });
+
+  it('does not rate a rebuild by its win column', () => {
+    // A rebuild doing exactly what it was asked to do would otherwise read as
+    // a failure every week.
+    expect(mandateStanding('REBUILD', 1, 8, 0)).toBeNull();
+    expect(mandateStanding('DEVELOP_QB', 1, 8, 0)).toBeNull();
+    expect(mandateStanding('CLEAR_CAP', 1, 8, 0)).toBeNull();
+  });
+
+  it('reads the record against the bar the mandate sets', () => {
+    expect(mandateStanding('MAKE_PLAYOFFS', 8, 2, 0)).toBe('Ahead of it');
+    expect(mandateStanding('MAKE_PLAYOFFS', 5, 5, 0)).toBe('On track');
+    expect(mandateStanding('MAKE_PLAYOFFS', 4, 6, 0)).toBe('Just short');
+    expect(mandateStanding('MAKE_PLAYOFFS', 2, 8, 0)).toBe('Behind it');
+    // The division asks for more of the same record.
+    expect(mandateStanding('WIN_DIVISION', 7, 3, 0)).toBe('On track');
+    expect(mandateStanding('WIN_DIVISION', 5, 5, 0)).toBe('Behind it');
+  });
+
+  it('counts a tie as half a win', () => {
+    expect(mandateStanding('MAKE_PLAYOFFS', 4, 4, 2)).toBe('On track');
+  });
+});
+
+describe('matchup difficulty', () => {
+  it('is a margin, not a ranking', () => {
+    expect(matchupDifficulty(84, 70)).toBe('Comfortable');
+    expect(matchupDifficulty(80, 76)).toBe('Favoured');
+    expect(matchupDifficulty(78, 78)).toBe('Even');
+    expect(matchupDifficulty(72, 77)).toBe('Tough');
+    expect(matchupDifficulty(66, 86)).toBe('Severe');
+  });
+
+  it('refuses to call a matchup even when one club was not measured', () => {
+    // An unrated opponent is an unknown, which is not the same as a level one.
+    expect(matchupDifficulty(78, null)).toBeNull();
+    expect(matchupDifficulty(null, 78)).toBeNull();
+  });
+});
+
+describe('one club, one rating', () => {
+  it('weights the kicking game at a tenth', () => {
+    expect(overallRating(80, 80, 80)).toBe(80);
+    // Ten points of special teams moves the club by one.
+    expect(overallRating(80, 80, 70)).toBe(79);
+  });
+
+  it('rates a club with no kickers measured off its defence rather than off nothing', () => {
+    expect(overallRating(80, 70, null)).toBe(Math.round(80 * 0.45 + 70 * 0.45 + 70 * 0.1));
+  });
+
+  it('refuses to rate a club missing a side of the ball', () => {
+    expect(overallRating(null, 80, 80)).toBeNull();
+    expect(overallRating(80, null, 80)).toBeNull();
   });
 });

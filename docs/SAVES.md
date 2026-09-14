@@ -267,6 +267,48 @@ functions of the measurements above. Every one returns null when its input is
 missing: a phrase like "Find a long-term quarterback" is only worth reading if
 it could not have been printed over a club whose quarterback nobody looked at.
 
+### The franchise dashboard
+
+`dashboard` answers the screen a manager opens every week, and it answers all
+of it in one call: identity, unit ratings, the season's numbers, the next
+fixture, the owner's mandate and the counts the before-kick-off checklist
+reports. Six round trips on the slowest connection this game will ever be
+played on is the alternative.
+
+It reuses the scouting board's aggregate (`teamBoard.ts`) scoped to the open
+save rather than to the template, which is deliberate: the ratings a manager
+saw when they chose the club must be the ratings the dashboard shows on day
+one, and one query producing both is the only way that stays true. It also
+hands back the next opponent's rating, which is what the matchup line reads.
+
+| On the dashboard | From |
+|---|---|
+| Ratings and bands | the same aggregate the board uses, on this save's players |
+| Record, streak, points | `standings` for the open season |
+| League position | `rank()` over the same table — **null until a game is played**, because every club is level in week one and the order is only the tie-break |
+| Turnover differential | opponents' turnovers less the club's own, summed over `game_results` box scores — null before a game is played, and a real zero after one |
+| Cap space | `salary_cap.available` for this season |
+| Owner, patience | `owners.owner_name`, `archetype`, `patience`, `win_now_bias` |
+| The mandate | `ownerMandate()` in `teamOutlook.ts`, from patience, win-now bias, rating, age, cap and the quarterback |
+| Mandate standing | the record against the bar the mandate sets — null before a game, and null for the three mandates a win column cannot judge |
+| This week | `season_schedule` for the save's week, with the opponent's record and rating |
+| Matchup difficulty | the margin between the two overall ratings, not a ranking |
+| Checklist counts | `team_rosters`, `team_depth_charts`, `season_schedule` and `game_results` row counts |
+
+It costs about **36ms** warm against a full save, against 9ms for the old
+`team` read it replaced. That is the price of the thirty-two-club aggregate,
+and it buys the opponent's rating and one round trip where the screen would
+otherwise make four.
+
+Four states of "this week" are told apart rather than collapsed: a fixture, a
+bye, a season that is over, and a save whose `season_schedule` is empty. Only
+the last is a fault, and the screen says so instead of drawing a rest week over
+a broken world.
+
+Nothing in the simulation reads the mandate back. No owner fires anybody and
+patience never moves. The card says so in as many words, because a goal the
+game silently ignored would be worse than no goal.
+
 Draft capital is scored against the standard allotment rather than against the
 league: two drafts of seven rounds, none traded, scores **50**. The number is
 "how far from standard", not "how far from the best club in this particular

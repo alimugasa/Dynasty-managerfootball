@@ -11,7 +11,7 @@ import { unpack, type PackedTable } from './packed.ts';
 import worldJson from './world.json';
 import { shapeLeague, type TeamMeasure } from '../../supabase/functions/_shared/api/reads/teamShape.ts';
 import {
-  draftLabel, draftScore, fanPressure, franchiseStatus, ownerMood,
+  draftLabel, draftScore, fanPressure, franchiseStatus, overallRating, ownerMood,
   quarterbackSituation, ratingBand, rosterTimeline, suggestedMove,
 } from '../../supabase/functions/_shared/api/reads/teamOutlook.ts';
 import {
@@ -233,9 +233,7 @@ export function teamProfiles(): TeamProfile[] {
       .map((p) => p.overall as number).sort((a, b) => b - a);
     return {
       teamId, offense, defense, specialTeams,
-      overall: offense === null || defense === null
-        ? null
-        : Math.round(offense * 0.45 + defense * 0.45 + (specialTeams ?? defense) * 0.1),
+      overall: overallRating(offense, defense, specialTeams),
       averageAge: ages.length === 0
         ? null
         : Math.round((ages.reduce((a, b) => a + b, 0) / ages.length) * 10) / 10,

@@ -8,7 +8,8 @@ import { newDynasty, reorder, simWeek, type Game } from './host';
 import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
 import { OffseasonScreen } from './offseason';
 import { adoptLegacy, clear, gmOf, persist, rename, restore, styleOf } from './persist';
-import { LeagueScreen, ScheduleScreen, TeamScreen } from './screens';
+import { LeagueScreen, ScheduleScreen } from './screens';
+import { TeamTab } from './dashboard';
 import { PlayScreen } from './play';
 import { DEFAULT_GM_STYLE } from '../../src/screens/gmForm';
 import { ALL } from '../../src/screens/teamFilters';
@@ -328,7 +329,9 @@ export function App() {
   const body = drill !== null ? drilled(drill) : (
     <>
       {tab === 'office' && <OfficeScreen game={game} open={open} onRestart={toMenu} />}
-      {tab === 'team' && <TeamScreen game={game} open={open} />}
+      {tab === 'team' && (
+        <TeamTab game={game} open={open} busy={busy} onSim={() => { void runWeeks(false); }} />
+      )}
       {/* The week and the offseason are the same job -- moving the season on --
           so they share the tab that does it. */}
       {tab === 'play' && isWinter(game.phase) && (
