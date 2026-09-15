@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { PORTRAIT_PX, type PortraitSize } from './portrait';
 import { svgPortraitRenderer } from './svgPortrait';
+import { rasterPortraitRenderer } from './raster/rasterRenderer';
 import { cachedProfile } from './cache';
 import { COLOR, FONT } from '../app/tokens';
 
@@ -17,10 +18,17 @@ import { COLOR, FONT } from '../app/tokens';
  * The renderer in use.
  *
  * A module constant rather than a context, because there is exactly one and a
- * context would be machinery for a choice nobody makes at runtime. Swapping to
- * a layered-art or pre-rendered implementation is this line.
+ * context would be machinery for a choice nobody makes at runtime. This is the
+ * line the whole AvatarRenderer interface exists for: swapping the painted
+ * portraits for the old vector ones, or for a future layered-art or 3D
+ * implementation, is changing it and nothing else. No player's identity moves,
+ * because identity never passes through a renderer.
+ *
+ * `svgPortraitRenderer` is kept beside it deliberately -- a one-word revert is
+ * worth more than a tidy import list.
  */
-const RENDERER = svgPortraitRenderer;
+const RENDERER = rasterPortraitRenderer;
+void svgPortraitRenderer;
 
 interface Props {
   /** players.avatar_seed. The one field a caller must have. */

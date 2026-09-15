@@ -90,5 +90,16 @@ accident.
 
 ## Status
 
-Wired to **`/dev/avatars` only**. No game screen uses it, deliberately: the
-brief asks for the visual quality to be inspected before it propagates.
+**Live.** `PlayerAvatar` draws with the raster renderer, so every surface that
+already had faces now has painted ones: the depth chart, the roster, the player
+profile, the waiver wire, the free-agent pool, the transaction history, the
+league leaders, the honours panels, the trade block, the draft board, the
+awards night and the recap.
+
+It sat behind `/dev/avatars` for one round while the quality was reviewed. The
+revert is one line -- `RENDERER` in `src/avatar/PlayerAvatar.tsx` -- and
+`svgPortraitRenderer` is deliberately still imported beside it so that revert
+stays a word rather than a commit.
+
+Known weak spots: rope hairstyles (braids, cornrows, locs) read as ribbons, and
+long styles have the weakest silhouettes.

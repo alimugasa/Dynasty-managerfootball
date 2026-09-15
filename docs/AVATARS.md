@@ -110,6 +110,16 @@ Over four thousand generated players (`tests/avatar/uniqueness.test.ts`):
 | distinct heritage combinations | 153 |
 | base heads used | 47 of 51 |
 
+## Which renderer draws
+
+`raster/` — painted portraits on a canvas, shaded from ~55 continuous facial
+dimensions. `docs/AVATAR-RENDERING.md` explains why Canvas rather than SVG, art
+assets or 3D, and what the honest ceiling of the approach is.
+
+The old `svgPortrait` renderer is still in the tree and still implements the
+same interface. Switching between them is the `RENDERER` constant in
+`PlayerAvatar.tsx` and nothing else.
+
 ## The seam
 
 `PortraitRenderer` in `src/avatar/portrait.ts` is the whole contract:
