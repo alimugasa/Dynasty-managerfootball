@@ -34,6 +34,7 @@ import {
 import { WaiverWireScreen } from '../screens/WaiverWireScreen';
 import { FreeAgentsScreen } from '../screens/FreeAgentsScreen';
 import { TransactionsScreen } from '../screens/TransactionsScreen';
+import { TradeCenterScreen } from '../screens/TradeCenterScreen';
 
 export interface ScreenDef {
   readonly title: string;
@@ -111,6 +112,7 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   // wire and the pool is a football job, not an executive one.
   waivers: { title: 'Waiver Wire', Component: WaiverWireScreen, root: false },
   freeAgents: { title: 'Free Agents', Component: FreeAgentsScreen, root: false },
+  trades: { title: 'Trade Center', Component: TradeCenterScreen, root: false },
 
   // Registered so resolveEntityRoute has somewhere to land. Scouting is still
   // a loading state that never resolves and is deliberately not linked from a

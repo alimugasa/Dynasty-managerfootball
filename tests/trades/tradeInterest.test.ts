@@ -193,6 +193,18 @@ describe('what they make of the offer', () => {
     expect(hard.valueAsked).toBeGreaterThan(easy.valueAsked);
   });
 
+  it('always says something, whatever the band', () => {
+    // Found in a browser rather than here: a package landed on Strong with an
+    // empty reason list, and the screen drew a meter with nothing under it.
+    // A band on its own is a score; the reasons are the negotiation.
+    const deals = [1, 12, 22, 27, 30, 45, 90].map((value) =>
+      ({ incoming: [man({ value })], outgoing: [man({ value: 30 })] }));
+    for (const deal of deals) {
+      const e = evaluateTrade(deal, ctx());
+      expect(e.reasons.length, `${e.interest} with no reasons`).toBeGreaterThan(0);
+    }
+  });
+
   it('never repeats itself', () => {
     const e = evaluateTrade({
       incoming: [man({ group: 'CB', groupLabel: 'cornerback', value: 20 }),

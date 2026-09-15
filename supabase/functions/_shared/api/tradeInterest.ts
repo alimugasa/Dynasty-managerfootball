@@ -97,14 +97,29 @@ export function evaluateTrade(
   reasons.push(...fitReasons(proposal, ctx));
   reasons.push(...costReasons(proposal, ctx));
 
+  // Every band says something. A "Strong" with nothing under it is a score
+  // rather than a negotiation: the manager is told they are close and not
+  // which direction close is in, which is the one thing the meter exists to
+  // tell them. Found in a browser, where a package landed on Strong with an
+  // empty reason list and the screen had nothing to draw.
   const ratio = asked <= 0 ? (offered > 0 ? 2 : 1) : offered / asked;
   const interest = bandFor(ratio);
-  if (interest === 'NO_INTEREST' || interest === 'WEAK') {
-    reasons.push(ratio < 0.55
-      ? 'Nowhere near enough value coming back'
-      : 'Not enough value coming back');
-  } else if (interest === 'FAIR') {
-    reasons.push('Close, but they want a little more');
+  switch (interest) {
+    case 'NO_INTEREST':
+    case 'WEAK':
+      reasons.push(ratio < 0.55
+        ? 'Nowhere near enough value coming back'
+        : 'Not enough value coming back');
+      break;
+    case 'FAIR':
+      reasons.push('Close, but they want a little more');
+      break;
+    case 'STRONG':
+      reasons.push('They like this, and it is still a little short');
+      break;
+    case 'LIKELY_ACCEPT':
+      reasons.push('This clears what they are asking for');
+      break;
   }
 
   return {

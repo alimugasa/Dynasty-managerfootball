@@ -15,7 +15,9 @@ import type { Db } from './db.ts';
 import type { SaveRow } from './save.ts';
 import { awardClaim, reorderAfterAward } from './waiverRules.ts';
 import { capRules } from '../engine/offseason/frontOffice.ts';
-import { ACTIVE_ROSTER_LIMIT, refreshCapSheet, teamCapSpace, teamRosterCount } from './rosterSpace.ts';
+import {
+  ACTIVE_ROSTER_LIMIT, assignToRoster, refreshCapSheet, teamCapSpace, teamRosterCount,
+} from './rosterSpace.ts';
 import { enterFreeAgency } from './freeAgentPool.ts';
 import { applyDocumentMove } from './engineRoster.ts';
 import { currentWaiverOrder, writeWaiverOrder } from './waivers.ts';
@@ -152,19 +154,10 @@ export async function resolveWaivers(
 async function awardPlayer(
   db: Db, save: SaveRow, row: PendingRow, teamId: string, aav: number, years: number,
 ): Promise<void> {
-  // position and roster_status are both not-null, and acquisition_type says
-  // how he got here -- which is the column the history would otherwise have
-  // to infer from a transaction row somewhere else.
-  await db`
-    insert into public.team_rosters (
-      save_id, team_id, player_id, position, roster_status,
-      acquisition_type, acquisition_year)
-    values (${save.id}, ${teamId}, ${row.player_id}, ${row.position}, 'ACTIVE',
-            'WAIVER_CLAIM', ${save.season})
-    on conflict (save_id, player_id) do update
-      set team_id = excluded.team_id, position = excluded.position,
-          roster_status = 'ACTIVE', acquisition_type = excluded.acquisition_type,
-          acquisition_year = excluded.acquisition_year`;
+  // Through the shared helper, which also settles the jersey: a claimed player
+  // keeps his number only if it is free at his new club.
+  await assignToRoster(
+    db, save.id, row.player_id, teamId, 'WAIVER_CLAIM', save.season, row.position);
   await db`
     update public.players set team_id = ${teamId}
      where save_id = ${save.id} and player_id = ${row.player_id}`;

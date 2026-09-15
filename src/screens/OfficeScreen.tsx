@@ -22,6 +22,7 @@ import { StatTiles } from '../components/StatTiles';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { HubCard, HubStack, NotBuilt } from './hubCards';
+import { DeadlineBanner } from './deadlineBanner';
 import { Screen } from './Screen';
 import type { OfficeOut } from '../../supabase/functions/_shared/api/reads/office';
 
@@ -44,6 +45,13 @@ export function OfficeScreen() {
       {save !== null && q.status === 'loading' && <Loading label="Loading office" rows={8} />}
       {save !== null && q.status === 'ready' && (
         <>
+          {/* The clock, where a manager doing executive work will see it. It
+              draws nothing until the deadline is close or somebody is waiting
+              on an answer. */}
+          <DeadlineBanner
+            deadline={q.data.tradeDeadline}
+            onOpen={() => { nav.push('trades'); }}
+          />
           <SectionHeader title="Finances" />
           {q.data.cap === null ? (
             <EmptyState title="No cap sheet for this season" />

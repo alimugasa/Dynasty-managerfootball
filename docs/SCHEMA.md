@@ -220,6 +220,29 @@ first. `free_agents` gains `desired_role` and `available_from_week`: what a
 player believes he is, and when he became available. Migration 0034 widens
 `news_category_check` with `TRANSACTION`, which is the category the wire writes.
 
+## Trading
+
+Migration 0035 adds `trades` (one row per deal, with the interest band and the
+reasons it was judged on kept alongside it -- a deal turned down in week 6 was
+turned down on week 6's numbers), `trade_assets` (players and picks, both sides
+in one table because a package is symmetrical and two tables would make every
+query a union), and `trade_block`. `draft_picks.current_owner_team_id` already
+existed, so pick ownership was always tradeable and nothing here had to invent
+it.
+
+`players.morale` is 0-100 and null until an event this game can name a cause for
+has moved it -- being listed for trade, or being traded. Never defaulted: an
+unknown morale and a neutral one are different facts. `saves.trade_deadline_week`
+lets a franchise name its own deadline; null means the league default in
+`_shared/api/tradeWindow.ts`.
+
+An in-season trade is the third path that writes the save document directly,
+alongside the waiver claim and the free-agent signing, and for the same reason
+-- see the exception noted above. All three also share one roster-assignment
+function, which settles the jersey: `team_rosters` has a unique index on (club,
+number) for active players, and a player carrying his old number to a new club
+fails outright the moment it collides. docs/TRADES.md has the detail.
+
 ## Running the schema locally
 
 ```bash

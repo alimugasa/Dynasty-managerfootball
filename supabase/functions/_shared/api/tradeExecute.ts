@@ -21,7 +21,7 @@
 import type { Db } from './db.ts';
 import type { SaveRow } from './save.ts';
 import { applyDocumentMove } from './engineRoster.ts';
-import { refreshCapSheet } from './rosterSpace.ts';
+import { assignToRoster, refreshCapSheet } from './rosterSpace.ts';
 import { clubNames, logMoves, money, type Move, type MoveContext } from './transactionLog.ts';
 import { assetsOf } from './tradeDeal.ts';
 import { moraleAfterTrade } from './tradeMorale.ts';
@@ -129,34 +129,10 @@ async function moveAsset(
      where p.save_id = ${save.id} and p.player_id = ${asset.id}`;
   if (player === undefined) throw new Error(`Player ${asset.id} is not on record`);
 
-  // The roster, and the column every other read joins on.
-  //
-  // The jersey moves with him only if it is free at his new club. Two clubs
-  // each have a number 12 and only one of them can keep it -- team_rosters has
-  // a unique index on (team, number) for active players, so a straight move
-  // fails outright the moment a trade happens to involve a collision, which is
-  // often. The lowest free number is assigned instead, and where somehow none
-  // is free the number is left unknown rather than invented.
-  await db`
-    update public.team_rosters r
-       set team_id = ${to}, acquisition_type = 'TRADE', acquisition_year = ${save.season},
-           jersey_number = case
-             when r.jersey_number is not null and not exists (
-               select 1 from public.team_rosters other
-                where other.save_id = r.save_id and other.team_id = ${to}
-                  and other.jersey_number = r.jersey_number
-                  and other.roster_status = 'ACTIVE')
-             then r.jersey_number
-             else (
-               select n from generate_series(1, 99) as n
-                where not exists (
-                  select 1 from public.team_rosters taken
-                   where taken.save_id = r.save_id and taken.team_id = ${to}
-                     and taken.jersey_number = n
-                     and taken.roster_status = 'ACTIVE')
-                limit 1)
-           end
-     where r.save_id = ${save.id} and r.player_id = ${asset.id} and r.team_id = ${from}`;
+  // The roster and a jersey he is allowed to wear, through the same helper
+  // every other move uses.
+  await assignToRoster(
+    db, save.id, asset.id, to, 'TRADE', save.season, player.position);
   await db`
     update public.players set team_id = ${to}
      where save_id = ${save.id} and player_id = ${asset.id}`;

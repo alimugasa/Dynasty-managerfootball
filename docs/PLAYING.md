@@ -215,6 +215,11 @@ on the server, and opening the app on another device meets the menu. Office →
 | Sign a free agent mid-season | **Team** → *Free agents* → filter → a player → move the terms → *Offer this deal* |
 | Meet a player's counter | the offer sheet's *Meet his number* button — it names the salary that closes it |
 | See every move in the league | **Team** → *Transactions*, or the News tab's *Transactions* chip for the ones worth reporting |
+| Build a trade | **Team** → *Trade Center* → a club → tick assets on both sides → *Offer this trade* |
+| See what they think of it | the interest meter under the package, which re-reads as you change it |
+| Put a player on the block | his profile → *Place on trade block* — clubs that need him will call, and he will know |
+| Answer an offer | **Team** → *Trade Center* → *Incoming offers* |
+| Find out when trading shuts | the Trade Center header, or the countdown on **Play** and **Office** once it is close |
 | Sim a week | **Play** tab → *Sim week N*, or the week card on **Team** |
 | See who you play next | **Play** tab — the matchup card is the top of it |
 | Check the injury report | **Play** → *Game prep* |

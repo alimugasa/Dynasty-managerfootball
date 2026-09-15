@@ -116,3 +116,66 @@ export async function refreshCapSheet(
           contracts_counted = excluded.contracts_counted`;
   return position;
 }
+
+/**
+ * Puts a player on a club's roster with a number he is allowed to wear.
+ *
+ * Two clubs each have a number 12 and only one of them can keep it:
+ * team_rosters carries a unique index on (club, number) for active players,
+ * so moving a player across while keeping his jersey fails outright the moment
+ * a move happens to collide -- which is often, and which surfaced only once
+ * trades started moving players in volume. The waiver path had the same latent
+ * fault and had simply not been pushed hard enough to show it.
+ *
+ * So both go through here. His own number if it is free at the new club, the
+ * lowest free one otherwise, and no number at all in the impossible case where
+ * none is -- unknown rather than invented.
+ */
+export async function assignToRoster(
+  db: Db, saveId: string, playerId: string, teamId: string,
+  acquisition: string, season: number, position: string,
+): Promise<void> {
+  await db`
+    insert into public.team_rosters (
+      save_id, team_id, player_id, position, roster_status,
+      acquisition_type, acquisition_year, jersey_number)
+    values (${saveId}, ${teamId}, ${playerId}, ${position}, 'ACTIVE',
+            ${acquisition}, ${season}, null)
+    on conflict (save_id, player_id) do update
+      set team_id = excluded.team_id, position = excluded.position,
+          roster_status = 'ACTIVE',
+          acquisition_type = excluded.acquisition_type,
+          acquisition_year = excluded.acquisition_year,
+          jersey_number = case
+            when public.team_rosters.jersey_number is not null and not exists (
+              select 1 from public.team_rosters other
+               where other.save_id = ${saveId} and other.team_id = ${teamId}
+                 and other.player_id <> ${playerId}
+                 and other.jersey_number = public.team_rosters.jersey_number
+                 and other.roster_status = 'ACTIVE')
+            then public.team_rosters.jersey_number
+            else (
+              select n from generate_series(1, 99) as n
+               where not exists (
+                 select 1 from public.team_rosters taken
+                  where taken.save_id = ${saveId} and taken.team_id = ${teamId}
+                    and taken.player_id <> ${playerId}
+                    and taken.jersey_number = n
+                    and taken.roster_status = 'ACTIVE')
+               limit 1)
+          end`;
+  // And the same number on the player himself.
+  //
+  // players.jersey_number is what the offseason projection copies back into
+  // team_rosters at every rollover -- it nulls it only when *it* sees a club
+  // change, and an in-season move is a club change it never saw. Leaving it
+  // meant a traded player carried his old number into the next projection and
+  // collided with whoever wore it at his new club, months later, in a function
+  // that had nothing to do with trading.
+  await db`
+    update public.players p
+       set jersey_number = r.jersey_number
+      from public.team_rosters r
+     where p.save_id = ${saveId} and p.player_id = ${playerId}
+       and r.save_id = p.save_id and r.player_id = p.player_id`;
+}

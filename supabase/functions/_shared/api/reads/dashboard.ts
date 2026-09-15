@@ -18,6 +18,7 @@
 // facts, and the screen prints them differently.
 
 import type { Handler } from '../context.ts';
+import { tradeDeadlineFor, type TradeDeadlineOut } from '../tradeDeadlineOut.ts';
 import { ownedSave } from '../save.ts';
 import { rawOf, requireString } from '../parse.ts';
 import { parseStreak } from '../project/standings.ts';
@@ -186,6 +187,7 @@ export interface DashboardOut {
   readonly bestWin: MarginOut | null;
   readonly worstLoss: MarginOut | null;
   readonly thisWeek: ThisWeekOut;
+  readonly tradeDeadline: TradeDeadlineOut;
   readonly shape: ShapeOut;
   /** The top of the depth chart, in the order it plays. */
   readonly squad: readonly SquadRow[];
@@ -339,6 +341,7 @@ export const dashboard: Handler<DashboardIn, DashboardOut> = {
           ? null
           : mandateStanding(mandate, standing.wins, standing.losses, standing.ties),
       },
+      tradeDeadline: await tradeDeadlineFor(sql, s),
       thisWeek: {
         state,
         week: s.week,

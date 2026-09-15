@@ -6,6 +6,7 @@
 // screen that shows the cap.
 
 import type { Handler } from '../context.ts';
+import { tradeDeadlineFor, type TradeDeadlineOut } from '../tradeDeadlineOut.ts';
 import { ownedSave } from '../save.ts';
 import { rawOf, requireString } from '../parse.ts';
 
@@ -21,6 +22,7 @@ export interface HistoryOut {
 export interface OfficeOut {
   readonly cap: CapOut | null;
   readonly history: readonly HistoryOut[];
+  readonly tradeDeadline: TradeDeadlineOut;
 }
 
 export const office: Handler<OfficeIn, OfficeOut> = {
@@ -41,6 +43,7 @@ export const office: Handler<OfficeIn, OfficeOut> = {
         available: Number(cap.available), deadMoney: Number(cap.dead_money),
       },
       history,
+      tradeDeadline: await tradeDeadlineFor(sql, s),
     };
   },
 };

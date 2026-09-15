@@ -253,8 +253,14 @@ export function TeamScreen() {
               testId="to-free-agents"
             />
             <HubCard
+              title="Trade Center"
+              detail="Build a package, and hear what they think of it"
+              onSelect={() => { nav.push('trades'); }}
+              testId="to-trades"
+            />
+            <HubCard
               title="Transactions"
-              detail="Every cut, claim and signing in the league"
+              detail="Every cut, claim, signing and trade in the league"
               onSelect={() => { nav.push('transactions'); }}
               testId="to-transactions"
             />

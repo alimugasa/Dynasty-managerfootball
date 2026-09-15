@@ -36,6 +36,27 @@ export interface AssetRef {
   readonly id: string;
 }
 
+/**
+ * The league-wide facts a valuation needs, worked out once.
+ *
+ * Positional scarcity is a scan of every roster in the league and a club's
+ * scheme is a row lookup, and both are the same answer for every asset priced
+ * in the same week. Without somewhere to keep them, one round of computer-run
+ * trading recomputed scarcity dozens of times per week -- it made sim-week
+ * about a third slower, which is the most-used operation in the game.
+ *
+ * Optional: a single quote from a screen has nothing to reuse and passes none.
+ */
+export interface MarketCache {
+  readonly scarcity: Map<string, ReadonlyMap<PositionGroup, number>>;
+  readonly schemes: Map<string, { runPassBalance: number; blitzRate: number } | null>;
+  readonly played: Map<string, boolean>;
+}
+
+export const newMarketCache = (): MarketCache => ({
+  scarcity: new Map(), schemes: new Map(), played: new Map(),
+});
+
 interface PlayerRow {
   player_id: string; display_name: string; position: string; team_id: string | null;
   age: number; experience_years: number; overall_rating: number;
@@ -56,12 +77,16 @@ interface PlayerRow {
  */
 export async function valueAssets(
   db: Db, saveId: string, season: number,
-  refs: readonly AssetRef[], forTeamId: string,
+  refs: readonly AssetRef[], forTeamId: string, cache?: MarketCache,
 ): Promise<readonly ValuedAsset[]> {
   if (refs.length === 0) return [];
   const rules = capRules(season);
-  const scheme = await schemeOf(db, saveId, forTeamId);
-  const scarcity = await leagueScarcity(db, saveId);
+  const scheme = cache?.schemes.has(forTeamId) === true
+    ? cache.schemes.get(forTeamId) ?? null
+    : await schemeOf(db, saveId, forTeamId);
+  if (cache !== undefined) cache.schemes.set(forTeamId, scheme);
+  const scarcity = cache?.scarcity.get(saveId) ?? await leagueScarcity(db, saveId);
+  cache?.scarcity.set(saveId, scarcity);
   const out: ValuedAsset[] = [];
 
   const playerIds = refs.filter((r) => r.kind === 'PLAYER').map((r) => r.id);
@@ -154,7 +179,9 @@ export async function valueAssets(
     const [clubs] = await db<{ n: string }[]>`
       select count(*)::text as n from public.teams where save_id = ${saveId}`;
     const picksPerRound = Number(clubs?.n ?? 32);
-    const played = await gamesPlayed(db, saveId, season);
+    const key = `${saveId}:${String(season)}`;
+    const played = cache?.played.get(key) ?? await gamesPlayed(db, saveId, season);
+    cache?.played.set(key, played);
 
     const byId = new Map(rows.map((r) => [r.pick_id, r]));
     for (const id of pickIds) {

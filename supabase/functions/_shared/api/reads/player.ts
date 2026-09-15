@@ -3,6 +3,7 @@
 import { notFound, type Handler } from '../context.ts';
 import { ownedSave } from '../save.ts';
 import { rawOf, requireString } from '../parse.ts';
+import { moraleLabel } from '../tradeMorale.ts';
 import { GROUP_OF } from '../../engine/careerWorld.ts';
 
 export interface PlayerIn { readonly saveId: string; readonly playerId: string }
@@ -18,6 +19,13 @@ export interface PlayerOut {
     readonly recYards: number; readonly tackles: number;
   } | null;
   readonly contract: { readonly aav: number; readonly yearsRemaining: number } | null;
+  /** Whether this player is on the managed club's roster, which is what
+   *  decides whether the trade block is a thing that can be done to him. */
+  readonly mine: boolean;
+  readonly onTradeBlock: boolean;
+  /** Null until something this game models has moved it. Never a default. */
+  readonly morale: number | null;
+  readonly moraleLabel: string;
 }
 
 export const player: Handler<PlayerIn, PlayerOut> = {
@@ -45,6 +53,12 @@ export const player: Handler<PlayerIn, PlayerOut> = {
         from public.player_season_stats
        where save_id = ${s.id} and season = ${s.season} and competition = 'REGULAR'
          and player_id = ${input.playerId}`;
+    const [extra] = await sql<{ morale: number | null; blocked: boolean }[]>`
+      select p.morale, (b.player_id is not null) as blocked
+        from public.players p
+        left join public.trade_block b
+          on b.save_id = p.save_id and b.player_id = p.player_id
+       where p.save_id = ${s.id} and p.player_id = ${input.playerId}`;
     const [deal] = await sql<{ average_annual_value: string; years_remaining: number }[]>`
       select average_annual_value::text, years_remaining from public.player_contracts
        where save_id = ${s.id} and player_id = ${input.playerId} and contract_status = 'ACTIVE'
@@ -54,6 +68,10 @@ export const player: Handler<PlayerIn, PlayerOut> = {
       group: GROUP_OF[p.position] ?? p.position, teamId: p.team_id,
       age: p.age, experience: p.experience_years,
       overall: p.overall_rating, potential: p.potential_rating, durability: p.durability,
+      mine: p.team_id === s.user_team_id,
+      onTradeBlock: extra?.blocked ?? false,
+      morale: extra?.morale ?? null,
+      moraleLabel: moraleLabel(extra?.morale ?? null),
       season: line === undefined ? null : {
         games: line.games_played, passYards: line.pass_yards, rushYards: line.rush_yards,
         recYards: line.rec_yards, tackles: line.tackles,

@@ -24,6 +24,14 @@ import { GROUP_LABEL } from './tradeAssets.ts';
 const UNTOUCHABLE_OVERALL = 86;
 const UNTOUCHABLE_AGE = 28;
 
+/** The rating a starting unit is measured against, and how far below it counts
+ *  as desperate. The engine's own numbers (offseason/needs.ts), so a club's
+ *  needs mean the same thing in a trade as they do in free agency. */
+const ADEQUATE = 76;
+const NEED_RANGE = 22;
+/** A position with nobody available is not an empty average, it is a hole. */
+const EMPTY_SLOT = 40;
+
 export interface ClubTradeContext extends TradeContext {
   readonly teamId: string;
   readonly name: string;
@@ -91,37 +99,57 @@ export async function clubTradeContext(
 /**
  * How badly a club needs each position group, 0-1.
  *
- * Measured on the best player it has there against what a starter should be,
- * which is the engine's own definition of a need -- a club with one excellent
- * corner and nobody else has a depth problem, not a starting one, and a club
- * whose best corner is 61 has the other kind.
+ * Measured on the men who would actually start there -- the mean of the top
+ * few, where "few" is how many the group puts on the field -- rather than on
+ * the best one alone.
+ *
+ * That distinction is the whole usefulness of this function. Judged on the
+ * best player only, every club in a freshly generated league has somebody
+ * adequate at every position, so every club reports no needs, and a Browse
+ * Teams list of thirty-one clubs all saying "no pressing needs" tells a
+ * manager nothing about who to call. A club whose best cornerback is 79 and
+ * whose second is 61 has a real problem at cornerback, and it is the problem
+ * a trade fixes.
  */
 export async function clubNeeds(
   db: Db, saveId: string, teamId: string,
 ): Promise<Readonly<Record<string, number>>> {
-  const rows = await db<{ position: string; best: number; n: string }[]>`
-    select p.position, max(p.overall_rating) as best, count(*)::text as n
+  const rows = await db<{ position: string; overall_rating: number }[]>`
+    select p.position, p.overall_rating
       from public.team_rosters r
       join public.players p on p.save_id = r.save_id and p.player_id = r.player_id
-     where r.save_id = ${saveId} and r.team_id = ${teamId}
-     group by p.position`;
-  const best = new Map<PositionGroup, number>();
-  const count = new Map<PositionGroup, number>();
+      -- A man who cannot play is not filling the position this week, which is
+      -- exactly when a club goes looking for another one.
+      left join public.player_injuries i
+        on i.save_id = r.save_id and i.player_id = r.player_id
+       and i.injured_week + i.weeks_out_estimate
+           > (select week from public.saves where id = ${saveId})
+       and i.injured_season = (select season from public.saves where id = ${saveId})
+     where r.save_id = ${saveId} and r.team_id = ${teamId} and i.player_id is null
+     order by p.overall_rating desc`;
+
+  const byGroup = new Map<PositionGroup, number[]>();
   for (const row of rows) {
     const group = GROUP_OF[row.position];
     if (group === undefined) continue;
-    best.set(group, Math.max(best.get(group) ?? 0, row.best));
-    count.set(group, (count.get(group) ?? 0) + Number(row.n));
+    const list = byGroup.get(group) ?? [];
+    list.push(row.overall_rating);
+    byGroup.set(group, list);
   }
+
   const needs: Record<string, number> = {};
   for (const [group, starters] of Object.entries(STARTERS) as [PositionGroup, number][]) {
     if (starters === 0) continue;
-    const top = best.get(group) ?? 0;
-    // 76 is a starter; 58 and below is a hole. Between them the need scales.
-    const quality = Math.min(1, Math.max(0, (76 - top) / 18));
-    // A group short of bodies is a need whatever the best man in it is rated.
-    const bodies = Math.min(1, Math.max(0, (starters - (count.get(group) ?? 0)) / starters));
-    needs[group] = Math.round(Math.max(quality, bodies) * 100) / 100;
+    const rated = byGroup.get(group) ?? [];
+    // The unit as it would take the field. A missing body counts as a hole
+    // rather than being left out of the average, or a club with one great
+    // corner and nobody else would read as set at cornerback.
+    const unit: number[] = [];
+    for (let i = 0; i < starters; i += 1) unit.push(rated[i] ?? EMPTY_SLOT);
+    const mean = unit.reduce((a, b) => a + b, 0) / starters;
+    // ADEQUATE is a starter; well below it is a hole. Between them it scales.
+    needs[group] = Math.round(
+      Math.min(1, Math.max(0, (ADEQUATE - mean) / NEED_RANGE)) * 100) / 100;
   }
   return needs;
 }

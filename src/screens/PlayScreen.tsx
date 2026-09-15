@@ -26,6 +26,7 @@ import { MatchupCard, PrepCard, PrepGrid, PrepWide } from './playMatchup';
 import {
   ResultModal, SeasonSummaryModal, SeasonWarningModal, SimWarningModal, warningsFor,
 } from './playResult';
+import { DeadlineBanner } from './deadlineBanner';
 import { Screen } from './Screen';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
@@ -119,6 +120,16 @@ export function PlayScreen() {
         >
           {notice}
         </p>
+      )}
+      {/* The clock, above the week. A manager about to simulate past the
+          deadline should be told before they do it, not after. */}
+      {d !== null && (
+        <div style={{ marginBottom: S[3] }}>
+          <DeadlineBanner
+            deadline={d.tradeDeadline}
+            onOpen={() => { nav.push('trades'); }}
+          />
+        </div>
       )}
       {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading the week" rows={6} />}

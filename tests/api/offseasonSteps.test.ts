@@ -142,9 +142,15 @@ describe('an offseason played through', () => {
       select team_id from public.team_rosters
        where save_id = ${saveId} and player_id = ${best?.playerId ?? ''}`;
     expect(moved?.team_id).toBe('DAL');
+    // Scoped to the two players in this deal. It used to count every TRADE
+    // row in the save, which was the same thing until the league started
+    // trading during the season -- a global count is no longer a count of
+    // this trade.
     const [logged] = await pipe.sql<{ n: string }[]>`
       select count(*)::text as n from public.transactions
-       where save_id = ${saveId} and kind = 'TRADE'`;
+       where save_id = ${saveId} and kind = 'TRADE'
+         and player_id = any(${[best?.playerId ?? '',
+    theirs[theirs.length - 1]?.player_id ?? '']}::text[])`;
     expect(Number(logged?.n)).toBe(2);
   }, 60_000);
 

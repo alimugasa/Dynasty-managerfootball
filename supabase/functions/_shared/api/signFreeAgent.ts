@@ -19,7 +19,9 @@ import {
   roleFromTier, signingProbability,
   type ClubOffer, type DesiredRole, type MarketPlayer, type OfferVerdict,
 } from './inSeasonMarket.ts';
-import { ACTIVE_ROSTER_LIMIT, refreshCapSheet, teamCapSpace, teamRosterCount } from './rosterSpace.ts';
+import {
+  ACTIVE_ROSTER_LIMIT, assignToRoster, refreshCapSheet, teamCapSpace, teamRosterCount,
+} from './rosterSpace.ts';
 import { applyDocumentMove } from './engineRoster.ts';
 
 const isRole = (v: string | null): v is DesiredRole =>
@@ -167,16 +169,8 @@ export async function signPlayer(
   db: Db, save: SaveRow, teamId: string,
   player: MarketPlayer, aav: number, years: number,
 ): Promise<void> {
-  await db`
-    insert into public.team_rosters (
-      save_id, team_id, player_id, position, roster_status,
-      acquisition_type, acquisition_year)
-    values (${save.id}, ${teamId}, ${player.playerId}, ${player.position}, 'ACTIVE',
-            'FREE_AGENCY', ${save.season})
-    on conflict (save_id, player_id) do update
-      set team_id = excluded.team_id, position = excluded.position,
-          roster_status = 'ACTIVE', acquisition_type = excluded.acquisition_type,
-          acquisition_year = excluded.acquisition_year`;
+  await assignToRoster(
+    db, save.id, player.playerId, teamId, 'FREE_AGENCY', save.season, player.position);
   await db`
     update public.players set team_id = ${teamId}, role_tier = ${player.desiredRole === 'STARTER'
       ? 'STARTER' : player.desiredRole === 'ROTATION' ? 'ROTATIONAL' : 'DEPTH'}

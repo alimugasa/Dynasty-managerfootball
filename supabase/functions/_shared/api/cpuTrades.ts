@@ -17,7 +17,7 @@ import type { SaveRow } from './save.ts';
 import { seasonWeeks } from './save.ts';
 import type { Rng } from '../engine/rng.ts';
 import { tradeWindow } from './tradeWindow.ts';
-import { valueAssets, type AssetRef } from './tradeAssets.ts';
+import { newMarketCache, valueAssets, type AssetRef, type MarketCache } from './tradeAssets.ts';
 import { clubTradeContext, type ClubTradeContext } from './tradeContext.ts';
 import { evaluateTrade } from './tradeInterest.ts';
 import { packageValue } from './tradeValue.ts';
@@ -82,15 +82,28 @@ export async function cpuTradeRound(
      order by team_id`;
   if (clubs.length < 2) return { attempted: 0, completed: 0, offersToUser: 0 };
 
+  // One cache for the whole round: scarcity and schemes are the same answer
+  // for every asset priced this week, and a round prices a great many.
+  const cache = newMarketCache();
+  const contexts = new Map<string, ClubTradeContext>();
+  const contextFor = async (teamId: string): Promise<ClubTradeContext> => {
+    const held = contexts.get(teamId);
+    if (held !== undefined) return held;
+    const built = await clubTradeContext(
+      db, save.id, save.season, save.week, weeks, teamId, save.franchise_settings);
+    contexts.set(teamId, built);
+    return built;
+  };
+
   let completed = 0;
   for (let i = 0; i < attempts; i += 1) {
     const buyer = clubs[rng.int(0, clubs.length - 1)]?.team_id;
     const seller = clubs[rng.int(0, clubs.length - 1)]?.team_id;
     if (buyer === undefined || seller === undefined || buyer === seller) continue;
-    if (await attemptTrade(db, save, buyer, seller, weeks)) completed += 1;
+    if (await attemptTrade(db, save, buyer, seller, cache, contextFor)) completed += 1;
   }
 
-  const offersToUser = await offerForListedPlayers(db, save, weeks, rng);
+  const offersToUser = await offerForListedPlayers(db, save, cache, contextFor, rng);
   return { attempted: attempts, completed, offersToUser };
 }
 
@@ -103,13 +116,14 @@ export async function cpuTradeRound(
  * function, same margins, same reasons -- which is the only way to be sure the
  * league is playing the game the manager is playing.
  */
+type ContextFor = (teamId: string) => Promise<ClubTradeContext>;
+
 async function attemptTrade(
-  db: Db, save: SaveRow, buyerId: string, sellerId: string, weeks: number,
+  db: Db, save: SaveRow, buyerId: string, sellerId: string,
+  cache: MarketCache, contextFor: ContextFor,
 ): Promise<boolean> {
-  const buyer = await clubTradeContext(
-    db, save.id, save.season, save.week, weeks, buyerId, save.franchise_settings);
-  const seller = await clubTradeContext(
-    db, save.id, save.season, save.week, weeks, sellerId, save.franchise_settings);
+  const buyer = await contextFor(buyerId);
+  const seller = await contextFor(sellerId);
 
   const wanted = topNeed(buyer);
   if (wanted === null) return false;
@@ -130,18 +144,18 @@ async function attemptTrade(
   // What the seller will ask, not what the player is worth: evaluateTrade
   // wants a margin over the value it gives up, and a package built to the bare
   // value is a package that is always just short.
-  const asked = await valueAssets(db, save.id, save.season, get, sellerId);
+  const asked = await valueAssets(db, save.id, save.season, get, sellerId, cache);
   const need = packageValue(asked) * APPETITE[seller.strategy].margin;
-  const give = await affordablePackage(db, save, buyerId, sellerId, need);
+  const give = await affordablePackage(db, save, buyerId, sellerId, need, cache);
   if (give.length === 0) return false;
 
-  const incoming = await valueAssets(db, save.id, save.season, give, sellerId);
-  const outgoing = await valueAssets(db, save.id, save.season, get, sellerId);
+  const incoming = await valueAssets(db, save.id, save.season, give, sellerId, cache);
+  const outgoing = await valueAssets(db, save.id, save.season, get, sellerId, cache);
   const evaluation = evaluateTrade({ incoming, outgoing }, seller);
   if (!evaluation.accepted) return false;
 
-  const giving = await valueAssets(db, save.id, save.season, give, buyerId);
-  const getting = await valueAssets(db, save.id, save.season, get, buyerId);
+  const giving = await valueAssets(db, save.id, save.season, give, buyerId, cache);
+  const getting = await valueAssets(db, save.id, save.season, get, buyerId, cache);
   const tradeId = await writeProposal(
     db, save, buyerId, sellerId, { give, get }, evaluation, giving, getting);
   const done = await executeTrade(db, save, tradeId);
@@ -173,6 +187,7 @@ async function attemptTrade(
  */
 async function affordablePackage(
   db: Db, save: SaveRow, buyerId: string, sellerId: string, target: number,
+  cache: MarketCache,
 ): Promise<readonly AssetRef[]> {
   // Picks: they cost no roster place and no cap, which is why they are the
   // currency of most deadline deals.
@@ -185,7 +200,7 @@ async function affordablePackage(
 
   const priced = await valueAssets(
     db, save.id, save.season,
-    picks.map((p): AssetRef => ({ kind: 'PICK', id: p.pick_id })), sellerId);
+    picks.map((p): AssetRef => ({ kind: 'PICK', id: p.pick_id })), sellerId, cache);
   const descending = [...priced].sort((a, b) => b.value - a.value);
 
   // One asset that does it, and the smallest such: a club that led with its
@@ -218,7 +233,7 @@ async function affordablePackage(
  * trade waits for a person.
  */
 async function offerForListedPlayers(
-  db: Db, save: SaveRow, weeks: number, rng: Rng,
+  db: Db, save: SaveRow, cache: MarketCache, contextFor: ContextFor, rng: Rng,
 ): Promise<number> {
   const listed = await db<{ player_id: string; position: string; overall_rating: number }[]>`
     select b.player_id, p.position, p.overall_rating
@@ -249,8 +264,7 @@ async function offerForListedPlayers(
   const buyerId = clubs[rng.int(0, Math.max(0, clubs.length - 1))]?.team_id;
   if (buyerId === undefined) return 0;
 
-  const buyer = await clubTradeContext(
-    db, save.id, save.season, save.week, weeks, buyerId, save.franchise_settings);
+  const buyer = await contextFor(buyerId);
   const group = target.position;
   // A club only calls about a position it actually needs. Otherwise the block
   // produces offers nobody meant, which is noise wearing the shape of a market.
@@ -258,16 +272,16 @@ async function offerForListedPlayers(
   if (wanted === null || !positionsIn(wanted).includes(group)) return 0;
 
   const get: readonly AssetRef[] = [{ kind: 'PLAYER', id: target.player_id }];
-  const asked = await valueAssets(db, save.id, save.season, get, buyerId);
+  const asked = await valueAssets(db, save.id, save.season, get, buyerId, cache);
   // They open a little under what he is worth, which is what an opening offer
   // is. The manager can counter by proposing back.
   const need = packageValue(asked) * 0.85;
   const give = await affordablePackage(
-    db, save, buyerId, save.user_team_id, need);
+    db, save, buyerId, save.user_team_id, need, cache);
   if (give.length === 0) return 0;
 
-  const giving = await valueAssets(db, save.id, save.season, give, save.user_team_id);
-  const getting = await valueAssets(db, save.id, save.season, get, save.user_team_id);
+  const giving = await valueAssets(db, save.id, save.season, give, save.user_team_id, cache);
+  const getting = await valueAssets(db, save.id, save.season, get, save.user_team_id, cache);
   await writeProposal(
     db, save, buyerId, save.user_team_id, { give, get }, null, giving, getting);
   return 1;

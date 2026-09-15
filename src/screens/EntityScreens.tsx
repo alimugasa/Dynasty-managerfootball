@@ -17,6 +17,7 @@ import { TeamMark, TeamMarkSkeleton } from '../components/TeamMark';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { Loading, QueryError } from '../components/QueryState';
+import { ActionButton } from '../components/ActionButton';
 import { Screen } from './Screen';
 import type { PlayerOut } from '../../supabase/functions/_shared/api/reads/player';
 import type { GameOut } from '../../supabase/functions/_shared/api/reads/game';
@@ -38,7 +39,7 @@ function ProfileHeader({ markSize = 48 }: { readonly markSize?: number }) {
 
 export function PlayerScreen() {
   const { params } = useNavigationState();
-  const { save, clubsById, version } = useSave();
+  const { save, clubsById, version, busy, marketMove } = useSave();
   const id = params['id'] ?? '';
   const q = useQuery<PlayerOut>(
     'player', { saveId: save?.saveId ?? '', playerId: id }, version, save !== null && id !== '');
@@ -141,6 +142,36 @@ export function PlayerScreen() {
             {player.season.tackles > 0 && <ListRow title="Tackles" trailing={<span style={{ color: COLOR.tx }}>{player.season.tackles}</span>} />}
           </div>
         </Panel>
+      )}
+
+      {/* The trade block, for a player this club actually holds. Being made
+          available is not a compliment, so the button says what it does to him
+          rather than only what it does to the roster. */}
+      {player.mine && (
+        <>
+          <SectionHeader title="Trade block" />
+          <Panel>
+            <p style={{ ...TYPE.prose, margin: `0 0 ${String(S[3])}px`, color: COLOR.mut }}>
+              {player.onTradeBlock
+                ? `${player.name} is listed. Clubs that need him will make offers. `
+                  + `Morale: ${player.moraleLabel.toLowerCase()}.`
+                : 'Listing a player tells the league he is available — and tells him. '
+                  + `Morale: ${player.moraleLabel.toLowerCase()}.`}
+            </p>
+            <ActionButton
+              tone={player.onTradeBlock ? 'quiet' : 'primary'}
+              disabled={busy !== null}
+              testId="toggle-block"
+              onClick={() => {
+                void marketMove('trade-block', {
+                  playerId: player.playerId, listed: !player.onTradeBlock,
+                });
+              }}
+            >
+              {player.onTradeBlock ? 'Remove from trade block' : 'Place on trade block'}
+            </ActionButton>
+          </Panel>
+        </>
       )}
 
       <SectionHeader title="Contract" />
