@@ -7,6 +7,7 @@ import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from '.
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
 import { AvatarLab } from './screens/AvatarLab';
+import { RendererCompare } from './screens/RendererCompare';
 import { SaveProvider, useSave } from './app/SaveProvider';
 import { FranchiseSetupProvider, useFranchiseSetup } from './app/FranchiseSetup';
 import { Loading } from './components/QueryState';
@@ -145,8 +146,11 @@ export function App() {
     );
   }
 
-  // The same arrangement for the avatar lab: a development surface, outside
-  // the navigation stack, reading no save.
+  // The same arrangement for the avatar lab and the renderer test: development
+  // surfaces, outside the navigation stack, reading no save.
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev/renderer')) {
+    return <Shell><RendererCompare /></Shell>;
+  }
   if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev/avatars')) {
     return <Shell><AvatarLab /></Shell>;
   }
