@@ -1,0 +1,358 @@
+// The dynasty the client is playing, and the buttons that move it.
+//
+// The client holds no game state. It holds which save it is looking at, the
+// clubs' names and colours, and a version counter that every write bumps so
+// the screens re-read. Every action is one API call; the server plays the
+// week, runs the offseason, or reorders the chart, and the tables it wrote are
+// what the screens then read.
+//
+// Which save is open is a decision, not a guess. Nothing is loaded until the
+// menu opens one, and the id is remembered in this browser so a reload puts
+// the player back in the game rather than at the front door. It is remembered
+// per browser and nowhere else: the save itself lives on the server, and a
+// player on another device meets the menu, which is the correct answer.
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { api } from '../data/client';
+import type { Club, SaveOut, SaveSummary } from '../../supabase/functions/_shared/api/reads/save';
+import type { WeekOutcome } from '../../supabase/functions/_shared/api/week';
+import type { SeasonOutcome } from '../../supabase/functions/_shared/api/rollover';
+import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
+import type { FranchiseSettings } from '../../supabase/functions/_shared/api/franchiseOptions';
+import {
+  markChecklist as mergeMark,
+  type ChecklistItem, type ChecklistMark, type ChecklistProgress,
+} from '../../supabase/functions/_shared/api/checklist';
+import type { MarkChecklistOut } from '../../supabase/functions/_shared/api/markChecklist';
+import type { MarkNewsReadOut } from '../../supabase/functions/_shared/api/markNewsRead';
+
+export interface SaveApi {
+  /** The open save, or null when none is. Meaningful only once `loaded`. */
+  readonly save: SaveSummary | null;
+  /** The question "which save is open" has been settled -- with an answer of
+   *  "none" as often as with a save. Not the same as having one. */
+  readonly loaded: boolean;
+  readonly loadError: Error | null;
+  readonly clubs: readonly Club[];
+  readonly clubsById: ReadonlyMap<string, Club>;
+  /** Bumped after every write. Screens pass it to useQuery. */
+  readonly version: number;
+  readonly busy: string | null;
+  /** The last action's complaint, or what the server refused. */
+  readonly notice: string | null;
+  simWeek: () => Promise<void>;
+  simSeason: () => Promise<void>;
+  /** Runs the rest of the offseason in one call. */
+  nextSeason: () => Promise<void>;
+  /** One step of an offseason played through. */
+  advanceOffseason: () => Promise<void>;
+  /** A move the manager makes himself. The server refuses what it must, and
+   *  what it says comes back as the notice. */
+  offseasonMove: (route: string, input: Record<string, unknown>) => Promise<void>;
+  /**
+   * A move whose answer the screen has to show.
+   *
+   * offseasonMove above is for the moves whose whole outcome is a sentence --
+   * the server says what happened and the screen prints it. A contract offer
+   * is not one of those: a player accepts, refuses or counters, and a counter
+   * carries terms the manager acts on. Swallowing that and showing a sentence
+   * would leave them retyping numbers the server already worked out.
+   *
+   * Returns null when the call failed, with the reason in `notice`.
+   */
+  marketMove: <Out>(route: string, input: Record<string, unknown>) => Promise<Out | null>;
+  setDepthChart: (group: string, order: readonly string[]) => Promise<void>;
+  /** What the manager has opened and finished on the dashboard checklist.
+   *  Empty until something is tapped; never null, because "nothing yet" and
+   *  "a save from before the checklist" are the same state. */
+  readonly checklist: ChecklistProgress;
+  /** Records a tap, or a finished job.
+   *
+   *  Applied here first and sent after, because a checklist row that waited on
+   *  a round trip before ticking would feel broken on a slow connection. The
+   *  server's answer replaces the guess when it lands; a failure puts the row
+   *  back where it was and says why. */
+  markChecklist: (item: ChecklistItem, mark: ChecklistMark) => Promise<void>;
+  /** Records that a story in the news feed has been opened, or marks every
+   *  unread story in the season read at once.
+   *
+   *  Unlike every other write here it does not bump `version`. Reading a story
+   *  changes nothing about the dynasty -- not the week, not the roster, not a
+   *  single thing another screen shows -- so re-querying the whole app for it
+   *  would be work spent to display no difference. The News tab carries the
+   *  cleared dot itself until its next read.
+   *
+   *  Resolves with how many stories were actually marked, which is zero for
+   *  one that was already read. Rejects on a refusal, so the caller can decide
+   *  whether it is worth saying; nothing else here turns on it. */
+  markNewsRead: (newsId: number | 'all') => Promise<number>;
+  /** Creates a dynasty in `slot` under a named GM, and opens it.
+   *
+   *  Unlike every other action here, this one rejects rather than folding the
+   *  failure into `notice`: the screen that calls it is a build screen, and it
+   *  has to know which step failed to say so. It resolves with what each step
+   *  of the build produced. */
+  startDynasty: (input: NewDynasty) => Promise<CreateSaveOut>;
+  /** Opens an existing save. */
+  openSave: (saveId: string) => Promise<void>;
+  /** Closes the open save and returns to the menu. Deletes nothing. */
+  leaveSave: () => void;
+  /** Deletes a save outright. Used from the slot screen, never mid-game. */
+  deleteSave: (saveId: string) => Promise<void>;
+  /** Renames a save file. The name is the one thing about a dynasty the player
+   *  owns outright, so it is the one thing the client may set. */
+  renameSave: (saveId: string, name: string) => Promise<void>;
+}
+
+export interface NewDynasty {
+  readonly slot: number;
+  readonly teamId: string;
+  readonly gmFirstName: string;
+  readonly gmLastName: string;
+  /** One of the keys in src/screens/gmStyles.ts. Omitted by a caller that
+   *  never asked, which stores null rather than a style nobody chose. */
+  readonly gmStyle?: string;
+  /** The eight rules the franchise is played under. All eight or none. */
+  readonly settings?: FranchiseSettings;
+  /** What the player calls the save file. */
+  readonly name: string;
+}
+
+/** Where this browser remembers the open save. A convenience for this viewer
+ *  on this device, so it is the one thing kept in localStorage; every fact
+ *  about the save itself is read from the server.
+ *
+ *  Exported so a test can put the app in the state a player would be in after
+ *  opening a save, rather than hardcoding the key and drifting from it. */
+export const OPEN_SAVE_KEY = 'dmp.openSaveId';
+
+function rememberedSave(): string | null {
+  // Storage throws outright in some contexts (a private window with site data
+  // blocked), and a menu that crashes on boot is worse than one that forgets.
+  try {
+    return window.localStorage.getItem(OPEN_SAVE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function remember(saveId: string | null): void {
+  try {
+    if (saveId === null) window.localStorage.removeItem(OPEN_SAVE_KEY);
+    else window.localStorage.setItem(OPEN_SAVE_KEY, saveId);
+  } catch {
+    // Not being able to remember costs one trip through the menu next time.
+  }
+}
+
+const SaveContext = createContext<SaveApi | null>(null);
+
+export function useSave(): SaveApi {
+  const value = useContext(SaveContext);
+  if (value === null) throw new Error('useSave must be used inside <SaveProvider>');
+  return value;
+}
+
+export function SaveProvider({ children }: { children: ReactNode }) {
+  const [openSaveId, setOpenSaveId] = useState<string | null>(
+    () => (typeof window === 'undefined' ? null : rememberedSave()));
+  const [current, setCurrent] = useState<SaveOut | null>(null);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+  const [version, setVersion] = useState(0);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [settled, setSettled] = useState(false);
+  /** The checklist as this screen has it, ahead of the server. Null means "no
+   *  guess outstanding, use the save's own". Cleared by every reload, so the
+   *  stored document always wins in the end. */
+  const [marks, setMarks] = useState<ChecklistProgress | null>(null);
+
+  const reload = useCallback(async (saveId: string | null) => {
+    setMarks(null);
+    if (saveId === null) {
+      setCurrent(null);
+      setLoadError(null);
+      setSettled(true);
+      setVersion((v) => v + 1);
+      return;
+    }
+    try {
+      setCurrent(await api().call<SaveOut>('save', { saveId }));
+      setLoadError(null);
+    } catch (error) {
+      // A remembered save that is gone -- deleted from another device, or a
+      // database rebuilt under it -- is not an error to sit on. Forget it and
+      // show the menu, which is where the player can do something about it.
+      setOpenSaveId(null);
+      remember(null);
+      setCurrent(null);
+      setLoadError(error instanceof Error ? error : new Error(String(error)));
+    }
+    setSettled(true);
+    setVersion((v) => v + 1);
+  }, []);
+
+  useEffect(() => { void reload(openSaveId); }, [reload, openSaveId]);
+
+  const clubsById = useMemo(
+    () => new Map((current?.clubs ?? []).map((c) => [c.id, c])), [current]);
+
+  /** Runs one write, then re-reads the save so week and phase are current. */
+  const act = useCallback(async (label: string, run: () => Promise<void>) => {
+    setBusy(label);
+    setNotice(null);
+    try {
+      await run();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : String(error));
+    } finally {
+      await reload(openSaveId);
+      setBusy(null);
+    }
+  }, [reload, openSaveId]);
+
+  const value = useMemo<SaveApi>(() => {
+    const save = current?.save ?? null;
+    const need = (): string => {
+      if (save === null) throw new Error('No dynasty is open');
+      return save.saveId;
+    };
+    return {
+      save, loaded: settled, loadError,
+      clubs: current?.clubs ?? [], clubsById, version, busy, notice,
+      simWeek: () => act('Simulating…', async () => {
+        const out = await api().call<WeekOutcome>('sim-week', { saveId: need() });
+        if (out.abandoned.length > 0) {
+          setNotice(`${String(out.abandoned.length)} game(s) could not be played: ${out.abandoned.join(', ')}`);
+        }
+      }),
+      simSeason: () => act('Simulating season…', async () => {
+        const saveId = need();
+        const abandoned: string[] = [];
+        let phase = save?.phase ?? '';
+        let guard = 0;
+        while (phase === 'REGULAR_SEASON' && guard < 30) {
+          guard += 1;
+          const out = await api().call<WeekOutcome>('sim-week', { saveId });
+          abandoned.push(...out.abandoned);
+          phase = out.phase;
+        }
+        if (abandoned.length > 0) {
+          setNotice(`${String(abandoned.length)} game(s) could not be played: ${abandoned.join(', ')}`);
+        }
+      }),
+      advanceOffseason: () => act('Working…', async () => {
+        const out = await api().call<{ summary: string; waitingOnPick: { round: number; overall: number } | null }>(
+          'advance-offseason', { saveId: need() });
+        setNotice(out.summary);
+      }),
+      offseasonMove: (route, input) => act('Working…', async () => {
+        const out = await api().call<{ done: boolean; detail: string }>(
+          route, { saveId: need(), ...input });
+        // Refusals and agreements both come back the same way: the server
+        // says what happened, and the screen shows it either way.
+        setNotice(out.detail);
+      }),
+      marketMove: async <Out,>(route: string, input: Record<string, unknown>) => {
+        let out: Out | null = null;
+        await act('Working…', async () => {
+          out = await api().call<Out>(route, { saveId: need(), ...input });
+        });
+        return out;
+      },
+      nextSeason: () => act('Running offseason…', async () => {
+        const out = await api().call<SeasonOutcome>('advance-season', { saveId: need() });
+        // The one offseason outcome a manager must not miss.
+        if (out.newHeadCoach) {
+          setNotice('Your team has a new head coach. See Office → Coaching staff.');
+        }
+      }),
+      setDepthChart: (group, order) => act('Saving…', async () => {
+        await api().call('set-depth-chart', { saveId: need(), group, order });
+        // Reordering a chart is the one checklist item with a real action
+        // behind it, so this is the one that can honestly be finished rather
+        // than merely looked at. Marked here, beside the write, so it cannot
+        // be missed by a screen that reorders without knowing about lists.
+        await api().call('mark-checklist', { saveId: need(), item: 'depth', mark: 'DONE' });
+      }),
+      checklist: marks ?? save?.checklist ?? {},
+      markChecklist: async (item, mark) => {
+        if (save === null) return;
+        const before = marks ?? save.checklist;
+        const guess = mergeMark(before, item, mark);
+        // Nothing to say: tapping a finished item again must not cost a round
+        // trip to be told so.
+        if (guess === before) return;
+        setMarks(guess);
+        try {
+          const out = await api().call<MarkChecklistOut>(
+            'mark-checklist', { saveId: save.saveId, item, mark });
+          setMarks(out.checklist);
+        } catch (error) {
+          setMarks(before);
+          setNotice(error instanceof Error ? error.message : String(error));
+        }
+      },
+      markNewsRead: async (newsId) => {
+        if (save === null) return 0;
+        const out = await api().call<MarkNewsReadOut>(
+          'mark-news-read', { saveId: save.saveId, newsId });
+        return out.marked;
+      },
+      startDynasty: async (input) => {
+        setBusy('Creating…');
+        setNotice(null);
+        try {
+          const out = await api().call<CreateSaveOut>('create-save', {
+            name: input.name,
+            teamId: input.teamId,
+            slot: input.slot,
+            gmFirstName: input.gmFirstName,
+            gmLastName: input.gmLastName,
+            ...(input.gmStyle === undefined ? {} : { gmStyle: input.gmStyle }),
+            ...(input.settings === undefined ? {} : { settings: input.settings }),
+          });
+          setOpenSaveId(out.saveId);
+          remember(out.saveId);
+          // The reload the other actions get from act(), so the save is read
+          // before the build screen hands the player to the dashboard.
+          await reload(out.saveId);
+          setBusy(null);
+          return out;
+        } catch (error) {
+          // Said in both places: the notice for any screen watching it, and the
+          // rejection for the one that has to name the step that failed.
+          setNotice(error instanceof Error ? error.message : String(error));
+          setBusy(null);
+          throw error;
+        }
+      },
+      openSave: (saveId) => act('Opening…', async () => {
+        // Read before it is opened, so a save that cannot be read leaves the
+        // player on the menu instead of inside a screen with nothing behind it.
+        await api().call<SaveOut>('save', { saveId });
+        setOpenSaveId(saveId);
+        remember(saveId);
+      }),
+      leaveSave: () => {
+        setOpenSaveId(null);
+        remember(null);
+        setNotice(null);
+      },
+      deleteSave: (saveId) => act('Deleting…', async () => {
+        await api().call('delete-save', { saveId });
+        if (saveId === openSaveId) {
+          setOpenSaveId(null);
+          remember(null);
+        }
+      }),
+      renameSave: (saveId, name) => act('Renaming…', async () => {
+        await api().call('rename-save', { saveId, name });
+      }),
+    };
+  }, [current, loadError, clubsById, version, busy, notice, act, reload, openSaveId, settled,
+    marks]);
+
+  return <SaveContext.Provider value={value}>{children}</SaveContext.Provider>;
+}

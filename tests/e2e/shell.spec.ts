@@ -1,0 +1,374 @@
+import { expect, test, type Page } from '@playwright/test';
+
+// Page-level horizontal overflow is a defect at every width the app supports.
+// A control scrolling inside its own .tscroll container is correct and is not
+// what these assert.
+
+const TABS = ['Office', 'Team', 'Play', 'League', 'News'];
+
+/** Opens the roster, which is reached from the Team tab now that it is a list
+ *  inside a tab rather than a tab of its own. */
+async function openRoster(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Team', exact: true }).click();
+  await page.getByTestId('to-roster').click();
+  await page.getByTestId('depth-list').waitFor({ timeout: 30_000 });
+}
+
+/**
+ * A dynasty to look at, opened through the front door.
+ *
+ * The app opens on the main menu until a save is open, and each test gets a
+ * fresh browser context -- so which save is open is forgotten between tests
+ * even though the save itself is not. That is why this loads before it
+ * creates: the first test to run walks the whole start flow, and every test
+ * after it opens what that one made rather than filling another save file.
+ */
+/**
+ * In a dynasty, whatever phase it is in.
+ *
+ * The bottom navigation is the signal, not a button on the Team screen: the
+ * tab bar renders for every in-game phase and for none of the boot screens,
+ * while "Sim week" exists only while there is football left to play. Waiting
+ * on that button hung the moment a save was parked in the offseason -- which
+ * it silently was not before, because the Team screen used to mistake AWARDS
+ * for a week that could still be simulated.
+ */
+async function inDynasty(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Team', exact: true }).waitFor({ timeout: 120_000 });
+}
+
+async function ensureDynasty(page: Page): Promise<void> {
+  // domcontentloaded: the load event waits on the font stylesheet, which a
+  // proxy that black-holes fonts.googleapis.com holds for the full timeout.
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  if (await page.getByTestId('new-game').count() === 0) return;
+
+  await page.getByTestId('load-game').click();
+  await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
+  // The button that opens a save, by name: a filled card also carries an
+  // overflow menu, and that one comes first in the DOM.
+  const saved = page.getByTestId('slot-list').locator('[data-testid^="open-slot-"]').first();
+  if (await saved.count() > 0) {
+    await saved.click();
+    await inDynasty(page);
+    return;
+  }
+
+  // Nothing saved yet. Walk it: New Game, a save file, a GM, a club.
+  await page.goBack();
+  await page.getByTestId('new-game').click();
+  await page.getByTestId('slot-list').waitFor({ timeout: 30_000 });
+  await page.locator('[data-empty-slot] button').first().click();
+  await page.getByTestId('gm-first').fill('Test');
+  await page.getByTestId('gm-last').fill('Manager');
+  await page.getByTestId('gm-continue').click();
+  await page.getByTestId('club-list').waitFor({ timeout: 30_000 });
+  // Picking a club opens its scouting report, which leads to the rules it is
+  // played under and then to the confirmation; that last screen is the only one
+  // in the flow that writes.
+  await page.getByTestId('club-list').locator('[data-testid^="team-"]').first().click();
+  await page.getByTestId('confirm-team').click();
+  await page.getByTestId('setup-continue').click();
+  // Create Franchise hands over to the world screen, which runs the single
+  // call that writes the league and then opens the front office.
+  await page.getByTestId('create-franchise').click();
+  await inDynasty(page);
+}
+
+async function pageOverflow(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const el = document.documentElement;
+    return el.scrollWidth - el.clientWidth;
+  });
+}
+
+test.describe('app shell', () => {
+  test.beforeEach(async ({ page }) => {
+    // Creating a dynasty clones a world: on a cold database the first test
+    // pays for it, and 20 seconds is a budget for assertions, not for that.
+    test.setTimeout(180_000);
+    await ensureDynasty(page);
+  });
+
+  test('shows all five destinations', async ({ page }) => {
+    await page.goto('/');
+    for (const label of TABS) {
+      await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
+    }
+  });
+
+  test('every screen renders without page-level horizontal scroll', async ({ page }) => {
+    await page.goto('/');
+    for (const label of TABS) {
+      await page.getByRole('button', { name: label, exact: true }).click();
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      expect(await pageOverflow(page), `${label} overflows`).toBeLessThanOrEqual(1);
+      // Skeletons, never spinners -- checked on every tab, here, because the
+      // tabs are already loaded once in this loop and booting the league is
+      // slow enough that a second navigation is not free.
+      await expect(page.locator('[class*="spin"], [class*="loader"]')).toHaveCount(0);
+    }
+  });
+
+  test('a drill-down renders without overflow and offers a way back', async ({ page }) => {
+    // Opens a player from the roster, which is two taps now: Team, then the
+    // roster card. It used to open the Office's Scouting placeholder, which was
+    // removed when the screens were wired to the game.
+    await page.goto('/');
+    await openRoster(page);
+    await page.locator('[data-testid="depth-list"] button').first().click();
+    await expect(page.getByRole('button', { name: 'Back' })).toBeVisible();
+    expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  });
+
+  test('the browser back button returns to the previous screen', async ({ page }) => {
+    await page.goto('/');
+    await openRoster(page);
+    await page.locator('[data-testid="depth-list"] button').first().click();
+    await expect(page.getByRole('button', { name: 'Back' })).toBeVisible();
+    await page.goBack();
+    await expect(page.getByRole('heading', { level: 1, name: /roster/i })).toBeVisible();
+  });
+
+  test('long chip rows scroll inside themselves, not the page', async ({ page }) => {
+    await page.goto('/');
+    // The league-wide schedule, opened from the League tab.
+    await page.getByRole('button', { name: 'League', exact: true }).click();
+    await page.getByTestId('to-schedule').click();
+    // Nineteen week chips is exactly the control that would otherwise widen a
+    // 375px page.
+    const row = page.locator('.tscroll').first();
+    await expect(row).toBeVisible();
+    expect(await row.evaluate((n) => n.scrollWidth > n.clientWidth)).toBe(true);
+    expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  });
+
+  test('the skeleton pattern still works', async ({ page }) => {
+    // The tab screens no longer show placeholders -- they render real data, so
+    // there is no loading state to place one in, and the no-spinner rule is
+    // checked across the tabs in the test above. This keeps the pattern itself
+    // covered, for when async loading arrives.
+    await page.goto('/dev/components');
+    await expect(page.locator('.skeleton').first()).toBeVisible();
+    // A busy region announces once rather than per placeholder.
+    await expect(page.locator('[aria-busy="true"]').first()).toBeVisible();
+  });
+
+  test('the franchise dashboard leads with identity, rating and the week', async ({ page }) => {
+    // The first screen after the world is built. Each of these is a different
+    // question a manager opens the app with, and all of them are answered
+    // above the operations cards.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await expect(page.getByTestId('rating-rings')).toBeVisible();
+    await expect(page.getByTestId('performance-tiles')).toBeVisible();
+    await expect(page.getByTestId('this-week')).toBeVisible();
+    await expect(page.getByTestId('owner-card')).toBeVisible();
+    await expect(page.getByTestId('checklist')).toBeVisible();
+    // The one gold button on the page is the one that advances the week.
+    await expect(page.getByTestId('dash-sim-week')).toBeVisible();
+    expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  });
+
+  test('a checklist row with nothing behind it opens a sheet rather than a dead screen', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await page.getByTestId('checklist').waitFor();
+    await page.getByTestId('check-opponent').click();
+    const sheet = page.getByTestId('checklist-sheet');
+    await expect(sheet).toBeVisible();
+    await expect(sheet).toContainText('Not built yet');
+    // Escape leaves it, which is the whole reason it is a dialog and not a
+    // panel that appeared in the page.
+    await page.keyboard.press('Escape');
+    await expect(sheet).toBeHidden();
+  });
+
+  test('checklist progress survives a reload, because it is on the save', async ({ page }) => {
+    // The whole argument for putting the marks on the save rather than in this
+    // browser. A checklist that forgets itself is one nobody trusts twice.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await page.getByTestId('check-cap').click();
+    await expect(page.getByTestId('checklist-sheet')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
+
+    await page.reload();
+    await page.getByTestId('checklist').waitFor({ timeout: 60_000 });
+    await expect(page.getByTestId('check-cap')).toHaveAttribute('data-state', 'viewed');
+  });
+
+  // The one test in this file that writes. It runs on a single project rather
+  // than on all five, because every project shares one database and one save:
+  // five workers simulating the same dynasty in parallel race each other into
+  // the offseason, and the first casualty is this test. The other widths cover
+  // how the tab renders; this covers what the button does.
+  test('the Play tab previews the matchup and simulates the week', async ({ page }, info) => {
+    test.skip(info.project.name !== '390', 'one worker simulates; the rest only look');
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+
+    // Wait for the tab to answer before asking which shape it is in. The
+    // dashboard is a round trip behind the tap, and checking first meant
+    // reading "no offseason here" off a screen that had not loaded yet.
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="game-prep"]') !== null
+        || document.querySelector('[data-testid="next-season"]') !== null,
+      undefined, { timeout: 60_000 });
+
+    // The save is shared and long-lived, so it may well be parked in an
+    // offseason left by an earlier run. Start the next year rather than fail:
+    // a test that only passes on a fresh database is a test that fails for the
+    // wrong reason the first time somebody runs the suite twice.
+    if (await page.getByTestId('next-season').count() > 0) {
+      await page.getByTestId('next-season').click();
+      await page.getByTestId('sim-week').waitFor({ timeout: 300_000 });
+    }
+    await page.getByTestId('game-prep').waitFor({ timeout: 60_000 });
+    // textContent, not innerText: the h1 is uppercased in CSS, so innerText
+    // reads "WEEK 2" while toHaveText compares against the DOM's "Week 2" and
+    // can never match it.
+    const before = await page.getByRole('heading', { level: 1 }).textContent() ?? '';
+
+    const sim = page.getByTestId('sim-week');
+    await sim.scrollIntoViewIfNeeded();
+    await sim.click();
+    // The confirmation only appears when there is something real to confirm.
+    if (await page.getByTestId('sim-warning').count() > 0) {
+      await expect(page.getByTestId('sim-warnings')).toBeVisible();
+      await page.getByTestId('sim-anyway').click();
+    }
+    const result = page.getByTestId('sim-result');
+    await result.waitFor({ timeout: 180_000 });
+    await expect(page.getByTestId('result-score')).toBeVisible();
+    await expect(page.getByTestId('result-label')).toBeVisible();
+
+    // A dialog nested in the screen's opacity animation cannot rise above the
+    // bottom navigation, so this button was unclickable until the modals were
+    // moved into a portal. Clicking it is the regression test for that.
+    await page.getByTestId('result-continue').click();
+    await expect(result).toBeHidden();
+    // And the week moved.
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(before);
+  });
+
+  test('the season sim is demoted, bordered, and asks before it runs', async ({ page }) => {
+    // The point of the section: the gold button is the week, and the one that
+    // skips a season of decisions looks like the shortcut it is and confirms.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="game-prep"]') !== null
+        || document.querySelector('[data-testid="next-season"]') !== null,
+      undefined, { timeout: 60_000 });
+    // Nothing to demote in an offseason; the section belongs to a live season.
+    test.skip(await page.getByTestId('sim-season').count() === 0, 'no regular season to sim');
+
+    const week = page.getByTestId('sim-week');
+    const season = page.getByTestId('sim-season');
+    await expect(season).toHaveText('Sim to End of Regular Season');
+    // Gold is a gradient; the quiet button has none and carries a border.
+    expect(await week.evaluate((n) => getComputedStyle(n).backgroundImage)).toContain('gradient');
+    expect(await season.evaluate((n) => getComputedStyle(n).backgroundImage)).toBe('none');
+
+    await season.scrollIntoViewIfNeeded();
+    await season.click();
+    const modal = page.getByTestId('season-warning');
+    await expect(modal).toBeVisible();
+    await expect(modal).toContainText('may skip weekly decisions');
+    // Cancel closes it and plays nothing.
+    // textContent, not innerText: the h1 is uppercased in CSS, so innerText
+    // reads "WEEK 2" while toHaveText compares against the DOM's "Week 2" and
+    // can never match it.
+    const before = await page.getByRole('heading', { level: 1 }).textContent() ?? '';
+    await page.getByTestId('season-cancel').click();
+    await expect(modal).toBeHidden();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(before);
+  });
+
+  test('the news feed opens, filters, expands and clears its unread mark', async ({ page }) => {
+    // The one claim the tab exists to make: a franchise that has been created
+    // has stories in it. The shared save has been simulated by the tests above,
+    // so this is the mixed feed rather than only the opening four.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'News', exact: true }).click();
+    const cards = page.getByTestId('news-card');
+    await cards.first().waitFor({ timeout: 60_000 });
+    expect(await cards.count()).toBeGreaterThan(0);
+
+    // Every chip is a real filter over the same feed. Team never shows more
+    // than All, and never shows a story about somebody else.
+    const all = await cards.count();
+    await page.getByRole('tab', { name: /^Team/ }).click();
+    const team = await cards.count();
+    expect(team).toBeLessThanOrEqual(all);
+    await page.getByRole('tab', { name: /^All/ }).click();
+    await expect(cards).toHaveCount(all);
+
+    // Opening a card shows the whole body and clears its unread mark. Pick one
+    // that is still unread, because earlier runs share this save file -- and
+    // hold it by POSITION, not by its unread state. A locator that selects on
+    // [data-unread="true"] stops matching the moment the click clears the mark,
+    // so .first() then re-resolves to the next unread card, which is not the
+    // one that was opened and has no expanded body to find.
+    //
+    // Falling back to the first card if nothing is unread is not a way out of
+    // the assertion: "open a card, its mark is clear afterwards" is true of
+    // both, and read state lives in a database these five projects share and
+    // never reset, so a suite run often enough would otherwise start failing
+    // for having already read the feed.
+    let index = 0;
+    for (let i = 0; i < all; i += 1) {
+      if (await cards.nth(i).getAttribute('data-unread') === 'true') { index = i; break; }
+    }
+    const card = cards.nth(index);
+    await card.scrollIntoViewIfNeeded();
+    await card.getByTestId('news-card-toggle').click();
+    await expect(card.getByTestId('news-body-full')).toBeVisible();
+    await expect(card).toHaveAttribute('data-unread', 'false');
+  });
+
+  test('a news card only offers a button when the screen behind it exists', async ({ page }) => {
+    // The rule the feed is built on. Every button that is drawn has to land on
+    // a screen that renders something, so this opens each one that has a button
+    // and checks the app is still in a dynasty afterwards rather than on a
+    // dead route.
+    await page.goto('/');
+    await page.getByRole('button', { name: 'News', exact: true }).click();
+    await page.getByTestId('news-card').first().waitFor({ timeout: 60_000 });
+
+    const cards = page.getByTestId('news-card');
+    const count = Math.min(await cards.count(), 6);
+    let opened = 0;
+    for (let i = 0; i < count; i += 1) {
+      const card = cards.nth(i);
+      await card.scrollIntoViewIfNeeded();
+      await card.getByTestId('news-card-toggle').click();
+      const action = card.getByTestId('news-action');
+      if (await action.count() === 0) continue;
+      await action.click();
+      // Wherever it went, it is a screen with the tab bar under it -- not an
+      // error, not an empty shell.
+      await expect(page.getByRole('button', { name: 'Team', exact: true }))
+        .toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('alert')).toHaveCount(0);
+      opened += 1;
+      await page.getByRole('button', { name: 'News', exact: true }).click();
+      await page.getByTestId('news-card').first().waitFor({ timeout: 30_000 });
+    }
+    // At least one story in a simulated season has somewhere to go; a feed
+    // where nothing was clickable would pass the loop above by doing nothing.
+    expect(opened).toBeGreaterThan(0);
+  });
+
+  test('the bottom bar keeps the originating tab lit inside a drill-down', async ({ page }) => {
+    // The roster is opened from Team, so Team stays lit while it is on screen:
+    // the bar reports which job you are doing, not which list you are reading.
+    await page.goto('/');
+    await openRoster(page);
+    await expect(page.getByRole('button', { name: 'Team', exact: true }))
+      .toHaveAttribute('aria-current', 'page');
+  });
+});

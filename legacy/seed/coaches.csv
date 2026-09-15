@@ -1,0 +1,527 @@
+coach_id,display_name,team_id,role,age,years_experience,coaching_tree,prior_head_coach,contract_years_remaining,hot_seat_rating,overall_rating,data_class
+CCH0001,Lyle Sigler,BUF,Head Coach,64,38,Defensive,0,2,22,72,GENERATED
+CCH0002,Palmer Hagerty,BUF,Offensive Coordinator,43,10,Offensive,0,2,37,51,GENERATED
+CCH0003,Wendell Rowlett,BUF,Defensive Coordinator,39,6,Offensive,0,3,61,63,GENERATED
+CCH0004,Merle Nkemdiche,BUF,Special Teams Coordinator,29,3,Offensive,0,1,53,50,GENERATED
+CCH0005,Melvin Padgett,BUF,Assistant Head Coach,44,9,Offensive,0,2,24,56,GENERATED
+CCH0006,Walter Simmerman,BUF,Quarterbacks Coach,43,6,Offensive,0,2,31,56,GENERATED
+CCH0007,Fitzgerald Ingersoll,BUF,Running Backs Coach,39,12,Defensive,0,1,16,54,GENERATED
+CCH0008,Granville Isbell,BUF,Wide Receivers Coach,52,15,Offensive,1,1,39,49,GENERATED
+CCH0009,Simeon Stillwagon,BUF,Tight Ends Coach,44,9,Front Office,0,2,34,55,GENERATED
+CCH0010,Dale Ayers,BUF,Offensive Line Coach,30,1,Offensive,0,2,28,58,GENERATED
+CCH0011,Maurice Hunnicutt,BUF,Defensive Line Coach,39,9,Defensive,0,2,5,76,GENERATED
+CCH0012,Elliot Odenigbo,BUF,Outside Linebackers Coach,53,15,Defensive,0,2,21,61,GENERATED
+CCH0013,Upton Bascomb,BUF,Linebackers Coach,39,12,Defensive,0,4,38,60,GENERATED
+CCH0014,Osborne Uche,BUF,Defensive Backs Coach,50,14,Defensive,0,4,59,43,GENERATED
+CCH0015,Ralph Tatupu,BUF,Strength & Conditioning,57,27,Front Office,0,1,41,82,GENERATED
+CCH0016,Delmar Spielman,MIA,Head Coach,53,18,Offensive,0,1,63,70,GENERATED
+CCH0017,Lawrence Stockton,MIA,Offensive Coordinator,54,15,Offensive,1,2,29,69,GENERATED
+CCH0018,Everett Prioleau,MIA,Defensive Coordinator,41,6,Defensive,0,1,16,64,GENERATED
+CCH0019,Roy Legette,MIA,Special Teams Coordinator,59,34,Defensive,0,3,37,61,GENERATED
+CCH0020,Kenneth Legette,MIA,Assistant Head Coach,47,9,Defensive,0,4,45,65,GENERATED
+CCH0021,Bruce Shepley,MIA,Quarterbacks Coach,36,6,Defensive,0,1,60,46,GENERATED
+CCH0022,Clarence Mathurin,MIA,Running Backs Coach,45,17,Defensive,0,3,52,65,GENERATED
+CCH0023,Merle Hawkes,MIA,Wide Receivers Coach,32,6,Offensive,0,4,23,53,GENERATED
+CCH0024,Winston Welbourne,MIA,Tight Ends Coach,40,5,Defensive,0,3,32,60,GENERATED
+CCH0025,Stuart Herrera,MIA,Offensive Line Coach,43,13,Defensive,0,2,31,59,GENERATED
+CCH0026,Leon Cromartie,MIA,Defensive Line Coach,44,14,Special Teams,0,1,56,57,GENERATED
+CCH0027,Monte Calloway,MIA,Outside Linebackers Coach,45,9,Defensive,0,3,42,49,GENERATED
+CCH0028,Phillip Thibodeaux,MIA,Linebackers Coach,35,5,Offensive,0,4,48,60,GENERATED
+CCH0029,Russell Grantham,MIA,Defensive Backs Coach,47,11,Defensive,0,2,54,75,GENERATED
+CCH0030,Douglas Olawale,MIA,Strength & Conditioning,44,5,Defensive,0,4,53,49,GENERATED
+CCH0031,Garth Bellinger,NE,Head Coach,47,15,Defensive,0,3,41,63,GENERATED
+CCH0032,Phillip Keeler,NE,Offensive Coordinator,36,3,Defensive,0,2,38,67,GENERATED
+CCH0033,Leon Zylstra,NE,Defensive Coordinator,50,11,Offensive,0,3,38,67,GENERATED
+CCH0034,Purcell Kraft,NE,Special Teams Coordinator,48,19,Special Teams,0,2,22,83,GENERATED
+CCH0035,Ellsworth Lasseter,NE,Assistant Head Coach,37,4,Offensive,0,3,20,45,GENERATED
+CCH0036,Lowell Beecham,NE,Quarterbacks Coach,38,5,Offensive,0,3,30,53,GENERATED
+CCH0037,Xavier Fairbanks,NE,Running Backs Coach,45,9,Offensive,0,2,9,64,GENERATED
+CCH0038,Sheldon Restrepo,NE,Wide Receivers Coach,47,10,Offensive,0,3,13,70,GENERATED
+CCH0039,Ulysses Ricciardi,NE,Tight Ends Coach,38,11,Offensive,0,4,4,63,GENERATED
+CCH0040,Hal Wanogho,NE,Offensive Line Coach,47,18,Offensive,1,3,46,67,GENERATED
+CCH0041,Linwood Gwaltney,NE,Defensive Line Coach,45,5,Defensive,0,1,18,59,GENERATED
+CCH0042,Clarence Brasher,NE,Outside Linebackers Coach,44,14,Offensive,0,1,38,62,GENERATED
+CCH0043,Cornelius Sutherland,NE,Linebackers Coach,35,5,Defensive,0,1,36,55,GENERATED
+CCH0044,Ronald Kamara,NE,Defensive Backs Coach,39,7,Defensive,0,1,35,66,GENERATED
+CCH0045,Stanley Somerville,NE,Strength & Conditioning,61,25,Offensive,0,2,70,78,GENERATED
+CCH0046,Waldo Vinovich,NYJ,Head Coach,47,8,Offensive,0,3,21,77,GENERATED
+CCH0047,Ellsworth Marinelli,NYJ,Offensive Coordinator,45,8,Offensive,0,4,34,60,GENERATED
+CCH0048,Marvin Whitehurst,NYJ,Defensive Coordinator,40,6,Defensive,0,3,25,69,GENERATED
+CCH0049,Raymond Schreiber,NYJ,Special Teams Coordinator,34,10,Offensive,0,4,33,70,GENERATED
+CCH0050,Sylvester Brody,NYJ,Assistant Head Coach,41,6,Defensive,0,3,59,57,GENERATED
+CCH0051,Edwin Seabrook,NYJ,Quarterbacks Coach,44,9,Offensive,0,1,27,64,GENERATED
+CCH0052,Roy Maunakea,NYJ,Running Backs Coach,48,22,Defensive,0,3,34,62,GENERATED
+CCH0053,Barrett Dillard,NYJ,Wide Receivers Coach,49,5,Defensive,0,4,18,60,GENERATED
+CCH0054,Earl Cromartie,NYJ,Tight Ends Coach,50,21,Front Office,0,3,39,93,GENERATED
+CCH0055,Octavius Isbell,NYJ,Offensive Line Coach,45,22,Defensive,1,4,9,62,GENERATED
+CCH0056,Douglas Rutledge,NYJ,Defensive Line Coach,46,14,Special Teams,0,2,28,60,GENERATED
+CCH0057,Floyd Chukwu,NYJ,Outside Linebackers Coach,45,3,Defensive,0,1,39,65,GENERATED
+CCH0058,Waldo Navarrete,NYJ,Linebackers Coach,49,19,Offensive,0,3,14,65,GENERATED
+CCH0059,Chuck Mallett,NYJ,Defensive Backs Coach,29,6,Offensive,0,4,16,61,GENERATED
+CCH0060,Rex Zamora,NYJ,Strength & Conditioning,32,4,Defensive,0,2,16,67,GENERATED
+CCH0061,Norman Keeler,BAL,Head Coach,36,15,Front Office,0,4,26,81,GENERATED
+CCH0062,Dennis Tartt,BAL,Offensive Coordinator,39,6,Defensive,0,2,9,60,GENERATED
+CCH0063,Neal Hennessy,BAL,Defensive Coordinator,45,17,Defensive,0,1,13,70,GENERATED
+CCH0064,Warren Fowler,BAL,Special Teams Coordinator,46,11,Offensive,0,2,2,69,GENERATED
+CCH0065,Osborne Aubert,BAL,Assistant Head Coach,47,20,Defensive,0,4,38,70,GENERATED
+CCH0066,Morris Gorsuch,BAL,Quarterbacks Coach,39,6,Front Office,0,2,70,50,GENERATED
+CCH0067,Hollis Minshew,BAL,Running Backs Coach,35,2,Offensive,0,1,38,66,GENERATED
+CCH0068,Willard Treadwell,BAL,Wide Receivers Coach,35,1,Offensive,0,1,17,53,GENERATED
+CCH0069,Arthur Wainwright,BAL,Tight Ends Coach,39,2,Special Teams,0,3,47,66,GENERATED
+CCH0070,Ferdinand Overstreet,BAL,Offensive Line Coach,43,18,Defensive,0,2,58,72,GENERATED
+CCH0071,Hollis Sylvester,BAL,Defensive Line Coach,48,12,Offensive,0,1,35,77,GENERATED
+CCH0072,Linwood Chukwu,BAL,Outside Linebackers Coach,37,5,Special Teams,0,3,4,61,GENERATED
+CCH0073,Raymond Neasman,BAL,Linebackers Coach,45,10,Defensive,0,3,51,61,GENERATED
+CCH0074,Everett Fleener,BAL,Defensive Backs Coach,37,4,Offensive,0,4,44,58,GENERATED
+CCH0075,Rudolph Garrison,BAL,Strength & Conditioning,41,2,Defensive,0,2,37,49,GENERATED
+CCH0076,Byron Berrios,PIT,Head Coach,47,21,Offensive,0,2,21,85,GENERATED
+CCH0077,Dean Oakman,PIT,Offensive Coordinator,33,9,Defensive,0,1,16,73,GENERATED
+CCH0078,Gerald Hargrave,PIT,Defensive Coordinator,41,6,Offensive,0,1,57,86,GENERATED
+CCH0079,Willard Melchior,PIT,Special Teams Coordinator,48,12,Special Teams,0,3,42,59,GENERATED
+CCH0080,Virgil Vinovich,PIT,Assistant Head Coach,34,9,Defensive,0,4,6,61,GENERATED
+CCH0081,Marvin Gholston,PIT,Quarterbacks Coach,36,6,Defensive,0,1,29,72,GENERATED
+CCH0082,Milton Nakoa,PIT,Running Backs Coach,54,17,Offensive,1,2,34,67,GENERATED
+CCH0083,Gordon Clevenger,PIT,Wide Receivers Coach,33,3,Offensive,0,1,53,71,GENERATED
+CCH0084,Ulysses Bedard,PIT,Tight Ends Coach,44,8,Front Office,0,3,29,68,GENERATED
+CCH0085,Kermit Hathaway,PIT,Offensive Line Coach,33,7,Offensive,0,4,49,47,GENERATED
+CCH0086,Kingsley Stanback,PIT,Defensive Line Coach,39,10,Defensive,0,1,27,49,GENERATED
+CCH0087,Barrett Pinnock,PIT,Outside Linebackers Coach,48,16,Offensive,0,3,7,66,GENERATED
+CCH0088,Sterling Melchior,PIT,Linebackers Coach,50,15,Defensive,0,4,18,64,GENERATED
+CCH0089,Franklin Pellegrini,PIT,Defensive Backs Coach,30,4,Defensive,0,1,22,72,GENERATED
+CCH0090,Ignatius Hunnicutt,PIT,Strength & Conditioning,51,14,Defensive,0,4,28,59,GENERATED
+CCH0091,Orville Buckner,CLE,Head Coach,57,21,Special Teams,0,2,30,80,GENERATED
+CCH0092,Rudolph Scovel,CLE,Offensive Coordinator,38,15,Defensive,1,4,43,80,GENERATED
+CCH0093,Gordon Zabransky,CLE,Defensive Coordinator,46,8,Special Teams,0,1,71,74,GENERATED
+CCH0094,Clifford Tuanigamanuolepola,CLE,Special Teams Coordinator,41,10,Front Office,0,4,17,64,GENERATED
+CCH0095,Kermit Thorogood,CLE,Assistant Head Coach,50,13,Defensive,0,4,45,52,GENERATED
+CCH0096,Lawrence Sokolowski,CLE,Quarterbacks Coach,32,6,Defensive,0,3,12,65,GENERATED
+CCH0097,Milton Tavai,CLE,Running Backs Coach,32,3,Defensive,0,3,13,46,GENERATED
+CCH0098,Morris Veilleux,CLE,Wide Receivers Coach,37,8,Offensive,0,4,17,52,GENERATED
+CCH0099,Alistair Eldridge,CLE,Tight Ends Coach,39,5,Defensive,0,2,31,67,GENERATED
+CCH0100,Ronald Sabbagh,CLE,Offensive Line Coach,44,8,Offensive,0,4,37,43,GENERATED
+CCH0101,Hollis Parham,CLE,Defensive Line Coach,55,23,Offensive,0,1,56,67,GENERATED
+CCH0102,Nathaniel Piscopo,CLE,Outside Linebackers Coach,44,4,Defensive,0,4,24,74,GENERATED
+CCH0103,Stuart Judkins,CLE,Linebackers Coach,40,3,Special Teams,0,3,59,62,GENERATED
+CCH0104,Melvin Hightower,CLE,Defensive Backs Coach,42,9,Special Teams,0,1,35,61,GENERATED
+CCH0105,Elliot Orlovsky,CLE,Strength & Conditioning,39,9,Front Office,0,4,58,54,GENERATED
+CCH0106,Judson Lemieux,CIN,Head Coach,44,20,Offensive,0,2,37,96,GENERATED
+CCH0107,Lyle Winchester,CIN,Offensive Coordinator,43,12,Offensive,0,4,64,75,GENERATED
+CCH0108,Clifford Seeley,CIN,Defensive Coordinator,38,3,Defensive,0,2,57,67,GENERATED
+CCH0109,Grant Prewitt,CIN,Special Teams Coordinator,32,1,Offensive,0,2,35,80,GENERATED
+CCH0110,Howard Veilleux,CIN,Assistant Head Coach,42,12,Defensive,0,4,51,72,GENERATED
+CCH0111,Arthur Spillane,CIN,Quarterbacks Coach,52,19,Offensive,0,2,85,68,GENERATED
+CCH0112,Kingsley Stenberg,CIN,Running Backs Coach,49,16,Defensive,1,3,29,70,GENERATED
+CCH0113,Fitzgerald Gandy,CIN,Wide Receivers Coach,46,11,Special Teams,0,1,39,69,GENERATED
+CCH0114,Thurgood Kanell,CIN,Tight Ends Coach,44,10,Defensive,0,2,1,78,GENERATED
+CCH0115,Roy Canfield,CIN,Offensive Line Coach,48,9,Offensive,0,3,51,66,GENERATED
+CCH0116,Vaughn Pouncey,CIN,Defensive Line Coach,43,9,Special Teams,0,4,35,73,GENERATED
+CCH0117,Morris Wrighster,CIN,Outside Linebackers Coach,43,13,Defensive,0,3,21,72,GENERATED
+CCH0118,Howard Crandall,CIN,Linebackers Coach,45,12,Offensive,0,3,39,60,GENERATED
+CCH0119,Irvin Aguilar,CIN,Defensive Backs Coach,44,11,Special Teams,0,2,43,56,GENERATED
+CCH0120,Waldo Piscopo,CIN,Strength & Conditioning,45,11,Defensive,0,3,23,62,GENERATED
+CCH0121,Edwin Oduya,HOU,Head Coach,37,12,Front Office,0,3,53,63,GENERATED
+CCH0122,Newton Halloran,HOU,Offensive Coordinator,36,4,Defensive,0,2,44,63,GENERATED
+CCH0123,Orville Beauchamp,HOU,Defensive Coordinator,37,4,Defensive,0,1,42,64,GENERATED
+CCH0124,Roy Prewitt,HOU,Special Teams Coordinator,38,4,Defensive,0,3,67,51,GENERATED
+CCH0125,Clarence Passmore,HOU,Assistant Head Coach,49,14,Defensive,0,3,39,64,GENERATED
+CCH0126,Osborne Latimore,HOU,Quarterbacks Coach,37,4,Defensive,0,1,59,66,GENERATED
+CCH0127,Gerald Ansley,HOU,Running Backs Coach,41,4,Defensive,0,3,52,59,GENERATED
+CCH0128,Keith Tonyan,HOU,Wide Receivers Coach,43,4,Defensive,0,1,48,53,GENERATED
+CCH0129,Grant Wiggington,HOU,Tight Ends Coach,46,10,Defensive,0,4,31,49,GENERATED
+CCH0130,Garth Waldron,HOU,Offensive Line Coach,43,10,Front Office,0,3,34,59,GENERATED
+CCH0131,Zebedee Rainsberger,HOU,Defensive Line Coach,41,9,Defensive,0,1,47,67,GENERATED
+CCH0132,Grant Swearinger,HOU,Outside Linebackers Coach,40,6,Offensive,0,1,47,50,GENERATED
+CCH0133,Bernard Cardenas,HOU,Linebackers Coach,48,12,Defensive,0,3,12,66,GENERATED
+CCH0134,Delmar Tolbert,HOU,Defensive Backs Coach,46,18,Defensive,0,2,43,56,GENERATED
+CCH0135,Kermit Slocum,HOU,Strength & Conditioning,45,9,Offensive,0,3,67,70,GENERATED
+CCH0136,Wayne Dillard,IND,Head Coach,50,23,Special Teams,0,1,38,79,GENERATED
+CCH0137,Purcell Hollins,IND,Offensive Coordinator,62,29,Offensive,0,3,38,71,GENERATED
+CCH0138,Elliot Rhodes,IND,Defensive Coordinator,49,14,Offensive,0,3,1,60,GENERATED
+CCH0139,Yeats Arceneaux,IND,Special Teams Coordinator,38,10,Front Office,0,4,63,87,GENERATED
+CCH0140,Beauregard Trevathan,IND,Assistant Head Coach,34,6,Defensive,0,4,50,68,GENERATED
+CCH0141,Lester Paddock,IND,Quarterbacks Coach,48,9,Defensive,0,4,40,58,GENERATED
+CCH0142,Upton Bracken,IND,Running Backs Coach,46,10,Defensive,0,2,40,72,GENERATED
+CCH0143,Yancy Uche,IND,Wide Receivers Coach,36,6,Special Teams,0,2,1,61,GENERATED
+CCH0144,Simeon Wilkerson,IND,Tight Ends Coach,43,16,Defensive,0,4,44,65,GENERATED
+CCH0145,Chuck Cahill,IND,Offensive Line Coach,39,14,Offensive,0,4,47,73,GENERATED
+CCH0146,Clifford Gallardo,IND,Defensive Line Coach,35,6,Offensive,0,1,41,54,GENERATED
+CCH0147,Jarrett Tonyan,IND,Outside Linebackers Coach,41,4,Offensive,0,2,27,63,GENERATED
+CCH0148,Quentin Grantham,IND,Linebackers Coach,42,16,Defensive,1,2,48,73,GENERATED
+CCH0149,Yeats Harrell,IND,Defensive Backs Coach,44,4,Defensive,0,4,19,57,GENERATED
+CCH0150,Leroy Donnelly,IND,Strength & Conditioning,48,9,Offensive,0,1,11,59,GENERATED
+CCH0151,Prentice Ingold,JAX,Head Coach,40,14,Special Teams,0,3,67,78,GENERATED
+CCH0152,Lowell Diallo,JAX,Offensive Coordinator,53,13,Special Teams,0,4,41,64,GENERATED
+CCH0153,Darnell Deakins,JAX,Defensive Coordinator,38,7,Offensive,0,2,23,69,GENERATED
+CCH0154,Morris Grissom,JAX,Special Teams Coordinator,41,5,Defensive,0,4,45,55,GENERATED
+CCH0155,Quentin Verrett,JAX,Assistant Head Coach,37,6,Offensive,0,3,33,65,GENERATED
+CCH0156,Xavier Vanderveer,JAX,Quarterbacks Coach,41,3,Defensive,0,4,15,53,GENERATED
+CCH0157,Monte Culpepper,JAX,Running Backs Coach,47,13,Defensive,0,3,57,55,GENERATED
+CCH0158,Percy Lockridge,JAX,Wide Receivers Coach,43,18,Defensive,0,3,13,86,GENERATED
+CCH0159,Milton Osweiler,JAX,Tight Ends Coach,39,1,Defensive,0,3,47,48,GENERATED
+CCH0160,Thurgood Marsalis,JAX,Offensive Line Coach,53,20,Offensive,1,4,31,87,GENERATED
+CCH0161,Everett Girardi,JAX,Defensive Line Coach,46,10,Offensive,0,1,51,73,GENERATED
+CCH0162,Earl Whitcomb,JAX,Outside Linebackers Coach,37,4,Defensive,0,1,27,61,GENERATED
+CCH0163,Fitzgerald Hinkley,JAX,Linebackers Coach,49,9,Offensive,0,3,21,73,GENERATED
+CCH0164,Reginald Dettmer,JAX,Defensive Backs Coach,37,8,Special Teams,0,3,34,64,GENERATED
+CCH0165,Lester Spielman,JAX,Strength & Conditioning,39,9,Defensive,0,3,32,56,GENERATED
+CCH0166,Isaac Bouchard,TEN,Head Coach,46,11,Defensive,0,1,35,85,GENERATED
+CCH0167,Hampton Newsome,TEN,Offensive Coordinator,59,23,Offensive,0,3,58,72,GENERATED
+CCH0168,Merle Hufanga,TEN,Defensive Coordinator,42,8,Defensive,0,2,18,88,GENERATED
+CCH0169,Carlton Crockett,TEN,Special Teams Coordinator,41,11,Offensive,0,3,32,58,GENERATED
+CCH0170,Byron Eckhardt,TEN,Assistant Head Coach,48,6,Defensive,0,4,36,66,GENERATED
+CCH0171,Winston Burnell,TEN,Quarterbacks Coach,40,13,Front Office,0,1,57,79,GENERATED
+CCH0172,Clifford Derozan,TEN,Running Backs Coach,65,40,Offensive,0,1,12,62,GENERATED
+CCH0173,Edwin Jorgensen,TEN,Wide Receivers Coach,49,11,Defensive,0,3,29,63,GENERATED
+CCH0174,Hal Trevathan,TEN,Tight Ends Coach,42,4,Defensive,0,4,28,76,GENERATED
+CCH0175,Virgil Carrington,TEN,Offensive Line Coach,43,9,Special Teams,0,1,39,59,GENERATED
+CCH0176,Jules Grantham,TEN,Defensive Line Coach,39,14,Defensive,0,3,39,75,GENERATED
+CCH0177,Hal Tonyan,TEN,Outside Linebackers Coach,42,13,Defensive,0,2,7,69,GENERATED
+CCH0178,Yeats Dungy,TEN,Linebackers Coach,43,14,Front Office,0,3,49,68,GENERATED
+CCH0179,Otis Zamora,TEN,Defensive Backs Coach,47,19,Offensive,0,4,24,66,GENERATED
+CCH0180,Isaac Ugwoegbu,TEN,Strength & Conditioning,43,13,Offensive,0,2,33,77,GENERATED
+CCH0181,Ira Mascarenas,DEN,Head Coach,42,17,Offensive,0,1,1,90,GENERATED
+CCH0182,Everett Harmon,DEN,Offensive Coordinator,52,14,Offensive,0,1,63,67,GENERATED
+CCH0183,Sterling Sunderland,DEN,Defensive Coordinator,43,13,Defensive,0,4,47,75,GENERATED
+CCH0184,Octavius Dettmer,DEN,Special Teams Coordinator,44,13,Defensive,0,2,37,66,GENERATED
+CCH0185,Stuart Nesbitt,DEN,Assistant Head Coach,40,7,Defensive,0,3,14,60,GENERATED
+CCH0186,Sherman Purifoy,DEN,Quarterbacks Coach,45,18,Offensive,0,2,46,69,GENERATED
+CCH0187,Prentice Sunderland,DEN,Running Backs Coach,40,8,Defensive,0,2,10,61,GENERATED
+CCH0188,Sheldon Kessler,DEN,Wide Receivers Coach,46,11,Offensive,0,2,1,46,GENERATED
+CCH0189,Garth Jodeci,DEN,Tight Ends Coach,42,12,Offensive,0,2,19,87,GENERATED
+CCH0190,Garth Mahaffey,DEN,Offensive Line Coach,33,5,Offensive,0,1,61,61,GENERATED
+CCH0191,Xavier Sistrunk,DEN,Defensive Line Coach,49,16,Offensive,0,3,31,70,GENERATED
+CCH0192,Hampton Makinen,DEN,Outside Linebackers Coach,41,10,Defensive,0,3,38,67,GENERATED
+CCH0193,Delmar Ellington,DEN,Linebackers Coach,43,6,Special Teams,0,2,8,51,GENERATED
+CCH0194,Norman Lasseter,DEN,Defensive Backs Coach,37,10,Defensive,0,2,41,62,GENERATED
+CCH0195,Sheldon Rapp,DEN,Strength & Conditioning,46,16,Defensive,0,3,38,50,GENERATED
+CCH0196,Fitzgerald Dumervil,KC,Head Coach,41,13,Offensive,0,1,37,85,GENERATED
+CCH0197,Lamar Wadsworth,KC,Offensive Coordinator,42,12,Offensive,0,1,21,78,GENERATED
+CCH0198,Linwood Canfield,KC,Defensive Coordinator,51,22,Offensive,0,1,75,94,GENERATED
+CCH0199,Merrill Ruggiero,KC,Special Teams Coordinator,39,14,Defensive,0,2,61,84,GENERATED
+CCH0200,Merrill Poteat,KC,Assistant Head Coach,40,8,Defensive,0,4,30,76,GENERATED
+CCH0201,Reginald Forsythe,KC,Quarterbacks Coach,39,9,Offensive,0,1,53,59,GENERATED
+CCH0202,Maurice Rombach,KC,Running Backs Coach,40,7,Special Teams,0,1,24,68,GENERATED
+CCH0203,Linwood Fleener,KC,Wide Receivers Coach,46,12,Front Office,0,1,69,66,GENERATED
+CCH0204,Dale Walkowiak,KC,Tight Ends Coach,39,13,Defensive,0,1,43,68,GENERATED
+CCH0205,Raymond Montgomery,KC,Offensive Line Coach,45,13,Offensive,0,2,32,76,GENERATED
+CCH0206,Hampton Bancroft,KC,Defensive Line Coach,38,7,Offensive,0,1,41,62,GENERATED
+CCH0207,Octavius Whitcomb,KC,Outside Linebackers Coach,36,2,Defensive,0,2,55,66,GENERATED
+CCH0208,Sheldon Dorsett,KC,Linebackers Coach,42,7,Front Office,0,4,77,71,GENERATED
+CCH0209,Osborne Dombrowski,KC,Defensive Backs Coach,46,11,Defensive,0,2,51,68,GENERATED
+CCH0210,Waldo Gaskins,KC,Strength & Conditioning,34,3,Offensive,0,3,35,73,GENERATED
+CCH0211,Morris Kalapana,LV,Head Coach,41,12,Defensive,0,3,38,81,GENERATED
+CCH0212,Hollis Halloran,LV,Offensive Coordinator,46,14,Offensive,0,2,16,89,GENERATED
+CCH0213,Virgil Yelverton,LV,Defensive Coordinator,41,5,Offensive,0,4,36,66,GENERATED
+CCH0214,Dale Strahan,LV,Special Teams Coordinator,36,5,Front Office,0,2,62,59,GENERATED
+CCH0215,Howard Dargan,LV,Assistant Head Coach,38,3,Defensive,0,2,17,58,GENERATED
+CCH0216,Zebedee Hopkins,LV,Quarterbacks Coach,33,11,Offensive,0,1,38,57,GENERATED
+CCH0217,Hal Broadwater,LV,Running Backs Coach,37,8,Defensive,0,2,34,58,GENERATED
+CCH0218,Zachary Dewitt,LV,Wide Receivers Coach,38,2,Offensive,0,3,25,63,GENERATED
+CCH0219,Lester Wisniewski,LV,Tight Ends Coach,34,5,Defensive,0,4,29,62,GENERATED
+CCH0220,Curtis Pallister,LV,Offensive Line Coach,43,7,Defensive,0,2,32,60,GENERATED
+CCH0221,Russell Davenport,LV,Defensive Line Coach,46,13,Defensive,0,2,36,67,GENERATED
+CCH0222,Gordon Flannery,LV,Outside Linebackers Coach,45,14,Defensive,0,2,22,57,GENERATED
+CCH0223,Floyd Padgett,LV,Linebackers Coach,57,27,Special Teams,1,3,4,62,GENERATED
+CCH0224,Simeon Honeycutt,LV,Defensive Backs Coach,42,13,Offensive,0,1,43,70,GENERATED
+CCH0225,Russell Herrera,LV,Strength & Conditioning,36,3,Offensive,0,3,26,78,GENERATED
+CCH0226,Edwin Paschall,LAC,Head Coach,49,12,Offensive,0,2,42,77,GENERATED
+CCH0227,Byron Milliner,LAC,Offensive Coordinator,47,7,Offensive,0,4,26,79,GENERATED
+CCH0228,Upton Shattuck,LAC,Defensive Coordinator,31,7,Offensive,0,4,37,71,GENERATED
+CCH0229,Jerome Youngblood,LAC,Special Teams Coordinator,31,5,Defensive,0,3,16,71,GENERATED
+CCH0230,Thurgood Marsalis,LAC,Assistant Head Coach,39,7,Defensive,0,3,27,49,GENERATED
+CCH0231,Morris Longacre,LAC,Quarterbacks Coach,44,13,Defensive,0,3,26,69,GENERATED
+CCH0232,Warren Kilgore,LAC,Running Backs Coach,54,23,Offensive,0,4,41,71,GENERATED
+CCH0233,Xavier Debose,LAC,Wide Receivers Coach,32,9,Offensive,0,4,34,66,GENERATED
+CCH0234,Purcell Longacre,LAC,Tight Ends Coach,38,8,Offensive,0,2,22,53,GENERATED
+CCH0235,Wendell Pastrana,LAC,Offensive Line Coach,50,7,Front Office,0,1,23,72,GENERATED
+CCH0236,Carlton Obadiah,LAC,Defensive Line Coach,35,1,Defensive,0,3,41,66,GENERATED
+CCH0237,Franklin Finnegan,LAC,Outside Linebackers Coach,40,13,Special Teams,0,4,15,62,GENERATED
+CCH0238,Wayne Ramczyk,LAC,Linebackers Coach,39,4,Special Teams,0,2,31,53,GENERATED
+CCH0239,Winston Lemieux,LAC,Defensive Backs Coach,62,31,Offensive,1,4,35,90,GENERATED
+CCH0240,Newton Goodson,LAC,Strength & Conditioning,46,14,Defensive,0,3,8,52,GENERATED
+CCH0241,Douglas Gwaltney,DAL,Head Coach,40,13,Offensive,0,3,37,70,GENERATED
+CCH0242,Rex Cromartie,DAL,Offensive Coordinator,28,4,Defensive,0,1,63,51,GENERATED
+CCH0243,Cassius Teasdale,DAL,Defensive Coordinator,47,15,Offensive,0,2,37,77,GENERATED
+CCH0244,Irvin Longacre,DAL,Special Teams Coordinator,41,10,Defensive,0,4,27,57,GENERATED
+CCH0245,Otis Langford,DAL,Assistant Head Coach,50,24,Defensive,0,1,19,54,GENERATED
+CCH0246,Sherman Houghton,DAL,Quarterbacks Coach,43,11,Offensive,0,2,39,48,GENERATED
+CCH0247,Phillip Welbourne,DAL,Running Backs Coach,39,3,Defensive,0,1,27,54,GENERATED
+CCH0248,Nathaniel Deakins,DAL,Wide Receivers Coach,40,11,Offensive,0,2,44,66,GENERATED
+CCH0249,Merrill Windham,DAL,Tight Ends Coach,30,2,Defensive,0,4,15,67,GENERATED
+CCH0250,Rex Kerrigan,DAL,Offensive Line Coach,38,10,Defensive,0,2,30,71,GENERATED
+CCH0251,Leon Callender,DAL,Defensive Line Coach,43,10,Defensive,0,4,22,61,GENERATED
+CCH0252,Wendell Lasseter,DAL,Outside Linebackers Coach,29,3,Offensive,0,3,31,60,GENERATED
+CCH0253,Hampton Markham,DAL,Linebackers Coach,53,18,Offensive,0,3,25,59,GENERATED
+CCH0254,Morris Vickers,DAL,Defensive Backs Coach,47,20,Defensive,0,2,46,62,GENERATED
+CCH0255,Sheldon Mabry,DAL,Strength & Conditioning,44,22,Defensive,0,4,24,67,GENERATED
+CCH0256,Dennis Dungy,PHI,Head Coach,48,15,Special Teams,0,1,9,83,GENERATED
+CCH0257,Yeats Clevenger,PHI,Offensive Coordinator,54,20,Offensive,0,3,63,73,GENERATED
+CCH0258,Grover Marsalis,PHI,Defensive Coordinator,60,30,Offensive,1,1,27,75,GENERATED
+CCH0259,Zachary Ennis,PHI,Special Teams Coordinator,35,4,Offensive,0,2,33,64,GENERATED
+CCH0260,Lawrence Slocum,PHI,Assistant Head Coach,54,27,Defensive,0,4,28,86,GENERATED
+CCH0261,Ignatius Cortés,PHI,Quarterbacks Coach,42,9,Defensive,0,2,36,62,GENERATED
+CCH0262,Octavius Tonyan,PHI,Running Backs Coach,47,14,Front Office,0,4,66,59,GENERATED
+CCH0263,Vernon Wamsley,PHI,Wide Receivers Coach,50,12,Offensive,0,3,41,72,GENERATED
+CCH0264,Marvin Strahan,PHI,Tight Ends Coach,36,4,Offensive,0,4,29,55,GENERATED
+CCH0265,Howard Corrigan,PHI,Offensive Line Coach,41,7,Defensive,0,2,11,69,GENERATED
+CCH0266,Elliot Godwin,PHI,Defensive Line Coach,43,9,Special Teams,0,3,68,83,GENERATED
+CCH0267,Vaughn Barnhill,PHI,Outside Linebackers Coach,54,22,Defensive,0,1,41,73,GENERATED
+CCH0268,Woodrow Lenoir,PHI,Linebackers Coach,39,8,Offensive,0,3,25,71,GENERATED
+CCH0269,Leroy Pickens,PHI,Defensive Backs Coach,30,3,Offensive,0,1,9,59,GENERATED
+CCH0270,Ulysses Coulombe,PHI,Strength & Conditioning,39,2,Defensive,0,4,59,56,GENERATED
+CCH0271,Lester Shepley,WAS,Head Coach,49,19,Offensive,0,3,17,86,GENERATED
+CCH0272,Monte Macalister,WAS,Offensive Coordinator,52,23,Defensive,0,1,57,74,GENERATED
+CCH0273,Nathaniel Kincaid,WAS,Defensive Coordinator,41,4,Offensive,0,4,44,61,GENERATED
+CCH0274,Virgil Holyfield,WAS,Special Teams Coordinator,40,5,Offensive,0,4,24,69,GENERATED
+CCH0275,Rutherford Cundiff,WAS,Assistant Head Coach,38,9,Defensive,0,2,22,63,GENERATED
+CCH0276,Ellsworth Ahearn,WAS,Quarterbacks Coach,39,13,Defensive,0,1,38,54,GENERATED
+CCH0277,Vernon Whitlow,WAS,Running Backs Coach,39,5,Defensive,0,4,8,51,GENERATED
+CCH0278,Virgil Colavito,WAS,Wide Receivers Coach,40,7,Offensive,0,1,47,62,GENERATED
+CCH0279,Dale Tabaracci,WAS,Tight Ends Coach,37,6,Offensive,0,1,50,44,GENERATED
+CCH0280,Dean Rutledge,WAS,Offensive Line Coach,40,9,Defensive,0,1,15,54,GENERATED
+CCH0281,Cornelius Haywood,WAS,Defensive Line Coach,55,22,Defensive,0,1,42,74,GENERATED
+CCH0282,Byron Tabaracci,WAS,Outside Linebackers Coach,49,20,Defensive,0,4,1,62,GENERATED
+CCH0283,Roscoe Tuanigamanuolepola,WAS,Linebackers Coach,50,22,Offensive,0,1,35,57,GENERATED
+CCH0284,Garth Grantham,WAS,Defensive Backs Coach,36,7,Front Office,0,4,36,52,GENERATED
+CCH0285,Winston Fielder,WAS,Strength & Conditioning,47,7,Offensive,0,2,49,47,GENERATED
+CCH0286,Chuck Hockenson,NYG,Head Coach,48,20,Offensive,0,3,41,96,GENERATED
+CCH0287,Montgomery Bandele,NYG,Offensive Coordinator,41,12,Defensive,0,1,20,71,GENERATED
+CCH0288,Douglas Keeler,NYG,Defensive Coordinator,39,8,Offensive,0,3,19,68,GENERATED
+CCH0289,Phillip Lenoir,NYG,Special Teams Coordinator,44,10,Offensive,0,1,25,71,GENERATED
+CCH0290,Theodore Beauchamp,NYG,Assistant Head Coach,49,9,Offensive,0,2,42,67,GENERATED
+CCH0291,Merrill Ulbrich,NYG,Quarterbacks Coach,57,19,Defensive,0,1,9,64,GENERATED
+CCH0292,Warren Marinelli,NYG,Running Backs Coach,37,6,Offensive,0,1,29,56,GENERATED
+CCH0293,Otis Pepperell,NYG,Wide Receivers Coach,43,10,Offensive,0,3,45,58,GENERATED
+CCH0294,Melvin Harkness,NYG,Tight Ends Coach,51,16,Defensive,1,2,1,61,GENERATED
+CCH0295,Melvin Wortham,NYG,Offensive Line Coach,30,1,Special Teams,0,2,20,61,GENERATED
+CCH0296,Roland Hobbs,NYG,Defensive Line Coach,36,2,Offensive,0,4,38,45,GENERATED
+CCH0297,Simeon Mascarenas,NYG,Outside Linebackers Coach,44,14,Special Teams,0,3,6,67,GENERATED
+CCH0298,Herbert Holliday,NYG,Linebackers Coach,44,8,Defensive,0,4,31,49,GENERATED
+CCH0299,Barrett Byrd,NYG,Defensive Backs Coach,34,6,Defensive,0,1,2,48,GENERATED
+CCH0300,Lowell Ramczyk,NYG,Strength & Conditioning,55,23,Offensive,0,3,21,70,GENERATED
+CCH0301,Kenneth Drayton,CHI,Head Coach,44,10,Offensive,0,3,55,79,GENERATED
+CCH0302,Russell Mbaka,CHI,Offensive Coordinator,41,7,Offensive,0,4,34,72,GENERATED
+CCH0303,Vaughn Doughty,CHI,Defensive Coordinator,37,8,Special Teams,0,3,19,69,GENERATED
+CCH0304,Montgomery Yiadom,CHI,Special Teams Coordinator,48,18,Front Office,0,1,21,87,GENERATED
+CCH0305,Jerome Kalapana,CHI,Assistant Head Coach,43,3,Offensive,0,4,22,60,GENERATED
+CCH0306,Ferdinand Butterworth,CHI,Quarterbacks Coach,41,10,Offensive,0,3,37,80,GENERATED
+CCH0307,Jerome Boateng,CHI,Running Backs Coach,40,7,Defensive,0,2,41,61,GENERATED
+CCH0308,Simeon Wetherall,CHI,Wide Receivers Coach,39,3,Special Teams,0,3,1,74,GENERATED
+CCH0309,Fitzgerald Henderson,CHI,Tight Ends Coach,32,3,Offensive,0,2,63,57,GENERATED
+CCH0310,Prentice Loflin,CHI,Offensive Line Coach,54,18,Offensive,1,3,11,61,GENERATED
+CCH0311,Ira Zaccheaus,CHI,Defensive Line Coach,44,15,Defensive,0,2,39,58,GENERATED
+CCH0312,Montgomery Okorafor,CHI,Outside Linebackers Coach,45,8,Defensive,0,4,51,62,GENERATED
+CCH0313,Ferdinand Egbuna,CHI,Linebackers Coach,43,8,Offensive,0,4,17,57,GENERATED
+CCH0314,Jules Tabaracci,CHI,Defensive Backs Coach,36,4,Offensive,0,3,7,68,GENERATED
+CCH0315,Thurgood Rutledge,CHI,Strength & Conditioning,49,12,Offensive,0,3,27,76,GENERATED
+CCH0316,Elliot Prescott,DET,Head Coach,53,17,Defensive,0,4,8,86,GENERATED
+CCH0317,Maurice Thorogood,DET,Offensive Coordinator,47,8,Defensive,0,4,62,65,GENERATED
+CCH0318,Ronald Petitgout,DET,Defensive Coordinator,42,12,Special Teams,0,3,44,82,GENERATED
+CCH0319,Arthur Hilliard,DET,Special Teams Coordinator,39,9,Defensive,0,3,21,66,GENERATED
+CCH0320,Dale Tavai,DET,Assistant Head Coach,37,7,Defensive,0,1,26,61,GENERATED
+CCH0321,Merle Valentino,DET,Quarterbacks Coach,38,11,Offensive,0,2,60,72,GENERATED
+CCH0322,Merle Wainwright,DET,Running Backs Coach,47,21,Special Teams,1,1,8,69,GENERATED
+CCH0323,Orville Donnelly,DET,Wide Receivers Coach,44,8,Special Teams,0,2,52,73,GENERATED
+CCH0324,Morris Bagwell,DET,Tight Ends Coach,47,8,Offensive,0,1,45,65,GENERATED
+CCH0325,Vaughn Halloran,DET,Offensive Line Coach,52,15,Front Office,0,1,3,54,GENERATED
+CCH0326,Walter Kamara,DET,Defensive Line Coach,36,9,Special Teams,0,1,24,59,GENERATED
+CCH0327,Wendell Mahaffey,DET,Outside Linebackers Coach,54,18,Offensive,0,3,41,61,GENERATED
+CCH0328,Grover Babineaux,DET,Linebackers Coach,39,10,Offensive,0,1,24,62,GENERATED
+CCH0329,Lamar Durrant,DET,Defensive Backs Coach,36,5,Special Teams,0,2,47,53,GENERATED
+CCH0330,Douglas Eubanks,DET,Strength & Conditioning,41,6,Offensive,0,4,50,60,GENERATED
+CCH0331,Jarrett Rapp,GB,Head Coach,53,15,Offensive,0,2,38,92,GENERATED
+CCH0332,Herbert Zimmerman,GB,Offensive Coordinator,36,5,Offensive,0,2,1,73,GENERATED
+CCH0333,Leroy Tranquill,GB,Defensive Coordinator,47,12,Special Teams,0,3,33,63,GENERATED
+CCH0334,Kingsley Whitlow,GB,Special Teams Coordinator,39,10,Defensive,0,4,47,63,GENERATED
+CCH0335,Theodore Elmore,GB,Assistant Head Coach,50,12,Offensive,0,2,43,66,GENERATED
+CCH0336,Leon Spillane,GB,Quarterbacks Coach,42,8,Defensive,0,1,49,74,GENERATED
+CCH0337,Hampton Ballinger,GB,Running Backs Coach,38,4,Offensive,0,1,36,80,GENERATED
+CCH0338,Alistair Gerhardt,GB,Wide Receivers Coach,38,5,Defensive,0,4,36,45,GENERATED
+CCH0339,Zebedee Latimore,GB,Tight Ends Coach,40,11,Offensive,0,3,14,48,GENERATED
+CCH0340,Ellsworth Carmody,GB,Offensive Line Coach,41,4,Special Teams,0,1,43,48,GENERATED
+CCH0341,Wilbur Hooker,GB,Defensive Line Coach,47,17,Special Teams,0,2,35,75,GENERATED
+CCH0342,Ralph Zylstra,GB,Outside Linebackers Coach,40,10,Offensive,0,4,63,77,GENERATED
+CCH0343,Newton Sendejo,GB,Linebackers Coach,38,8,Defensive,0,1,1,65,GENERATED
+CCH0344,Bernard Kalapana,GB,Defensive Backs Coach,45,7,Defensive,0,4,16,67,GENERATED
+CCH0345,Gordon McCourty,GB,Strength & Conditioning,44,19,Defensive,0,1,62,60,GENERATED
+CCH0346,Gerald Weatherspoon,MIN,Head Coach,53,13,Special Teams,0,2,25,83,GENERATED
+CCH0347,Cassius Taliaferro,MIN,Offensive Coordinator,35,7,Offensive,0,3,27,68,GENERATED
+CCH0348,Curtis Woodhead,MIN,Defensive Coordinator,49,19,Special Teams,0,3,22,79,GENERATED
+CCH0349,Roy Emerson,MIN,Special Teams Coordinator,52,20,Offensive,0,2,66,73,GENERATED
+CCH0350,Victor Fulmer,MIN,Assistant Head Coach,40,4,Offensive,0,2,51,66,GENERATED
+CCH0351,Osborne Roache,MIN,Quarterbacks Coach,53,16,Front Office,0,1,42,69,GENERATED
+CCH0352,Hampton Malbrough,MIN,Running Backs Coach,29,5,Offensive,0,2,12,55,GENERATED
+CCH0353,Percy Hickenbotham,MIN,Wide Receivers Coach,41,13,Defensive,0,4,58,45,GENERATED
+CCH0354,Morris Cahill,MIN,Tight Ends Coach,32,1,Offensive,0,4,55,64,GENERATED
+CCH0355,Phillip Gresham,MIN,Offensive Line Coach,44,8,Defensive,0,2,44,56,GENERATED
+CCH0356,Raymond Wamsley,MIN,Defensive Line Coach,50,15,Offensive,0,4,59,63,GENERATED
+CCH0357,Vernon Brannigan,MIN,Outside Linebackers Coach,38,8,Defensive,0,1,30,62,GENERATED
+CCH0358,Otis Camarillo,MIN,Linebackers Coach,37,2,Offensive,0,3,48,66,GENERATED
+CCH0359,Elliot Robicheaux,MIN,Defensive Backs Coach,35,8,Special Teams,0,1,49,64,GENERATED
+CCH0360,Ignatius Farrow,MIN,Strength & Conditioning,40,7,Defensive,0,1,1,47,GENERATED
+CCH0361,Wendell Morrissey,ATL,Head Coach,55,30,Defensive,0,1,30,96,GENERATED
+CCH0362,Elliot Lessard,ATL,Offensive Coordinator,33,5,Offensive,0,2,9,81,GENERATED
+CCH0363,Orville Ingold,ATL,Defensive Coordinator,47,14,Defensive,0,1,17,93,GENERATED
+CCH0364,Morris Redmond,ATL,Special Teams Coordinator,36,5,Special Teams,0,4,24,56,GENERATED
+CCH0365,Willard Steinkuhler,ATL,Assistant Head Coach,31,8,Defensive,0,3,22,73,GENERATED
+CCH0366,Osborne Sullivan,ATL,Quarterbacks Coach,38,5,Offensive,0,3,47,51,GENERATED
+CCH0367,Fredrick Dobbins,ATL,Running Backs Coach,39,7,Offensive,0,1,3,56,GENERATED
+CCH0368,Victor Creswell,ATL,Wide Receivers Coach,40,3,Defensive,0,2,1,49,GENERATED
+CCH0369,Wayne Callender,ATL,Tight Ends Coach,37,4,Special Teams,0,2,51,64,GENERATED
+CCH0370,Eugene Dunleavy,ATL,Offensive Line Coach,49,11,Defensive,0,4,72,75,GENERATED
+CCH0371,Quentin Gauthier,ATL,Defensive Line Coach,43,6,Defensive,0,3,37,48,GENERATED
+CCH0372,Judson Fairbanks,ATL,Outside Linebackers Coach,40,7,Offensive,0,4,47,66,GENERATED
+CCH0373,Hal Peebles,ATL,Linebackers Coach,37,6,Offensive,0,3,20,62,GENERATED
+CCH0374,Vaughn Horvath,ATL,Defensive Backs Coach,44,2,Offensive,0,1,43,54,GENERATED
+CCH0375,Thurgood Stinnie,ATL,Strength & Conditioning,52,16,Special Teams,1,4,63,88,GENERATED
+CCH0376,Sterling Schmitz,CAR,Head Coach,53,21,Defensive,0,3,58,77,GENERATED
+CCH0377,Vaughn Ingersoll,CAR,Offensive Coordinator,35,5,Offensive,0,2,36,64,GENERATED
+CCH0378,Franklin Overstreet,CAR,Defensive Coordinator,33,4,Offensive,0,2,10,54,GENERATED
+CCH0379,Edwin Roscoe,CAR,Special Teams Coordinator,49,13,Defensive,0,1,44,76,GENERATED
+CCH0380,Alistair Ricciardi,CAR,Assistant Head Coach,40,10,Defensive,0,3,39,65,GENERATED
+CCH0381,Ferdinand Kraft,CAR,Quarterbacks Coach,52,15,Offensive,0,4,42,51,GENERATED
+CCH0382,Harold Leavitt,CAR,Running Backs Coach,35,8,Defensive,0,4,23,68,GENERATED
+CCH0383,Woodrow Waskiewicz,CAR,Wide Receivers Coach,38,12,Offensive,0,2,33,70,GENERATED
+CCH0384,Clifford Burrage,CAR,Tight Ends Coach,45,12,Offensive,0,2,26,55,GENERATED
+CCH0385,Reginald Kenney,CAR,Offensive Line Coach,38,8,Special Teams,0,2,30,60,GENERATED
+CCH0386,Nathaniel Sanborn,CAR,Defensive Line Coach,41,13,Offensive,0,3,40,80,GENERATED
+CCH0387,Lester Worrilow,CAR,Outside Linebackers Coach,35,7,Offensive,0,1,33,63,GENERATED
+CCH0388,Everett Gaddis,CAR,Linebackers Coach,35,12,Offensive,0,1,23,61,GENERATED
+CCH0389,Dwayne Stillwagon,CAR,Defensive Backs Coach,30,3,Defensive,0,2,78,62,GENERATED
+CCH0390,Dwayne Tillotson,CAR,Strength & Conditioning,44,8,Defensive,0,1,86,66,GENERATED
+CCH0391,Norman Grissom,NO,Head Coach,50,15,Defensive,0,4,99,84,GENERATED
+CCH0392,Beauregard Landry,NO,Offensive Coordinator,39,4,Offensive,0,1,37,67,GENERATED
+CCH0393,Judson Okorafor,NO,Defensive Coordinator,37,9,Offensive,0,2,46,71,GENERATED
+CCH0394,Merle Partridge,NO,Special Teams Coordinator,40,10,Offensive,0,2,16,80,GENERATED
+CCH0395,Ellsworth Beauchamp,NO,Assistant Head Coach,35,16,Offensive,1,3,51,68,GENERATED
+CCH0396,Marvin Vaughters,NO,Quarterbacks Coach,40,9,Defensive,0,1,30,64,GENERATED
+CCH0397,Isaac Haddad,NO,Running Backs Coach,46,22,Defensive,0,4,24,70,GENERATED
+CCH0398,Dwayne Torrence,NO,Wide Receivers Coach,51,18,Defensive,0,2,13,65,GENERATED
+CCH0399,Fitzgerald Sudfeld,NO,Tight Ends Coach,40,7,Defensive,0,4,18,61,GENERATED
+CCH0400,Purcell Longacre,NO,Offensive Line Coach,41,16,Defensive,0,4,1,67,GENERATED
+CCH0401,Woodrow Devereaux,NO,Defensive Line Coach,56,21,Special Teams,0,1,32,82,GENERATED
+CCH0402,Leon Knighton,NO,Outside Linebackers Coach,44,12,Defensive,0,3,27,59,GENERATED
+CCH0403,Judson Santoro,NO,Linebackers Coach,48,13,Offensive,0,1,39,87,GENERATED
+CCH0404,Walter Fairbanks,NO,Defensive Backs Coach,32,1,Defensive,0,4,40,53,GENERATED
+CCH0405,Sheldon Roscoe,NO,Strength & Conditioning,48,16,Special Teams,0,3,41,61,GENERATED
+CCH0406,Cornelius Dombrowski,TB,Head Coach,41,10,Offensive,0,4,41,77,GENERATED
+CCH0407,Judson Dinkins,TB,Offensive Coordinator,37,8,Offensive,0,2,38,57,GENERATED
+CCH0408,Woodrow Lindstrom,TB,Defensive Coordinator,45,14,Offensive,0,4,57,74,GENERATED
+CCH0409,Kermit Kuechly,TB,Special Teams Coordinator,41,8,Offensive,0,4,76,62,GENERATED
+CCH0410,Garth Holbrook,TB,Assistant Head Coach,42,14,Special Teams,0,1,58,65,GENERATED
+CCH0411,Jerome Wiggington,TB,Quarterbacks Coach,39,6,Defensive,0,2,1,49,GENERATED
+CCH0412,Cornelius Tyree,TB,Running Backs Coach,32,7,Defensive,0,4,38,58,GENERATED
+CCH0413,Jules Rinaldi,TB,Wide Receivers Coach,45,11,Offensive,0,3,71,60,GENERATED
+CCH0414,Melvin Hightower,TB,Tight Ends Coach,28,3,Defensive,0,2,33,62,GENERATED
+CCH0415,Randolph Lyerly,TB,Offensive Line Coach,41,2,Defensive,0,4,47,62,GENERATED
+CCH0416,Seymour Massengale,TB,Defensive Line Coach,43,9,Offensive,0,4,29,56,GENERATED
+CCH0417,Jerome Aubert,TB,Outside Linebackers Coach,39,4,Defensive,0,3,34,56,GENERATED
+CCH0418,Xavier Frazier,TB,Linebackers Coach,46,15,Defensive,0,2,50,75,GENERATED
+CCH0419,Stuart Alderman,TB,Defensive Backs Coach,68,33,Offensive,0,2,28,72,GENERATED
+CCH0420,Vaughn Blanchard,TB,Strength & Conditioning,47,10,Defensive,0,4,20,62,GENERATED
+CCH0421,Rex Wiggington,ARI,Head Coach,49,18,Special Teams,0,2,64,81,GENERATED
+CCH0422,Kingsley Youngblood,ARI,Offensive Coordinator,48,11,Offensive,0,3,50,59,GENERATED
+CCH0423,Randolph Mabry,ARI,Defensive Coordinator,42,14,Front Office,0,2,47,74,GENERATED
+CCH0424,Howard Valdejuli,ARI,Special Teams Coordinator,42,9,Offensive,0,2,16,66,GENERATED
+CCH0425,Roy Tillotson,ARI,Assistant Head Coach,31,7,Front Office,0,4,51,61,GENERATED
+CCH0426,Keith Bledsoe,ARI,Quarterbacks Coach,48,11,Defensive,0,1,34,55,GENERATED
+CCH0427,Percy Bustamante,ARI,Running Backs Coach,51,17,Offensive,0,2,4,62,GENERATED
+CCH0428,Edwin Dombrowski,ARI,Wide Receivers Coach,44,11,Defensive,0,2,27,56,GENERATED
+CCH0429,Ulysses McQuarters,ARI,Tight Ends Coach,39,8,Defensive,0,4,9,50,GENERATED
+CCH0430,Terrence Odenigbo,ARI,Offensive Line Coach,41,5,Offensive,0,3,38,48,GENERATED
+CCH0431,Ellsworth Yarborough,ARI,Defensive Line Coach,47,7,Defensive,0,2,26,59,GENERATED
+CCH0432,Jarrett Mallett,ARI,Outside Linebackers Coach,32,3,Offensive,0,1,21,68,GENERATED
+CCH0433,Fitzgerald Ricciardi,ARI,Linebackers Coach,39,15,Offensive,0,4,16,59,GENERATED
+CCH0434,Franklin Magnusson,ARI,Defensive Backs Coach,39,6,Defensive,0,4,35,62,GENERATED
+CCH0435,Randolph Wilberforce,ARI,Strength & Conditioning,39,8,Special Teams,0,1,32,46,GENERATED
+CCH0436,Victor Kessler,LAR,Head Coach,41,7,Special Teams,0,4,24,84,GENERATED
+CCH0437,Norman Schmitz,LAR,Offensive Coordinator,34,6,Offensive,0,1,48,80,GENERATED
+CCH0438,Fredrick Zabransky,LAR,Defensive Coordinator,53,24,Special Teams,0,2,26,75,GENERATED
+CCH0439,Lyle Ulbrich,LAR,Special Teams Coordinator,39,6,Special Teams,0,2,31,70,GENERATED
+CCH0440,Clifford Marinelli,LAR,Assistant Head Coach,34,5,Offensive,0,1,39,65,GENERATED
+CCH0441,Nathaniel Villalobos,LAR,Quarterbacks Coach,43,13,Special Teams,0,3,34,49,GENERATED
+CCH0442,Leroy Clevenger,LAR,Running Backs Coach,43,10,Defensive,0,3,30,72,GENERATED
+CCH0443,Truman Sigler,LAR,Wide Receivers Coach,41,8,Offensive,0,4,38,68,GENERATED
+CCH0444,Eugene Veilleux,LAR,Tight Ends Coach,48,19,Defensive,0,4,34,57,GENERATED
+CCH0445,Garth Pilkington,LAR,Offensive Line Coach,48,18,Defensive,0,1,1,74,GENERATED
+CCH0446,Everett Girardi,LAR,Defensive Line Coach,40,9,Front Office,0,4,87,62,GENERATED
+CCH0447,Bruce Dumervil,LAR,Outside Linebackers Coach,30,1,Defensive,0,3,63,64,GENERATED
+CCH0448,Kermit Batiste,LAR,Linebackers Coach,42,9,Front Office,0,3,45,56,GENERATED
+CCH0449,Orville Hosley,LAR,Defensive Backs Coach,51,9,Defensive,0,2,44,66,GENERATED
+CCH0450,Raymond Kessler,LAR,Strength & Conditioning,36,9,Offensive,0,2,39,61,GENERATED
+CCH0451,Dennis Stanback,SF,Head Coach,52,25,Defensive,0,3,48,84,GENERATED
+CCH0452,Virgil Wharton,SF,Offensive Coordinator,41,7,Defensive,0,1,23,77,GENERATED
+CCH0453,Ellsworth Cardenas,SF,Defensive Coordinator,37,5,Defensive,0,2,32,93,GENERATED
+CCH0454,Zachary Maunakea,SF,Special Teams Coordinator,50,15,Front Office,0,4,28,54,GENERATED
+CCH0455,Phillip Moehrig,SF,Assistant Head Coach,35,6,Offensive,0,3,32,55,GENERATED
+CCH0456,Granville Rodenberg,SF,Quarterbacks Coach,39,9,Front Office,0,4,56,76,GENERATED
+CCH0457,Ronald Ravenel,SF,Running Backs Coach,43,15,Offensive,0,3,47,54,GENERATED
+CCH0458,Ellsworth Linscomb,SF,Wide Receivers Coach,40,10,Defensive,0,3,36,58,GENERATED
+CCH0459,Kermit Brockman,SF,Tight Ends Coach,47,20,Offensive,0,2,28,81,GENERATED
+CCH0460,Wendell Quessenberry,SF,Offensive Line Coach,38,8,Offensive,0,4,37,70,GENERATED
+CCH0461,Stuart Loflin,SF,Defensive Line Coach,36,9,Offensive,0,1,12,58,GENERATED
+CCH0462,Thurgood Salvador,SF,Outside Linebackers Coach,47,13,Defensive,0,3,33,65,GENERATED
+CCH0463,Wilbur Doughty,SF,Linebackers Coach,37,2,Front Office,0,4,50,65,GENERATED
+CCH0464,Zachary Goodson,SF,Defensive Backs Coach,60,26,Defensive,0,1,1,55,GENERATED
+CCH0465,Granville Yiadom,SF,Strength & Conditioning,44,13,Defensive,0,2,57,74,GENERATED
+CCH0466,Truman Lutrell,SEA,Head Coach,43,14,Defensive,0,3,18,95,GENERATED
+CCH0467,Hollis Cravens,SEA,Offensive Coordinator,44,4,Offensive,0,3,54,49,GENERATED
+CCH0468,Yeats Cromartie,SEA,Defensive Coordinator,44,12,Offensive,0,4,8,62,GENERATED
+CCH0469,Yeats Priestley,SEA,Special Teams Coordinator,45,10,Special Teams,0,1,17,64,GENERATED
+CCH0470,Bruce Cadwell,SEA,Assistant Head Coach,36,3,Offensive,0,2,28,62,GENERATED
+CCH0471,Octavius Hobbs,SEA,Quarterbacks Coach,46,4,Offensive,0,2,26,74,GENERATED
+CCH0472,Ambrose Ruggiero,SEA,Running Backs Coach,33,5,Offensive,0,1,29,69,GENERATED
+CCH0473,Purcell Merriweather,SEA,Wide Receivers Coach,39,5,Offensive,0,1,40,59,GENERATED
+CCH0474,Ellsworth Waldron,SEA,Tight Ends Coach,39,9,Offensive,0,3,54,46,GENERATED
+CCH0475,Granville Marchand,SEA,Offensive Line Coach,38,9,Offensive,0,1,18,60,GENERATED
+CCH0476,Jerome Wentworth,SEA,Defensive Line Coach,42,9,Defensive,0,3,36,66,GENERATED
+CCH0477,Xavier Stockton,SEA,Outside Linebackers Coach,39,5,Defensive,0,3,47,62,GENERATED
+CCH0478,Judson Selvie,SEA,Linebackers Coach,36,3,Defensive,0,4,43,55,GENERATED
+CCH0479,Merle Siemian,SEA,Defensive Backs Coach,29,4,Offensive,0,4,32,62,GENERATED
+CCH0480,Clifford Marchand,SEA,Strength & Conditioning,39,10,Offensive,0,4,39,64,GENERATED
+CCH0481,Bernard Warrick,,Defensive Backs Coach,52,17,Offensive,0,4,17,64,GENERATED
+CCH0482,Vaughn Nunnally,,Quarterbacks Coach,34,4,Offensive,0,3,18,62,GENERATED
+CCH0483,Ambrose Zaccheaus,,Quarterbacks Coach,38,1,Defensive,0,2,39,41,GENERATED
+CCH0484,Phillip Kincaid,,Quarterbacks Coach,56,24,Offensive,0,4,16,74,GENERATED
+CCH0485,Willard Twyman,,Head Coach,43,15,Defensive,0,4,10,62,GENERATED
+CCH0486,Cassius Tuanigamanuolepola,,Offensive Coordinator,45,14,Defensive,0,1,14,65,GENERATED
+CCH0487,Harold Horvath,,Offensive Coordinator,48,19,Offensive,0,1,1,67,GENERATED
+CCH0488,Earl Kilgore,,Quarterbacks Coach,34,5,Special Teams,0,4,51,70,GENERATED
+CCH0489,Quentin Boykin,,Head Coach,52,18,Defensive,0,1,35,55,GENERATED
+CCH0490,Yeats Ironside,,Defensive Coordinator,42,18,Offensive,0,4,23,81,GENERATED
+CCH0491,Ulysses Dettmer,,Defensive Coordinator,41,5,Defensive,0,1,70,68,GENERATED
+CCH0492,Granville Davenport,,Defensive Backs Coach,42,8,Offensive,0,1,40,59,GENERATED
+CCH0493,Ambrose Havili,,Defensive Coordinator,50,19,Special Teams,0,1,52,67,GENERATED
+CCH0494,Clifford Wagoner,,Defensive Backs Coach,41,9,Defensive,0,3,44,65,GENERATED
+CCH0495,Warren Morrissey,,Defensive Backs Coach,36,4,Defensive,0,3,53,40,GENERATED
+CCH0496,Willard Ferrante,,Defensive Coordinator,48,13,Offensive,0,1,32,56,GENERATED
+CCH0497,Zebedee Houghton,,Head Coach,48,17,Offensive,0,4,35,62,GENERATED
+CCH0498,Ferdinand Diallo,,Defensive Coordinator,37,10,Defensive,0,2,54,65,GENERATED
+CCH0499,Carlton Breckenridge,,Head Coach,43,17,Offensive,0,1,27,57,GENERATED
+CCH0500,Chuck Poteat,,Defensive Coordinator,39,1,Offensive,0,4,46,57,GENERATED
+CCH0501,Quentin Grantham,,Quarterbacks Coach,43,7,Offensive,0,1,49,48,GENERATED
+CCH0502,Zachary Thackeray,,Quarterbacks Coach,37,1,Defensive,0,4,37,48,GENERATED
+CCH0503,Theodore Lanphier,,Defensive Backs Coach,38,10,Offensive,0,1,41,55,GENERATED
+CCH0504,Rudolph Sinnott,,Quarterbacks Coach,35,5,Defensive,0,2,13,59,GENERATED
+CCH0505,Yeats McKissic,,Head Coach,52,22,Defensive,0,1,15,66,GENERATED
+CCH0506,Seymour Falkner,,Defensive Coordinator,50,20,Defensive,0,1,30,63,GENERATED
+CCH0507,Yeats Overstreet,,Defensive Backs Coach,41,15,Offensive,0,4,3,59,GENERATED
+CCH0508,Leroy Dashiell,,Head Coach,39,7,Offensive,0,4,22,59,GENERATED
+CCH0509,Grover Fournette,,Quarterbacks Coach,41,9,Defensive,0,2,65,74,GENERATED
+CCH0510,Ambrose Cromartie,,Quarterbacks Coach,41,7,Offensive,0,1,60,52,GENERATED
+CCH0511,Xavier Hunnicutt,,Defensive Coordinator,41,12,Offensive,0,3,35,61,GENERATED
+CCH0512,Gordon McCourty,,Defensive Coordinator,34,2,Defensive,0,1,14,63,GENERATED
+CCH0513,Quentin Diallo,,Defensive Backs Coach,42,20,Offensive,0,3,42,57,GENERATED
+CCH0514,Morris Manningham,,Head Coach,44,9,Offensive,0,2,1,60,GENERATED
+CCH0515,Otis Ugwoegbu,,Defensive Coordinator,33,6,Offensive,0,4,22,54,GENERATED
+CCH0516,Kingsley Freeney,,Head Coach,47,21,Defensive,0,3,32,74,GENERATED
+CCH0517,Maurice Brannigan,,Defensive Backs Coach,56,18,Offensive,0,3,32,64,GENERATED
+CCH0518,Beauregard Vannett,,Head Coach,46,14,Offensive,0,2,22,72,GENERATED
+CCH0519,Granville Macalister,,Defensive Backs Coach,45,12,Offensive,0,4,39,67,GENERATED
+CCH0520,Fredrick Freeney,,Defensive Backs Coach,48,15,Defensive,0,2,35,80,GENERATED
+CCH0521,Willard Darboe,,Quarterbacks Coach,40,6,Offensive,0,1,58,67,GENERATED
+CCH0522,Wendell Faulkner,,Defensive Coordinator,50,16,Defensive,0,2,22,58,GENERATED
+CCH0523,Lawrence Montgomery,,Defensive Backs Coach,42,10,Offensive,0,4,41,50,GENERATED
+CCH0524,Rutherford Epperson,,Offensive Coordinator,42,10,Offensive,0,2,24,60,GENERATED
+CCH0525,Hampton Wiggington,,Quarterbacks Coach,42,7,Defensive,0,1,79,54,GENERATED
+CCH0526,Isaac Cavanaugh,,Defensive Backs Coach,44,12,Special Teams,0,2,38,68,GENERATED

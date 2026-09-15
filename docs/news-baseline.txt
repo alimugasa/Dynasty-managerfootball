@@ -1,0 +1,95 @@
+
+NEWS FEED REPORT
+------------------------------------------------------------------------------
+  seasons                      5
+  seed                         20260907
+  template kinds               12
+  cap per week                 8
+  cap per category             3
+  games abandoned              0  (no fieldable side; the feed says nothing about them)
+
+VARIATION
+------------------------------------------------------------------------------
+  headlines published          671
+  distinct within each season  134/134  131/131  137/137  137/137  132/132
+  repeats within a season      0   (the guarantee holds)
+  distinct across all seasons  577 of 671  (86.0%)
+  facts dropped as unphrasable 49  (6.8% of candidates)
+
+  A repeat inside one season is a failure, not a rate to minimise. Across
+  seasons the ledger resets on purpose, so the same line returning years
+  later is the design and not a defect.
+
+MIX
+------------------------------------------------------------------------------
+  UPSET                          21      3.1%
+  STREAK                         96     14.3%
+  MILESTONE                     165     24.6%
+  INJURY                        217     32.3%
+  HOT_SEAT                      114     17.0%
+  AWARD_RACE                     58      8.6%
+
+  stories per week             7.5
+  mean importance              4.10 of 5
+  clubs with coverage          32 of 32
+  most / least covered club    63 / 3 stories
+
+  Every club should appear. A club nobody writes about is a club the
+  player has no reason to look at.
+
+SAMPLE FEED
+------------------------------------------------------------------------------
+  Season 2026, week 1
+    [4] INJURY     Lorenzo Farrow sidelined 7 weeks
+         A hit for Outlaws, who lose their OL into the run-in.
+    [4] MILESTONE  Career day for Gavin Wamsley: 460 passing yards
+         Motors got exactly what they needed from their QB.
+    [4] MILESTONE  Phoenix ride Giovanni Sagapolutele to 436 passing yards
+         The QB carried them, and it was not close.
+    [4] MILESTONE  Lionel Oakman puts on a show
+         194 receiving yards for the Motors RB.
+    [3] INJURY     9-week absence for Colton Benavides
+         Stars will have to cover at S.
+    [3] INJURY     Malik Rainsberger to miss 6 weeks
+         A knock at WR for Liberty.
+    [3] MILESTONE  Denzel Gauthier posted 185 rushing yards
+         A big afternoon for the Northmen RB.
+    [3] MILESTONE  Gerard Panganiban goes for 135 receiving yards
+         One of the performances of the week from the Current WR.
+
+  Season 2026, week 2
+    [5] MILESTONE  490 passing yards for Giovanni Sagapolutele
+         The Phoenix QB was unplayable.
+    [4] UPSET      Seattle Evergreens hold on against San Francisco Prospectors
+         It finished 27-17, and San Francisco Prospectors will feel they let one go.
+    [4] INJURY     Copperheads face 4 weeks without Ace Brannigan
+         Their S is the latest to go down.
+    [4] INJURY     Evergreens lose Garland McQuarters for 6 weeks
+         The RB picked up the injury this week.
+    [4] INJURY     Kareem Mathurin to miss 5 weeks
+         A blow at DT for Krewe.
+    [4] INJURY     Evergreens face 4 weeks without Trace Oakman
+         Their QB is the latest to go down.
+    [4] MILESTONE  Chevy Hufanga puts on a show
+         199 receiving yards for the Windjammers WR.
+    [4] MILESTONE  Phoenix ride Mordecai Jorgensen to 234 receiving yards
+         The WR carried them, and it was not close.
+
+  Season 2026, week 3
+    [4] INJURY     7-week absence for Joaquin McCandless
+         Windjammers will have to cover at QB.
+    [4] MILESTONE  Enormous day for Gavin Wamsley: 457 passing yards
+         Motors got exactly what they needed from their QB.
+    [3] INJURY     Antoine Benavides sidelined 6 weeks
+         A knock for Evergreens, who lose their CB into the run-in.
+    [3] INJURY     Copperheads lose Devante Sessoms for 5 weeks
+         The S picked up the injury this week.
+    [3] MILESTONE  162 rushing yards for Emmett Estrada
+         The Speed RB was unplayable.
+    [3] MILESTONE  Giovanni Sagapolutele goes for 383 passing yards
+         One of the performances of the week from the Phoenix QB.
+    [3] STREAK     No end in sight for Arizona Scorpions
+         A 3th consecutive defeat drops them to 0-3.
+    [3] STREAK     Buffalo Stampede lose a 3th straight
+         The rut has left them 0-3 and asking hard questions.
+

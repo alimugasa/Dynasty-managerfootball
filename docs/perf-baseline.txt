@@ -1,0 +1,83 @@
+
+SCREEN QUERY AUDIT
+------------------------------------------------------------------------------
+
+Team
+  club record + season rates
+    queries           2 -> 2        same
+    rows read       640 -> 2        320x
+    time          0.2ms -> 0.1ms    1.8x
+  top performers
+    queries           1 -> 1        same
+    rows read     1,696 -> 53       32.0x
+    time          0.7ms -> 0.2ms    4.0x
+  club history (50 seasons)
+    queries           1 -> 1        same
+    rows read     1,800 -> 100      18.0x
+    time          1.1ms -> 0.3ms    4.0x
+  TOTAL                          4 q,     4,136 rows,    2.0ms  ->    4 q,    155 rows,   0.6ms
+
+League
+  standings
+    queries           1 -> 1        same
+    rows read        64 -> 64       same
+    time          0.1ms -> 0.1ms    1.2x worse
+  leaders, four categories
+    queries           4 -> 4        same
+    rows read     5,093 -> 20       255x
+    time          2.9ms -> 0.2ms    18.0x
+  all-time record book
+    queries           1 -> 1        same
+    rows read    84,724 -> 10       8472x
+    time         36.8ms -> 0.1ms    269x
+  TOTAL                          6 q,    89,881 rows,   39.9ms  ->    6 q,     94 rows,   0.4ms
+
+Schedule
+  one week of fixtures
+    queries           1 -> 1        same
+    rows read       576 -> 16       36.0x
+    time          0.2ms -> 0.1ms    1.4x
+  a club's season
+    queries           1 -> 1        same
+    rows read        36 -> 18       2.0x
+    time          0.1ms -> 0.1ms    1.2x worse
+  TOTAL                          2 q,       612 rows,    0.3ms  ->    2 q,     34 rows,   0.3ms
+
+Roster
+  squad list with season lines
+    queries          54 -> 1        54.0x
+    rows read        96 -> 44       2.2x
+    time          0.9ms -> 0.5ms    1.7x
+  TOTAL                         54 q,        96 rows,    0.9ms  ->    1 q,     44 rows,   0.5ms
+
+Office
+  transaction preview (5 rows)
+    queries           1 -> 1        same
+    rows read    61,901 -> 5        12380x
+    time         13.4ms -> 0.1ms    163x
+  TOTAL                          1 q,    61,901 rows,   13.4ms  ->    1 q,      5 rows,   0.1ms
+
+Player (drill-down)
+  career totals + season history
+    queries           2 -> 2        same
+    rows read        32 -> 17       1.9x
+    time          9.1ms -> 0.2ms    43.7x
+  TOTAL                          2 q,        32 rows,    9.1ms  ->    2 q,     17 rows,   0.2ms
+
+Transactions (drill-down)
+  first page of the feed
+    queries           1 -> 1        same
+    rows read    61,901 -> 51       1214x
+    time         11.5ms -> 0.1ms    118x
+  page 100 of the feed
+    queries           1 -> 1        same
+    rows read     5,050 -> 50       101x
+    time          1.0ms -> 0.1ms    11.7x
+  TOTAL                          2 q,    66,951 rows,   12.5ms  ->    2 q,    101 rows,   0.2ms
+
+------------------------------------------------------------------------------
+ALL SCREENS
+  queries            71 -> 18         3.9x
+  rows read     223,609 -> 450        497x
+  time           78.1ms -> 2.3ms      34.7x
+
