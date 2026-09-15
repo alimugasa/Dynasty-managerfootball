@@ -51,7 +51,7 @@ export function HomeScreen({ onNew, onLoad, onUtility }: {
   readonly onLoad: () => void;
   readonly onUtility: (to: DoorDestination) => void;
 }) {
-  return <HomeDoor onNew={onNew} onLoad={onLoad} onUtility={onUtility} />;
+  return <HomeDoor onNew={onNew} onLoad={onLoad} onUtility={onUtility} showLab />;
 }
 
 export { CreditsPanel, SettingsPanel };

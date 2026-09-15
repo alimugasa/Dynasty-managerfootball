@@ -1,8 +1,9 @@
 // The play-test app: the product's five tabs, driven by the engine in the page.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AvatarLab } from '../../src/screens/AvatarLab';
 import { COLOR, S } from '../../src/app/tokens';
-import { Frame, TabBar } from './chrome';
+import { Frame, TabBar, UTILITY } from './chrome';
 import type { PositionGroup } from '../../supabase/functions/_shared/engine/types';
 import { newDynasty, reorder, simWeek, type Game } from './host';
 import { isWinter, PHASE_LABEL, runWinter, stepWinter, type MoveResult } from './winter';
@@ -45,14 +46,7 @@ interface Drill { readonly screen: string; readonly id: string }
 type Route = BootRoute | 'home' | 'slots' | 'gm' | 'play'
   // The main menu's foot. Reachable with no dynasty open, like the rest of the
   // boot flow, and Back from any of them returns to the menu.
-  | 'settings' | 'dbtools' | 'credits';
-
-/** The three utility destinations, titled the way the app titles them. */
-const UTILITY: Readonly<Record<string, { title: string; subtitle: string }>> = {
-  settings: { title: 'Settings', subtitle: 'Preferences' },
-  dbtools: { title: 'Database Tools', subtitle: 'Developer' },
-  credits: { title: 'Credits', subtitle: 'Who built this' },
-};
+  | 'settings' | 'dbtools' | 'credits' | 'avatarlab';
 
 export function App() {
   // A save written by the build that kept one nameless dynasty becomes file 1,
@@ -208,6 +202,7 @@ export function App() {
           {route === 'settings' && <SettingsPanel />}
           {route === 'dbtools' && <DatabaseToolsScreen />}
           {route === 'credits' && <CreditsPanel />}
+          {route === 'avatarlab' && <AvatarLab />}
         </>
       ));
     }

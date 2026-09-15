@@ -163,3 +163,17 @@ export function TabBar({ tab, onTab }: {
       </nav>
   );
 }
+
+/**
+ * The main menu's foot, titled the way the app titles it.
+ *
+ * The lab is the rig's own destination. It exists so the new portrait renderer
+ * can be looked at on a phone without a dev server, and no game screen -- here
+ * or in the app -- uses that renderer.
+ */
+export const UTILITY: Readonly<Record<string, { title: string; subtitle: string }>> = {
+  settings: { title: 'Settings', subtitle: 'Preferences' },
+  dbtools: { title: 'Database Tools', subtitle: 'Developer' },
+  credits: { title: 'Credits', subtitle: 'Who built this' },
+  avatarlab: { title: 'Avatar Lab', subtitle: 'Renderer preview' },
+};

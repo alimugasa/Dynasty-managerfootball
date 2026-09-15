@@ -33,13 +33,17 @@ const FIELD = [
   `linear-gradient(180deg, ${COLOR.ink} 0%, transparent 18% 74%, ${COLOR.ink} 96%)`,
 ].join(', ');
 
-export type DoorDestination = 'settings' | 'dbtools' | 'credits';
+export type DoorDestination = 'settings' | 'dbtools' | 'credits' | 'avatarlab';
 
 interface Props {
   readonly onNew: () => void;
   readonly onLoad: () => void;
   /** Settings, database tools, credits. Every one of them goes somewhere. */
   readonly onUtility: (to: DoorDestination) => void;
+  /** Adds the avatar lab to the utility row. Off by default and turned on only
+   *  by the play-test rig: the lab is a development surface, and the app's
+   *  front door is not the place to ship one. */
+  readonly showLab?: boolean;
   readonly disabled?: boolean;
   /** Something that went wrong before the player got here -- a save that could
    *  not be reopened. Shown above the buttons rather than on a game screen
@@ -152,7 +156,7 @@ function Utility({
   );
 }
 
-export function HomeDoor({ onNew, onLoad, onUtility, disabled = false, notice }: Props) {
+export function HomeDoor({ onNew, onLoad, onUtility, showLab = false, disabled = false, notice }: Props) {
   return (
     <>
       <div
@@ -286,6 +290,14 @@ export function HomeDoor({ onNew, onLoad, onUtility, disabled = false, notice }:
             onClick={() => { onUtility('credits'); }}
             testId="menu-credits"
           />
+          {showLab && (
+            <Utility
+              label="Avatar Lab"
+              icon={<CreditsIcon />}
+              onClick={() => { onUtility('avatarlab'); }}
+              testId="menu-avatarlab"
+            />
+          )}
           <span
             data-testid="app-version"
             style={{

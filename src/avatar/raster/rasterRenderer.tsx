@@ -16,11 +16,12 @@ import { paintPortrait } from './render';
 
 /** What the portrait is actually drawn at, whatever it is displayed at.
  *
- *  Two tiers, not five. A 28px thumbnail and a 40px list row are the same
- *  picture scaled, so they share one cache entry; anything card-sized and up
- *  gets the detailed one. Rasterising per display size would triple the work
- *  for a difference nobody can see. */
-const raster = (px: number): number => (px <= 64 ? 192 : 512);
+ *  Three tiers, not one per display size: a 28px thumbnail and a 40px list row
+ *  are the same picture scaled, so they share a cache entry. The ceiling is
+ *  448 rather than 512 because the lab holds a hundred and fifty of these at
+ *  once as data URLs, and the difference is invisible at any size the app
+ *  displays them while the memory difference is not. */
+const raster = (px: number): number => (px <= 64 ? 192 : px <= 160 ? 320 : 448);
 
 const cache = new Map<string, string>();
 const CAPACITY = 400;
