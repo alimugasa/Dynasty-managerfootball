@@ -33,6 +33,8 @@ import { camp } from './reads/camp.ts';
 import { waiverWire } from './reads/waiverWire.ts';
 import { freeAgents } from './reads/freeAgents.ts';
 import { transactions } from './reads/transactions.ts';
+import { tradeCenter } from './reads/tradeCenter.ts';
+import { tradeAssets } from './reads/tradeAssetsRead.ts';
 import { staff } from './reads/staff.ts';
 import { recap } from './reads/recap.ts';
 import { offseason } from './reads/offseason.ts';
@@ -43,6 +45,9 @@ import {
   advanceCamp, finalize53, previewCut, releaseFromRoster,
 } from './handlers/campMoves.ts';
 import { claimPlayer, offerContract, withdrawClaim } from './handlers/marketMoves.ts';
+import {
+  proposeTradeOffer, quoteTradeOffer, respondToTrade, setTradeBlock,
+} from './handlers/tradeMoves.ts';
 import { player } from './reads/player.ts';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -76,6 +81,12 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'claim-player': claimPlayer,
   'withdraw-claim': withdrawClaim,
   'offer-contract': offerContract,
+  'trade-center': tradeCenter,
+  'trade-assets': tradeAssets,
+  'quote-trade': quoteTradeOffer,
+  'propose-trade': proposeTradeOffer,
+  'respond-trade': respondToTrade,
+  'trade-block': setTradeBlock,
   staff,
   recap,
   offseason,

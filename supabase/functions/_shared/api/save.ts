@@ -24,12 +24,15 @@ export interface SaveRow {
    *  Null on a save from before the checklist existed, which reads the same
    *  as one nobody has tapped. */
   readonly checklist: unknown;
+  /** The week the in-season trade window shuts. Null means the league default
+   *  in tradeWindow.ts, which is not the same as "no deadline". */
+  readonly trade_deadline_week: number | null;
 }
 
 const COLUMNS = `id, user_id, name, user_team_id, season, week, phase,
                  rng_seed::text as rng_seed, engine_version, schema_version,
                  slot, gm_first_name, gm_last_name, gm_style, franchise_settings,
-                 checklist`;
+                 checklist, trade_deadline_week`;
 
 /**
  * The save, if this user owns it. Another user's save is "not found", not
@@ -85,6 +88,11 @@ export const awardStream = (seed32: number, season: number): number =>
  *  table seeds the same way however many times the save is opened. */
 export const postseasonStream = (seed32: number, season: number): number =>
   seed32 + season * 1000 + 998;
+/** Which clubs try to deal with each other, and who calls about a listed
+ *  player: its own stream, so the league's trading never moves a result and a
+ *  week replayed from the same save trades the same way. */
+export const tradeStream = (seed32: number, season: number, week: number): number =>
+  seed32 + season * 1000 + week * 61 + 13;
 
 /** How long the regular season is, read from its schedule rather than
  *  assumed. The playoff weeks that follow are not counted: they are written

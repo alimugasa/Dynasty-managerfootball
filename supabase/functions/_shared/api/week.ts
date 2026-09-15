@@ -20,7 +20,8 @@
 import type { Db } from './db.ts';
 import { badRequest } from './context.ts';
 import {
-  gameStream, newsStream, postseasonStream, rngSeed32, seasonWeeks, touchSave, type SaveRow,
+  gameStream, newsStream, postseasonStream, rngSeed32, seasonWeeks, touchSave,
+  tradeStream, type SaveRow,
 } from './save.ts';
 import { loadEngineState, writeLedger } from './saveStore.ts';
 import { readDepthChart, type DepthChart } from './project/depthChart.ts';
@@ -34,6 +35,8 @@ import { buildWeekNews, insertNews } from './news.ts';
 import { resolveWaivers, waiverStories } from './waiverResolution.ts';
 import { refreshWaiverPriority } from './waivers.ts';
 import { cpuMarketRound, logCpuMoves } from './cpuMarket.ts';
+import { cpuTradeRound } from './cpuTrades.ts';
+import { deadlineRecap, rumourStories } from './tradeNews.ts';
 import { resultStory } from './franchiseNews.ts';
 import { resultFacts } from './franchiseNewsFacts.ts';
 import { createRng, type Rng } from '../engine/rng.ts';
@@ -242,6 +245,12 @@ export async function playWeek(db: Db, save: SaveRow): Promise<WeekOutcome> {
   if (competition === 'REGULAR') {
     const next: SaveRow = { ...save, week: nextWeek, phase };
     await logCpuMoves(db, next, await cpuMarketRound(db, next, nextWeek, weeks));
+    // The league's own trading, and the noise around it. Same ordering as the
+    // market round and for the same reason: an offer made to the manager has
+    // to arrive in a week they can still answer it in.
+    await cpuTradeRound(db, next, createRng(tradeStream(seed32, season, nextWeek)));
+    await insertNews(db, saveId, await rumourStories(db, next));
+    await insertNews(db, saveId, await deadlineRecap(db, next));
     // The queue follows the table. Recomputed after the round rather than
     // before it, so a club awarded a player this week keeps the place at the
     // back that the award gave it until the table itself moves it.

@@ -20,7 +20,7 @@ import type { NewsRow } from './franchiseNews.ts';
  *  Below this a signing is a transaction, not a story. */
 export const NOTABLE_OVERALL = 74;
 
-export type MoveKind = 'RELEASE' | 'WAIVER_CLAIM' | 'FREE_AGENT_SIGNING';
+export type MoveKind = 'RELEASE' | 'WAIVER_CLAIM' | 'FREE_AGENT_SIGNING' | 'TRADE';
 
 export interface Move {
   readonly kind: MoveKind;
@@ -117,6 +117,13 @@ export function storyFor(ctx: MoveContext, move: Move): NewsRow | null {
         ...base,
         headline: `${to} sign ${who}`,
         body: `${to} have signed ${who}. ${move.detail}.`,
+      };
+    case 'TRADE':
+      return {
+        ...base,
+        headline: `${to} trade for ${who}`,
+        body: `${to} have acquired ${who} from ${club(ctx, move.fromTeamId)}. `
+          + `${move.detail}.`,
       };
   }
 }
