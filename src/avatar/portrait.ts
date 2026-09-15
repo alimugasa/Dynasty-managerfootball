@@ -43,6 +43,10 @@ export interface PortraitRequest {
   /** What a screen reader says. Never invented here: a portrait does not know
    *  a player's name and must not guess one. */
   readonly label: string;
+  /** The face-only test: hair, facial hair and accessories off, one shirt for
+   *  everybody. A renderer that cannot strip them may ignore it, but then the
+   *  test it exists for cannot be run against that renderer. */
+  readonly bare?: boolean;
 }
 
 /**
@@ -60,3 +64,8 @@ export interface PortraitRenderer {
   readonly label: string;
   render: (request: PortraitRequest) => ReactNode | null;
 }
+
+/** The same contract under the name the design brief uses. Identity lives in
+ *  AvatarProfile and knows nothing about any of this; swapping renderers is
+ *  implementing this interface and changing one constant. */
+export type AvatarRenderer = PortraitRenderer;

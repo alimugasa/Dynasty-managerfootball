@@ -1,177 +1,130 @@
-// A hundred faces at once, with the dials that made them.
+// The Avatar Lab.
 //
-// A development surface, not a destination: it sits outside the navigation
-// stack and reads nothing from a save. Its whole job is to make a generator
-// that produces thousands of people inspectable by a person, because the only
-// way to find out that every linebacker has the same jaw is to put two hundred
-// linebackers on one screen and look.
+// A development surface outside the navigation stack: it reads no save and
+// writes nothing. Its job is to make a claim falsifiable -- that the generator
+// produces people rather than one template with the dials moved -- by putting
+// the hard cases next to each other where a person can look at them.
 //
-// Every face here is generated from a seed typed into the box. Nothing is
-// sampled from a league and nothing is written anywhere.
+// The last section is the one that decides it. Strip the hair, the beard, the
+// accessories and the shirt, light everybody identically, and put twenty faces
+// in a row. If those twenty still look like one man, nothing above it matters.
 
 import { useMemo, useState } from 'react';
 import { COLOR, FONT, R, S, TYPE } from '../app/tokens';
-import { PlayerAvatar } from '../avatar/PlayerAvatar';
-import { PORTRAIT_SIZES, type PortraitSize } from '../avatar/portrait';
+import { Portrait, Row, Section, Traits, find, seedAt, spread, type Subject } from './labParts';
 import { generateAvatar } from '../../supabase/functions/_shared/avatar/generate';
-import { FaceRegistry, distance, signature } from '../../supabase/functions/_shared/avatar/unique';
-import { skinBand } from '../../supabase/functions/_shared/avatar/skin';
-import { BUILD_LABEL } from '../../supabase/functions/_shared/avatar/build';
-import { ANCESTRY_LABEL } from '../../supabase/functions/_shared/avatar/ancestry';
-import type { Ancestry } from '../../supabase/functions/_shared/avatar/ancestry';
+import { distance, signature } from '../../supabase/functions/_shared/avatar/unique';
 
-const POSITIONS = [
-  'QB', 'RB', 'FB', 'WR', 'TE', 'OT', 'OG', 'C',
-  'EDGE', 'DT', 'LB', 'CB', 'S', 'K', 'P', 'LS',
-] as const;
-
-const AGE_BANDS = [
-  { label: 'Rookies (21-23)', lo: 21, hi: 23 },
-  { label: 'Prime (24-29)', lo: 24, hi: 29 },
-  { label: 'Veterans (30-34)', lo: 30, hi: 34 },
-  { label: 'Late career (35-39)', lo: 35, hi: 39 },
-  { label: 'Whole career (21-38)', lo: 21, hi: 38 },
-] as const;
-
-/** Seeds derived from the batch seed by a stable mix, so the same batch seed
- *  always yields the same hundred players and a colleague can be sent one. */
-function seedsFrom(batch: string, count: number): readonly string[] {
-  const out: string[] = [];
-  for (let i = 0; i < count; i += 1) {
-    let h = 0x811c9dc5;
-    const text = `${batch}#${String(i)}`;
-    for (let k = 0; k < text.length; k += 1) {
-      h ^= text.charCodeAt(k);
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    out.push(`${h.toString(16).padStart(8, '0')}${(h ^ 0x9e3779b9).toString(16).padStart(8, '0')}`);
-  }
-  return out;
-}
+const field: React.CSSProperties = {
+  background: COLOR.panel, color: COLOR.tx, border: `1px solid ${COLOR.line}`,
+  borderRadius: R.sm, padding: '6px 9px', fontSize: 13, fontFamily: FONT.ui,
+  width: '100%', boxSizing: 'border-box',
+};
 
 const label: React.CSSProperties = {
   ...TYPE.micro, color: COLOR.mut, display: 'block', marginBottom: 4,
   textTransform: 'uppercase', letterSpacing: '.06em',
 };
 
-const field: React.CSSProperties = {
-  background: COLOR.panel, color: COLOR.tx, border: `1px solid ${COLOR.line}`,
-  borderRadius: R.sm, padding: '6px 8px', fontSize: 13, fontFamily: FONT.ui,
-  minWidth: 0, width: '100%', boxSizing: 'border-box',
-};
-
 export function AvatarLab() {
   const [batch, setBatch] = useState('dynasty');
-  const [count, setCount] = useState(100);
-  const [position, setPosition] = useState<string>('mixed');
-  const [band, setBand] = useState(4);
-  const [size, setSize] = useState<PortraitSize>('card');
   const [traits, setTraits] = useState(true);
 
-  const people = useMemo(() => {
-    const ages = AGE_BANDS[band] ?? AGE_BANDS[4];
-    const registry = new FaceRegistry();
-    return seedsFrom(batch, count).map((seed, i) => {
-      const pos = position === 'mixed' ? POSITIONS[i % POSITIONS.length] as string : position;
-      const age = ages.lo + (i * 7) % Math.max(1, ages.hi - ages.lo + 1);
-      const profile = generateAvatar({ seed, position: pos, age });
-      const clone = registry.has(profile.identity);
-      registry.add(profile.identity);
-      return { seed, pos, age, profile, clone };
-    });
-  }, [batch, count, position, band]);
+  /* Every section is derived once per batch. Generation is cheap; rasterising
+     is not, and the Portrait component caches on the profile. */
+  const league = useMemo(() => find(batch, 54, () => true, spread), [batch]);
 
-  // The closest pair in the batch, which is the number worth watching: a
-  // generator gets worse at the margin long before it starts repeating
-  // outright, and an average distance would hide exactly that.
-  const closest = useMemo(() => {
-    let best = { a: '', b: '', d: Number.POSITIVE_INFINITY };
-    for (let i = 0; i < people.length; i += 1) {
-      for (let j = i + 1; j < people.length; j += 1) {
+  const deep = useMemo(
+    () => find(`${batch}-deep`, 8, (s) => s.profile.identity.skinStep >= 4 && s.profile.identity.skinStep <= 10, spread),
+    [batch],
+  );
+  const light = useMemo(
+    () => find(`${batch}-light`, 8, (s) => s.profile.identity.skinStep >= 27 && s.profile.identity.skinStep <= 33, spread),
+    [batch],
+  );
+  const mid = useMemo(
+    () => find(`${batch}-mid`, 8, (s) => s.profile.identity.skinStep >= 15 && s.profile.identity.skinStep <= 20, spread),
+    [batch],
+  );
+  const sameCut = useMemo(
+    () => find(`${batch}-cut`, 8, (s) => s.profile.appearance.hairstyle.startsWith('fade'), spread),
+    [batch],
+  );
+  const oneAncestry = useMemo(
+    () => find(`${batch}-anc`, 8, (s) => s.profile.identity.ancestry.length === 1
+      && s.profile.identity.ancestry[0] === 'african-american', spread),
+    [batch],
+  );
+  const euro = useMemo(
+    () => find(`${batch}-eu`, 8, (s) => s.profile.identity.ancestry.length === 1
+      && s.profile.identity.ancestry[0] === 'western-european', spread),
+    [batch],
+  );
+  const mixed = useMemo(
+    () => find(`${batch}-mix`, 8, (s) => s.profile.identity.ancestry.length === 2, spread),
+    [batch],
+  );
+  const builds = useMemo(() => {
+    const want = ['CB', 'WR', 'QB', 'S', 'LB', 'TE', 'EDGE', 'C', 'DT', 'OG', 'OT', 'K'];
+    return want.map((position, k) => {
+      const seed = seedAt(`${batch}-build`, k * 13 + 3);
+      return { profile: generateAvatar({ seed, position, age: 26 }), position, age: 26 };
+    });
+  }, [batch]);
+  const career = useMemo(() => {
+    const seed = seedAt(`${batch}-career`, 7);
+    return [21, 25, 29, 33, 37].map((age) => ({
+      profile: generateAvatar({ seed, position: 'LB', age }), position: 'LB', age,
+    }));
+  }, [batch]);
+
+  /* The face-only test. */
+  const bare = useMemo(() => find(`${batch}-bare`, 20, () => true, spread), [batch]);
+  const bareStats = useMemo(() => {
+    let closest = Number.POSITIVE_INFINITY;
+    for (let a = 0; a < bare.length; a += 1) {
+      for (let b = a + 1; b < bare.length; b += 1) {
         const d = distance(
-          (people[i] as typeof people[0]).profile.identity,
-          (people[j] as typeof people[0]).profile.identity,
+          (bare[a] as Subject).profile.identity, (bare[b] as Subject).profile.identity,
         );
-        if (d < best.d) {
-          best = {
-            a: (people[i] as typeof people[0]).seed,
-            b: (people[j] as typeof people[0]).seed,
-            d,
-          };
-        }
+        if (d < closest) closest = d;
       }
     }
-    return best;
-  }, [people]);
-
-  const duplicates = new Set(people.filter((p) => p.clone).map((p) => p.seed)).size;
-  const signatures = new Set(people.map((p) => signature(p.profile.identity))).size;
+    return {
+      distinct: new Set(bare.map((s) => signature(s.profile.identity))).size,
+      closest: closest === Number.POSITIVE_INFINITY ? 0 : closest,
+    };
+  }, [bare]);
 
   return (
-    <div style={{ padding: S[4], maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ padding: S[4], maxWidth: 1180, margin: '0 auto' }}>
       <h1 style={{
-        fontFamily: FONT.display, color: COLOR.tx, fontSize: 26, margin: 0,
+        fontFamily: FONT.display, color: COLOR.tx, fontSize: 28, margin: 0,
         textTransform: 'uppercase', letterSpacing: '.04em',
       }}
       >
         Avatar Lab
       </h1>
-      <p style={{ ...TYPE.micro, color: COLOR.mut, marginTop: 6, maxWidth: 620 }}>
-        Every face below is generated from the batch seed. Nothing here is read
-        from a save and nothing is written to one.
+      <p style={{ ...TYPE.micro, color: COLOR.mut, marginTop: 6, maxWidth: 700 }}>
+        Every face is painted from its seed by the raster renderer. Nothing here is read
+        from a save, nothing is written to one, and no screen in the game uses this
+        renderer yet.
       </p>
 
       <div style={{
         display: 'grid', gap: S[3], marginTop: S[4],
-        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', maxWidth: 520,
       }}
       >
         <div>
           <span style={label}>Batch seed</span>
-          <input
-            style={field} value={batch} aria-label="Batch seed"
+          <input style={field} value={batch} aria-label="Batch seed"
             onChange={(e) => { setBatch(e.target.value); }}
           />
         </div>
         <div>
-          <span style={label}>How many</span>
-          <input
-            style={field} type="number" min={1} max={400} value={count} aria-label="How many"
-            onChange={(e) => { setCount(Math.max(1, Math.min(400, Number(e.target.value)))); }}
-          />
-        </div>
-        <div>
-          <span style={label}>Position</span>
-          <select
-            style={field} value={position} aria-label="Position"
-            onChange={(e) => { setPosition(e.target.value); }}
-          >
-            <option value="mixed">All positions</option>
-            {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-          </select>
-        </div>
-        <div>
-          <span style={label}>Age</span>
-          <select
-            style={field} value={band} aria-label="Age"
-            onChange={(e) => { setBand(Number(e.target.value)); }}
-          >
-            {AGE_BANDS.map((b, i) => <option key={b.label} value={i}>{b.label}</option>)}
-          </select>
-        </div>
-        <div>
-          <span style={label}>Size</span>
-          <select
-            style={field} value={size} aria-label="Size"
-            onChange={(e) => { setSize(e.target.value as PortraitSize); }}
-          >
-            {PORTRAIT_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-        <div>
-          <span style={label}>Traits</span>
-          <button
-            type="button" style={{ ...field, cursor: 'pointer', textAlign: 'left' }}
+          <span style={label}>Trait readout</span>
+          <button type="button" style={{ ...field, cursor: 'pointer', textAlign: 'left' }}
             onClick={() => { setTraits((t) => !t); }}
           >
             {traits ? 'Shown' : 'Hidden'}
@@ -179,53 +132,88 @@ export function AvatarLab() {
         </div>
       </div>
 
-      <div style={{
-        marginTop: S[4], display: 'flex', gap: S[4], flexWrap: 'wrap',
-        ...TYPE.micro, color: COLOR.mut,
-      }}
+      <Section
+        title="The league"
+        note="Fifty-four players, every position, ages 21 to 38, drawn from one batch with no filtering."
       >
-        <span>{`${String(people.length)} faces`}</span>
-        <span>{`${String(signatures)} distinct signatures`}</span>
-        <span style={{ color: duplicates > 0 ? COLOR.red : COLOR.teal }}>
-          {`${String(duplicates)} exact repeats`}
-        </span>
-        <span>{`closest pair: ${closest.d === Number.POSITIVE_INFINITY ? '-' : String(closest.d)}`}</span>
-      </div>
+        <Row subjects={league} size={128} bare={false} traits={false} shirt="#2C4A6E" />
+      </Section>
 
-      <div
-        style={{
-          marginTop: S[4], display: 'grid', gap: S[3],
-          gridTemplateColumns: `repeat(auto-fill, minmax(${String(size === 'hero' ? 250 : size === 'profile' ? 170 : 120)}px, 1fr))`,
-        }}
-        data-testid="lab-grid"
+      <Section
+        title="Same pigment, different men"
+        note="Three bands of the melanin scale. Within a band every player shares a skin tone to within a few steps, so anything that separates them is bone: skull width, cheekbone height, jaw angle, brow, nose, mouth."
       >
-        {people.map((p) => (
-          <div key={p.seed} style={{ textAlign: 'center', minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PlayerAvatar
-                seed={p.seed} name={`${p.pos} ${String(p.age)}`} position={p.pos}
-                age={p.age} size={size} primary="#26384B" secondary="#7B5C3A"
-              />
+        <div style={{ display: 'grid', gap: 14 }}>
+          <Row subjects={deep} size={150} bare={false} traits={traits} shirt="#1F3A2E" />
+          <Row subjects={mid} size={150} bare={false} traits={traits} shirt="#3A2E4A" />
+          <Row subjects={light} size={150} bare={false} traits={traits} shirt="#4A3324" />
+        </div>
+      </Section>
+
+      <Section
+        title="Same haircut, different men"
+        note="Eight players who all happened to draw a fade. If hair were carrying the identity, this row would be the failure case."
+      >
+        <Row subjects={sameCut} size={150} bare={false} traits={traits} shirt="#243B52" />
+      </Section>
+
+      <Section
+        title="One ancestry, many faces"
+        note="Ancestry multiplies trait weights; it never selects a trait. Two rows, one influence each, and the people in them are not related."
+      >
+        <div style={{ display: 'grid', gap: 14 }}>
+          <Row subjects={oneAncestry} size={150} bare={false} traits={traits} shirt="#2C4A6E" />
+          <Row subjects={euro} size={150} bare={false} traits={traits} shirt="#52302A" />
+        </div>
+      </Section>
+
+      <Section
+        title="Mixed heritage"
+        note="Two influences each. Weights are merged by maximum rather than averaged, so these take after one side, the other, or neither -- what they do not do is converge on a midpoint."
+      >
+        <Row subjects={mixed} size={150} bare={false} traits={traits} shirt="#3E4230" />
+      </Section>
+
+      <Section
+        title="One man, one career"
+        note="The same seed at 21, 25, 29, 33 and 37. The bones do not move: cheeks hollow, lids grow heavier, the nose and ears lengthen, the hairline goes. It has to be recognisably the same person at both ends."
+      >
+        <Row subjects={career} size={168} bare={false} traits={false} shirt="#2C4A6E" />
+      </Section>
+
+      <Section
+        title="Built for the job"
+        note="Corner through left tackle. The head is the same height in every frame; the neck, the trapezius and the shoulders are not."
+      >
+        <Row subjects={builds} size={150} bare={false} traits={traits} shirt="#1D2833" />
+      </Section>
+
+      <section style={{ marginTop: 44, paddingTop: 20, borderTop: `2px solid ${COLOR.amber}` }}>
+        <h2 style={{
+          fontFamily: FONT.display, color: COLOR.amber, fontSize: 20, margin: 0,
+          textTransform: 'uppercase', letterSpacing: '.05em',
+        }}
+        >
+          Face-only test
+        </h2>
+        <p style={{ ...TYPE.micro, color: COLOR.mut, margin: '4px 0 6px', maxWidth: 700 }}>
+          Twenty players with the hair, the facial hair and the accessories removed, in the
+          same shirt under the same light. This is the test that decides whether facial
+          geometry is carrying the identity. If these twenty read as one template, nothing
+          above this line counts.
+        </p>
+        <p style={{ ...TYPE.micro, color: COLOR.dim, margin: '0 0 12px' }}>
+          {`${String(bareStats.distinct)} distinct structural signatures · closest pair ${String(bareStats.closest)} of 47`}
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }} data-testid="face-only">
+          {bare.map((s) => (
+            <div key={s.profile.seed} style={{ width: 168 }}>
+              <Portrait subject={s} size={168} bare shirt="#232B33" />
+              {traits && <Traits subject={s} />}
             </div>
-            {traits && (
-              <div style={{ ...TYPE.micro, color: COLOR.dim, marginTop: 6, lineHeight: 1.45 }}>
-                <div style={{ color: p.clone ? COLOR.red : COLOR.mut }}>
-                  {`${p.pos} · ${String(p.age)} · ${BUILD_LABEL[p.profile.appearance.build]}`}
-                </div>
-                <div>
-                  {p.profile.identity.ancestry
-                    .map((a: Ancestry) => ANCESTRY_LABEL[a]).join(' + ')}
-                </div>
-                <div>{`${skinBand(p.profile.identity.skinStep)} ${String(p.profile.identity.skinStep)} · ${p.profile.identity.undertone}`}</div>
-                <div>{`${p.profile.identity.baseHead} · ${p.profile.identity.nose} · ${p.profile.identity.eyes}`}</div>
-                <div>{`${p.profile.appearance.hairstyle} · ${p.profile.identity.hairTexture}`}</div>
-                <div>{`${p.profile.appearance.facialHair} · ${p.profile.appearance.facialHairDensity}`}</div>
-                <div style={{ color: COLOR.line2, wordBreak: 'break-all' }}>{p.seed}</div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
