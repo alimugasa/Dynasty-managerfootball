@@ -27,7 +27,8 @@ Home -> New Franchise  -> Save file -> Create GM -> Select Team -> Team Preview
 **New Franchise** asks for three things and one optional fourth: which of the
 three save files to start in, a first and last name for the general manager,
 one of the thirty-two teams, and -- optionally -- how that manager sees the job.
-There is no difficulty, no traits, no avatar, no reputation and no start date,
+There is no difficulty, no traits, no manager portrait, no reputation and no
+start date,
 because a new game always opens at week 1 of the regular season --
 `create-save` writes `week = 1, phase = 'REGULAR_SEASON'` and has no other
 setting.
@@ -304,6 +305,18 @@ merely discouraged.
 
 There is no playoff standings table, only a bracket, so the standings do not
 change when the leaders do.
+
+## Faces
+
+Every player has one, generated from a seed stored on his row and drawn in code
+as a head-and-shoulders portrait. The same player looks the same on every
+screen and in every season -- a 37-year-old is the 23-year-old, older -- and no
+two players in a league share a face. Nobody's portrait is anybody's: there are
+no photographs in this project and no likenesses of real people. They appear on
+the depth chart, the roster, the player profile, the waiver wire, the
+free-agent pool, the transaction history, the league leaders, the honours
+panels and the trade block. `docs/AVATARS.md` has the detail, including the
+screens still to be wired.
 
 ## Where the game runs
 

@@ -7,6 +7,7 @@
 import { COLOR } from '../app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
+import { PlayerAvatar } from '../avatar/PlayerAvatar';
 import { ActionButton } from '../components/ActionButton';
 import type { OffseasonOut, OffseasonPlayer } from '../../supabase/functions/_shared/api/reads/offseason';
 
@@ -101,6 +102,11 @@ export function DraftPanel({ data, busy, move }: MoveProps) {
             {data.board.map((p) => (
               <ListRow
                 key={p.prospectId}
+                leading={(
+                  <PlayerAvatar
+                    seed={p.avatarSeed} name={p.name} position={p.group} age={p.age}
+                  />
+                )}
                 title={p.name}
                 subtitle={`${p.group} · age ${String(p.age)} · your scouts say ${String(p.estimate)}`}
                 trailing={data.onTheClock === null

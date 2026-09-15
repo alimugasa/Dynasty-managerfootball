@@ -18,6 +18,7 @@ import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import { ContractsPanel, DraftPanel, MarketPanel, TradePanel, money } from './offseasonPanels';
 import { AwardsPanel, YearPanel } from './seasonPanels';
+import { useAvatars } from '../hooks/useAvatars';
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 import type { OffseasonOut } from '../../supabase/functions/_shared/api/reads/offseason';
 
@@ -31,6 +32,9 @@ const EXPLAIN: Readonly<Record<string, string>> = {
   FREE_AGENCY: 'Put offers in. They go to market with every other team\'s, and the player decides.',
   CAMP: 'Every team cuts to the limit, the calendar is drawn, and the season opens.',
 };
+
+/** Stable across renders while the recap read is in flight. */
+const NO_IDS: readonly string[] = [];
 
 export function OffseasonScreen() {
   const nav = useNavigator();
@@ -52,6 +56,11 @@ export function OffseasonScreen() {
   const showing = q.status === 'ready' && (q.data.phase === 'AWARDS' || q.data.phase === 'RECAP');
   const year = useQuery<RecapOut>(
     'recap', { saveId: save?.saveId ?? '' }, version, save !== null && showing);
+  const faces = useAvatars(
+    year.status === 'ready'
+      ? year.data.honours.flatMap((h) => (h.playerId === null ? [] : [h.playerId]))
+      : NO_IDS,
+  );
   const club = save === null ? undefined : clubsById.get(save.userTeamId);
 
   const move = (route: string, input: Record<string, unknown>): void => {
@@ -170,6 +179,7 @@ export function OffseasonScreen() {
             q.data.phase === 'AWARDS'
               ? (
                 <AwardsPanel
+                  avatars={faces}
                   data={year.data}
                   nickname={(id) => (id === null ? '' : clubsById.get(id)?.nickname ?? id)}
                   clubName={(id) => (id === null ? '' : clubsById.get(id)?.name ?? id)}

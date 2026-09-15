@@ -9,6 +9,7 @@ import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { TeamMark } from '../components/TeamMark';
 import { HonoursPanel } from './honoursPanel';
+import type { AvatarMap } from '../hooks/useAvatars';
 import type { AwardOut, RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 const RESULT: Readonly<Record<string, string>> = {
@@ -26,6 +27,10 @@ interface Props {
   readonly clubName: (id: string | null) => string;
   readonly colours: (id: string | null) => { readonly primary: string; readonly secondary: string };
   readonly open: (screen: string, params?: Record<string, string>) => void;
+  /** Absent on a caller that has not wired faces. Passed through rather than
+   *  fetched here: this file is presentational and has no save above it in a
+   *  test. */
+  readonly avatars?: AvatarMap;
 }
 
 /**
@@ -36,7 +41,7 @@ interface Props {
  * a winner who took 61% of the vote had a different year from one who scraped
  * 26%, and the ballot is what says so.
  */
-export function AwardsPanel({ data, nickname, colours, open }: Props) {
+export function AwardsPanel({ data, nickname, colours, open, avatars }: Props) {
   if (data.awards.length === 0) {
     return <EmptyState title="No awards were voted this season" />;
   }
@@ -48,6 +53,7 @@ export function AwardsPanel({ data, nickname, colours, open }: Props) {
       </div>
 
       <HonoursPanel
+        {...(avatars === undefined ? {} : { avatars })}
         honours={data.honours}
         nickname={nickname}
         conferenceName={(id) => data.conferences.find((c) => c.id === id)?.name ?? id}

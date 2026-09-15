@@ -158,12 +158,27 @@ never appears is a bug).
 
 Wired: the depth chart (`RosterScreen`), the roster list and the player profile
 header, the waiver wire and the free-agent pool, the transaction history, the
-league leaders, the all-star and all-league honours, and the trade block.
+league leaders, the all-star and all-league honours, the trade block, the draft
+board, the end-of-season awards night and the year recap.
 
-Not yet wired: the draft board, the news feed, the camp screens (which are not
-built), the recap and the retirement notices. Each is the same two lines —
-`useAvatars(ids)` and a `<PlayerFace>` — and the `avatars` read already serves
-them.
+The draft board is the odd one. A prospect has no `players` row — the class
+lives in the engine document until somebody takes him — so there is no
+`avatar_seed` column to read, and the `offseason` read computes it with the
+same pgcrypto expression the trigger uses. That is a derivation rather than a
+guess: a drafted prospect keeps his id (`engine/offseason/league.ts`), so it is
+the seed his row will actually be given, and the man a manager scouted is the
+man who turns up. `tests/api/avatars.test.ts` asserts that continuity after a
+real draft, because the day it stops holding is the day the board starts lying.
+
+Not yet wired: the news feed and the camp screens, which are not built. Each is
+the same two lines — `useAvatars(ids)` and a `<PlayerFace>` — and the `avatars`
+read already serves them.
+
+One rule the panels follow, learned by breaking it: a panel that is rendered in
+a test without a `SaveProvider` above it takes `avatars` as an optional prop
+and never calls `useAvatars` itself. The screen owns the fetch; the panel draws
+what it is handed. `HonoursPanel` fetched for itself in the first version and
+took eight tests down with it.
 
 ## The lab
 

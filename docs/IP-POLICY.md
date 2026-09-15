@@ -44,6 +44,22 @@ Metro area + original nickname + the two colours stored on the `teams` table
 badges or wordmarks from those two colours and the team abbreviation. Generated
 marks are acceptable; imitations of real marks are not.
 
+## How a player's face is expressed instead
+
+Nobody's face in this game is anybody's. Every portrait is assembled at draw
+time from named trait libraries this repository owns -- skulls, noses, eyes,
+lips, hair, a thirty-six-step pigment scale -- drawn from a seed stored on the
+player's row. There are no photographs anywhere in the project, no scanned or
+traced references, and no model trained on real faces. A face is a
+deterministic function of a seed and a library, which is the strongest
+guarantee available: it cannot resemble a particular person because it was
+never given one to resemble.
+
+The trait names are descriptive of anatomy and never of a population. A library
+of ancestry presets would be a step toward exactly the resemblance this section
+rules out, and the code makes one impossible by construction -- see
+`docs/AVATARS.md`.
+
 ## Icons and fonts
 
 Every icon is original or carries a permissive licence explicitly allowing

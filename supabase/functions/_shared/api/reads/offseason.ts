@@ -45,6 +45,16 @@ export interface ProspectOut {
   readonly age: number;
   /** What your scouts think, not what he is: the estimate carries their error. */
   readonly estimate: number;
+  /** The face he will still have the day after he is drafted.
+   *
+   *  A prospect has no players row -- the draft class lives in the engine
+   *  document until somebody takes him -- so there is no avatar_seed column to
+   *  read. It is computed here from the same expression 0037's trigger uses,
+   *  and that is not a guess: a drafted prospect keeps his id
+   *  (engine/offseason/league.ts), so this is the seed the row will actually
+   *  be given. The alternative -- no face on the board, or a different one --
+   *  would mean a manager scouts one man and drafts another. */
+  readonly avatarSeed: string;
 }
 
 export interface OffseasonOut {
@@ -125,6 +135,19 @@ export const offseason: Handler<OffseasonIn, OffseasonOut> = {
         .slice(0, BOARD_SHOWN)
       : [];
 
+    // The seeds, from Postgres rather than from here: pgcrypto's digest is the
+    // definition 0036 backfilled with and 0037's trigger writes, and computing
+    // the same hash a second way in TypeScript would be a second definition to
+    // keep in step. One query for the whole board.
+    const seeded = board.length === 0 ? [] : await sql<{ id: string; seed: string }[]>`
+      select id, encode(digest(${s.id}::text || ':' || id, 'sha256'), 'hex') as seed
+        from unnest(${board.map((p) => p.prospectId)}::text[]) as t(id)`;
+    const seedOf = new Map(seeded.map((r) => [r.id, r.seed]));
+    const prospects = board.map((p) => ({
+      ...p,
+      avatarSeed: seedOf.get(p.prospectId) ?? '',
+    }));
+
     const picks = phase === 'DRAFT'
       ? (await sql<{
         overall_pick: number; round: number; current_owner_team_id: string;
@@ -157,7 +180,7 @@ export const offseason: Handler<OffseasonIn, OffseasonOut> = {
         playerId: o.playerId, name: nameOf.get(o.playerId) ?? o.playerId,
         aav: o.aav, years: o.years,
       })),
-      board,
+      board: prospects,
       partner: input.teamId === undefined || input.teamId === s.user_team_id ? null : {
         teamId: input.teamId,
         players: rosterOf(league, input.teamId)

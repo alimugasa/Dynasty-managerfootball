@@ -16,6 +16,7 @@ import { TeamMark } from '../components/TeamMark';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
 import { HonoursPanel } from './honoursPanel';
+import { useAvatars } from '../hooks/useAvatars';
 import type { RecapOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 const RESULT: Readonly<Record<string, string>> = {
@@ -27,6 +28,9 @@ const RESULT: Readonly<Record<string, string>> = {
   CHAMPION: 'Champions',
 };
 
+/** Stable across renders while the recap read is in flight. */
+const NO_IDS: readonly string[] = [];
+
 export function RecapScreen() {
   const nav = useNavigator();
   const { save, loaded, loadError, clubsById, version } = useSave();
@@ -35,6 +39,13 @@ export function RecapScreen() {
     'recap',
     { saveId: save?.saveId ?? '', ...(chosen === '' ? {} : { season: Number(chosen) }) },
     version, save !== null);
+  // Every honoured player at once, so switching conference chips in the panel
+  // does not fetch again.
+  const faces = useAvatars(
+    q.status === 'ready'
+      ? q.data.honours.flatMap((h) => (h.playerId === null ? [] : [h.playerId]))
+      : NO_IDS,
+  );
 
   const name = (id: string | null): string =>
     (id === null ? '—' : clubsById.get(id)?.name ?? id);
@@ -133,6 +144,7 @@ export function RecapScreen() {
           )}
 
           <HonoursPanel
+            avatars={faces}
             honours={q.data.honours}
             nickname={nick}
             conferenceName={(id) => q.data.conferences.find((c) => c.id === id)?.name ?? id}

@@ -10,13 +10,16 @@
 // it is a roster for an exhibition rather than a team sheet -- so a player can
 // be on one and on neither all-league team.
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { COLOR, FONT, R, S, TYPE } from '../app/tokens';
 import { ChipRow, type Chip } from '../components/ChipRow';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
 import { PlayerFace } from '../avatar/PlayerFace';
-import { useAvatars, type AvatarMap } from '../hooks/useAvatars';
+import type { AvatarMap } from '../hooks/useAvatars';
+
+/** What a caller that has not wired faces gets: no face, and no fetch. */
+const NO_FACES: AvatarMap = { get: () => null, loading: false };
 import type { HonourOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 /** The roster every all-league team is picked by: the league, as one. */
@@ -29,6 +32,9 @@ interface Props {
   /** A conference id to its name, where the screen knows one. */
   readonly conferenceName?: (id: string) => string;
   readonly open: (screen: string, params: Record<string, string>) => void;
+  /** Absent on a caller that has not wired faces, and on every test that
+   *  renders this panel on its own. */
+  readonly avatars?: AvatarMap;
 }
 
 /** The position, set as a plate rather than as the front of a subtitle. A
@@ -87,13 +93,12 @@ function Roster({
   );
 }
 
-export function HonoursPanel({ honours, nickname, conferenceName, open }: Props) {
-  // Every honoured player on the panel at once, all-stars and both all-league
-  // teams, so switching conference chips does not fetch again.
-  const faces = useAvatars(useMemo(
-    () => honours.flatMap((h) => (h.playerId === null ? [] : [h.playerId])),
-    [honours],
-  ));
+export function HonoursPanel({ honours, nickname, conferenceName, open, avatars }: Props) {
+  // Faces arrive as a prop rather than being fetched here. This panel is
+  // presentational and is rendered in tests with no SaveProvider above it, so
+  // a hook that reaches for the open save turns every one of those into a
+  // crash -- which is exactly what the first version did.
+  const faces = avatars ?? NO_FACES;
   const stars = honours.filter((h) => h.team === 'ALL_STAR');
   // The conferences in the order the league sent them, so the chips do not
   // reshuffle between seasons.

@@ -6,7 +6,7 @@
 // rendering for lists, the initials fallback so a broken face never reaches
 // the screen, and the choice of which renderer draws.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { PORTRAIT_PX, type PortraitSize } from './portrait';
 import { svgPortraitRenderer } from './svgPortrait';
@@ -86,30 +86,37 @@ export function AvatarFallback({ name, size = 'list' }: { readonly name: string;
   );
 }
 
-/** Whether this portrait has scrolled close enough to be worth drawing. */
-function useOnScreen(enabled: boolean): { readonly ref: (node: HTMLElement | null) => void; readonly shown: boolean } {
+/**
+ * Whether this portrait has scrolled close enough to be worth drawing.
+ *
+ * The node is captured by a ref callback and the observing happens in an
+ * effect, which is not a style preference: the first version created the
+ * observer inside the ref callback and disconnected it from a separate
+ * mount-only effect, so StrictMode's mount/unmount/remount tore the observer
+ * down after the ref had already run and never rebuilt it. Every portrait in
+ * the app stayed on its initials fallback forever. Setup and teardown belong
+ * to the same effect.
+ */
+function useOnScreen(enabled: boolean): {
+  readonly ref: (node: HTMLElement | null) => void; readonly shown: boolean;
+} {
   const [shown, setShown] = useState(!enabled);
-  const observer = useRef<IntersectionObserver | null>(null);
+  const [node, setNode] = useState<HTMLElement | null>(null);
 
-  useEffect(() => () => { observer.current?.disconnect(); }, []);
-
-  const ref = (node: HTMLElement | null): void => {
-    observer.current?.disconnect();
-    if (node === null || shown) return;
+  useEffect(() => {
+    if (!enabled || shown || node === null) return undefined;
     // jsdom and older engines have no IntersectionObserver. Drawing
     // immediately is the right failure: a face too early costs nothing, a face
     // that never appears is a bug.
-    if (typeof IntersectionObserver === 'undefined') { setShown(true); return; }
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) {
-        setShown(true);
-        observer.current?.disconnect();
-      }
+    if (typeof IntersectionObserver === 'undefined') { setShown(true); return undefined; }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) setShown(true);
     }, { rootMargin: '200px' });
-    observer.current.observe(node);
-  };
+    observer.observe(node);
+    return () => { observer.disconnect(); };
+  }, [enabled, shown, node]);
 
-  return { ref, shown };
+  return { ref: setNode, shown };
 }
 
 export function PlayerAvatar({
