@@ -8,6 +8,8 @@ import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { useAvatars } from '../hooks/useAvatars';
+import { PlayerFace } from '../avatar/PlayerFace';
 import { ChipRow, type Chip } from '../components/ChipRow';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
@@ -23,12 +25,18 @@ const GROUPS: readonly Chip[] = [
   { key: 'LS', label: 'LS' },
 ];
 
+/** A stable empty list, so the avatars hook is not asked to re-key on a new
+ *  array reference every render while the roster read is in flight. */
+const EMPTY_IDS: readonly string[] = [];
+
 export function RosterScreen() {
   const nav = useNavigator();
   const [group, setGroup] = useUiState('group', 'QB');
   const { save, loaded, loadError, clubsById, version, busy, setDepthChart } = useSave();
   const q = useQuery<RosterOut>('roster', { saveId: save?.saveId ?? '', group }, version, save !== null);
   const identity = save === null ? undefined : clubsById.get(save.userTeamId);
+
+  const faces = useAvatars(q.data?.order.map((r) => r.playerId) ?? EMPTY_IDS);
 
   const move = (playerId: string, direction: -1 | 1): void => {
     if (q.status !== 'ready' || busy !== null) return;
@@ -79,6 +87,7 @@ export function RosterScreen() {
                     >
                       {index + 1}
                     </span>
+                    <PlayerFace avatars={faces} playerId={row.playerId} name={row.name} />
                     <button
                       type="button"
                       onClick={() => { nav.push('player', { id: row.playerId }); }}

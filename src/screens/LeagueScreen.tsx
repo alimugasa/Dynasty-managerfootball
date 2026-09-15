@@ -10,10 +10,12 @@
 // records that are never summed (src/domain/competition.ts). The table has no
 // competition control: there is no playoff table, only a bracket.
 
+import { useMemo } from 'react';
 import { COLOR } from '../app/tokens';
 import { useNavigator } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { useAvatars } from '../hooks/useAvatars';
 import { CompetitionToggle } from '../components/CompetitionToggle';
 import { ChipRow } from '../components/ChipRow';
 import { EmptyState, SectionHeader } from '../components/Surface';
@@ -41,6 +43,14 @@ export function LeagueScreen() {
     { saveId: save?.saveId ?? '', competition: COMPETITION_PARAM[competition] },
     version, save !== null,
   );
+  // Every board's players at once: the boards are all in one payload, so the
+  // face read is one call for the screen rather than one per board tab.
+  const faces = useAvatars(useMemo(
+    () => (q.status === 'ready'
+      ? q.data.boards.flatMap((b) => b.rows.map((r) => r.playerId))
+      : []),
+    [q.status, q.data],
+  ));
 
   const nameOf = (teamId: string): string => clubsById.get(teamId)?.nickname ?? teamId;
 
@@ -134,6 +144,7 @@ export function LeagueScreen() {
                   onSide={setSide}
                   nameOf={nameOf}
                   onSelect={(playerId) => { nav.push('player', { id: playerId }); }}
+                  avatars={faces}
                 />
               )}
             </>

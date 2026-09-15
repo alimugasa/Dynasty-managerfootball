@@ -14,7 +14,6 @@
 //   * ancestry never selects a trait. It only multiplies a weight that the
 //     library already assigned, so no feature is ever unavailable to anyone.
 
-import { clamp } from '../engine/calibration.ts';
 import {
   BASE_HEADS, FACE_SHAPES, JAW_SHAPES, CHIN_SHAPES, CHEEKBONES, NOSE_SHAPES,
   EYE_SHAPES, EYEBROW_SHAPES, LIP_SHAPES, EAR_SHAPES, HAIRLINES, EYE_COLORS,
@@ -31,6 +30,8 @@ import {
 } from './ancestry.ts';
 import { BUILDS, buildWeights, type Build } from './build.ts';
 import { streamFor, weightedPick, weightedPickBy, shapeValue } from './seed.ts';
+
+const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
 import {
   AVATAR_VERSION, type AvatarAppearance, type AvatarIdentity,
   type AvatarOverrides, type AvatarProfile,

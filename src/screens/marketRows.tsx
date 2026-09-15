@@ -13,6 +13,8 @@
 import type { ReactNode } from 'react';
 import { COLOR, R, S, TYPE, tint } from '../app/tokens';
 import { ListRow } from '../components/ListRow';
+import { PlayerFace } from '../avatar/PlayerFace';
+import type { AvatarMap } from '../hooks/useAvatars';
 
 /**
  * Money as a manager says it out loud.
@@ -62,6 +64,7 @@ export function Pill({ text, tone = 'quiet' }: {
 }
 
 export interface MarketRowFacts {
+  readonly playerId: string;
   readonly name: string;
   readonly position: string;
   readonly age: number;
@@ -78,11 +81,14 @@ export interface MarketRowFacts {
 const service = (years: number): string =>
   (years === 0 ? 'Rookie' : `${String(years)} yr${years === 1 ? '' : 's'}`);
 
-export function MarketRow({ p, trailing, onSelect, testId }: {
+export function MarketRow({ p, trailing, onSelect, testId, avatars }: {
   readonly p: MarketRowFacts;
   readonly trailing: ReactNode;
   readonly onSelect: () => void;
   readonly testId: string;
+  /** Absent on a screen that has not wired faces yet; the position label stands
+   *  in, exactly as it did before there were any. */
+  readonly avatars?: AvatarMap;
 }) {
   return (
     <div data-testid={testId}>
@@ -90,13 +96,18 @@ export function MarketRow({ p, trailing, onSelect, testId }: {
         navigable
         onSelect={onSelect}
         leading={(
-          <span
-            style={{
-              ...TYPE.micro, fontSize: 12, fontVariantNumeric: 'tabular-nums',
-              width: 34, textAlign: 'center', color: COLOR.mut,
-            }}
-          >
-            {p.position}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            {avatars !== undefined && (
+              <PlayerFace avatars={avatars} playerId={p.playerId} name={p.name} />
+            )}
+            <span
+              style={{
+                ...TYPE.micro, fontSize: 12, fontVariantNumeric: 'tabular-nums',
+                width: 26, textAlign: 'center', color: COLOR.mut,
+              }}
+            >
+              {p.position}
+            </span>
           </span>
         )}
         title={p.name}

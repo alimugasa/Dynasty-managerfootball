@@ -208,8 +208,11 @@ export function ClubLine({ name, strategy, record, needs, capSpace, onSelect, te
 }
 
 /** A trade as the history shows it: who sent what, which way. */
-export function TradeLine({ title, sending, receiving, footer, actions }: {
+export function TradeLine({ title, sending, receiving, footer, actions, face }: {
   readonly title: string;
+  /** The player this line is about, where it is about one. A trade between two
+   *  packages is about nobody in particular and gets none. */
+  readonly face?: ReactNode;
   readonly sending: readonly string[];
   readonly receiving: readonly string[];
   readonly footer?: string;
@@ -222,7 +225,16 @@ export function TradeLine({ title, sending, receiving, footer, actions }: {
         borderBottom: `1px solid ${COLOR.line}`, minWidth: 0,
       }}
     >
-      <span style={{ ...TYPE.body, color: COLOR.tx }}>{title}</span>
+      <span style={{ display: 'flex', alignItems: 'center', gap: S[2], minWidth: 0 }}>
+        {face}
+        <span style={{
+          ...TYPE.body, color: COLOR.tx, minWidth: 0,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}
+        >
+          {title}
+        </span>
+      </span>
       <div style={{ display: 'grid', gap: 2 }}>
         <span style={{ ...TYPE.prose, color: COLOR.mut }}>
           {`→ ${sending.length === 0 ? 'nothing' : sending.join(', ')}`}

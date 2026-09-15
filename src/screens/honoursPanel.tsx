@@ -10,11 +10,13 @@
 // it is a roster for an exhibition rather than a team sheet -- so a player can
 // be on one and on neither all-league team.
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { COLOR, FONT, R, S, TYPE } from '../app/tokens';
 import { ChipRow, type Chip } from '../components/ChipRow';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
+import { PlayerFace } from '../avatar/PlayerFace';
+import { useAvatars, type AvatarMap } from '../hooks/useAvatars';
 import type { HonourOut } from '../../supabase/functions/_shared/api/reads/recap';
 
 /** The roster every all-league team is picked by: the league, as one. */
@@ -48,12 +50,13 @@ function Position({ code }: { readonly code: string }) {
 }
 
 function Roster({
-  rows, nickname, open, testId,
+  rows, nickname, open, testId, avatars,
 }: {
   readonly rows: readonly HonourOut[];
   readonly nickname: (teamId: string | null) => string;
   readonly open: (screen: string, params: Record<string, string>) => void;
   readonly testId: string;
+  readonly avatars: AvatarMap;
 }) {
   return (
     <Panel padded={false}>
@@ -61,7 +64,16 @@ function Roster({
         {rows.map((h) => (
           <ListRow
             key={`${h.unit}-${h.position}-${String(h.slot)}`}
-            leading={<Position code={h.position} />}
+            leading={(
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                {h.playerId !== null && (
+                  <PlayerFace
+                    avatars={avatars} playerId={h.playerId} name={h.name} size="thumb"
+                  />
+                )}
+                <Position code={h.position} />
+              </span>
+            )}
             title={h.name}
             {...(h.teamId === null ? {} : { subtitle: nickname(h.teamId) })}
             navigable={h.playerId !== null}
@@ -76,6 +88,12 @@ function Roster({
 }
 
 export function HonoursPanel({ honours, nickname, conferenceName, open }: Props) {
+  // Every honoured player on the panel at once, all-stars and both all-league
+  // teams, so switching conference chips does not fetch again.
+  const faces = useAvatars(useMemo(
+    () => honours.flatMap((h) => (h.playerId === null ? [] : [h.playerId])),
+    [honours],
+  ));
   const stars = honours.filter((h) => h.team === 'ALL_STAR');
   // The conferences in the order the league sent them, so the chips do not
   // reshuffle between seasons.
@@ -114,6 +132,7 @@ export function HonoursPanel({ honours, nickname, conferenceName, open }: Props)
             nickname={nickname}
             open={open}
             testId="all-stars"
+            avatars={faces}
           />
           <p style={{ margin: '6px 2px 0', color: COLOR.dim, fontSize: 11 }}>
             {`${String(stars.filter((h) => h.unit === conference).length)} selected`}
@@ -125,7 +144,7 @@ export function HonoursPanel({ honours, nickname, conferenceName, open }: Props)
       {first.length === 0 ? (
         <EmptyState title="No all-league team this season" />
       ) : (
-        <Roster rows={first} nickname={nickname} open={open} testId="all-league-first" />
+        <Roster rows={first} nickname={nickname} open={open} testId="all-league-first" avatars={faces} />
       )}
 
       <SectionHeader title="All-league second team" />
@@ -135,7 +154,7 @@ export function HonoursPanel({ honours, nickname, conferenceName, open }: Props)
           detail="Seasons played before the second team was shown still have one on record."
         />
       ) : (
-        <Roster rows={second} nickname={nickname} open={open} testId="all-league-second" />
+        <Roster rows={second} nickname={nickname} open={open} testId="all-league-second" avatars={faces} />
       )}
       <p style={{ margin: '6px 2px 0', color: COLOR.dim, fontSize: 11, lineHeight: 1.5 }}>
         <span style={{ fontFamily: FONT.display, letterSpacing: '0.05em' }}>

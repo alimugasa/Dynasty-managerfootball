@@ -12,6 +12,8 @@ import { COLOR, FONT, R, S, tint } from '../app/tokens';
 import { ChipRow } from '../components/ChipRow';
 import { EmptyState, Panel } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
+import { PlayerFace } from '../avatar/PlayerFace';
+import type { AvatarMap } from '../hooks/useAvatars';
 import type { LeaderBoard } from '../../supabase/functions/_shared/api/reads/league';
 
 /** Where a player sits on this board. The podium is amber; everyone else is
@@ -43,10 +45,13 @@ interface LeadersProps {
   readonly onSide: (side: string) => void;
   readonly nameOf: (teamId: string) => string;
   readonly onSelect?: (playerId: string) => void;
+  /** Absent on a caller that has not wired faces; the rank stands alone, as it
+   *  did before there were any. */
+  readonly avatars?: AvatarMap;
 }
 
 export function LeadersPanel({
-  boards, boardKey, onBoard, side, onSide, nameOf, onSelect,
+  boards, boardKey, onBoard, side, onSide, nameOf, onSelect, avatars,
 }: LeadersProps) {
   const sides = [...new Set(boards.map((b) => b.side))];
   const shownSide = sides.includes(side as LeaderBoard['side']) ? side : sides[0];
@@ -84,7 +89,14 @@ export function LeadersPanel({
           ) : board.rows.map((row, i) => (
             <ListRow
               key={row.playerId}
-              leading={<Rank n={i + 1} />}
+              leading={(
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                  <Rank n={i + 1} />
+                  {avatars !== undefined && (
+                    <PlayerFace avatars={avatars} playerId={row.playerId} name={row.name} size="thumb" />
+                  )}
+                </span>
+              )}
               title={row.name}
               subtitle={`${row.group} · ${nameOf(row.teamId)} · ${String(row.games)} gp`}
               trailing={(

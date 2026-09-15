@@ -236,6 +236,22 @@ unknown morale and a neutral one are different facts. `saves.trade_deadline_week
 lets a franchise name its own deadline; null means the league default in
 `_shared/api/tradeWindow.ts`.
 
+### Faces
+
+`0036` gave `players` three columns: `avatar_seed` (not null), `heritage`
+(`text[]`, null until something sets one) and `avatar_overrides` (JSONB, null
+until a commissioner edits a face). The seed is
+`sha256(save_id || ':' || player_id)` and `0037` puts that formula in a
+`before insert` trigger rather than in the one insert site, because a value
+that must always be set is safest when exactly one thing sets it -- the first
+rollover after `0036` failed on the not-null constraint precisely because the
+draft-class insert had no way to know the column existed.
+
+The seed is stored rather than derived by the client even though the client
+could compute the same hash: a commissioner can change it, and a client that
+recomputed it would silently ignore every edit. Rule 3 again. `docs/AVATARS.md`
+has the rest.
+
 An in-season trade is the third path that writes the save document directly,
 alongside the waiver claim and the free-agent signing, and for the same reason
 -- see the exception noted above. All three also share one roster-assignment

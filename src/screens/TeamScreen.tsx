@@ -19,6 +19,8 @@ import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { Caption, Panel, SectionHeader } from '../components/Surface';
 import { ListRow } from '../components/ListRow';
+import { PlayerFace } from '../avatar/PlayerFace';
+import { useAvatars } from '../hooks/useAvatars';
 import { TeamHero, type HeroTag } from '../components/TeamHero';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { RatingRow } from './ratingRing';
@@ -48,6 +50,9 @@ const ordinal = (n: number): string => {
   return `${String(n)}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
 };
 
+/** Stable across renders while the dashboard read is in flight. */
+const NO_IDS: readonly string[] = [];
+
 export function TeamScreen() {
   const nav = useNavigator();
   /** Which placeholder is open, or null. Named rather than boolean now that
@@ -67,6 +72,11 @@ export function TeamScreen() {
   } = useSave();
   const q = useQuery<DashboardOut>(
     'dashboard', { saveId: save?.saveId ?? '' }, version + attempt, save !== null);
+  // Above the early returns, and keyed on the squad the dashboard read
+  // returned rather than on a fresh array each render.
+  const faces = useAvatars(
+    q.status === 'ready' ? q.data.squad.map((p) => p.playerId) : NO_IDS,
+  );
 
   if (loadError !== null) return <Screen title="Team" screen="team"><QueryError error={loadError} /></Screen>;
   if (!loaded) return <Screen title="Team" screen="team"><Loading label="Loading dynasty" /></Screen>;
@@ -296,6 +306,7 @@ export function TeamScreen() {
               {d.squad.map((p) => (
                 <ListRow
                   key={p.playerId}
+                  leading={<PlayerFace avatars={faces} playerId={p.playerId} name={p.name} />}
                   title={p.name}
                   subtitle={`${p.group} · age ${String(p.age)}`}
                   trailing={<Caption>{String(p.overall)}</Caption>}

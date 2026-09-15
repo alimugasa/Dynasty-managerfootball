@@ -6,6 +6,7 @@ import { useNavigationState, useNavigator } from './app/navigation';
 import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from './app/screens';
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
+import { AvatarLab } from './screens/AvatarLab';
 import { SaveProvider, useSave } from './app/SaveProvider';
 import { FranchiseSetupProvider, useFranchiseSetup } from './app/FranchiseSetup';
 import { Loading } from './components/QueryState';
@@ -142,6 +143,12 @@ export function App() {
         <DevGallery />
       </Shell>
     );
+  }
+
+  // The same arrangement for the avatar lab: a development surface, outside
+  // the navigation stack, reading no save.
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev/avatars')) {
+    return <Shell><AvatarLab /></Shell>;
   }
 
   return (

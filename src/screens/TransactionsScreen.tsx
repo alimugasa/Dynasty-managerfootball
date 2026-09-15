@@ -19,6 +19,8 @@ import { useNavigator } from '../app/navigation';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { ChipRow, type Chip } from '../components/ChipRow';
 import { ListRow } from '../components/ListRow';
+import { PlayerFace } from '../avatar/PlayerFace';
+import { useAvatars, type AvatarMap } from '../hooks/useAvatars';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Pill, money } from './marketRows';
 import { Screen } from './Screen';
@@ -65,6 +67,10 @@ const toneFor = (kind: string): 'quiet' | 'good' | 'bad' | 'warn' => {
   return 'quiet';
 };
 
+/** Stable across renders, so the face read does not re-key while the history
+ *  is in flight. */
+const NO_IDS: readonly string[] = [];
+
 export function TransactionsScreen() {
   const nav = useNavigator();
   const { save, loaded, loadError, version } = useSave();
@@ -77,6 +83,13 @@ export function TransactionsScreen() {
     ...(mine && save !== null ? { teamId: save.userTeamId } : {}),
     limit: 150,
   }, version, save !== null);
+  // Above the early returns. A transaction whose player is no longer on record
+  // has a null id and simply gets no face.
+  const faces = useAvatars(
+    q.status === 'ready'
+      ? q.data.rows.flatMap((r) => (r.playerId === null ? [] : [r.playerId]))
+      : NO_IDS,
+  );
 
   if (loadError !== null) {
     return <Screen title="Transactions" screen="transactions"><QueryError error={loadError} /></Screen>;
@@ -120,7 +133,7 @@ export function TransactionsScreen() {
               />
             ) : (
               <div data-testid="transaction-list">
-                {d.rows.map((r) => <Row key={r.id} r={r} onPlayer={nav.push} />)}
+                {d.rows.map((r) => <Row key={r.id} r={r} onPlayer={nav.push} avatars={faces} />)}
               </div>
             )}
           </Panel>
@@ -134,9 +147,10 @@ export function TransactionsScreen() {
   );
 }
 
-function Row({ r, onPlayer }: {
+function Row({ r, onPlayer, avatars }: {
   readonly r: TransactionRow;
   readonly onPlayer: (screen: string, params: Record<string, string>) => void;
+  readonly avatars: AvatarMap;
 }) {
   const where = r.week === null ? r.phase.replace(/_/g, ' ').toLowerCase() : `Week ${String(r.week)}`;
   return (
@@ -146,8 +160,16 @@ function Row({ r, onPlayer }: {
         ? {}
         : { onSelect: () => { onPlayer('player', { id: r.playerId ?? '' }); } })}
       leading={(
-        <span style={{ width: 62, flexShrink: 0 }}>
-          <Pill text={KIND_LABEL[r.kind] ?? r.kind} tone={toneFor(r.kind)} />
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {r.playerId !== null && (
+            <PlayerFace
+              avatars={avatars} playerId={r.playerId}
+              name={r.playerName ?? ''} size="thumb"
+            />
+          )}
+          <span style={{ width: 62, flexShrink: 0 }}>
+            <Pill text={KIND_LABEL[r.kind] ?? r.kind} tone={toneFor(r.kind)} />
+          </span>
         </span>
       )}
       title={r.playerName ?? 'Player not on record'}

@@ -4,6 +4,7 @@
 // lands on a real screen. A nav target with no screen behind it is a dead end
 // that only shows up when someone taps it, so the registry is asserted by test.
 
+import { useMemo } from 'react';
 import { COLOR, ELEV, FONT, R, S, TYPE, colourWash } from '../app/tokens';
 import { useNavigationState, useNavigator } from '../app/navigation';
 import { EmptyState, Panel, SectionHeader } from '../components/Surface';
@@ -16,6 +17,8 @@ import {
 import { TeamMark, TeamMarkSkeleton } from '../components/TeamMark';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { useAvatars } from '../hooks/useAvatars';
+import { PlayerFace } from '../avatar/PlayerFace';
 import { Loading, QueryError } from '../components/QueryState';
 import { ActionButton } from '../components/ActionButton';
 import { Screen } from './Screen';
@@ -43,6 +46,7 @@ export function PlayerScreen() {
   const id = params['id'] ?? '';
   const q = useQuery<PlayerOut>(
     'player', { saveId: save?.saveId ?? '', playerId: id }, version, save !== null && id !== '');
+  const faces = useAvatars(useMemo(() => (id === '' ? [] : [id]), [id]));
 
   if (id === '' || save === null) {
     return (
@@ -92,12 +96,25 @@ export function PlayerScreen() {
             gap: S[3], padding: S[4], minWidth: 0,
           }}
         >
-          <TeamMark
-            abbreviation={player.teamId ?? 'FA'}
-            primary={club?.primary ?? COLOR.line2}
-            secondary={club?.secondary ?? COLOR.mut}
-            size={48}
-          />
+          {/* The face at profile size, with the club mark tucked into its
+              corner: the portrait is what identifies the man and the badge is
+              what says who he plays for, and at 48px side by side they were
+              two marks competing for the same job. */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <PlayerFace
+              avatars={faces} playerId={player.playerId} name={player.name}
+              size="profile" lazy={false}
+              {...(club == null ? {} : { primary: club.primary, secondary: club.secondary })}
+            />
+            <div style={{ position: 'absolute', right: -4, bottom: -4 }}>
+              <TeamMark
+                abbreviation={player.teamId ?? 'FA'}
+                primary={club?.primary ?? COLOR.line2}
+                secondary={club?.secondary ?? COLOR.mut}
+                size={34}
+              />
+            </div>
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{

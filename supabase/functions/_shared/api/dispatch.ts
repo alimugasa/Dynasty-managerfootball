@@ -33,6 +33,7 @@ import { camp } from './reads/camp.ts';
 import { waiverWire } from './reads/waiverWire.ts';
 import { freeAgents } from './reads/freeAgents.ts';
 import { transactions } from './reads/transactions.ts';
+import { avatars } from './reads/avatars.ts';
 import { tradeCenter } from './reads/tradeCenter.ts';
 import { tradeAssets } from './reads/tradeAssetsRead.ts';
 import { staff } from './reads/staff.ts';
@@ -78,6 +79,7 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   'waiver-wire': waiverWire,
   'free-agents': freeAgents,
   transactions,
+  avatars,
   'claim-player': claimPlayer,
   'withdraw-claim': withdrawClaim,
   'offer-contract': offerContract,

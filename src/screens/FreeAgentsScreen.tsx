@@ -21,6 +21,7 @@ import { StatTiles, type Stat } from '../components/StatTiles';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { SearchField } from './searchField';
 import { MarketRow, Pill, money } from './marketRows';
+import { useAvatars } from '../hooks/useAvatars';
 import { OfferSheet } from './offerSheet';
 import { Screen } from './Screen';
 import type { FreeAgentsOut, PoolPlayer } from '../../supabase/functions/_shared/api/reads/freeAgents';
@@ -72,6 +73,10 @@ const LENS_FILTER: Readonly<Record<string, Lens>> = {
   HEALTHY: { health: 'HEALTHY' },
 };
 
+/** Stable across renders, so the avatars query does not re-key while the
+ *  pool read is in flight. */
+const NO_IDS: readonly string[] = [];
+
 export function FreeAgentsScreen() {
   const nav = useNavigator();
   const { save, loaded, loadError, version, notice } = useSave();
@@ -93,6 +98,11 @@ export function FreeAgentsScreen() {
   // useQuery keys on the input as well as the version, so changing a filter
   // re-reads without any help from here.
   const q = useQuery<FreeAgentsOut>('free-agents', input, version, save !== null);
+  // Above the early returns: a hook after one runs on some renders and not
+  // others, which React refuses and the linter catches.
+  const faces = useAvatars(
+    q.status === 'ready' ? q.data.players.map((p) => p.playerId) : NO_IDS,
+  );
 
   if (loadError !== null) {
     return <Screen title="Free Agents" screen="freeAgents"><QueryError error={loadError} /></Screen>;
@@ -177,6 +187,7 @@ export function FreeAgentsScreen() {
                     key={p.playerId}
                     testId={`fa-${p.playerId}`}
                     p={p}
+                    avatars={faces}
                     onSelect={() => { setOpen(p); }}
                     trailing={(
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

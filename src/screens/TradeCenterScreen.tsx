@@ -14,6 +14,8 @@ import { useRef, useState } from 'react';
 import { COLOR, S, TYPE } from '../app/tokens';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
+import { useAvatars } from '../hooks/useAvatars';
+import { PlayerFace } from '../avatar/PlayerFace';
 import { useNavigator } from '../app/navigation';
 import { Caption, EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { StatTiles, type Stat } from '../components/StatTiles';
@@ -24,6 +26,9 @@ import { money } from './marketRows';
 import { ClubLine, TradeLine } from './tradeParts';
 import { TradeBuilder } from './tradeBuilder';
 import type { TradeCenterOut } from '../../supabase/functions/_shared/api/reads/tradeCenter';
+
+/** Stable across renders while the trade read is in flight. */
+const NO_IDS: readonly string[] = [];
 
 export function TradeCenterScreen() {
   const nav = useNavigator();
@@ -44,6 +49,9 @@ export function TradeCenterScreen() {
   // hook that runs in a different order on the next render.
   const kept = useRef<TradeCenterOut | null>(null);
   if (q.status === 'ready') kept.current = q.data;
+  // Read from the held data rather than from the query, for the same reason:
+  // the faces must not disappear on every write either.
+  const faces = useAvatars(kept.current?.block.map((p) => p.playerId) ?? NO_IDS);
 
   if (loadError !== null) {
     return <Screen title="Trade Center" screen="trades"><QueryError error={loadError} /></Screen>;
@@ -214,6 +222,7 @@ export function TradeCenterScreen() {
                 {d.block.map((p) => (
                   <TradeLine
                     key={p.playerId}
+                    face={<PlayerFace avatars={faces} playerId={p.playerId} name={p.name} />}
                     title={`${p.position} ${p.name}`}
                     sending={[`${String(p.overall)} overall · ${String(p.age)} years old`]}
                     receiving={[p.note ?? 'No asking price named']}

@@ -22,6 +22,7 @@ import { ActionButton } from '../components/ActionButton';
 import { Sheet } from '../components/Sheet';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { MarketRow, Pill, TermLine, money } from './marketRows';
+import { useAvatars } from '../hooks/useAvatars';
 import { Screen } from './Screen';
 import { useNavigator } from '../app/navigation';
 import type { WaiverRow, WaiverWireOut } from '../../supabase/functions/_shared/api/reads/waiverWire';
@@ -32,12 +33,21 @@ const ordinal = (n: number): string => {
   return `${String(n)}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
 };
 
+/** Stable across renders, so the avatars query does not re-key while the
+ *  pool read is in flight. */
+const NO_IDS: readonly string[] = [];
+
 export function WaiverWireScreen() {
   const nav = useNavigator();
   const { save, loaded, loadError, version, busy, notice, marketMove } = useSave();
   const [open, setOpen] = useState<WaiverRow | null>(null);
   const q = useQuery<WaiverWireOut>(
     'waiver-wire', { saveId: save?.saveId ?? '' }, version, save !== null);
+  // Above the early returns: a hook after one runs on some renders and not
+  // others, which React refuses and the linter catches.
+  const faces = useAvatars(
+    q.status === 'ready' ? q.data.players.map((p) => p.playerId) : NO_IDS,
+  );
 
   if (loadError !== null) {
     return <Screen title="Waiver Wire" screen="waivers"><QueryError error={loadError} /></Screen>;
@@ -126,6 +136,7 @@ export function WaiverWireScreen() {
                     key={p.playerId}
                     testId={`waiver-${p.playerId}`}
                     p={{ ...p, previousTeamName: p.fromTeamName }}
+                    avatars={faces}
                     onSelect={() => { setOpen(p); }}
                     trailing={(
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
