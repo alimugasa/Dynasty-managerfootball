@@ -3,6 +3,8 @@
 import { COLOR } from '../../src/app/tokens';
 import { Caption, EmptyState, Panel, SectionHeader } from '../../src/components/Surface';
 import { ListRow } from '../../src/components/ListRow';
+import { PlayerAvatar } from '../../src/avatar/PlayerAvatar';
+import { rigSeed } from './faces';
 import { StatTiles } from '../../src/components/StatTiles';
 import { TeamMark } from '../../src/components/TeamMark';
 import { ChipRow } from '../../src/components/ChipRow';
@@ -58,6 +60,12 @@ export function RosterScreen(
                   >
                     {index + 1}
                   </span>
+                  <PlayerAvatar
+                    seed={rigSeed(game.seed, id)}
+                    name={player?.name ?? ''}
+                    position={player?.group ?? group}
+                    age={Math.round(player?.age ?? 25)}
+                  />
                   <button
                     type="button"
                     onClick={() => { open('player', id); }}
@@ -215,12 +223,27 @@ export function PlayerScreen({ game, id }: { game: Game; id: string }) {
     <>
       <Panel>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-          <TeamMark
-            abbreviation={player.teamId ?? 'FA'}
-            primary={club?.primary ?? COLOR.line}
-            secondary={club?.secondary ?? COLOR.mut}
-            size={48}
-          />
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <PlayerAvatar
+              seed={rigSeed(game.seed, player.id)}
+              name={player.name}
+              position={player.group}
+              age={Math.round(player.age)}
+              size="profile"
+              lazy={false}
+              {...(club === undefined
+                ? {}
+                : { primary: club.primary, secondary: club.secondary })}
+            />
+            <div style={{ position: 'absolute', right: -4, bottom: -4 }}>
+              <TeamMark
+                abbreviation={player.teamId ?? 'FA'}
+                primary={club?.primary ?? COLOR.line}
+                secondary={club?.secondary ?? COLOR.mut}
+                size={34}
+              />
+            </div>
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ color: COLOR.tx, fontSize: 16, fontWeight: 600 }}>{player.name}</div>
             <div style={{ color: COLOR.mut, fontSize: 12 }}>
@@ -336,6 +359,14 @@ export function BoxScore({ game, id, open }: Props & { id: string }) {
           {leaders.map(({ line, player, total }) => (
             <ListRow
               key={line.playerId}
+              leading={(
+                <PlayerAvatar
+                  seed={rigSeed(game.seed, line.playerId)}
+                  name={player?.name ?? ''}
+                  position={player?.group ?? ''}
+                  age={Math.round(player?.age ?? 26)}
+                />
+              )}
               title={player?.name ?? line.playerId}
               subtitle={[
                 line.passYards > 0 ? `${String(line.passYards)} pass` : '',
