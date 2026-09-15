@@ -127,10 +127,17 @@ export const proposeTradeOffer: Handler<QuoteIn, ProposeOut> = {
       const counter = await buildCounterPackage(
         tx, save, input.teamId, pkg, quote.counter);
       if (counter !== null) {
+        // Written as a proposal from *them*, so the sides swap: what they send
+        // is the manager's original ask, and what they want is the manager's
+        // package with one more asset in it.
+        //
+        // Getting this backwards labelled every asset with the wrong club --
+        // a counter that looked right on screen and, executed, would have
+        // moved the wrong players in both directions.
         const counterId = await writeProposal(
           tx, save, input.teamId, save.user_team_id,
-          { give: counter.give, get: counter.get },
-          null, counter.giving, counter.getting);
+          { give: counter.get, get: counter.give },
+          null, counter.getting, counter.giving);
         await tx`
           update public.trades set state = 'COUNTERED', countered_by = ${counterId},
                  resolved_at = now()

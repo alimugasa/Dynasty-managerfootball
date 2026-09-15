@@ -65,8 +65,13 @@ describe('training camp and the preseason', () => {
     expect(b.rosterCount).toBeGreaterThan(b.rosterLimit);
     expect(b.rosterLimit).toBe(53);
     expect(b.cutsRemaining).toBe(b.rosterCount - b.rosterLimit);
-    // And it says why the roster is not legal yet, in the words the modal uses.
-    expect(b.rosterFault).toContain('have to go');
+    // And it says why the roster is not legal yet, in the words the modal
+    // uses. Matched on the part that does not change: this asserted the plural
+    // "have to go", which holds only while more than one cut is owed -- and
+    // how many are owed depends on the seed, so the test passed or failed on
+    // which league it happened to get rather than on anything it was checking.
+    expect(b.rosterFault).toMatch(/to go before the season/);
+    expect(b.rosterFault).toContain(String(b.cutsRemaining));
   });
 
   it('finds camp battles and puts somebody on the bubble', async () => {
@@ -153,7 +158,7 @@ describe('training camp and the preseason', () => {
     expect(await phase()).toBe('FINAL_CUTS');
 
     const blocked = await step();
-    expect(blocked.blockedBy).toContain('have to go');
+    expect(blocked.blockedBy).toMatch(/to go before the season/);
     expect(blocked.cutsRemaining).toBeGreaterThan(0);
     // And it did not move the save on.
     expect(await phase()).toBe('FINAL_CUTS');
