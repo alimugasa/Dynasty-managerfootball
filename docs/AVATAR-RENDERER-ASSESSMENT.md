@@ -147,3 +147,37 @@ to the stated target runs through commissioned art.** V2 is worth keeping as
 the proof that the descriptor abstraction works and that geometry-driven
 lighting is the right substrate — a commissioned modular kit would composite
 through exactly the same seam.
+
+---
+
+## Decision: the hybrid data-driven portrait system
+
+The recommendation above was accepted, and the strategy has changed
+accordingly. Anatomy is no longer computed. It is authored, and the code's job
+shrinks to deciding *which* artwork a player needs and stacking it.
+
+```
+AvatarProfile          who he is, permanently         unchanged
+AvatarRenderDescriptor what to draw                   unchanged
+PortraitSelection      which assets, which tints      src/avatar/hybrid/select.ts
+PortraitPlan           an ordered, resolved stack     src/avatar/hybrid/plan.ts
+Portrait               a cached image                 src/avatar/hybrid/composite.ts
+```
+
+Nothing under `supabase/functions/_shared/avatar/` changed to make this work,
+which was the whole argument for building the descriptor seam first.
+
+**Option F, revised.** The assessment's option F was "commissioned modular art
+composited at runtime", scored highest on quality and lowest on feasibility
+because nobody had specified the assets. That specification now exists at
+`docs/AVATAR-ASSET-SPEC.md`, and the consumer of it is built and tested. The
+feasibility objection is now a procurement question rather than an engineering
+one: 48 files buys an evaluation, about 190 buys a playable league, about 400
+buys the full library.
+
+**The three earlier renderers stay in the tree.** v1 vector, v1.5 painted and
+v2 relief are all still importable and all still implement `PortraitRenderer`.
+They are kept as the record of what was tried and why it did not work, not as
+fallbacks: `PlayerAvatar.tsx` still points at the raster renderer and will keep
+pointing at it until the hybrid library has artwork in it and that artwork has
+been approved.

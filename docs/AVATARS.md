@@ -206,3 +206,21 @@ and never re-derived. A missing key means "no opinion"; a key present with a
 null would be a value indistinguishable from an unset one, which the
 architecture rules forbid. Removing an override returns the player to the face
 he had, not to a new one.
+
+## The portrait pipeline
+
+Identity — everything in `supabase/functions/_shared/avatar/` — is settled and
+is not affected by how a player is drawn. Drawing is a separate, replaceable
+layer, and it is currently mid-replacement:
+
+| Stage | Where | State |
+|---|---|---|
+| Identity | `_shared/avatar/` | Settled |
+| Descriptor | `src/avatar/v2/descriptor.ts` | Settled; the seam every renderer consumes |
+| Raster renderer | `src/avatar/raster/` | Wired into the game today |
+| Hybrid compositor | `src/avatar/hybrid/` | Built and tested; waiting on artwork |
+| Asset library | `public/avatar-assets/` | **Empty.** See `docs/AVATAR-ASSET-SPEC.md` |
+
+The hybrid renderer returns `null` for every request until the library has
+artwork in it, and `PlayerAvatar` falls back to initials. That is deliberate:
+a drawn placeholder would be worse than no portrait.

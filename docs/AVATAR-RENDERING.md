@@ -103,3 +103,22 @@ stays a word rather than a commit.
 
 Known weak spots: rope hairstyles (braids, cornrows, locs) read as ribbons, and
 long styles have the weakest silhouettes.
+
+## Where this goes next
+
+Three renderers have now tried to synthesise anatomy from primitives and all
+three fell short of the target for the same structural reason, recorded in
+`docs/AVATAR-RENDERER-ASSESSMENT.md`. The direction has changed: anatomy moves
+out of code and into commissioned artwork, and the renderer becomes a
+compositor.
+
+- `docs/AVATAR-ASSET-SPEC.md` is the contract with whoever paints it — canvas,
+  anchors, camera, light, crop, colour management, layer order, and the counts
+  that need commissioning.
+- `src/avatar/hybrid/` is the consumer of that contract. It is complete and
+  tested, and with the asset library empty it draws nothing at all.
+- `/dev/portraits` shows what twelve players would load, so the selection can
+  be checked for determinism and coverage before any artwork exists.
+
+The renderer wired into the game is still the raster one. It stays wired until
+the hybrid library has real artwork in it and that artwork has been approved.

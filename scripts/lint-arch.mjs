@@ -10,7 +10,10 @@ const MAX_LINES = 400;
 const SCAN = ['src', 'scripts', 'tests', 'supabase/functions'];
 // The IP policy is checked more widely than the architecture: migrations,
 // docs, the seed and its fixtures ship the words the client shows.
-const IP_SCAN = [...SCAN, 'supabase/migrations', 'supabase/tests', 'docs', 'legacy', 'index.html', 'README.md', 'ARCHITECTURE.md'];
+// public/ is here because public/avatar-assets/ is where commissioned portrait
+// artwork lands, and artwork is the one thing in this repository most likely to
+// arrive named after the person it was "inspired by".
+const IP_SCAN = [...SCAN, 'supabase/migrations', 'supabase/tests', 'docs', 'legacy', 'public', 'index.html', 'README.md', 'ARCHITECTURE.md'];
 const IP_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.css', '.sql', '.md', '.json', '.csv', '.html', '.txt']);
 const errors = [];
 
@@ -95,10 +98,12 @@ const files = SCAN.flatMap((d) => {
   try { return walk(join(ROOT, ...d.split('/'))); } catch { return []; }
 });
 
-const ipFiles = [...new Set(IP_SCAN.flatMap((d) => {
+const ipAll = [...new Set(IP_SCAN.flatMap((d) => {
   const p = join(ROOT, ...d.split('/'));
   try { return statSync(p).isDirectory() ? walk(p, [], false) : [p]; } catch { return []; }
-}))].filter((p) => IP_EXTENSIONS.has(extname(p)))
+}))];
+
+const ipFiles = ipAll.filter((p) => IP_EXTENSIONS.has(extname(p)))
   // The denylist and its allowlist name the terms by definition; scanning
   // them finds every term in them, every time.
   .filter((p) => !['scripts/lint-arch.mjs', 'scripts/lint-arch.allow.json']
@@ -226,6 +231,23 @@ for (const file of ipFiles) {
     if (m !== null) {
       const line = lower.slice(0, m.index).split('\n').length - 1;
       errors.push(`${rel}:${line}: contains "${term}" — violates docs/IP-POLICY.md.`);
+    }
+  }
+}
+
+// 7b. The same list over the *names* of files whose contents are not text --
+//     images, fonts, models. A portrait file cannot be read for a trademark,
+//     but the name it was delivered under can be, and that is where an asset
+//     traced from a photograph announces itself.
+for (const file of ipAll) {
+  if (IP_EXTENSIONS.has(extname(file))) continue;
+  const rel = relative(ROOT, file).replace(/\\/g, '/');
+  const allowed = new Set((IP_ALLOW[rel] ?? []).map((a) => a.term));
+  const lower = rel.toLowerCase();
+  for (const term of IP_DENY) {
+    if (allowed.has(term)) continue;
+    if (new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(lower)) {
+      errors.push(`${rel}: filename contains "${term}" — violates docs/IP-POLICY.md.`);
     }
   }
 }
