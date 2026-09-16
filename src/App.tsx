@@ -7,6 +7,7 @@ import { DEFAULT_SCREEN, HOME_SCREEN, isBootScreen, rootFor, screenFor } from '.
 import { COLOR } from './app/tokens';
 import { DevGallery } from './screens/DevGallery';
 import { AvatarLab } from './screens/AvatarLab';
+import { BareTwenty } from './screens/BareTwenty';
 import { PortraitPlanScreen } from './screens/PortraitPlan';
 import { RendererCompare } from './screens/RendererCompare';
 import { SaveProvider, useSave } from './app/SaveProvider';
@@ -149,6 +150,9 @@ export function App() {
 
   // The same arrangement for the avatar lab and the renderer test: development
   // surfaces, outside the navigation stack, reading no save.
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev/bare')) {
+    return <Shell><BareTwenty /></Shell>;
+  }
   if (typeof window !== 'undefined' && window.location.pathname.startsWith('/dev/portraits')) {
     return <Shell><PortraitPlanScreen /></Shell>;
   }
