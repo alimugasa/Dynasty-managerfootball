@@ -23,6 +23,7 @@ import { MOUTH_SPECS } from '../../src/avatar/illustrated/mouths/constructions';
 import { EAR_SPECS } from '../../src/avatar/illustrated/ears/constructions';
 import { eyeColour } from '../../src/avatar/illustrated/eyes/colors';
 import { headFor, selectFeatures } from '../../src/avatar/illustrated/select';
+import { hairOutline } from '../../src/avatar/illustrated/hair/outline';
 import { buildFace } from '../../src/avatar/illustrated/layout';
 import { headShape } from '../../src/avatar/illustrated/heads/shapes';
 import { IllustratedPortrait } from '../../src/avatar/illustrated/Portrait';
@@ -62,12 +63,12 @@ suite('the library covers what identity can store', () => {
   });
 
   it('meets the counts the brief asks for', () => {
-    expect(HEAD_SHAPES.length).toBeGreaterThanOrEqual(18);
-    expect(EYE_SPECS.length).toBeGreaterThanOrEqual(12);
-    expect(NOSE_SPECS.length).toBeGreaterThanOrEqual(16);
-    expect(MOUTH_SPECS.length).toBeGreaterThanOrEqual(12);
-    expect(BROW_SPECS.length).toBeGreaterThanOrEqual(10);
-    expect(EAR_SPECS.length).toBeGreaterThanOrEqual(3);
+    expect(HEAD_SHAPES.length).toBeGreaterThanOrEqual(20);
+    expect(EYE_SPECS.length).toBeGreaterThanOrEqual(14);
+    expect(NOSE_SPECS.length).toBeGreaterThanOrEqual(18);
+    expect(MOUTH_SPECS.length).toBeGreaterThanOrEqual(14);
+    expect(BROW_SPECS.length).toBeGreaterThanOrEqual(12);
+    expect(EAR_SPECS.length).toBeGreaterThanOrEqual(5);
     expect(HAIR_STYLES.length).toBeGreaterThanOrEqual(35);
     expect(FACIAL_HAIR_STYLES.length).toBeGreaterThanOrEqual(15);
   });
@@ -77,6 +78,31 @@ suite('the library covers what identity can store', () => {
     for (const family of families) {
       const ids = family.map((v: { id: string }) => v.id);
       expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+});
+
+suite('the hair outline', () => {
+  it('is one subpath, so no fill rule decides what it covers', () => {
+    // Two earlier shapes failed here in ways the fill hid. A crescent made of
+    // two loops needs even-odd, and the clip that used it disagreed -- the
+    // texture pass drew rows of hair across players' eyes and the fade
+    // gradient washed grey over their foreheads. One subpath cannot.
+    for (const style of HAIR_STYLES) {
+      const m = faceMorph(at(3));
+      const out = hairOutline(buildFace(headFor(m), m), style, 0.2);
+      expect(out.mass.match(/M/g)?.length ?? 0).toBe(1);
+      expect(out.mass.endsWith('Z')).toBe(true);
+    }
+  });
+
+  it('keeps the mass off the face: nothing reaches the mouth', () => {
+    const m = faceMorph(at(5));
+    const l = buildFace(headFor(m), m);
+    for (const style of HAIR_STYLES) {
+      if (style.fall > 0.08) continue;
+      const out = hairOutline(l, style, 0);
+      expect(out.endY).toBeLessThan(l.mouthY);
     }
   });
 });

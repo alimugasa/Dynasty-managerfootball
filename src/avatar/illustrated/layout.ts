@@ -15,20 +15,27 @@ import { clamp, lerp, nudge, pt, type Pt } from './geom';
 import { PROFILE_T, type HeadShape } from './heads/shapes';
 import type { FaceMorph } from '../../../supabase/functions/_shared/avatar/morph';
 
-export const VIEW_W = 360;
-export const VIEW_H = 420;
-export const CX = 180;
+export const VIEW_W = 300;
+export const VIEW_H = 400;
+export const CX = 150;
 /** The eye line is the anchor. Faces vary in length around it.
  *
  *  These three numbers are the crop, and the crop is art direction: the chin
  *  sits at four fifths of the frame, the crown a seventh down from the top,
  *  and what is left at the bottom is shoulder. Getting it wrong the first time
  *  put the collar off the bottom edge and left every player on a bare neck. */
-export const EYE_Y = 183;
-const REF_FACE_H = 280;
-/** Widths, globally. Tuned once so the head fills the frame like a portrait
- *  rather than sitting in the middle of it. */
-const WIDTH_SCALE = 1.08;
+export const EYE_Y = 165;
+const REF_FACE_H = 292;
+/**
+ * Widths, globally.
+ *
+ * The single biggest structural difference between the first illustrated pass
+ * and the reference: a head about four fifths as wide as it is tall reads as a
+ * round cartoon head, and the reference sits nearer three fifths. Everything
+ * else -- the shading, the line work, the hair -- looked wrong mostly because
+ * it was sitting on a head of the wrong shape.
+ */
+const WIDTH_SCALE = 0.905;
 
 const DEFAULTS = { browT: 0.40, eyeT: 0.455, noseT: 0.655, mouthT: 0.775 };
 
@@ -164,7 +171,7 @@ export function buildFace(shape: HeadShape, m: FaceMorph): FaceLayout {
     left: leftPts,
     jaw: shape.jaw,
     eyeSpan: widthAtEye * (0.365 + clamp(m.eyeSpacing, -1, 1) * 0.030),
-    eyeSize: widthAtEye * (0.148 + clamp(m.eyeWidth, -1, 1) * 0.016),
+    eyeSize: widthAtEye * (0.162 + clamp(m.eyeWidth, -1, 1) * 0.018),
     noseWidth: widthAtEye * (0.232 + clamp(m.nostrilWidth, -1, 1) * 0.038),
     mouthWidth: widthAtEye * (0.330 + clamp(m.mouthWidth, -1, 1) * 0.046),
     earY: eyeY + faceH * 0.045,

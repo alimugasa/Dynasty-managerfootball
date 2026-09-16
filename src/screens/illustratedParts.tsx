@@ -42,6 +42,34 @@ export function cohort(batch: string, count: number): readonly Subject[] {
   return out;
 }
 
+/**
+ * Players who share a skin tone.
+ *
+ * The diagnostic the brief asks for, and the reason it matters: a grid where
+ * every player has a different complexion can look diverse while every face
+ * underneath is the same drawing. Holding pigmentation fixed removes that
+ * cover. Structures are taken greedily -- a seed is kept only if it brings a
+ * skull the set does not already have -- so the row tests the head library
+ * rather than the luck of the draw.
+ */
+export function sameSkin(batch: string, count: number, step: number): readonly Subject[] {
+  const out: Subject[] = [];
+  const used = new Set<string>();
+  for (let pass = 0; pass < 2 && out.length < count; pass += 1) {
+    for (let i = 0; i < 9000 && out.length < count; i += 1) {
+      const position = POSITIONS[out.length % POSITIONS.length] as string;
+      const age = 23 + (out.length * 3) % 12;
+      const profile = generateAvatar({ seed: seedAt(batch, i), position, age });
+      if (Math.abs(profile.identity.skinStep - step) > 1) continue;
+      const head = selectFeatures(profile, faceMorph(profile)).head;
+      if (pass === 0 && used.has(head)) continue;
+      used.add(head);
+      out.push({ profile, position, age });
+    }
+  }
+  return out;
+}
+
 export function Section({ title, note, children }: {
   readonly title: string; readonly note: string; readonly children: React.ReactNode;
 }) {

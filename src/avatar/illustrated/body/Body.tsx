@@ -6,7 +6,7 @@
 // the frame further out. All three come from the build the existing system
 // already assigns by position, so nothing new decides it here.
 
-import { closedPath, clamp, pt } from '../geom';
+import { closedPath, clamp, pt, type Pt } from '../geom';
 import { VIEW_H, VIEW_W } from '../layout';
 import type { DrawContext } from '../types';
 
@@ -20,15 +20,19 @@ function metrics(ctx: DrawContext) {
   const { layout: l, morph } = ctx;
   // Relative to the jaw rather than absolute, so a narrow face does not get a
   // neck wider than its own chin.
-  const jawHalf = l.halfAt(l.chinY - l.faceH * 0.14);
-  const neckHalf = jawHalf * (0.80 + clamp(morph.neckWidth, -1, 1) * 0.16);
-  const shoulderHalf = l.faceH * (0.66 + clamp(morph.shoulderWidth, -1, 1) * 0.22);
-  const trapRise = l.faceH * (0.085 + clamp(morph.trapSize, -1, 1) * 0.055);
-  const neckTop = l.chinY - l.faceH * 0.085;
+  // Measured where the jaw is still wide, not down at the chin: taken at the
+  // chin the neck comes out as a stalk on every narrow face.
+  const jawHalf = l.halfAt(l.chinY - l.faceH * 0.22);
+  const neckHalf = jawHalf * (0.86 + clamp(morph.neckWidth, -1, 1) * 0.15);
+  const shoulderHalf = l.faceH * (0.70 + clamp(morph.shoulderWidth, -1, 1) * 0.22);
+  const trapRise = l.faceH * (0.070 + clamp(morph.trapSize, -1, 1) * 0.048);
+  const neckTop = l.chinY - l.faceH * 0.12;
   // A head-and-shoulders crop has a short neck. The first attempt put this a
   // third of a face below the chin, which pushed the collar off the frame and
   // left twenty players standing on a stalk.
-  const shoulderY = l.chinY + l.faceH * 0.125;
+  // Close under the chin. A head-and-shoulders crop shows very little neck,
+  // and the first attempt at this left every player on a long column.
+  const shoulderY = l.chinY + l.faceH * 0.035;
   return { neckHalf, shoulderHalf, trapRise, neckTop, shoulderY };
 }
 
@@ -69,39 +73,57 @@ export function Jersey({ ctx, shirt, collar }: BodyProps) {
   const { layout: l } = ctx;
   const { neckHalf, shoulderHalf, trapRise, shoulderY } = metrics(ctx);
   const collarY = shoulderY;
+
+  /* The shoulder line, from the neck out to the frame edge. Sampled once and
+     used three times -- the jersey, the collar band and the plane change all
+     have to sit on the same curve or the trim floats. */
+  const shoulder = (dir: number, lift: number): Pt[] => [
+    pt(l.cx + dir * neckHalf * 1.10, collarY + lift),
+    pt(l.cx + dir * (neckHalf + (shoulderHalf - neckHalf) * 0.44), collarY + trapRise * 0.34 + lift),
+    pt(l.cx + dir * shoulderHalf * 0.94, collarY + trapRise * 1.05 + lift),
+    pt(l.cx + dir * shoulderHalf, VIEW_H),
+  ];
+
   const body = closedPath([
-    pt(l.cx - neckHalf * 1.12, collarY),
-    pt(l.cx - neckHalf - (shoulderHalf - neckHalf) * 0.42, collarY + trapRise * 0.30),
-    pt(l.cx - shoulderHalf * 0.92, collarY + trapRise * 1.05),
-    pt(l.cx - shoulderHalf, VIEW_H),
-    pt(l.cx + shoulderHalf, VIEW_H),
-    pt(l.cx + shoulderHalf * 0.92, collarY + trapRise * 1.05),
-    pt(l.cx + neckHalf + (shoulderHalf - neckHalf) * 0.42, collarY + trapRise * 0.30),
-    pt(l.cx + neckHalf * 1.12, collarY),
+    ...[...shoulder(-1, 0)].reverse(),
     pt(l.cx, collarY + l.faceH * 0.085),
+    ...shoulder(1, 0),
   ], 0.92);
+
+  /* The light collar. It is the one bright element in the reference's
+     presentation and it does a surprising amount of work: without it the
+     portrait ends in an undifferentiated dark mass. */
+  const trim = (dir: number): string => {
+    const outer = shoulder(dir, 0);
+    const inner = shoulder(dir, l.faceH * 0.032);
+    return closedPath([...outer.slice(0, 3), ...[...inner.slice(0, 3)].reverse()], 0.92);
+  };
 
   return (
     <g>
       <path d={body} fill={shirt} />
-      {/* one plane change across the shoulders, and a collar band */}
+      {/* one plane change where the shoulder turns away */}
       <path
         d={closedPath([
           pt(l.cx - shoulderHalf, VIEW_H),
-          pt(l.cx - shoulderHalf * 0.94, collarY + trapRise * 1.1),
-          pt(l.cx - shoulderHalf * 0.52, collarY + trapRise * 1.5),
-          pt(l.cx - shoulderHalf * 0.58, VIEW_H),
+          pt(l.cx - shoulderHalf * 0.94, collarY + trapRise * 1.05),
+          pt(l.cx - shoulderHalf * 0.50, collarY + trapRise * 1.5),
+          pt(l.cx - shoulderHalf * 0.56, VIEW_H),
         ], 1.0)}
-        fill="#000000" opacity={0.16}
+        fill="#000000" opacity={0.14}
       />
+      {[-1, 1].map((dir) => (
+        <path key={dir} d={trim(dir)} fill={collar} opacity={dir > 0 ? 0.88 : 1} />
+      ))}
+      {/* the neckline itself, dark, cut into the collar */}
       <path
         d={closedPath([
-          pt(l.cx - neckHalf * 1.16, collarY - l.faceH * 0.012),
-          pt(l.cx, collarY + l.faceH * 0.10),
-          pt(l.cx + neckHalf * 1.16, collarY - l.faceH * 0.012),
-          pt(l.cx, collarY + l.faceH * 0.052),
+          pt(l.cx - neckHalf * 1.12, collarY - l.faceH * 0.006),
+          pt(l.cx, collarY + l.faceH * 0.095),
+          pt(l.cx + neckHalf * 1.12, collarY - l.faceH * 0.006),
+          pt(l.cx, collarY + l.faceH * 0.045),
         ], 1.0)}
-        fill={collar}
+        fill={shirt}
       />
       <path d={`M0,0 H${String(VIEW_W)} V0 H0 Z`} fill="none" />
     </g>

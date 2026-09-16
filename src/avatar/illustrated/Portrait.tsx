@@ -28,14 +28,19 @@ import { selectFeatures } from './select';
 import { HAIR_COLORS, FACIAL_HAIR_DENSITY } from '../../../supabase/functions/_shared/avatar/hair';
 import type { DrawContext } from './types';
 
-export const BACKDROP = '#141A21';
-const SHIRT = '#28313B';
-const COLLAR = '#1B222A';
+/* The presentation, matched to the reference: a flat dark navy ground, a dark
+   jersey a shade above it, and a light collar. Flat rather than vignetted --
+   a radial backdrop pulls the eye to the middle of the frame and makes twenty
+   portraits in a grid look like twenty spotlights. */
+export const BACKDROP = '#19212C';
+const SHIRT = '#2C3644';
+const COLLAR = '#B9C2CC';
 
 export interface IllustratedPortraitProps {
   readonly profile: AvatarProfile;
-  /** Rendered size in CSS pixels. Only the detail budget reads it; the SVG
-   *  itself is resolution independent. */
+  /** Rendered WIDTH in CSS pixels. Height follows the frame's own aspect --
+   *  the reference's portraits are portrait-shaped, and a square crop either
+   *  letterboxes the drawing or squashes it. */
   readonly px: number;
   /** The face-only test: no hair, no facial hair, no accessories, one shirt. */
   readonly bare?: boolean;
@@ -91,18 +96,12 @@ export function IllustratedPortrait({
   return (
     <svg
       viewBox={`0 0 ${String(VIEW_W)} ${String(VIEW_H)}`}
-      width={px} height={px}
+      width={px} height={Math.round((px * VIEW_H) / VIEW_W)}
       role={label === '' ? 'presentation' : 'img'}
       aria-label={label === '' ? undefined : label}
       style={{ display: 'block' }}
     >
-      <defs>
-        <radialGradient id={`${uid}-bg`} cx="0.5" cy="0.36" r="0.72">
-          <stop offset="0%" stopColor="#1E2833" />
-          <stop offset="100%" stopColor={background} />
-        </radialGradient>
-      </defs>
-      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} fill={`url(#${uid}-bg)`} />
+      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} fill={background} />
 
       <ShadingDefs ctx={ctx} />
       <HeadClip ctx={ctx} />

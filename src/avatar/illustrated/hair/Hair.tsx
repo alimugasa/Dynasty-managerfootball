@@ -76,7 +76,9 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
   // Every style with no fall gets the dissolve. A hard bottom edge is the
   // helmet tell whether the barber put a fade in it or not.
   const fades = style.fall < 0.08 && style.family !== 'skin';
-  const fadeTop = l.crownY + l.faceH * style.fadeT - (out.endY - out.topY) * (0.18 + style.fade * 0.34);
+  // Only the bottom of the mass dissolves. Starting it halfway up washed the
+  // whole side of the head toward skin, which read as a grey cap.
+  const fadeTop = out.endY - (out.endY - out.topY) * (0.14 + style.fade * 0.26);
   const fadeBottom = out.endY + l.faceH * 0.004;
 
   return (
@@ -96,7 +98,7 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
       {/* the mass turns away from the light at its edges */}
       <g clipPath={`url(#${clip})`}>
         <path
-          d={out.mass} fill="none" stroke={p.shadow}
+          d={out.arc} fill="none" stroke={p.shadow}
           strokeWidth={l.faceH * 0.05} opacity={0.55}
         />
         <HairTexture
@@ -111,7 +113,7 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
       </g>
       {/* the hairline is a shadow on the forehead, never a drawn line */}
       <path
-        d={out.mass} fill="none" stroke={p.shadow}
+        d={out.arc} fill="none" stroke={p.shadow}
         strokeWidth={Math.max(1, l.faceH * 0.009)} opacity={0.4}
       />
       {style.family === 'bun' && (

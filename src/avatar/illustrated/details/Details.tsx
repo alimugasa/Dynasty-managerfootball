@@ -56,14 +56,15 @@ function Line({ ctx, from, to, mid, width, opacity }: {
 export function AgeLines({ ctx }: { readonly ctx: DrawContext }) {
   const l = ctx.layout;
   const wear = clamp(ctx.wear, 0, 1);
-  // Rare on purpose. Lines on a twenty-four-year-old read as a drawing error,
-  // and lines on everybody read as a texture rather than as age.
-  if (ctx.age < 30 || wear < 0.34 || ctx.detail < 0.5) return null;
+  // Rarer and fainter than the first two attempts. At any strength that is
+  // actually visible across a grid, forehead lines stop reading as age and
+  // start reading as scars -- which is exactly how they read at 0.24.
+  if (ctx.age < 33 || wear < 0.5 || ctx.detail < 0.6) return null;
   const w = Math.max(0.7, l.faceH * 0.0055);
   const browTop = l.browY - l.faceH * 0.055;
   const half = l.halfAt(browTop);
   return (
-    <g opacity={0.10 + wear * 0.14}>
+    <g opacity={0.05 + wear * 0.07}>
       {[0, 1].map((i) => (
         <Line
           key={i} ctx={ctx}

@@ -20,10 +20,10 @@ SVG is good at.
 | Family | Count | Where |
 |---|---|---|
 | Head silhouettes | 22 | `heads/shapes.ts` |
-| Eye constructions | 14 | `eyes/constructions.ts` |
+| Eye constructions | 16 | `eyes/constructions.ts` |
 | Eyebrows | 12 | `brows/constructions.ts` |
-| Noses | 18 | `noses/constructions.ts` |
-| Mouths | 14 | `mouths/constructions.ts` |
+| Noses | 20 | `noses/constructions.ts` |
+| Mouths | 16 | `mouths/constructions.ts` |
 | Ears | 7 | `ears/constructions.ts` |
 | Hairstyles | 62 | `hair/styles.ts` |
 | Facial hair | 27 | `facialHair/styles.ts` |
@@ -101,6 +101,31 @@ That is a hex table, not identity -- the stored value is still `olive` and the
 step. AvatarProfile, the seed, deterministic generation, ancestry weighting,
 age progression, builds and the anti-clone registry are all as they were.
 
+## Matching the reference
+
+A reference grid set the bar, and closing the distance to it was mostly four
+changes, none of them about adding detail:
+
+**Proportion.** A head four fifths as wide as it is tall reads as a cartoon
+head; the reference sits nearer three fifths. Everything else looked wrong
+largely because it was sitting on a head of the wrong shape. `WIDTH_SCALE` in
+`layout.ts` is that number.
+
+**Crop.** The frame is portrait, not square, and the crop is fixed: chin at
+four fifths of the height, crown a seventh down from the top, shoulders in
+what is left. The renderer takes a width and derives the height, because a
+square viewport either letterboxes the drawing or squashes it.
+
+**Presentation.** A flat dark navy ground rather than a vignette -- twenty
+vignetted portraits in a grid look like twenty spotlights -- a jersey a shade
+above it, and a light collar. The collar earns its place: without it the
+portrait ends in an undifferentiated dark mass.
+
+**Cel shading.** Flat skin, one plane down the shadow side, a wedge under the
+cheekbone, the underside of the jaw, a socket under each brow, and a darker rim
+just inside the silhouette. The rim does the most work of any single element
+here: a vector portrait without one looks like a sticker.
+
 ## Status
 
 **Prototype, not wired into the game.** `PlayerAvatar.tsx` still points at the
@@ -110,10 +135,27 @@ visual direction has been approved.
 
 Known weak areas, in the order they are worth attention:
 
-1. **Hair silhouettes.** The generated outline is correct but generic --
-   several styles that should be visibly different come out as the same cap at
-   different thicknesses. This is the largest remaining gap to the reference.
-2. **Facial hair** reads as texture over a region rather than as a drawn shape
-   with its own edge.
-3. **Noses** are readable but soft; the tip and wings need more separation.
-4. **Ear variety** is the thinnest family at seven.
+1. **Hair silhouettes.** Each family now perturbs its own outer edge -- curls
+   and afros scallop, locs and twists notch, a grown-out crop is irregular, a
+   barbered cut stays clean -- and every style with no fall dissolves into the
+   skin rather than stopping on a ruled line. It is much better than a helmet
+   and still the largest remaining gap: the reference's hair is *drawn*, this
+   is *derived*.
+2. **Facial hair** follows the jaw and the mouth and no longer starts on a
+   ruled line across the cheeks, but it reads as texture over a region rather
+   than as a shape with its own edge.
+3. **Ear variety** is the thinnest family at seven.
+
+Three bugs found here are worth not repeating, because each was invisible in
+one place and obvious in another:
+
+- The hair mass was a self-intersecting crescent. Its *fill* looked right, so
+  it survived two rounds; the clip built from the same path did not agree with
+  it, and the texture pass drew rows of hair straight across players' eyes
+  while the fade gradient washed grey over their foreheads. The shape is now
+  one non-self-intersecting loop, and a test asserts it has exactly one
+  subpath.
+- Eye colour ids went straight to an SVG fill. CSS makes `brown` a red and
+  `dark-brown` nothing at all, so every eye in the first draft was wrong.
+- Stubble was a flat fill over the lower face. At any opacity that showed, it
+  desaturated the jaw into a grey trapezoid with hard edges.

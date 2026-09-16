@@ -77,21 +77,28 @@ function chinPath(ctx: DrawContext, s: FacialHairStyle): string {
 
 function moustachePath(ctx: DrawContext, s: FacialHairStyle): string {
   const l = ctx.layout;
-  const w = l.mouthWidth * (s.id === 'mustache-thick' || s.id === 'horseshoe' ? 0.74 : 0.62);
-  const top = l.noseBaseY + l.faceH * 0.012;
-  const bottom = l.mouthY - l.faceH * 0.012;
-  const wing = s.id === 'horseshoe' ? l.faceH * 0.10 : 0;
+  const wide = s.id === 'mustache-thick' || s.id === 'horseshoe';
+  const w = l.mouthWidth * (wide ? 0.78 : 0.64);
+  const top = l.noseBaseY + l.faceH * 0.008;
+  const bottom = l.mouthY - l.faceH * 0.014;
+  const droop = s.id === 'horseshoe' ? l.faceH * 0.085 : l.faceH * 0.008;
+  /* Shaped, not boxed. The first version was a rounded rectangle between the
+     nose and the lip, and on a grey-haired player it read as a strip of tape
+     stuck over his mouth. A moustache is two halves that meet under a notch at
+     the philtrum, heavier at the middle and tapering out. */
   return closedPath([
-    pt(l.cx - w, top + l.faceH * 0.014),
-    pt(l.cx - w * 0.5, top),
-    pt(l.cx, top + l.faceH * 0.008),
-    pt(l.cx + w * 0.5, top),
-    pt(l.cx + w, top + l.faceH * 0.014),
-    pt(l.cx + w * 0.94, bottom + wing),
-    pt(l.cx + w * 0.42, bottom),
+    pt(l.cx - w, bottom + droop),
+    pt(l.cx - w * 0.86, top + l.faceH * 0.014),
+    pt(l.cx - w * 0.40, top - l.faceH * 0.002),
+    pt(l.cx - w * 0.10, top + l.faceH * 0.016),
+    pt(l.cx, top + l.faceH * 0.010),
+    pt(l.cx + w * 0.10, top + l.faceH * 0.016),
+    pt(l.cx + w * 0.40, top - l.faceH * 0.002),
+    pt(l.cx + w * 0.86, top + l.faceH * 0.014),
+    pt(l.cx + w, bottom + droop),
+    pt(l.cx + w * 0.52, bottom),
     pt(l.cx, bottom - l.faceH * 0.004),
-    pt(l.cx - w * 0.42, bottom),
-    pt(l.cx - w * 0.94, bottom + wing),
+    pt(l.cx - w * 0.52, bottom),
   ], 0.95);
 }
 
@@ -165,7 +172,9 @@ export function FacialHair({ ctx, id, density, greying }: Props) {
   // Scattered over the whole lower face and filtered down to the style's own
   // regions, so a moustache asks for as many samples as a full beard and keeps
   // a fraction of them.
-  const dense = Math.round((ctx.detail > 0.5 ? 620 : 190) * (0.5 + density * 0.7));
+  // The fill carries the mass now, so the bristles are the grain over it
+  // rather than the beard itself -- far fewer, and far less contrasty.
+  const dense = Math.round((ctx.detail > 0.5 ? 260 : 90) * (0.5 + density * 0.7));
 
   return (
     <g clipPath={`url(#${clip})`}>
@@ -192,10 +201,12 @@ export function FacialHair({ ctx, id, density, greying }: Props) {
           <path d={moustachePath(ctx, s)} fill={p.base} opacity={s.fill * 0.9} />
         )}
         {/* stubble is texture only; a full beard gets texture over its fill */}
-        <Bristles ctx={ctx} s={s} count={dense} colour={p.base} />
-        {ctx.detail > 0.45 && (
-          <Bristles ctx={ctx} s={s} count={Math.round(dense * 0.12)} colour={p.light} />
-        )}
+        <g opacity={0.55}>
+          <Bristles ctx={ctx} s={s} count={dense} colour={p.base} />
+          {ctx.detail > 0.45 && (
+            <Bristles ctx={ctx} s={s} count={Math.round(dense * 0.14)} colour={p.light} />
+          )}
+        </g>
       </g>
       {s.fill > 0.8 && (
         <path

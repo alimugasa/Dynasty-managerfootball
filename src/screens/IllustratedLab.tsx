@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 import { COLOR, FONT, TYPE } from '../app/tokens';
 import {
   Grid, HairTile, PlayerCaption, PlayerCard, Section, StructureCaption,
-  VariantTile, cohort, seedAt, withAppearance,
+  VariantTile, cohort, sameSkin, seedAt, withAppearance,
 } from './illustratedParts';
 import { generateAvatar } from '../../supabase/functions/_shared/avatar/generate';
 import { distance, signature } from '../../supabase/functions/_shared/avatar/unique';
@@ -39,6 +39,9 @@ const FAMILIES = [
 export function IllustratedLab() {
   const complete = useMemo(() => cohort('illustrated-complete', 20), []);
   const bald = useMemo(() => cohort('illustrated-bald', 20), []);
+  // One pigmentation across the whole row, so nothing but the drawing can
+  // account for the differences between these twelve.
+  const same = useMemo(() => sameSkin('illustrated-same', 12, 18), []);
   const base = useMemo(
     () => generateAvatar({ seed: seedAt('library-base', 3), position: 'WR', age: 26 }),
     [],
@@ -106,6 +109,24 @@ export function IllustratedLab() {
             <PlayerCard
               key={s.profile.seed} subject={s} size={168} bare
               caption={<StructureCaption subject={s} index={i} />}
+            />
+          ))}
+        </Grid>
+      </Section>
+
+      <Section
+        title="12 same-skin-tone faces"
+        note="Twelve players on one pigmentation, stripped the same way. This is the control for the row above it: a grid of different complexions can look diverse while every face underneath is the same drawing, and holding the tone fixed takes that cover away."
+      >
+        <div style={{ ...TYPE.micro, color: COLOR.mut, marginBottom: 10, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+          <span>{`${String(new Set(same.map((s2) => selectFeatures(s2.profile, faceMorph(s2.profile)).head)).size)} of 12 distinct head silhouettes`}</span>
+          <span>{`skin steps ${same.map((s2) => String(s2.profile.identity.skinStep)).join(', ')}`}</span>
+        </div>
+        <Grid gap={12}>
+          {same.map((s2, i) => (
+            <PlayerCard
+              key={s2.profile.seed} subject={s2} size={168} bare
+              caption={<StructureCaption subject={s2} index={i} />}
             />
           ))}
         </Grid>

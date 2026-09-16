@@ -52,6 +52,8 @@ export const MOUTH_SPECS: readonly MouthSpec[] = [
   m('corners-down', 'Set corners', 1.00, 0.100, 0.130, 0.34, 0.24, 0.10, 0.07, 0.54, 0.13),
   m('corners-level', 'Level corners', 1.02, 0.105, 0.138, 0.34, 0.24, -0.03, 0.01, 0.56, 0.13),
   m('protruding', 'Protruding', 0.96, 0.140, 0.175, 0.38, 0.26, 0.00, 0.08, 0.78, 0.14),
+  m('broad-set', 'Broad and set', 1.12, 0.086, 0.118, 0.28, 0.20, 0.07, 0.05, 0.48, 0.10),
+  m('small-full', 'Small and full', 0.82, 0.128, 0.158, 0.48, 0.32, -0.01, 0.06, 0.70, 0.20),
 ];
 
 export const mouthSpec = (id: string): MouthSpec =>

@@ -58,6 +58,8 @@ export const EYE_SPECS: readonly EyeSpec[] = [
   e('epicanthic', 'Inner fold', 0.39, 0.48, 0.56, 0.52, 0.38, 0.16, -0.10, 0.98, 0.70, 0.34, 1.1),
   e('small-tight', 'Small and tight', 0.34, 0.42, 0.46, 0.56, 0.30, 0.06, 0.00, 0.92, 0.44, 0.52, 1.2),
   e('broad-square', 'Broad and square', 0.44, 0.50, 0.58, 0.48, 0.50, 0.02, 0.02, 1.04, 0.22, 0.80, 1.0),
+  e('deep-hooded', 'Deep and hooded', 0.33, 0.40, 0.44, 0.54, 0.32, 0.07, 0.06, 0.94, 0.78, 0.22, 1.35),
+  e('wide-almond', 'Wide almond', 0.46, 0.44, 0.68, 0.54, 0.48, 0.04, -0.08, 1.06, 0.18, 0.82, 0.95),
 ];
 
 export const eyeSpec = (id: string): EyeSpec =>

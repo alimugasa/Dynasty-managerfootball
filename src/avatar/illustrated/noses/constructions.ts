@@ -66,6 +66,8 @@ export const NOSE_SPECS: readonly NoseSpec[] = [
   n('stepped-bridge', 'Stepped bridge', 0.38, 0.48, 0.56, 0.96, 0.02, 'round', 'oval', 'stepped', 0.12, 0.58, 0.05),
   n('heavy-columella', 'Heavy base', 0.42, 0.46, 0.64, 1.08, 0.12, 'round', 'tucked', 'straight', 0.06, 0.50, 0.10),
   n('drooping', 'Drooping', 0.38, 0.44, 0.56, 0.98, 0.06, 'pointed', 'slit', 'convex', 0.18, 0.56, 0.13),
+  n('broad-flat-tip', 'Broad flat tip', 0.46, 0.50, 0.80, 1.14, 0.14, 'flat', 'oval', 'straight', 0.04, 0.46, 0.02),
+  n('narrow-high', 'Narrow and high', 0.28, 0.34, 0.46, 0.82, 0.00, 'narrow', 'slit', 'convex', 0.16, 0.58, 0.06),
 ];
 
 export const noseSpec = (id: string): NoseSpec =>

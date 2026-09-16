@@ -31,14 +31,14 @@ export function Ears({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
   const h = layout.earHeight * nudge(morph.earSize, 0.16);
   const w = h * spec.ratio;
   const y = layout.earY;
-  const push = w * (spec.projection * 0.6 + clamp(morph.earProtrusion, -1, 1) * 0.10);
+  const push = w * (0.34 + spec.projection * 0.8 + clamp(morph.earProtrusion, -1, 1) * 0.16);
 
   return (
     <Fragment>
       {[-1, 1].map((side) => (
         <g
           key={side}
-          transform={`translate(${String(layout.cx + (layout.halfAt(y) - w * 0.30 + push) * side)},${String(y)}) scale(${String(side)},1)`}
+          transform={`translate(${String(layout.cx + (layout.halfAt(y) - w * 0.34 + push) * side)},${String(y)}) scale(${String(side)},1)`}
         >
           <path d={outlinePath(spec.outline, w, h, spec.bulge, spec.lobe)} fill={skin.base} />
           <path

@@ -7,7 +7,7 @@
 // volume and two wings that turn away from the light. The skin underneath is
 // the lit plane; nothing draws it.
 
-import { closedPath, clamp, nudge, openPath, pt, type Pt } from '../geom';
+import { closedPath, clamp, nudge, openPath, pt } from '../geom';
 import type { DrawContext } from '../types';
 import { noseSpec, type NoseSpec, type TipShape } from './constructions';
 
@@ -53,10 +53,7 @@ export function Nose({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
   const spec = noseSpec(id);
   const { layout, skin, morph, detail } = ctx;
   const nw = layout.noseWidth * nudge(morph.alarFlare, 0.10);
-  // Measured from the brow, and deliberately short of it: a bridge modelled
-  // all the way up to the brow line reads as a stripe down the middle of the
-  // face, which is what the first pass produced.
-  const L = (layout.noseBaseY - layout.browY) * (0.80 - spec.bridgeTop) * nudge(morph.noseLength, 0.10);
+  const L = (layout.noseBaseY - layout.browY) * (0.86 - spec.bridgeTop) * nudge(morph.noseLength, 0.10);
 
   const rw = (spec.rootW * nw) / 2 * nudge(morph.bridgeWidth, 0.16);
   const bw = (spec.bridgeW * nw) / 2 * nudge(morph.bridgeWidth, 0.16);
@@ -66,98 +63,92 @@ export function Nose({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
   const drop = spec.tipDrop * nw + clamp(morph.tipAngle, -1, 1) * nw * 0.05;
   const bulge = bulgeAt(spec, bw) * nudge(morph.bridgeHeight, 0.4);
   const depth = spec.depth * (0.78 + clamp(morph.noseProjection, -1, 1) * 0.22);
-  const tipY = -drop - tw * 0.5;
+  const tipY = -drop - tw * 0.42;
 
-  /* One side of the bridge, from the root down to the wing. The shadow side
-     gets it at full strength and the lit side at a fraction, which is the fill
-     light -- without it the nose reads as half a nose. */
-  const flank = (dir: number): string => {
-    const outer: Pt[] = [
-      pt(dir * rw, -L),
-      pt(dir * (bw + bulge), -L * 0.52),
-      pt(dir * tw * 0.98, tipY + tw * 0.2),
-      pt(dir * aw, -lift * 0.7),
-      pt(dir * aw * 0.72, nw * 0.045),
-    ];
-    const inner: Pt[] = [
-      pt(dir * tw * 0.12, nw * 0.02),
-      pt(dir * tw * 0.22, tipY),
-      pt(dir * bw * 0.26, -L * 0.5),
-      pt(dir * rw * 0.22, -L),
-    ];
-    return closedPath([...outer, ...inner], 0.95);
-  };
+  /* The shadow side, as one continuous form: down the bridge, around the tip,
+     and out under the far wing. One shape rather than a flank plus a tip plus
+     a wing, because three overlapping shapes at three opacities is what made
+     the first version read as a smudge. */
+  const shadow = closedPath([
+    pt(rw * 0.55, -L),
+    pt(bw + bulge, -L * 0.52),
+    pt(tw * 1.02, tipY + tw * 0.25),
+    pt(aw * 1.02, -lift * 0.55),
+    pt(aw * 0.86, nw * 0.05),
+    pt(aw * 0.30, nw * 0.075),
+    pt(tw * 0.10, nw * 0.02),
+    pt(tw * 0.16, tipY + tw * 0.1),
+    pt(bw * 0.34, -L * 0.5),
+    pt(rw * 0.16, -L),
+  ], 0.95);
 
-  const nostrilW = nw * 0.15 * nudge(morph.nostrilWidth, 0.2);
-  const nostrilY = -lift * 0.35;
-  const nostrilX = aw - tw * 0.22;
+  const nostrilW = nw * 0.115 * nudge(morph.nostrilWidth, 0.2);
+  const nostrilY = -lift * 0.32;
+  const nostrilX = aw - tw * 0.24;
+  const line = Math.max(0.7, nw * 0.032);
 
   return (
     <g transform={`translate(${String(layout.cx)},${String(layout.noseBaseY)})`}>
-      {/* the shaded flank, then the lit one at fill strength */}
-      <path d={flank(1)} fill={skin.soft} opacity={0.26 + depth * 0.34} />
-      <path d={flank(-1)} fill={skin.soft} opacity={(0.26 + depth * 0.34) * 0.32} />
-
-      {/* the tip has volume: a form below, light above */}
-      <path d={tipPath(spec.tip, tw * 1.05, tipY + tw * 0.1)} fill={skin.soft} opacity={0.46} />
-      <path
-        d={tipPath(spec.tip, tw * 0.80, tipY - tw * 0.16)}
-        fill={skin.light} opacity={0.42 + depth * 0.18}
-      />
-
-      {/* the wings turn away from the light on both sides */}
-      {[-1, 1].map((dir) => (
-        <path
-          key={dir}
-          d={closedPath([
-            pt(dir * (aw - tw * 0.05), -lift * 0.4),
-            pt(dir * aw, -lift * 0.05),
-            pt(dir * (aw * 0.82), nw * 0.055),
-            pt(dir * (aw * 0.42), nw * 0.03),
-            pt(dir * (tw * 0.6), -lift * 0.5),
-          ], 1.05)}
-          fill={skin.soft}
-          opacity={dir > 0 ? 0.70 : 0.44}
-        />
-      ))}
-
-      {/* the bridge highlight: narrow, offset toward the light, never white */}
-      <path
-        d={openPath([
-          pt(-rw * 0.16, -L * 0.62),
-          pt(-bw * 0.18 + bulge * 0.2, -L * 0.34),
-          pt(-tw * 0.10, tipY - tw * 0.2),
-        ], 0.95)}
-        fill="none" stroke={skin.light}
-        strokeWidth={Math.max(1.0, bw * 0.28)} strokeLinecap="round"
-        opacity={0.16 + depth * 0.08}
-      />
-
-      {/* under the nose, and the nostrils themselves */}
+      {/* the near wing, which turns away from the light much less */}
       <path
         d={closedPath([
-          pt(-aw * 0.9, nw * 0.02), pt(0, -nw * 0.03),
-          pt(aw * 0.9, nw * 0.02), pt(0, nw * 0.10),
+          pt(-aw * 1.02, -lift * 0.55),
+          pt(-aw * 0.86, nw * 0.05),
+          pt(-aw * 0.28, nw * 0.07),
+          pt(-tw * 0.55, -lift * 0.55),
+        ], 1.05)}
+        fill={skin.soft} opacity={0.30 + depth * 0.18}
+      />
+      <path d={shadow} fill={skin.soft} opacity={0.28 + depth * 0.34} />
+
+      {/* the tip: a lit form sitting in front of the shadow */}
+      <path
+        d={tipPath(spec.tip, tw * 0.94, tipY - tw * 0.06)}
+        fill={skin.light} opacity={0.34 + depth * 0.14}
+      />
+
+      {/* the crease under the tip, and the two wing creases. These three short
+          lines are most of what makes a nose read as a nose at portrait size,
+          and the reference has all three. */}
+      <path
+        d={openPath([
+          pt(-aw * 0.52, nw * 0.035), pt(0, nw * 0.075), pt(aw * 0.52, nw * 0.035),
         ], 1.0)}
-        fill={skin.deep} opacity={0.44}
+        fill="none" stroke={skin.line} strokeWidth={line} strokeLinecap="round" opacity={0.42}
       />
       {[-1, 1].map((dir) => (
-        <g key={dir} transform={`translate(${String(dir * nostrilX)},${String(nostrilY)}) scale(${String(dir)},1)`}>
-          <path d={nostrilPath(spec.nostril, nostrilW, nw * 0.13)} fill={skin.line} opacity={0.88} />
-        </g>
-      ))}
-      {detail > 0.5 && [-1, 1].map((dir) => (
         <path
           key={dir}
           d={openPath([
-            pt(dir * (aw * 1.02), -lift * 0.5),
-            pt(dir * (aw * 1.1), -lift * 0.05),
-            pt(dir * (aw * 0.86), nw * 0.06),
+            pt(dir * (aw * 0.96), -lift * 0.62),
+            pt(dir * (aw * 1.06), -lift * 0.10),
+            pt(dir * (aw * 0.80), nw * 0.055),
           ], 1.0)}
-          fill="none" stroke={skin.line} strokeWidth={Math.max(0.7, nw * 0.022)}
-          opacity={dir > 0 ? 0.40 : 0.24} strokeLinecap="round"
+          fill="none" stroke={skin.line} strokeWidth={line}
+          opacity={dir > 0 ? 0.50 : 0.34} strokeLinecap="round"
         />
       ))}
+
+      {[-1, 1].map((dir) => (
+        <g key={dir} transform={`translate(${String(dir * nostrilX)},${String(nostrilY)}) scale(${String(dir)},1)`}>
+          <path d={nostrilPath(spec.nostril, nostrilW, nw * 0.105)} fill={skin.line} opacity={0.82} />
+        </g>
+      ))}
+
+      {/* a short highlight on the bridge, well clear of the brow. The first
+          version ran it the full length of the nose and it read as a line
+          drawn down the middle of the face. */}
+      {detail > 0.4 && (
+        <path
+          d={openPath([
+            pt(-bw * 0.14, -L * 0.46),
+            pt(-bw * 0.10 + bulge * 0.15, -L * 0.24),
+            pt(-tw * 0.06, tipY - tw * 0.35),
+          ], 0.95)}
+          fill="none" stroke={skin.light}
+          strokeWidth={Math.max(1, bw * 0.30)} strokeLinecap="round" opacity={0.20}
+        />
+      )}
     </g>
   );
 }

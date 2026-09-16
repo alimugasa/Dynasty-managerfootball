@@ -6,12 +6,18 @@
 // differ between a low fade and a full afro, and authoring sixty-two outlines
 // by hand would mean sixty-two chances to draw a helmet.
 
-import { clamp, closedPath, lerp, pt, type Pt } from '../geom';
+import { clamp, closedPath, lerp, openPath, pt, type Pt } from '../geom';
 import type { FaceLayout } from '../layout';
 import type { HairStyle } from './styles';
 
 export interface HairOutline {
+  /** The hair, as one non-self-intersecting loop. Safe to fill, to stroke and
+   *  to clip with, under any fill rule. */
   readonly mass: string;
+  /** The outer boundary as an OPEN path -- up one side, over the crown, down
+   *  the other. Strokes use this rather than `mass`, whose boundary also runs
+   *  along the hairline and would draw a line across the forehead. */
+  readonly arc: string;
   /** Where the hairline crosses the centre line. Facial-hair and detail layers
    *  need it to know where the forehead ends. */
   readonly hairlineY: number;
@@ -63,16 +69,44 @@ export function hairOutline(l: FaceLayout, s: HairStyle, recession: number): Hai
   /* Below the ear the mass has to come in, or a style with any fall at all
      renders as two rectangular slabs beside the head. Hair that hangs narrows
      and ends; it does not stop square. */
-  const outerHalf = (y: number): number => {
+  const taperAt = (y: number): number => {
     const past = clamp((y - l.earY) / Math.max(1e-6, l.faceH * 0.55), 0, 1);
-    const taper = 1 - past * past * 0.55;
-    return (skull(y) + thickness(y)) * taper;
+    return 1 - past * past * 0.55;
+  };
+  const outerHalf = (y: number): number => (skull(y) + thickness(y)) * taperAt(y);
+
+  /* The outer edge, per construction.
+   *
+   * Skull-plus-thickness gives every family the same smooth outline, and a
+   * smooth outline is a helmet however it is textured. What actually separates
+   * an afro from a fade in silhouette is the edge: curls scallop, locs and
+   * twists notch, a grown-out crop is irregular, a barbered cut is clean. This
+   * is bounded -- it modulates the thickness, never the skull. */
+  const wob = stream(`${s.id}:edge`);
+  const wobbles = Array.from({ length: SAMPLES + 1 }, () => wob());
+  const edge = (i: number, thick: number): number => {
+    const r = wobbles[i] ?? 0.5;
+    switch (s.family) {
+      case 'curls':
+      case 'afro':
+        return thick * (0.62 + 0.62 * Math.abs(Math.sin(i * 1.9 + r))) ;
+      case 'locs':
+      case 'twists':
+      case 'braids':
+        return thick * (i % 2 === 0 ? 1.20 : 0.74);
+      case 'crop':
+      case 'sweep':
+      case 'long':
+        return thick * (0.86 + r * 0.32);
+      default:
+        return thick;
+    }
   };
 
   const outer: Pt[] = [];
   for (let i = 0; i <= SAMPLES; i += 1) {
     const y = lerp(topY, endY, i / SAMPLES);
-    outer.push(pt(l.cx + outerHalf(y), y));
+    outer.push(pt(l.cx + skull(y) * taperAt(y) + edge(i, thickness(y) * taperAt(y)), y));
   }
 
   const inner: Pt[] = [];
@@ -89,11 +123,11 @@ export function hairOutline(l: FaceLayout, s: HairStyle, recession: number): Hai
   const front: Pt[] = s.hairline === 'irregular'
     ? [
         pt(l.cx + hairSpan * 0.92, sideY),
-        pt(l.cx + hairSpan * 0.58, hairlineY + l.faceH * 0.014),
-        pt(l.cx + hairSpan * 0.26, hairlineY - l.faceH * 0.010),
-        pt(l.cx, hairlineY + l.faceH * 0.008),
-        pt(l.cx - hairSpan * 0.30, hairlineY - l.faceH * 0.006),
-        pt(l.cx - hairSpan * 0.62, hairlineY + l.faceH * 0.016),
+        pt(l.cx + hairSpan * 0.58, hairlineY + l.faceH * 0.007),
+        pt(l.cx + hairSpan * 0.26, hairlineY - l.faceH * 0.005),
+        pt(l.cx, hairlineY + l.faceH * 0.004),
+        pt(l.cx - hairSpan * 0.30, hairlineY - l.faceH * 0.003),
+        pt(l.cx - hairSpan * 0.62, hairlineY + l.faceH * 0.008),
         pt(l.cx - hairSpan * 0.92, sideY),
       ]
     : [
@@ -105,16 +139,36 @@ export function hairOutline(l: FaceLayout, s: HairStyle, recession: number): Hai
       ];
 
   const mirror = (p: Pt): Pt => pt(2 * l.cx - p.x, p.y);
+  // Domes the crown. Without it the hair is cut flat across the top, which is
+  // the helmet look in one line of geometry.
+  const apex = pt(l.cx, topY - l.faceH * s.volume * 0.55 - l.faceH * 0.004);
+
+  /* One simple loop, traced the long way round: up the left outside, over the
+     crown, down the right outside, in and up the right inside, across the
+     hairline, down the left inside, closed.
+   *
+   * Two earlier shapes failed here and both failures were invisible in the
+   * fill and obvious everywhere else. A single winding crescent nonzero-filled
+   * the forehead; splitting it into a cap and a punched-out hole fixed the
+   * fill but left the clip and the mask disagreeing with it, so the texture
+   * pass drew rows of hair straight across players' eyes. A loop that does not
+   * cross itself needs no fill rule, no mask and no even-odd anything: it
+   * clips the way it looks. */
   const points: Pt[] = [
+    ...[...outer].reverse().map(mirror),
+    apex,
     ...outer,
     ...inner,
     ...front,
     ...[...inner].reverse().map(mirror),
-    ...[...outer].reverse().map(mirror),
   ];
 
+  const mass = closedPath(points, 0.95);
+  const arc = openPath([...[...outer].reverse().map(mirror), apex, ...outer], 0.95);
+
   return {
-    mass: closedPath(points, 0.95),
+    mass,
+    arc,
     hairlineY,
     topY,
     endY,
