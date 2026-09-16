@@ -1,0 +1,127 @@
+// One portrait, assembled.
+//
+// This file is deliberately the only place that knows the drawing order, and
+// the order is most of the art direction: the beard goes under the mouth, the
+// ears go under the hair, the shading goes over the skin and under the
+// features, the jersey goes over everything. Every one of those was a visible
+// bug in an earlier renderer before it was a rule here.
+
+import { useMemo } from 'react';
+import type { AvatarProfile } from '../../../supabase/functions/_shared/avatar/profile';
+import { faceMorph } from '../../../supabase/functions/_shared/avatar/morph';
+import { skinColor } from '../../../supabase/functions/_shared/avatar/skin';
+import { hairPalette, skinPalette } from './palette';
+import { buildFace, VIEW_H, VIEW_W } from './layout';
+import { headShape } from './heads/shapes';
+import { Head, HeadClip } from './heads/Head';
+import { Shading, ShadingDefs } from './shading/Shading';
+import { Eyes } from './eyes/Eyes';
+import { Brows } from './brows/Brows';
+import { Nose } from './noses/Nose';
+import { Mouth } from './mouths/Mouth';
+import { Ears } from './ears/Ears';
+import { Hair, HairBack } from './hair/Hair';
+import { FacialHair } from './facialHair/FacialHair';
+import { Accessory, AgeLines, Complexion } from './details/Details';
+import { Jersey, Neck } from './body/Body';
+import { selectFeatures } from './select';
+import { HAIR_COLORS, FACIAL_HAIR_DENSITY } from '../../../supabase/functions/_shared/avatar/hair';
+import type { DrawContext } from './types';
+
+export const BACKDROP = '#141A21';
+const SHIRT = '#28313B';
+const COLLAR = '#1B222A';
+
+export interface IllustratedPortraitProps {
+  readonly profile: AvatarProfile;
+  /** Rendered size in CSS pixels. Only the detail budget reads it; the SVG
+   *  itself is resolution independent. */
+  readonly px: number;
+  /** The face-only test: no hair, no facial hair, no accessories, one shirt. */
+  readonly bare?: boolean;
+  readonly shirt?: string;
+  readonly collar?: string;
+  readonly background?: string;
+  /** Overrides, for the feature library page. */
+  readonly override?: Partial<ReturnType<typeof selectFeatures>>;
+  readonly label?: string;
+}
+
+const hairHex = (id: string): string =>
+  HAIR_COLORS.find((c) => c.id === id)?.hex ?? '#14100e';
+
+export function IllustratedPortrait({
+  profile, px, bare = false, shirt = SHIRT, collar = COLLAR,
+  background = BACKDROP, override, label = '',
+}: IllustratedPortraitProps) {
+  const uid = useMemo(
+    () => `ip${profile.seed.slice(0, 10)}${bare ? 'b' : 'f'}${String(Math.round(px))}`,
+    [profile.seed, bare, px],
+  );
+
+  const morph = useMemo(() => faceMorph(profile), [profile]);
+  const picked = useMemo(() => selectFeatures(profile, morph), [profile, morph]);
+  const sel = { ...picked, ...override };
+
+  const i = profile.identity;
+  const a = profile.appearance;
+  const skinHex = skinColor(i.skinStep, i.undertone);
+  const layout = useMemo(() => buildFace(headShape(sel.head), morph), [sel.head, morph]);
+
+  const ctx: DrawContext = {
+    uid,
+    seed: profile.seed,
+    layout,
+    skin: skinPalette(skinHex, i.skinStep / 35),
+    hair: hairPalette(hairHex(a.hairColor)),
+    brow: hairPalette(hairHex(i.naturalHairColor)),
+    morph,
+    eyeColor: i.eyeColor,
+    detail: px >= 160 ? 1 : px >= 96 ? 0.6 : px >= 56 ? 0.42 : 0.2,
+    age: a.age,
+    wear: a.ageWear,
+  };
+
+  const hairId = bare ? 'bald' : a.hairstyle;
+  const beardId = bare ? 'clean' : a.facialHair;
+  const density = FACIAL_HAIR_DENSITY.indexOf(a.facialHairDensity) < 0
+    ? 0.6
+    : (FACIAL_HAIR_DENSITY.indexOf(a.facialHairDensity) + 1) / FACIAL_HAIR_DENSITY.length;
+
+  return (
+    <svg
+      viewBox={`0 0 ${String(VIEW_W)} ${String(VIEW_H)}`}
+      width={px} height={px}
+      role={label === '' ? 'presentation' : 'img'}
+      aria-label={label === '' ? undefined : label}
+      style={{ display: 'block' }}
+    >
+      <defs>
+        <radialGradient id={`${uid}-bg`} cx="0.5" cy="0.36" r="0.72">
+          <stop offset="0%" stopColor="#1E2833" />
+          <stop offset="100%" stopColor={background} />
+        </radialGradient>
+      </defs>
+      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} fill={`url(#${uid}-bg)`} />
+
+      <ShadingDefs ctx={ctx} />
+      <HeadClip ctx={ctx} />
+
+      <HairBack ctx={ctx} id={hairId} recession={a.recession} greying={a.greying} />
+      <Neck ctx={ctx} />
+      <Head ctx={ctx} />
+      <Ears ctx={ctx} id={sel.ears} />
+      <Shading ctx={ctx} />
+      <FacialHair ctx={ctx} id={beardId} density={density} greying={a.greying} />
+      <Brows ctx={ctx} id={sel.brows} />
+      <Eyes ctx={ctx} id={sel.eyes} />
+      <Nose ctx={ctx} id={sel.nose} />
+      <Mouth ctx={ctx} id={sel.mouth} />
+      {!bare && <Complexion ctx={ctx} id={i.complexion} />}
+      <AgeLines ctx={ctx} />
+      <Hair ctx={ctx} id={hairId} recession={a.recession} greying={a.greying} />
+      {!bare && <Accessory ctx={ctx} id={a.accessory} />}
+      <Jersey ctx={ctx} shirt={shirt} collar={collar} />
+    </svg>
+  );
+}

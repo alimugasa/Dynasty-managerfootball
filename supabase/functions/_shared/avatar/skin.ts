@@ -48,7 +48,11 @@ const TONE_SHIFT: Readonly<Record<Undertone, { r: number; g: number; b: number }
   warm: { r: 8, g: 1, b: -7 },
   neutral: { r: 0, g: 0, b: 0 },
   cool: { r: -6, g: -1, b: 9 },
-  olive: { r: -2, g: 6, b: -8 },
+  // Olive is a yellow-warm cast with a little saturation taken out, not a
+  // push toward green. The green version read as khaki on every medium and
+  // deep step, which is the one place an undertone must not be visible as a
+  // colour of its own.
+  olive: { r: -3, g: 2, b: -10 },
 };
 
 const clamp255 = (n: number): number => Math.max(0, Math.min(255, Math.round(n)));
