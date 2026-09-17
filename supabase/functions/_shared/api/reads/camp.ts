@@ -15,82 +15,19 @@ import { ownedSave } from '../save.ts';
 import { rawOf, requireString } from '../parse.ts';
 import { parseSettings } from '../franchiseOptions.ts';
 import {
-  campBattles, rosterProbability, rosterStatus,
-  type CampBattle, type CampContender, type RosterStatus,
+  campBattles, rosterProbability, rosterStatus, STATUS_LABEL,
+  type CampBattle, type CampContender,
 } from '../campBoard.ts';
 import { specialTeamsValue } from '../campEvaluation.ts';
 import { cutsRemaining, rosterLimits, rosterFault, PRESEASON_WEEKS } from '../preseason.ts';
 import { MAX_DEAD_MONEY_SHARE } from '../../engine/offseason/contracts.ts';
-import { POSITION_GROUPS, STARTERS, type PositionGroup } from '../../engine/types.ts';
+import { POSITION_GROUPS, type PositionGroup } from '../../engine/types.ts';
 import { GROUP_OF } from '../../engine/careerWorld.ts';
 
-export interface CampIn { readonly saveId: string }
-
-export interface CampPlayerOut {
-  readonly playerId: string;
-  readonly name: string;
-  readonly position: string;
-  readonly group: string;
-  readonly overall: number;
-  readonly potential: number;
-  readonly age: number;
-  readonly experienceYears: number;
-  readonly capHit: number;
-  readonly deadMoney: number;
-  readonly draftRound: number | null;
-  readonly rookie: boolean;
-  readonly depth: number;
-  readonly groupSize: number;
-  readonly specialTeams: number;
-  readonly schemeFit: number;
-  readonly injured: boolean;
-  readonly weeksOut: number | null;
-  readonly practiceGrade: number;
-  /** Null until he has taken a preseason snap. Never a stand-in fifty. */
-  readonly preseasonGrade: number | null;
-  /** Preseason appearances. The engine models no snap counts. */
-  readonly preseasonGames: number;
-  readonly probability: number;
-  readonly status: RosterStatus;
-  /** How far the staff's read has moved since camp opened. */
-  readonly gradeDelta: number;
-}
-
-export interface CampBattleOut {
-  readonly group: string;
-  readonly forDepth: number;
-  readonly starting: boolean;
-  readonly closeness: number;
-  readonly players: readonly CampPlayerOut[];
-}
-
-export interface CampOut {
-  readonly phase: string;
-  readonly season: number;
-  /** The preseason week, 1-based, or null outside the preseason. */
-  readonly preseasonWeek: number | null;
-  readonly preseasonWeeks: number;
-  readonly rosterCount: number;
-  readonly rosterLimit: number;
-  readonly campLimit: number;
-  readonly limitEnforced: boolean;
-  readonly cutsRemaining: number;
-  /** Why the roster is not legal, or null when it is. */
-  readonly rosterFault: string | null;
-  readonly capSpace: number | null;
-  readonly injuredCount: number;
-  readonly battleCount: number;
-  /** The next preseason opponent, or null when there is not one. */
-  readonly nextOpponentId: string | null;
-  readonly nextOpponentName: string | null;
-  readonly nextPreseasonWeek: number | null;
-  readonly battles: readonly CampBattleOut[];
-  readonly bubble: readonly CampPlayerOut[];
-  readonly rookies: readonly CampPlayerOut[];
-  readonly veteransAtRisk: readonly CampPlayerOut[];
-  readonly injuries: readonly CampPlayerOut[];
-  readonly movers: readonly CampPlayerOut[];
-}
+import type { CampIn, CampOut, CampPlayerOut, CampBattleOut } from './campTypes.ts';
+import { campFixtures, campGroups, campProgress, depthWarnings } from './campSummary.ts';
+export type { CampIn, CampOut, CampPlayerOut, CampBattleOut } from './campTypes.ts';
+export { depthWarnings } from './campSummary.ts';
 
 interface BoardRow {
   player_id: string; display_name: string; position: string; position_group: string;
@@ -110,7 +47,7 @@ export const camp: Handler<CampIn, CampOut> = {
     const s = await ownedSave(sql, userId, input.saveId);
     const limits = rosterLimits(parseSettings(s.franchise_settings) ?? null);
 
-    const [rows, cap, fixture] = await Promise.all([
+    const [rows, cap, fixture, fixtures] = await Promise.all([
       sql<BoardRow[]>`
         -- One row per player. The roster count the whole phase turns on is
         -- this list's length, so a duplicate here would not merely repeat a
@@ -159,6 +96,7 @@ export const camp: Handler<CampIn, CampOut> = {
            and sc.competition = 'PRESEASON' and sc.status = 'SCHEDULED'
            and (sc.home_team_id = ${s.user_team_id} or sc.away_team_id = ${s.user_team_id})
          order by sc.week limit 1`,
+      campFixtures(sql, s),
     ]);
 
     // How many the club carries at each position, which is what makes a fourth
@@ -172,13 +110,14 @@ export const camp: Handler<CampIn, CampOut> = {
 
     const board: CampPlayerOut[] = rows.map((r) => {
       const group = groupOf(r.position);
-      const capHit = Number(r.aav ?? 0);
-      const guaranteed = Number(r.guaranteed ?? 0);
-      const total = r.years_total ?? 0;
-      const served = total - (r.years_remaining ?? 0);
-      const share = total > 0 ? Math.max(0, Math.min(1, 1 - served / total)) : 0;
-      const deadMoney = Math.round(
-        Math.min(guaranteed * share, capHit * MAX_DEAD_MONEY_SHARE));
+      const capHit = r.aav === null ? null : Number(r.aav);
+      const knownContract = capHit !== null && r.guaranteed !== null
+        && r.years_total !== null && r.years_total > 0 && r.years_remaining !== null;
+      const share = !knownContract ? null : Math.max(0, Math.min(1,
+        1 - (Number(r.years_total) - Number(r.years_remaining)) / Number(r.years_total)));
+      const deadMoney = share === null ? null : Math.round(Math.min(
+        Number(r.guaranteed) * share,
+        Number(capHit) * MAX_DEAD_MONEY_SHARE));
       const weeksOut = r.weeks_out !== null && r.weeks_out > 0 ? r.weeks_out : null;
       const depth = r.depth_order ?? 99;
       const specialTeams = specialTeamsValue({
@@ -204,28 +143,50 @@ export const camp: Handler<CampIn, CampOut> = {
         practiceGrade,
         preseasonGrade: r.preseason_grade,
       };
-      const probability = rosterProbability(player);
+      // Missing contract inputs cannot mean a free player or a zero cut charge.
+      const priced = capHit === null || deadMoney === null ? null : { ...player, capHit, deadMoney };
+      const probability = priced === null ? null : rosterProbability(priced);
+      const status = priced === null || probability === null ? null : rosterStatus(priced, probability);
       return {
         ...player,
         position: r.position,
         group,
-        weeksOut,
+        weeksOut, contractYears: r.years_remaining, depthOrder: r.depth_order,
+        practiceSource: r.practice_grade === null ? 'INITIAL_ESTIMATE' : 'RECORDED',
+        preseasonBasis: ['OL', 'K', 'P', 'LS'].includes(group) ? 'AVAILABILITY' : 'PRODUCTION',
+        trend: r.preseason_grade === null ? 'UNSEEN'
+          : (r.grade_delta !== null && r.grade_delta >= 6) ? 'RISER'
+            : (r.grade_delta !== null && r.grade_delta <= -6) ? 'FALLER' : 'STEADY',
         preseasonGames: r.preseason_games ?? 0,
         probability,
-        status: rosterStatus(player, probability),
+        status,
+        statusLabel: status === null ? null : STATUS_LABEL[status],
         gradeDelta: r.grade_delta ?? 0,
       };
     });
 
-    const contenders: CampContender[] = board.map((p) => ({
-      ...p, group: p.group as PositionGroup,
-    }));
+    const contenders: CampContender[] = board.flatMap((p) =>
+      p.capHit === null || p.deadMoney === null || p.probability === null || p.status === null
+        ? [] : [{ ...p, capHit: p.capHit, deadMoney: p.deadMoney,
+          probability: p.probability, status: p.status, group: p.group as PositionGroup }]);
     const battles = campBattles(contenders);
     const rosterCount = board.length;
     const capSpace = cap[0] === undefined ? null : Number(cap[0].available);
     const next = fixture[0];
+    const groups = campGroups(board, battles);
 
     return {
+      players: board,
+      groups,
+      depthWarnings: depthWarnings(new Map(groups.map((g) => [g.group, g.count]))),
+      availabilityWarnings: depthWarnings(new Map(groups.map((g) => [g.group, g.available]))),
+      fixtures,
+      preseasonRecord: {
+        wins: fixtures.filter((f) => f.result === 'W').length,
+        losses: fixtures.filter((f) => f.result === 'L').length,
+        ties: fixtures.filter((f) => f.result === 'T').length,
+      },
+      progress: campProgress(s.phase, s.week, rosterFault(rosterCount, limits)),
       phase: s.phase,
       season: s.season,
       preseasonWeek: s.phase === 'PRESEASON' ? s.week : null,
@@ -253,45 +214,22 @@ export const camp: Handler<CampIn, CampOut> = {
       // The bubble is the men the decision is actually about: not the locks,
       // not the ones already beaten.
       bubble: board.filter((p) => p.status === 'BUBBLE' || p.status === 'LONG_SHOT')
-        .sort((a, b) => b.probability - a.probability).slice(0, 12),
+        .sort((a, b) => a.probability === null ? (b.probability === null ? 0 : 1) : b.probability === null ? -1 : b.probability - a.probability).slice(0, 12),
       rookies: board.filter((p) => p.rookie)
-        .sort((a, b) => b.probability - a.probability),
+        .sort((a, b) => a.probability === null ? (b.probability === null ? 0 : 1) : b.probability === null ? -1 : b.probability - a.probability),
       // A veteran at risk is the expensive problem: old or costly, and not
       // safe. Sorted by what he costs, because that is the order a manager
       // would work through them in.
       veteransAtRisk: board
-        .filter((p) => !p.rookie && p.probability < 70
-          && (p.age >= 30 || p.capHit >= 3_000_000))
-        .sort((a, b) => b.capHit - a.capHit).slice(0, 10),
+        .filter((p) => !p.rookie && p.probability !== null && p.probability < 70
+          && (p.age >= 30 || (p.capHit !== null && p.capHit >= 3_000_000)))
+        .sort((a, b) => a.capHit === null ? (b.capHit === null ? 0 : 1) : b.capHit === null ? -1 : b.capHit - a.capHit).slice(0, 10),
       injuries: board.filter((p) => p.injured)
         .sort((a, b) => (b.weeksOut ?? 0) - (a.weeksOut ?? 0)),
       // Who camp has changed its mind about, either way. Only players who
       // have actually played: a delta of zero is not a mover.
-      movers: board.filter((p) => p.preseasonGrade !== null && Math.abs(p.gradeDelta) >= 6)
+      movers: board.filter((p) => p.trend === 'RISER' || p.trend === 'FALLER')
         .sort((a, b) => Math.abs(b.gradeDelta) - Math.abs(a.gradeDelta)).slice(0, 10),
     };
   },
 };
-
-/** Position counts for the Final 53 review, and what looks thin. */
-export function depthWarnings(
-  counts: ReadonlyMap<string, number>,
-): readonly string[] {
-  const warnings: string[] = [];
-  for (const [group, starters] of Object.entries(STARTERS)) {
-    const have = counts.get(group) ?? 0;
-    if (starters === 0) {
-      // The long snapper starts no unit but a club without one has nobody to
-      // snap a field goal.
-      if (have === 0) warnings.push('No long snapper on the roster.');
-      continue;
-    }
-    if (have < starters) {
-      warnings.push(`${group}: ${String(have)} on the roster for ${String(starters)} starting `
-        + `${starters === 1 ? 'place' : 'places'}.`);
-    } else if (have === starters && starters >= 2) {
-      warnings.push(`${group}: no cover behind the starters.`);
-    }
-  }
-  return warnings;
-}

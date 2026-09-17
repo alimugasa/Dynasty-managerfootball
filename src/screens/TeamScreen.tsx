@@ -34,6 +34,8 @@ import type { ChecklistItem } from '../../supabase/functions/_shared/api/checkli
 import { mandateCopy } from './dashboardMandate';
 import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacing';
 import { Screen } from './Screen';
+import { isCampPhase, PHASE_LABEL } from '../domain/phase';
+import { CampEntry } from './camp/CampEntry';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
 const recordOf = (r: DashboardOut['record']): string =>
@@ -88,7 +90,8 @@ export function TeamScreen() {
   // "Week 19 of 18" is what the plain form says once the bracket starts, so
   // the postseason names the round it is in instead of counting past the end
   // of the regular season.
-  const subtitle = done && d !== null
+  const subtitle = isCampPhase(save.phase) ? `${String(save.season)} · ${PHASE_LABEL[save.phase]}`
+    : done && d !== null
     ? `${String(save.season)} · Season complete${d.rank === null ? '' : ` · ${ordinal(d.rank)} of ${String(d.teams)}`}`
     : save.phase === 'PLAYOFFS'
       ? `${String(save.season)} · ${d?.thisWeek.round ?? 'Playoffs'}`
@@ -158,6 +161,7 @@ export function TeamScreen() {
 
   return (
     <Screen title={title} subtitle={subtitle} screen="team">
+      {isCampPhase(save.phase) && <CampEntry phase={save.phase} />}
       {q.status === 'error' && <QueryError error={q.error} onRetry={q.retry} />}
       {q.status === 'loading' && <Loading label="Loading the franchise" rows={8} />}
       {d !== null && (
@@ -210,7 +214,7 @@ export function TeamScreen() {
 
           <div style={{ display: 'grid', gap: S[3], marginTop: S[4], minWidth: 0 }}>
             <div ref={week} style={{ minWidth: 0 }}>
-              <ThisWeekCard
+              {!isCampPhase(save.phase) && <ThisWeekCard
                 week={d.thisWeek}
                 weeks={save.weeks}
                 busy={busy}
@@ -224,7 +228,7 @@ export function TeamScreen() {
                 }}
                 onDepthChart={() => { nav.push('roster'); }}
                 onRecheck={() => { setAttempt((n) => n + 1); }}
-              />
+              />}
             </div>
             <OwnerCard owner={d.owner} />
             <ChecklistCard

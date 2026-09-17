@@ -35,6 +35,7 @@ import { WaiverWireScreen } from '../screens/WaiverWireScreen';
 import { FreeAgentsScreen } from '../screens/FreeAgentsScreen';
 import { TransactionsScreen } from '../screens/TransactionsScreen';
 import { TradeCenterScreen } from '../screens/TradeCenterScreen';
+import { CampScreen } from '../screens/CampScreen';
 
 export interface ScreenDef {
   readonly title: string;
@@ -97,6 +98,7 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   playoffs: { title: 'Playoffs', Component: PlayoffsScreen, root: false },
   recap: { title: 'Season recap', Component: RecapScreen, root: false },
   offseason: { title: 'Offseason', Component: OffseasonScreen, root: false },
+  camp: { title: 'Training Camp', Component: CampScreen, root: false },
 
   // Drill-downs. Every one of these is a resolveEntityRoute target.
   player: { title: 'Player', Component: PlayerScreen, root: false },

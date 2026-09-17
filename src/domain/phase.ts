@@ -18,6 +18,10 @@ export const OFFSEASON_PHASES: readonly string[] = [
 
 export const isOffseasonPhase = (phase: string): boolean => OFFSEASON_PHASES.includes(phase);
 
+/** Presentation routing only; handlers decide whether an action is permitted. */
+export const CAMP_PHASES: readonly string[] = ['TRAINING_CAMP', 'PRESEASON', 'FINAL_CUTS'];
+export const isCampPhase = (phase: string): boolean => CAMP_PHASES.includes(phase);
+
 /**
  * Every phase a save can sit in, named for a reader.
  *
@@ -28,6 +32,8 @@ export const isOffseasonPhase = (phase: string): boolean => OFFSEASON_PHASES.inc
  * phases themselves are.
  */
 export const PHASE_LABEL: Readonly<Record<string, string>> = {
+  TRAINING_CAMP: 'Training camp',
+  FINAL_CUTS: 'Final cuts',
   PRESEASON: 'Preseason',
   REGULAR_SEASON: 'Regular season',
   PLAYOFFS: 'Playoffs',

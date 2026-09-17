@@ -21,13 +21,14 @@ import { useQuery } from '../hooks/useQuery';
 import { EmptyState, SectionHeader } from '../components/Surface';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
-import { isOffseasonPhase } from '../domain/phase';
+import { isOffseasonPhase, isCampPhase } from '../domain/phase';
 import { MatchupCard, PrepCard, PrepGrid, PrepWide } from './playMatchup';
 import {
   ResultModal, SeasonSummaryModal, SeasonWarningModal, SimWarningModal, warningsFor,
 } from './playResult';
 import { DeadlineBanner } from './deadlineBanner';
 import { Screen } from './Screen';
+import { CampEntry } from './camp/CampEntry';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
 /** What the depth chart is, in one word, and how worried to be about it. */
@@ -81,6 +82,12 @@ export function PlayScreen() {
   if (loadError !== null) return <Screen title="Play" screen="play"><QueryError error={loadError} /></Screen>;
   if (!loaded) return <Screen title="Play" screen="play"><Loading label="Loading the week" /></Screen>;
   if (save === null) return <Screen title="Play" screen="play"><NoDynasty /></Screen>;
+
+  if (isCampPhase(save.phase)) return (
+    <Screen title="Training Camp" subtitle={String(save.season)} screen="play">
+      <CampEntry phase={save.phase} />
+    </Screen>
+  );
 
   const d = q.status === 'ready' ? q.data : null;
   const done = isOffseasonPhase(save.phase);

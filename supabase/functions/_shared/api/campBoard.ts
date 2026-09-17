@@ -70,7 +70,7 @@ export interface CampPlayer {
 
 /** A starter is safe; the second man in a group is usually kept; past that a
  *  club is choosing. */
-const keepsAtGroup = (group: PositionGroup): number => {
+export const keepsAtGroup = (group: PositionGroup): number => {
   const starters = STARTERS[group];
   // Every group keeps at least one more than it starts, because a club that
   // carries exactly its starters has no answer to a hamstring. The specialists

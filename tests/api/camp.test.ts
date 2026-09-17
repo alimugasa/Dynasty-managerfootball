@@ -72,6 +72,10 @@ describe('training camp and the preseason', () => {
     // which league it happened to get rather than on anything it was checking.
     expect(b.rosterFault).toMatch(/to go before the season/);
     expect(b.rosterFault).toContain(String(b.cutsRemaining));
+    expect(b.players).toHaveLength(b.rosterCount);
+    expect(b.groups.reduce((n, g) => n + g.count, 0)).toBe(b.rosterCount);
+    expect(b.progress.advanceRoute).toBe('advance-camp');
+    expect(b.progress.finalizeFault).toBe(b.rosterFault);
   });
 
   it('finds camp battles and puts somebody on the bubble', async () => {
@@ -92,6 +96,9 @@ describe('training camp and the preseason', () => {
        where save_id = ${saveId} and competition = 'PRESEASON'`;
     expect(Number(row?.weeks)).toBe(PRESEASON_WEEKS);
     expect(Number(row?.n)).toBe(16 * PRESEASON_WEEKS);
+    const b = await board();
+    expect(b.fixtures).toHaveLength(PRESEASON_WEEKS);
+    expect(b.fixtures.every((f) => f.result === null)).toBe(true);
   }, 120_000);
 
   it('plays the preseason without touching the standings or the record', async () => {
@@ -112,6 +119,9 @@ describe('training camp and the preseason', () => {
       select count(*)::text as n from public.game_results
        where save_id = ${saveId} and competition = 'PRESEASON'`;
     expect(Number(games?.n)).toBeGreaterThan(0);
+    const b = await board();
+    expect(b.fixtures.filter((f) => f.result !== null)).toHaveLength(1);
+    expect(b.preseasonRecord.wins + b.preseasonRecord.losses + b.preseasonRecord.ties).toBe(1);
   }, 180_000);
 
   it('keeps preseason statistics apart from the season\'s', async () => {
@@ -140,6 +150,8 @@ describe('training camp and the preseason', () => {
     expect(Number(seen?.played)).toBeGreaterThan(0);
     expect(Number(seen?.graded)).toBeGreaterThan(0);
     const b = await board();
+    expect(b.players.some((p) => p.preseasonGrade !== null)).toBe(true);
+    expect(b.players.every((p) => p.practiceSource === 'RECORDED')).toBe(true);
     const graded = b.bubble.concat(b.rookies).concat(b.movers)
       .filter((p) => p.preseasonGrade !== null);
     // A grade is a read, not a rating: nothing here moved an overall.
@@ -175,6 +187,9 @@ describe('training camp and the preseason', () => {
     const id = victim?.playerId ?? '';
 
     const preview = await pipe.api.call<CutOutcome>('preview-cut', { saveId, playerId: id });
+    expect(preview.age).toBe(victim?.age);
+    expect(preview.capHit).toBe(victim?.capHit);
+    expect(preview.deadMoney).toBe(victim?.deadMoney);
     expect(preview.rosterAfter).toBe(preview.rosterBefore - 1);
     expect(preview.capSavings).toBe(Math.max(0, preview.capHit - preview.deadMoney));
     // Waivers or free agency, decided by accrued seasons and stated up front.
@@ -197,6 +212,29 @@ describe('training camp and the preseason', () => {
     // club claiming him, not this club letting him go.
     expect(logged?.detail).toContain(preview.waivers ? 'waivers' : 'free agent');
   }, 120_000);
+
+  it('reports missing contract data and refuses an unpriced cut without changing the roster', async () => {
+    const before = await board();
+    const victim = before.players[0];
+    if (victim === undefined) throw new Error('Camp fixture has no players');
+    const contracts = await pipe.sql<{ contract_id: string }[]>`
+      update public.player_contracts set contract_status = 'TERMINATED'
+       where save_id = ${saveId} and player_id = ${victim.playerId} and contract_status = 'ACTIVE'
+       returning contract_id`;
+    expect(contracts.length).toBeGreaterThan(0);
+    try {
+      const missing = (await board()).players.find((p) => p.playerId === victim.playerId);
+      expect(missing).toMatchObject({ capHit: null, deadMoney: null, probability: null, status: null });
+      for (const route of ['preview-cut', 'cut-player']) {
+        await expect(pipe.api.call(route, { saveId, playerId: victim.playerId })).rejects.toThrow('Contract information unavailable');
+      }
+      expect((await board()).rosterCount).toBe(before.rosterCount);
+    } finally {
+      for (const contract of contracts) await pipe.sql`
+        update public.player_contracts set contract_status = 'ACTIVE'
+         where save_id = ${saveId} and contract_id = ${contract.contract_id}`;
+    }
+  });
 
   it('starts the season once the roster is legal, and writes the story of it', async () => {
     // Cut to the limit the blunt way: this is a test of the gate, not of

@@ -16,6 +16,8 @@ import { StatTiles } from '../components/StatTiles';
 import { ActionButton } from '../components/ActionButton';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { Screen } from './Screen';
+import { isCampPhase } from '../domain/phase';
+import { CampEntry } from './camp/CampEntry';
 import { ContractsPanel, DraftPanel, MarketPanel, TradePanel, money } from './offseasonPanels';
 import { AwardsPanel, YearPanel } from './seasonPanels';
 import { useAvatars } from '../hooks/useAvatars';
@@ -30,7 +32,7 @@ const EXPLAIN: Readonly<Record<string, string>> = {
   RETIREMENTS: 'Your out-of-contract players are free to leave. Keep the ones you want, cut what you cannot afford, and trade if you can find a partner.',
   DRAFT: 'The draft runs pick by pick. It stops when your turn comes and waits for you.',
   FREE_AGENCY: 'Put offers in. They go to market with every other team\'s, and the player decides.',
-  CAMP: 'Every team cuts to the limit, the calendar is drawn, and the season opens.',
+  CAMP: 'The new season’s camp opens next. Compare the roster, play the preseason and make your final cuts.',
 };
 
 /** Stable across renders while the recap read is in flight. */
@@ -66,6 +68,12 @@ export function OffseasonScreen() {
   const move = (route: string, input: Record<string, unknown>): void => {
     void offseasonMove(route, input);
   };
+
+  if (save !== null && isCampPhase(save.phase)) return (
+    <Screen title="Training Camp" subtitle={String(save.season)} screen="offseason">
+      <CampEntry phase={save.phase} />
+    </Screen>
+  );
 
   return (
     <Screen
@@ -235,8 +243,8 @@ export function OffseasonScreen() {
             <>
               <SectionHeader title="Camp" />
               <EmptyState
-                title="Nothing left to decide"
-                detail="Break camp: every team cuts to fifty-three and the season opens."
+                title="Your camp decisions come next"
+                detail="Open the new season’s camp to evaluate players, play preseason games and choose your opening roster."
               />
             </>
           )}

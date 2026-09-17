@@ -42,6 +42,7 @@ export interface CutTerms {
   readonly capSavings: number;
   readonly waivers: boolean;
   readonly experienceYears: number;
+  readonly age: number;
   /** The roster before and after, so a modal can say both. */
   readonly rosterBefore: number;
   readonly rosterAfter: number;
@@ -49,7 +50,7 @@ export interface CutTerms {
 
 interface Row {
   player_id: string; display_name: string; position: string; team_id: string;
-  experience_years: number;
+  experience_years: number; age: number;
   aav: string | null; guaranteed: string | null;
   years_total: number | null; years_remaining: number | null;
 }
@@ -68,7 +69,7 @@ export async function cutTerms(
   db: Db, saveId: string, teamId: string, playerId: string,
 ): Promise<CutTerms> {
   const [row] = await db<Row[]>`
-    select r.player_id, p.display_name, p.position, r.team_id, p.experience_years,
+    select r.player_id, p.display_name, p.position, r.team_id, p.experience_years, p.age,
            c.average_annual_value::text as aav, c.guaranteed_money::text as guaranteed,
            c.years_total, c.years_remaining
       from public.team_rosters r
@@ -84,10 +85,14 @@ export async function cutTerms(
      where save_id = ${saveId} and team_id = ${teamId}`;
   const rosterBefore = Number(count?.n ?? 0);
 
-  const capHit = Number(row.aav ?? 0);
-  const guaranteed = Number(row.guaranteed ?? 0);
-  const total = row.years_total ?? 0;
-  const remaining = row.years_remaining ?? 0;
+  if (row.aav === null || row.guaranteed === null || row.years_total === null
+      || row.years_remaining === null || row.years_total <= 0) {
+    throw badRequest('Contract information unavailable. The cut cannot be priced safely.');
+  }
+  const capHit = Number(row.aav);
+  const guaranteed = Number(row.guaranteed);
+  const total = row.years_total;
+  const remaining = row.years_remaining;
   const served = total - remaining;
   const remainingShare = total > 0 ? Math.max(0, Math.min(1, 1 - served / total)) : 0;
   const deadMoney = Math.round(Math.min(guaranteed * remainingShare, capHit * MAX_DEAD_MONEY_SHARE));
@@ -102,6 +107,7 @@ export async function cutTerms(
     capSavings: Math.max(0, capHit - deadMoney),
     waivers: row.experience_years < WAIVER_THRESHOLD_YEARS,
     experienceYears: row.experience_years,
+    age: row.age,
     rosterBefore,
     rosterAfter: Math.max(0, rosterBefore - 1),
   };
