@@ -23,6 +23,8 @@ import { teamProfiles } from './reads/teamProfiles.ts';
 import { team } from './reads/team.ts';
 import { dashboard } from './reads/dashboard.ts';
 import { roster, setDepthChart } from './reads/roster.ts';
+import { depthChart } from './reads/depthChart.ts';
+import { autoDepthChart } from './handlers/autoDepthChart.ts';
 import { league } from './reads/league.ts';
 import { schedule } from './reads/schedule.ts';
 import { playoffs } from './reads/playoffs.ts';
@@ -69,6 +71,8 @@ export const ROUTES: Readonly<Record<string, Handler<any, any>>> = {
   dashboard,
   roster,
   'set-depth-chart': setDepthChart,
+  'depth-chart': depthChart,
+  'auto-depth-chart': autoDepthChart,
   league,
   schedule,
   playoffs,

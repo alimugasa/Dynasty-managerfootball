@@ -15,6 +15,7 @@ import { EmptyState, Panel, SectionHeader } from '../components/Surface';
 import { Loading, NoDynasty, QueryError } from '../components/QueryState';
 import { useUiState } from '../app/useUiState';
 import { Screen } from './Screen';
+import { ActionButton } from '../components/ActionButton';
 import type { RosterOut } from '../../supabase/functions/_shared/api/reads/roster';
 
 const GROUPS: readonly Chip[] = [
@@ -54,6 +55,7 @@ export function RosterScreen() {
       {loaded && save === null && <NoDynasty />}
       {save !== null && (
         <>
+          <ActionButton onClick={() => { nav.push('depthChart'); }}>Set depth chart &amp; review readiness</ActionButton>
           <div style={{ marginTop: 8 }}>
             <ChipRow chips={GROUPS} value={group} onChange={setGroup} label="Position group" />
           </div>

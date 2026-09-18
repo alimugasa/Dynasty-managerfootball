@@ -6,6 +6,7 @@ import { parseDatabaseUrl } from '../../supabase/functions/_shared/api/db';
 import type { CreateSaveOut } from '../../supabase/functions/_shared/api/createSave';
 import type { CampOut } from '../../supabase/functions/_shared/api/reads/camp';
 import type { SaveOut } from '../../supabase/functions/_shared/api/reads/save';
+import type { DepthChartOut } from '../../supabase/functions/_shared/api/reads/depthChartTypes';
 
 // A separate owner per browser avoids the existing suites' shared slot races.
 // Reach camp through the actual season and rollover routes; no mocked camp read.
@@ -67,6 +68,10 @@ test('a GM evaluates camp, confirms cuts and opens the next regular season', asy
     await expect(page.getByTestId('camp-review')).toBeVisible();
     await expect(page.getByTestId('camp-finalize')).toBeDisabled();
     await expect(page.getByTestId('camp-advance-blocked')).toBeVisible();
+    await page.getByRole('button', { name: 'Set depth chart', exact: true }).click();
+    await expect(page.getByTestId('depth-entry-status')).toHaveText('Season entry blocked');
+    await expect(page.getByTestId('depth-finalize')).toBeDisabled();
+    await page.getByRole('button', { name: 'Back', exact: true }).click();
 
     await chooseView(page, 'Cut decisions');
     await page.getByRole('tablist', { name: 'Camp position' }).getByRole('tab', { name: 'All', exact: true }).click();
@@ -112,6 +117,23 @@ test('a GM evaluates camp, confirms cuts and opens the next regular season', asy
     await page.getByTestId('camp-confirm-finalize').click();
     await expect(page.getByTestId('sim-week')).toBeVisible({ timeout: 30_000 });
     expect((await call<SaveOut>('save')).save?.phase).toBe('REGULAR_SEASON');
+    await page.getByTestId('to-depth').click();
+    await expect(page.getByTestId('depth-readiness')).toContainText('Week 1 readiness');
+    const chart = await call<DepthChartOut>('depth-chart');
+    const qb = chart.groups.find((g) => g.group === 'QB');
+    const backup = qb?.order[1];
+    if (backup === undefined) throw new Error('No backup to promote');
+    await page.getByRole('button', { name: 'Review QB', exact: true }).click();
+    await page.getByRole('button', { name: 'Move ' + backup.name + ' up', exact: true }).click();
+    await expect(page.getByTestId('depth-player-' + backup.playerId)).toContainText('1. Starter', { timeout: 30_000 });
+    expect((await call<DepthChartOut>('depth-chart')).groups.find((g) => g.group === 'QB')?.order[0]?.playerId).toBe(backup.playerId);
+    await noOverflow(page);
+    await page.screenshot({ path: info.outputPath('depth-week-one.png'), fullPage: true });
+    await page.reload();
+    await expect(page.getByTestId('depth-player-' + backup.playerId)).toContainText('1. Starter');
+    await page.getByTestId('depth-to-play').click();
+    await expect(page.getByTestId('sim-week')).toBeVisible();
+    expect((await call<SaveOut>('save')).save?.week).toBe(1);
   } finally {
     if (saveId !== undefined) await sql`delete from public.saves where id = ${saveId} and user_id = ${owner}`;
     await sql`delete from auth.users where id = ${owner}`;

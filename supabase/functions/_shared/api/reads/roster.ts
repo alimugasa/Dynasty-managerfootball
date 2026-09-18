@@ -3,8 +3,9 @@
 
 import { badRequest, type Handler } from '../context.ts';
 import { ownedSave } from '../save.ts';
-import { rawOf, requireString, requireStringList } from '../parse.ts';
+import { rawOf, requireString, requireStringList, optionalString } from '../parse.ts';
 import { readDepthChart, writeDepthChart } from '../project/depthChart.ts';
+import { depthState, requireDepthRevision } from '../depthState.ts';
 import { weeksOut } from '../project/stats.ts';
 import { POSITION_GROUPS, type PositionGroup } from '../../engine/types.ts';
 
@@ -56,6 +57,7 @@ export const roster: Handler<RosterIn, RosterOut> = {
 
 export interface SetDepthChartIn {
   readonly saveId: string; readonly group: PositionGroup; readonly order: readonly string[];
+  readonly expectedRevision?: string | undefined;
 }
 
 /** The new order must be a permutation of the group's current order: nobody
@@ -67,11 +69,15 @@ export const setDepthChart: Handler<SetDepthChartIn, { readonly ok: true }> = {
     return {
       saveId: requireString(r, 'saveId'), group: parseGroup(requireString(r, 'group')),
       order: requireStringList(r, 'order'),
+      expectedRevision: optionalString(r, 'expectedRevision'),
     };
   },
   run: ({ sql, userId }, input) => sql.begin(async (tx) => {
+    await tx`select 1 from public.saves where id = ${input.saveId} for update`;
     const s = await ownedSave(tx, userId, input.saveId);
-    const chart = await readDepthChart(tx, s.id, s.user_team_id);
+    const state = await depthState(tx, s);
+    requireDepthRevision(input.expectedRevision, state.revision);
+    const chart = state.chart;
     const current = chart[input.group];
     const same = current.length === input.order.length
       && new Set(input.order).size === input.order.length

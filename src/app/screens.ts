@@ -18,6 +18,7 @@ import { LeagueScreen } from '../screens/LeagueScreen';
 import { PlayoffsScreen } from '../screens/PlayoffsScreen';
 import { OfficeScreen } from '../screens/OfficeScreen';
 import { RosterScreen } from '../screens/RosterScreen';
+import { DepthChartScreen } from '../screens/DepthChartScreen';
 import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { TeamScreen } from '../screens/TeamScreen';
 import { PlayScreen } from '../screens/PlayScreen';
@@ -99,6 +100,7 @@ export const SCREENS: Readonly<Record<string, ScreenDef>> = {
   recap: { title: 'Season recap', Component: RecapScreen, root: false },
   offseason: { title: 'Offseason', Component: OffseasonScreen, root: false },
   camp: { title: 'Training Camp', Component: CampScreen, root: false },
+  depthChart: { title: 'Depth Chart', Component: DepthChartScreen, root: false },
 
   // Drill-downs. Every one of these is a resolveEntityRoute target.
   player: { title: 'Player', Component: PlayerScreen, root: false },

@@ -89,7 +89,7 @@ export function CampReview({ data: d, onGroup }: {
           <h3 style={TYPE.micro}>Available-player alerts</h3>
           <ul style={{ ...TYPE.prose, paddingLeft: S[4] }}>{d.availabilityWarnings.map((w) => <li key={w}>{w}</li>)}</ul>
         </>}
-        <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }}>Review depth chart</ActionButton>
+        <ActionButton tone="quiet" onClick={() => { nav.push('depthChart'); }}>Set depth chart</ActionButton>
         <p style={{ ...TYPE.prose, fontSize: 12, color: COLOR.mut }}>
           Free-agent signings and waiver claims are unavailable during camp. Avoid cutting below the required roster count.
         </p>

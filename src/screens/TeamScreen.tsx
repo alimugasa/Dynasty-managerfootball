@@ -138,7 +138,7 @@ export function TeamScreen() {
     };
     const go: Readonly<Record<ChecklistItem, () => void>> = {
       roster: () => { nav.push('roster'); },
-      depth: () => { nav.push('roster'); },
+      depth: () => { nav.push('depthChart'); },
       cap: () => { setSheet('cap'); },
       opponent: () => { setSheet('opponent'); },
       // Not a navigation: the button is already on this screen, so this puts

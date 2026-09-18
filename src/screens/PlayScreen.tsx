@@ -29,15 +29,8 @@ import {
 import { DeadlineBanner } from './deadlineBanner';
 import { Screen } from './Screen';
 import { CampEntry } from './camp/CampEntry';
+import { DepthPrep } from './depth/DepthPrep';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
-
-/** What the depth chart is, in one word, and how worried to be about it. */
-function depthStatus(d: DashboardOut): { value: string; tone: 'ready' | 'warn' } {
-  if (d.shape.depthStarters >= d.shape.positionGroups) return { value: 'Ready', tone: 'ready' };
-  return d.shape.depthStarters === 0
-    ? { value: 'Not set', tone: 'warn' }
-    : { value: 'Incomplete', tone: 'warn' };
-}
 
 export function PlayScreen() {
   const nav = useNavigator();
@@ -190,20 +183,7 @@ export function PlayScreen() {
 
           <SectionHeader title="Game prep" />
           <PrepGrid>
-            <PrepCard
-              label="Depth chart"
-              value={depthStatus(d).value}
-              detail={`${String(d.shape.depthStarters)} of ${String(d.shape.positionGroups)} groups`}
-              tone={depthStatus(d).tone}
-            />
-            <PrepCard
-              label="Injury report"
-              value={d.injuries === 0 ? 'Everyone fit' : `${String(d.injuries)} out`}
-              detail={d.injuredStarters === 0
-                ? 'No starters affected'
-                : `${String(d.injuredStarters)} of them start`}
-              tone={d.injuredStarters > 0 ? 'warn' : d.injuries === 0 ? 'ready' : 'plain'}
-            />
+            <DepthPrep />
             <PrepCard
               label="Gameplan"
               value="Balanced"
@@ -249,7 +229,7 @@ export function PlayScreen() {
               <ActionButton tone="quiet" onClick={() => { nav.replaceRoot('team'); }} testId="to-preview">
                 Preview
               </ActionButton>
-              <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }} testId="to-depth">
+              <ActionButton tone="quiet" onClick={() => { nav.push('depthChart'); }} testId="to-depth">
                 Depth chart
               </ActionButton>
               <ActionButton tone="quiet" onClick={() => { nav.push('roster'); }} testId="to-roster">
