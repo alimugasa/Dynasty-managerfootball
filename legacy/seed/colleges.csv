@@ -1,0 +1,261 @@
+college_id,name,abbreviation,conference,conference_abbr,division_tier,talent_level,nfl_pipeline_rate,data_class
+COL0001,Calderwood State,CS,Great Lakes Alliance,GLA,1,7,0.682,GENERATED
+COL0002,Calderwood University,CU,Atlantic Coastal League,ACL,1,8,0.658,GENERATED
+COL0003,Calderwood Tech,CT,Plains Conference,PLC,1,4,0.354,GENERATED
+COL0004,Calderwood A&M,CA,Pacific Rim Conference,PRC,1,7,0.583,GENERATED
+COL0005,Calderwood College,CC,Heartland Athletic,HLA,2,5,0.379,GENERATED
+COL0006,Calderwood Institute,CI,Gateway Conference,GWY,2,5,0.386,GENERATED
+COL0007,Calderwood State Tech,CS,Mountain Crest Conference,MCC,2,7,0.594,GENERATED
+COL0008,Fort Grayson State,FGS,Seaboard Association,SBA,2,5,0.407,GENERATED
+COL0009,Fort Grayson University,FGU,Northern Valley Conference,NVC,3,3,0.264,GENERATED
+COL0010,Fort Grayson Tech,FGT,Frontier League,FRL,3,1,0.067,GENERATED
+COL0011,Fort Grayson A&M,FGA,Independent,IND,2,6,0.487,GENERATED
+COL0012,Fort Grayson College,FGC,Southern Athletic Conference,SAC,1,6,0.559,GENERATED
+COL0013,Fort Grayson Institute,FGI,Great Lakes Alliance,GLA,1,7,0.502,GENERATED
+COL0014,Fort Grayson State Tech,FGS,Atlantic Coastal League,ACL,1,6,0.601,GENERATED
+COL0015,Ashfield State,AS,Plains Conference,PLC,1,6,0.51,GENERATED
+COL0016,Ashfield University,AU,Pacific Rim Conference,PRC,1,8,0.658,GENERATED
+COL0017,Ashfield Tech,AT,Heartland Athletic,HLA,2,3,0.374,GENERATED
+COL0018,Ashfield A&M,AA,Gateway Conference,GWY,2,6,0.561,GENERATED
+COL0019,Ashfield College,AC,Mountain Crest Conference,MCC,2,6,0.486,GENERATED
+COL0020,Ashfield Institute,AI,Seaboard Association,SBA,2,8,0.695,GENERATED
+COL0021,Ashfield State Tech,AS,Northern Valley Conference,NVC,3,4,0.37,GENERATED
+COL0022,Marbury State,MS,Frontier League,FRL,3,1,0.05,GENERATED
+COL0023,Marbury University,MU,Independent,IND,2,4,0.222,GENERATED
+COL0024,Marbury Tech,MT,Southern Athletic Conference,SAC,1,7,0.53,GENERATED
+COL0025,Marbury A&M,MA,Great Lakes Alliance,GLA,1,6,0.478,GENERATED
+COL0026,Marbury College,MC,Atlantic Coastal League,ACL,1,8,0.687,GENERATED
+COL0027,Marbury Institute,MI,Plains Conference,PLC,1,9,0.796,GENERATED
+COL0028,Marbury State Tech,MS,Pacific Rim Conference,PRC,1,8,0.687,GENERATED
+COL0029,Stonewell State,SS,Heartland Athletic,HLA,2,4,0.379,GENERATED
+COL0030,Stonewell University,SU,Gateway Conference,GWY,2,6,0.489,GENERATED
+COL0031,Stonewell Tech,ST,Mountain Crest Conference,MCC,2,5,0.42,GENERATED
+COL0032,Stonewell A&M,SA,Seaboard Association,SBA,2,4,0.358,GENERATED
+COL0033,Stonewell College,SC,Northern Valley Conference,NVC,3,4,0.296,GENERATED
+COL0034,Stonewell Institute,SI,Frontier League,FRL,3,1,0.063,GENERATED
+COL0035,Stonewell State Tech,SS,Independent,IND,2,5,0.447,GENERATED
+COL0036,Kelvinridge State,KS,Southern Athletic Conference,SAC,1,8,0.683,GENERATED
+COL0037,Kelvinridge University,KU,Great Lakes Alliance,GLA,1,8,0.694,GENERATED
+COL0038,Kelvinridge Tech,KT,Atlantic Coastal League,ACL,1,8,0.739,GENERATED
+COL0039,Kelvinridge A&M,KA,Plains Conference,PLC,1,4,0.343,GENERATED
+COL0040,Kelvinridge College,KC,Pacific Rim Conference,PRC,1,8,0.671,GENERATED
+COL0041,Kelvinridge Institute,KI,Heartland Athletic,HLA,2,6,0.523,GENERATED
+COL0042,Kelvinridge State Tech,KS,Gateway Conference,GWY,2,6,0.483,GENERATED
+COL0043,Northcrest State,NS,Mountain Crest Conference,MCC,2,5,0.419,GENERATED
+COL0044,Northcrest University,NU,Seaboard Association,SBA,2,5,0.455,GENERATED
+COL0045,Northcrest Tech,NT,Northern Valley Conference,NVC,3,4,0.375,GENERATED
+COL0046,Northcrest A&M,NA,Frontier League,FRL,3,2,0.21,GENERATED
+COL0047,Northcrest College,NC,Independent,IND,2,7,0.57,GENERATED
+COL0048,Northcrest Institute,NI,Southern Athletic Conference,SAC,1,6,0.509,GENERATED
+COL0049,Northcrest State Tech,NS,Great Lakes Alliance,GLA,1,7,0.609,GENERATED
+COL0050,Redbluff State,RS,Atlantic Coastal League,ACL,1,7,0.544,GENERATED
+COL0051,Redbluff University,RU,Plains Conference,PLC,1,6,0.574,GENERATED
+COL0052,Redbluff Tech,RT,Pacific Rim Conference,PRC,1,7,0.624,GENERATED
+COL0053,Redbluff A&M,RA,Heartland Athletic,HLA,2,6,0.457,GENERATED
+COL0054,Redbluff College,RC,Gateway Conference,GWY,2,5,0.521,GENERATED
+COL0055,Redbluff Institute,RI,Mountain Crest Conference,MCC,2,5,0.422,GENERATED
+COL0056,Redbluff State Tech,RS,Seaboard Association,SBA,2,4,0.321,GENERATED
+COL0057,Havenport State,HS,Northern Valley Conference,NVC,3,1,0.117,GENERATED
+COL0058,Havenport University,HU,Frontier League,FRL,3,4,0.309,GENERATED
+COL0059,Havenport Tech,HT,Independent,IND,2,4,0.447,GENERATED
+COL0060,Havenport A&M,HA,Southern Athletic Conference,SAC,1,6,0.5,GENERATED
+COL0061,Havenport College,HC,Great Lakes Alliance,GLA,1,8,0.657,GENERATED
+COL0062,Havenport Institute,HI,Atlantic Coastal League,ACL,1,7,0.515,GENERATED
+COL0063,Havenport State Tech,HS,Plains Conference,PLC,1,7,0.589,GENERATED
+COL0064,Silverlake State,SS,Pacific Rim Conference,PRC,1,5,0.478,GENERATED
+COL0065,Silverlake University,SU,Heartland Athletic,HLA,2,4,0.383,GENERATED
+COL0066,Silverlake Tech,ST,Gateway Conference,GWY,2,4,0.49,GENERATED
+COL0067,Silverlake A&M,SA,Mountain Crest Conference,MCC,2,5,0.444,GENERATED
+COL0068,Silverlake College,SC,Seaboard Association,SBA,2,5,0.508,GENERATED
+COL0069,Silverlake Institute,SI,Northern Valley Conference,NVC,3,3,0.26,GENERATED
+COL0070,Silverlake State Tech,SS,Frontier League,FRL,3,2,0.139,GENERATED
+COL0071,Cypress Hollow State,CHS,Independent,IND,2,5,0.463,GENERATED
+COL0072,Cypress Hollow University,CHU,Southern Athletic Conference,SAC,1,7,0.576,GENERATED
+COL0073,Cypress Hollow Tech,CHT,Great Lakes Alliance,GLA,1,8,0.735,GENERATED
+COL0074,Cypress Hollow A&M,CHA,Atlantic Coastal League,ACL,1,6,0.457,GENERATED
+COL0075,Cypress Hollow College,CHC,Plains Conference,PLC,1,8,0.706,GENERATED
+COL0076,Cypress Hollow Institute,CHI,Pacific Rim Conference,PRC,1,8,0.652,GENERATED
+COL0077,Cypress Hollow State Tech,CHS,Heartland Athletic,HLA,2,5,0.426,GENERATED
+COL0078,Iron Gate State,IGS,Gateway Conference,GWY,2,3,0.169,GENERATED
+COL0079,Iron Gate University,IGU,Mountain Crest Conference,MCC,2,4,0.281,GENERATED
+COL0080,Iron Gate Tech,IGT,Seaboard Association,SBA,2,5,0.385,GENERATED
+COL0081,Iron Gate A&M,IGA,Northern Valley Conference,NVC,3,4,0.283,GENERATED
+COL0082,Iron Gate College,IGC,Frontier League,FRL,3,3,0.333,GENERATED
+COL0083,Iron Gate Institute,IGI,Independent,IND,2,6,0.539,GENERATED
+COL0084,Iron Gate State Tech,IGS,Southern Athletic Conference,SAC,1,6,0.536,GENERATED
+COL0085,Westmoor State,WS,Great Lakes Alliance,GLA,1,7,0.615,GENERATED
+COL0086,Westmoor University,WU,Atlantic Coastal League,ACL,1,6,0.496,GENERATED
+COL0087,Westmoor Tech,WT,Plains Conference,PLC,1,8,0.707,GENERATED
+COL0088,Westmoor A&M,WA,Pacific Rim Conference,PRC,1,7,0.533,GENERATED
+COL0089,Westmoor College,WC,Heartland Athletic,HLA,2,3,0.272,GENERATED
+COL0090,Westmoor Institute,WI,Gateway Conference,GWY,2,4,0.266,GENERATED
+COL0091,Westmoor State Tech,WS,Mountain Crest Conference,MCC,2,6,0.411,GENERATED
+COL0092,Bellhaven State,BS,Seaboard Association,SBA,2,6,0.453,GENERATED
+COL0093,Bellhaven University,BU,Northern Valley Conference,NVC,3,2,0.182,GENERATED
+COL0094,Bellhaven Tech,BT,Frontier League,FRL,3,3,0.254,GENERATED
+COL0095,Bellhaven A&M,BA,Independent,IND,2,4,0.306,GENERATED
+COL0096,Bellhaven College,BC,Southern Athletic Conference,SAC,1,6,0.563,GENERATED
+COL0097,Bellhaven Institute,BI,Great Lakes Alliance,GLA,1,8,0.637,GENERATED
+COL0098,Bellhaven State Tech,BS,Atlantic Coastal League,ACL,1,6,0.475,GENERATED
+COL0099,Thornfield State,TS,Plains Conference,PLC,1,8,0.734,GENERATED
+COL0100,Thornfield University,TU,Pacific Rim Conference,PRC,1,9,0.757,GENERATED
+COL0101,Thornfield Tech,TT,Heartland Athletic,HLA,2,8,0.732,GENERATED
+COL0102,Thornfield A&M,TA,Gateway Conference,GWY,2,4,0.354,GENERATED
+COL0103,Thornfield College,TC,Mountain Crest Conference,MCC,2,5,0.531,GENERATED
+COL0104,Thornfield Institute,TI,Seaboard Association,SBA,2,6,0.553,GENERATED
+COL0105,Thornfield State Tech,TS,Northern Valley Conference,NVC,3,3,0.349,GENERATED
+COL0106,Quarry Hill State,QHS,Frontier League,FRL,3,3,0.273,GENERATED
+COL0107,Quarry Hill University,QHU,Independent,IND,2,8,0.703,GENERATED
+COL0108,Quarry Hill Tech,QHT,Southern Athletic Conference,SAC,1,10,0.785,GENERATED
+COL0109,Quarry Hill A&M,QHA,Great Lakes Alliance,GLA,1,8,0.688,GENERATED
+COL0110,Quarry Hill College,QHC,Atlantic Coastal League,ACL,1,7,0.594,GENERATED
+COL0111,Quarry Hill Institute,QHI,Plains Conference,PLC,1,7,0.598,GENERATED
+COL0112,Quarry Hill State Tech,QHS,Pacific Rim Conference,PRC,1,7,0.557,GENERATED
+COL0113,Kingsbridge State,KS,Heartland Athletic,HLA,2,5,0.46,GENERATED
+COL0114,Kingsbridge University,KU,Gateway Conference,GWY,2,6,0.463,GENERATED
+COL0115,Kingsbridge Tech,KT,Mountain Crest Conference,MCC,2,3,0.237,GENERATED
+COL0116,Kingsbridge A&M,KA,Seaboard Association,SBA,2,6,0.591,GENERATED
+COL0117,Kingsbridge College,KC,Northern Valley Conference,NVC,3,4,0.281,GENERATED
+COL0118,Kingsbridge Institute,KI,Frontier League,FRL,3,2,0.172,GENERATED
+COL0119,Kingsbridge State Tech,KS,Independent,IND,2,3,0.341,GENERATED
+COL0120,Falcon Ridge State,FRS,Southern Athletic Conference,SAC,1,8,0.558,GENERATED
+COL0121,Falcon Ridge University,FRU,Great Lakes Alliance,GLA,1,6,0.453,GENERATED
+COL0122,Falcon Ridge Tech,FRT,Atlantic Coastal League,ACL,1,8,0.664,GENERATED
+COL0123,Falcon Ridge A&M,FRA,Plains Conference,PLC,1,7,0.589,GENERATED
+COL0124,Falcon Ridge College,FRC,Pacific Rim Conference,PRC,1,8,0.633,GENERATED
+COL0125,Falcon Ridge Institute,FRI,Heartland Athletic,HLA,2,3,0.239,GENERATED
+COL0126,Falcon Ridge State Tech,FRS,Gateway Conference,GWY,2,4,0.375,GENERATED
+COL0127,Emberton State,ES,Mountain Crest Conference,MCC,2,4,0.376,GENERATED
+COL0128,Emberton University,EU,Seaboard Association,SBA,2,6,0.487,GENERATED
+COL0129,Emberton Tech,ET,Northern Valley Conference,NVC,3,4,0.37,GENERATED
+COL0130,Emberton A&M,EA,Frontier League,FRL,3,3,0.261,GENERATED
+COL0131,Emberton College,EC,Independent,IND,2,7,0.655,GENERATED
+COL0132,Emberton Institute,EI,Southern Athletic Conference,SAC,1,8,0.738,GENERATED
+COL0133,Emberton State Tech,ES,Great Lakes Alliance,GLA,1,5,0.39,GENERATED
+COL0134,Larkspur State,LS,Atlantic Coastal League,ACL,1,9,0.686,GENERATED
+COL0135,Larkspur University,LU,Plains Conference,PLC,1,8,0.714,GENERATED
+COL0136,Larkspur Tech,LT,Pacific Rim Conference,PRC,1,8,0.699,GENERATED
+COL0137,Larkspur A&M,LA,Heartland Athletic,HLA,2,5,0.455,GENERATED
+COL0138,Larkspur College,LC,Gateway Conference,GWY,2,4,0.359,GENERATED
+COL0139,Larkspur Institute,LI,Mountain Crest Conference,MCC,2,6,0.49,GENERATED
+COL0140,Larkspur State Tech,LS,Seaboard Association,SBA,2,5,0.45,GENERATED
+COL0141,Whitepine State,WS,Northern Valley Conference,NVC,3,1,0.081,GENERATED
+COL0142,Whitepine University,WU,Frontier League,FRL,3,2,0.142,GENERATED
+COL0143,Whitepine Tech,WT,Independent,IND,2,4,0.291,GENERATED
+COL0144,Whitepine A&M,WA,Southern Athletic Conference,SAC,1,8,0.643,GENERATED
+COL0145,Whitepine College,WC,Great Lakes Alliance,GLA,1,6,0.497,GENERATED
+COL0146,Whitepine Institute,WI,Atlantic Coastal League,ACL,1,6,0.621,GENERATED
+COL0147,Whitepine State Tech,WS,Plains Conference,PLC,1,7,0.64,GENERATED
+COL0148,Cedar Falls State,CFS,Pacific Rim Conference,PRC,1,5,0.495,GENERATED
+COL0149,Cedar Falls University,CFU,Heartland Athletic,HLA,2,7,0.51,GENERATED
+COL0150,Cedar Falls Tech,CFT,Gateway Conference,GWY,2,4,0.302,GENERATED
+COL0151,Cedar Falls A&M,CFA,Mountain Crest Conference,MCC,2,5,0.43,GENERATED
+COL0152,Cedar Falls College,CFC,Seaboard Association,SBA,2,4,0.342,GENERATED
+COL0153,Cedar Falls Institute,CFI,Northern Valley Conference,NVC,3,3,0.221,GENERATED
+COL0154,Cedar Falls State Tech,CFS,Frontier League,FRL,3,2,0.135,GENERATED
+COL0155,Granite Bay State,GBS,Independent,IND,2,6,0.501,GENERATED
+COL0156,Granite Bay University,GBU,Southern Athletic Conference,SAC,1,7,0.6,GENERATED
+COL0157,Granite Bay Tech,GBT,Great Lakes Alliance,GLA,1,6,0.579,GENERATED
+COL0158,Granite Bay A&M,GBA,Atlantic Coastal League,ACL,1,8,0.697,GENERATED
+COL0159,Granite Bay College,GBC,Plains Conference,PLC,1,7,0.548,GENERATED
+COL0160,Granite Bay Institute,GBI,Pacific Rim Conference,PRC,1,6,0.496,GENERATED
+COL0161,Granite Bay State Tech,GBS,Heartland Athletic,HLA,2,4,0.385,GENERATED
+COL0162,Sablewood State,SS,Gateway Conference,GWY,2,6,0.534,GENERATED
+COL0163,Sablewood University,SU,Mountain Crest Conference,MCC,2,5,0.36,GENERATED
+COL0164,Sablewood Tech,ST,Seaboard Association,SBA,2,4,0.403,GENERATED
+COL0165,Sablewood A&M,SA,Northern Valley Conference,NVC,3,1,0.106,GENERATED
+COL0166,Sablewood College,SC,Frontier League,FRL,3,3,0.288,GENERATED
+COL0167,Sablewood Institute,SI,Independent,IND,2,6,0.572,GENERATED
+COL0168,Sablewood State Tech,SS,Southern Athletic Conference,SAC,1,7,0.549,GENERATED
+COL0169,Harrowgate State,HS,Great Lakes Alliance,GLA,1,9,0.636,GENERATED
+COL0170,Harrowgate University,HU,Atlantic Coastal League,ACL,1,8,0.643,GENERATED
+COL0171,Harrowgate Tech,HT,Plains Conference,PLC,1,7,0.574,GENERATED
+COL0172,Harrowgate A&M,HA,Pacific Rim Conference,PRC,1,8,0.619,GENERATED
+COL0173,Harrowgate College,HC,Heartland Athletic,HLA,2,4,0.332,GENERATED
+COL0174,Harrowgate Institute,HI,Gateway Conference,GWY,2,5,0.434,GENERATED
+COL0175,Harrowgate State Tech,HS,Mountain Crest Conference,MCC,2,6,0.453,GENERATED
+COL0176,Mount Verity State,MVS,Seaboard Association,SBA,2,6,0.5,GENERATED
+COL0177,Mount Verity University,MVU,Northern Valley Conference,NVC,3,3,0.238,GENERATED
+COL0178,Mount Verity Tech,MVT,Frontier League,FRL,3,2,0.106,GENERATED
+COL0179,Mount Verity A&M,MVA,Independent,IND,2,5,0.4,GENERATED
+COL0180,Mount Verity College,MVC,Southern Athletic Conference,SAC,1,8,0.688,GENERATED
+COL0181,Mount Verity Institute,MVI,Great Lakes Alliance,GLA,1,6,0.48,GENERATED
+COL0182,Mount Verity State Tech,MVS,Atlantic Coastal League,ACL,1,9,0.778,GENERATED
+COL0183,Sunderland State,SS,Plains Conference,PLC,1,7,0.66,GENERATED
+COL0184,Sunderland University,SU,Pacific Rim Conference,PRC,1,5,0.371,GENERATED
+COL0185,Sunderland Tech,ST,Heartland Athletic,HLA,2,5,0.43,GENERATED
+COL0186,Sunderland A&M,SA,Gateway Conference,GWY,2,5,0.48,GENERATED
+COL0187,Sunderland College,SC,Mountain Crest Conference,MCC,2,7,0.551,GENERATED
+COL0188,Sunderland Institute,SI,Seaboard Association,SBA,2,3,0.198,GENERATED
+COL0189,Sunderland State Tech,SS,Northern Valley Conference,NVC,3,2,0.146,GENERATED
+COL0190,Pinehurst Valley State,PVS,Frontier League,FRL,3,2,0.2,GENERATED
+COL0191,Pinehurst Valley University,PVU,Independent,IND,2,5,0.435,GENERATED
+COL0192,Pinehurst Valley Tech,PVT,Southern Athletic Conference,SAC,1,7,0.557,GENERATED
+COL0193,Pinehurst Valley A&M,PVA,Great Lakes Alliance,GLA,1,6,0.418,GENERATED
+COL0194,Pinehurst Valley College,PVC,Atlantic Coastal League,ACL,1,8,0.646,GENERATED
+COL0195,Pinehurst Valley Institute,PVI,Plains Conference,PLC,1,6,0.53,GENERATED
+COL0196,Pinehurst Valley State Tech,PVS,Pacific Rim Conference,PRC,1,8,0.701,GENERATED
+COL0197,Copper Creek State,CCS,Heartland Athletic,HLA,2,3,0.38,GENERATED
+COL0198,Copper Creek University,CCU,Gateway Conference,GWY,2,7,0.525,GENERATED
+COL0199,Copper Creek Tech,CCT,Mountain Crest Conference,MCC,2,6,0.582,GENERATED
+COL0200,Copper Creek A&M,CCA,Seaboard Association,SBA,2,5,0.475,GENERATED
+COL0201,Copper Creek College,CCC,Northern Valley Conference,NVC,3,3,0.234,GENERATED
+COL0202,Copper Creek Institute,CCI,Frontier League,FRL,3,2,0.203,GENERATED
+COL0203,Copper Creek State Tech,CCS,Independent,IND,2,3,0.246,GENERATED
+COL0204,Lakemont State,LS,Southern Athletic Conference,SAC,1,7,0.593,GENERATED
+COL0205,Lakemont University,LU,Great Lakes Alliance,GLA,1,8,0.704,GENERATED
+COL0206,Lakemont Tech,LT,Atlantic Coastal League,ACL,1,8,0.63,GENERATED
+COL0207,Lakemont A&M,LA,Plains Conference,PLC,1,7,0.58,GENERATED
+COL0208,Lakemont College,LC,Pacific Rim Conference,PRC,1,8,0.611,GENERATED
+COL0209,Lakemont Institute,LI,Heartland Athletic,HLA,2,6,0.477,GENERATED
+COL0210,Lakemont State Tech,LS,Gateway Conference,GWY,2,3,0.208,GENERATED
+COL0211,Ravensburg State,RS,Mountain Crest Conference,MCC,2,4,0.33,GENERATED
+COL0212,Ravensburg University,RU,Seaboard Association,SBA,2,4,0.353,GENERATED
+COL0213,Ravensburg Tech,RT,Northern Valley Conference,NVC,3,4,0.406,GENERATED
+COL0214,Ravensburg A&M,RA,Frontier League,FRL,3,4,0.302,GENERATED
+COL0215,Ravensburg College,RC,Independent,IND,2,5,0.393,GENERATED
+COL0216,Ravensburg Institute,RI,Southern Athletic Conference,SAC,1,7,0.722,GENERATED
+COL0217,Ravensburg State Tech,RS,Great Lakes Alliance,GLA,1,8,0.653,GENERATED
+COL0218,Foxcroft State,FS,Atlantic Coastal League,ACL,1,8,0.724,GENERATED
+COL0219,Foxcroft University,FU,Plains Conference,PLC,1,7,0.543,GENERATED
+COL0220,Foxcroft Tech,FT,Pacific Rim Conference,PRC,1,7,0.644,GENERATED
+COL0221,Foxcroft A&M,FA,Heartland Athletic,HLA,2,5,0.431,GENERATED
+COL0222,Foxcroft College,FC,Gateway Conference,GWY,2,5,0.345,GENERATED
+COL0223,Foxcroft Institute,FI,Mountain Crest Conference,MCC,2,4,0.375,GENERATED
+COL0224,Foxcroft State Tech,FS,Seaboard Association,SBA,2,6,0.502,GENERATED
+COL0225,Dunmore State,DS,Northern Valley Conference,NVC,3,4,0.307,GENERATED
+COL0226,Dunmore University,DU,Frontier League,FRL,3,1,0.105,GENERATED
+COL0227,Dunmore Tech,DT,Independent,IND,2,4,0.325,GENERATED
+COL0228,Dunmore A&M,DA,Southern Athletic Conference,SAC,1,7,0.618,GENERATED
+COL0229,Dunmore College,DC,Great Lakes Alliance,GLA,1,5,0.408,GENERATED
+COL0230,Dunmore Institute,DI,Atlantic Coastal League,ACL,1,7,0.684,GENERATED
+COL0231,Dunmore State Tech,DS,Plains Conference,PLC,1,6,0.483,GENERATED
+COL0232,Clearwater Ridge State,CRS,Pacific Rim Conference,PRC,1,8,0.644,GENERATED
+COL0233,Clearwater Ridge University,CRU,Heartland Athletic,HLA,2,4,0.253,GENERATED
+COL0234,Clearwater Ridge Tech,CRT,Gateway Conference,GWY,2,5,0.5,GENERATED
+COL0235,Clearwater Ridge A&M,CRA,Mountain Crest Conference,MCC,2,6,0.459,GENERATED
+COL0236,Clearwater Ridge College,CRC,Seaboard Association,SBA,2,3,0.231,GENERATED
+COL0237,Clearwater Ridge Institute,CRI,Northern Valley Conference,NVC,3,3,0.281,GENERATED
+COL0238,Clearwater Ridge State Tech,CRS,Frontier League,FRL,3,4,0.36,GENERATED
+COL0239,Talbot State,TS,Independent,IND,2,6,0.578,GENERATED
+COL0240,Talbot University,TU,Southern Athletic Conference,SAC,1,7,0.605,GENERATED
+COL0241,Talbot Tech,TT,Great Lakes Alliance,GLA,1,6,0.459,GENERATED
+COL0242,Talbot A&M,TA,Atlantic Coastal League,ACL,1,7,0.6,GENERATED
+COL0243,Talbot College,TC,Plains Conference,PLC,1,7,0.522,GENERATED
+COL0244,Talbot Institute,TI,Pacific Rim Conference,PRC,1,5,0.308,GENERATED
+COL0245,Talbot State Tech,TS,Heartland Athletic,HLA,2,6,0.502,GENERATED
+COL0246,Winslow State,WS,Gateway Conference,GWY,2,6,0.534,GENERATED
+COL0247,Winslow University,WU,Mountain Crest Conference,MCC,2,4,0.302,GENERATED
+COL0248,Winslow Tech,WT,Seaboard Association,SBA,2,5,0.455,GENERATED
+COL0249,Winslow A&M,WA,Northern Valley Conference,NVC,3,3,0.173,GENERATED
+COL0250,Winslow College,WC,Frontier League,FRL,3,1,0.05,GENERATED
+COL0251,Winslow Institute,WI,Independent,IND,2,3,0.247,GENERATED
+COL0252,Winslow State Tech,WS,Southern Athletic Conference,SAC,1,8,0.763,GENERATED
+COL0253,Bramblewood State,BS,Great Lakes Alliance,GLA,1,6,0.512,GENERATED
+COL0254,Bramblewood University,BU,Atlantic Coastal League,ACL,1,6,0.559,GENERATED
+COL0255,Bramblewood Tech,BT,Plains Conference,PLC,1,6,0.498,GENERATED
+COL0256,Bramblewood A&M,BA,Pacific Rim Conference,PRC,1,7,0.538,GENERATED
+COL0257,Bramblewood College,BC,Heartland Athletic,HLA,2,5,0.473,GENERATED
+COL0258,Bramblewood Institute,BI,Gateway Conference,GWY,2,5,0.399,GENERATED
+COL0259,Bramblewood State Tech,BS,Mountain Crest Conference,MCC,2,4,0.305,GENERATED
+COL0260,Eastvale State,ES,Seaboard Association,SBA,2,2,0.211,GENERATED

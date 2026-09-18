@@ -1,0 +1,67 @@
+DYNASTY MANAGER PRO - DRAFT AND MARKET REPORT
+------------------------------------------------------------------------------
+  seasons            60 (3 leagues x 20)
+  base seed          20260907
+  draft picks        13,440
+  free agent deals   46,055
+
+SCOUTING FOG
+------------------------------------------------------------------------------
+  club profile              band width  mean error  truth in band
+  weak dept, low spend            20.9        6.44          80.0%
+  weak dept, high spend           18.5        5.98          78.5%
+  elite dept, low spend           10.2        3.15          82.6%
+  elite dept, high spend           8.7        2.68          80.6%
+
+  Bands are 80% intervals, so "truth in band" should read close to that.
+  Sigma runs from 3.0 (best case) to 10.0 (worst).
+
+THE DRAFT
+------------------------------------------------------------------------------
+  picks per season             224.0
+  mean estimate error          3.33 rating points
+  estimate bias on picks       2.48  (the winner's curse: clubs draft
+                                     the prospects they overrate)
+  reaches (picked above rank)  58.6%
+  median reach                 10 places
+  biggest reach / steal        180 / -129
+  picks at a real hole         33.4%  (need >= 0.35 at that position)
+  picks at a top-3 need        47.1%
+  first round, top-3 need      36.0%
+  first round, biggest need    17.0%
+  mean need rank of pick       4.6 of 12  (6.5 would be random)
+
+  A club that always addressed its biggest need would read 100% here, and
+  would be trivially predictable. A club that never did would be ignoring
+  its roster. Both are worse than a club that mostly does and sometimes
+  takes the player it rates instead.
+
+FREE AGENCY
+------------------------------------------------------------------------------
+  signings per season          767.6
+  mean bids per signed player  15.0
+  top bidder lost              53.8%
+  mean premium over market     1.08x
+  median premium               1.07x
+  overpaid by 25% or more      10.2%
+  overpaid by 50% or more      2.4%
+  signed below market          19.8%
+  mean deal                    7.2M x 2.9 years
+
+  premium by personality       (what each type actually ends up paid)
+    MAX_MONEY             1.15x       8.5M   n=6603
+    LONG_TERM_SECURITY    1.12x       7.6M   n=6648
+    LOCATION              1.09x       7.4M   n=6580
+    ROLE                  1.09x       6.8M   n=6637
+    CHAMPIONSHIP          1.08x       7.2M   n=6540
+    COACH_RELATIONSHIP    1.05x       6.6M   n=6629
+    LOYALTY               0.99x       5.8M   n=6418
+
+  A money-first player should land the largest cheque and a ring-first one
+  should not, because he took less to go somewhere better.
+
+CAP
+------------------------------------------------------------------------------
+  clubs over the cap at season end   0 of 96
+  cap in final season                1005.8M
+

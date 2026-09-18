@@ -1,0 +1,33 @@
+owner_id,team_id,owner_name,ownership_type,archetype,tenure_years,patience,spending_willingness,meddling,win_now_bias,market_size,franchise_value_musd,data_class
+OWN01,BUF,Marguerite Hollingsworth,Individual,Hands-off Steward,18,90,54,26,0.29,4,6204,GENERATED
+OWN02,MIA,Desmond Vandermeer,Individual,Aggressive Spender,13,48,99,74,0.89,7,5866,GENERATED
+OWN03,NE,Corinne Okonkwo,Investment Group,Frugal Traditionalist,26,80,25,44,0.33,8,6946,GENERATED
+OWN04,NYJ,Julian Castellanos,Individual,Impatient Mogul,25,18,85,75,0.91,10,7712,GENERATED
+OWN05,BAL,Harriet Bergstrom,Individual,Analytics Believer,2,72,58,34,0.59,6,6488,GENERATED
+OWN06,PIT,Nathaniel Whitlock,Individual,Legacy Family Trust,1,89,48,47,0.49,5,6382,GENERATED
+OWN07,CLE,Priya Raghunathan,Individual,Celebrity Investor,16,27,82,63,0.69,5,5833,GENERATED
+OWN08,CIN,Roland Delacroix,Investment Group,Corporate Syndicate,10,69,71,46,0.57,5,6332,GENERATED
+OWN09,HOU,Evelyn Ashworth,Family Trust,Hands-off Steward,26,89,61,17,0.32,9,8045,GENERATED
+OWN10,IND,Casimir Nakamura,Investment Group,Aggressive Spender,14,42,93,71,0.96,5,6487,GENERATED
+OWN11,JAX,Delphine Pemberton,Individual,Frugal Traditionalist,20,73,27,39,0.25,4,6516,GENERATED
+OWN12,TEN,Augustin Salazar,Individual,Impatient Mogul,26,18,71,66,0.89,5,6714,GENERATED
+OWN13,DEN,Yolanda Thornbury,Investment Group,Analytics Believer,8,75,62,34,0.52,6,6125,GENERATED
+OWN14,KC,Terrence Achebe,Individual,Legacy Family Trust,20,82,46,21,0.48,5,7483,GENERATED
+OWN15,LV,Beatrix Kowalczyk,Individual,Celebrity Investor,13,33,83,75,0.77,5,6261,GENERATED
+OWN16,LAC,Sylvester Marchetti,Family Trust,Corporate Syndicate,28,53,54,43,0.46,10,8286,GENERATED
+OWN17,DAL,Imelda Fairbanks,Family Trust,Hands-off Steward,25,90,53,25,0.33,9,7406,GENERATED
+OWN18,PHI,Ranulph Duquesne,Investment Group,Aggressive Spender,20,41,86,67,0.73,8,6360,GENERATED
+OWN19,WAS,Constance Ravenscroft,Investment Group,Frugal Traditionalist,20,61,30,59,0.24,8,7418,GENERATED
+OWN20,NYG,Barnaby Ferreira,Family Trust,Impatient Mogul,5,8,72,73,0.98,10,7637,GENERATED
+OWN21,CHI,Odessa Blackwood,Individual,Analytics Believer,19,71,73,41,0.36,9,7403,GENERATED
+OWN22,DET,Leopold Sorensen,Family Trust,Legacy Family Trust,20,78,45,18,0.28,6,6475,GENERATED
+OWN23,GB,Winifred Mbeki,Individual,Celebrity Investor,22,34,85,72,0.82,2,4648,GENERATED
+OWN24,MIN,Cassius Lindqvist,Family Trust,Corporate Syndicate,27,51,76,45,0.53,6,6096,GENERATED
+OWN25,ATL,Marisol Carrington,Family Trust,Hands-off Steward,14,76,54,16,0.31,7,7244,GENERATED
+OWN26,CAR,Thaddeus Ozdemir,Individual,Aggressive Spender,11,48,99,78,0.85,5,6019,GENERATED
+OWN27,NO,Georgina Vasquez,Family Trust,Frugal Traditionalist,3,62,18,53,0.33,4,4935,GENERATED
+OWN28,TB,Emmett Huntington,Family Trust,Impatient Mogul,30,28,78,84,0.85,6,6299,GENERATED
+OWN29,ARI,Rosalind Broussard,Individual,Analytics Believer,10,69,69,52,0.59,6,6388,GENERATED
+OWN30,LAR,Ignatius Stavros,Investment Group,Legacy Family Trust,4,86,55,34,0.53,10,8082,GENERATED
+OWN31,SF,Clementine Weatherby,Individual,Celebrity Investor,17,37,95,74,0.71,9,7204,GENERATED
+OWN32,SEA,Absalom Calloway,Family Trust,Corporate Syndicate,23,63,71,26,0.69,7,6194,GENERATED

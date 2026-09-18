@@ -1,0 +1,4334 @@
+player_id,trait,data_class
+BUF_QB_03,Field General,MODELED
+BUF_QB_04,Coach's Son,MODELED
+BUF_QB_04,Injury Prone,MODELED
+BUF_RB_01,Volatile,MODELED
+BUF_RB_01,High Motor,MODELED
+BUF_RB_01,Positional Versatility,MODELED
+BUF_RB_02,Slow Starter,MODELED
+BUF_RB_03,Ironman,MODELED
+BUF_RB_03,Special Teams Ace,MODELED
+BUF_RB_03,Practice Squad Grinder,MODELED
+BUF_RB_04,Practice Squad Grinder,MODELED
+BUF_RB_04,Big Game Hunter,MODELED
+BUF_RB_05,Positional Versatility,MODELED
+BUF_RB_05,Coach's Son,MODELED
+BUF_RB_05,Special Teams Ace,MODELED
+BUF_FB_01,Field General,MODELED
+BUF_WR_01,Slow Starter,MODELED
+BUF_WR_01,Injury Prone,MODELED
+BUF_WR_02,Injury Prone,MODELED
+BUF_WR_04,Volatile,MODELED
+BUF_WR_04,Special Teams Ace,MODELED
+BUF_WR_04,Film Junkie,MODELED
+BUF_WR_05,Weight Room Warrior,MODELED
+BUF_WR_06,Clutch Performer,MODELED
+BUF_WR_06,Injury Prone,MODELED
+BUF_WR_07,Volatile,MODELED
+BUF_WR_08,Scheme Dependent,MODELED
+BUF_WR_08,Weight Room Warrior,MODELED
+BUF_WR_09,Positional Versatility,MODELED
+BUF_WR_09,Special Teams Ace,MODELED
+BUF_WR_09,Slow Starter,MODELED
+BUF_WR_10,Field General,MODELED
+BUF_TE_01,Ironman,MODELED
+BUF_TE_01,Weight Room Warrior,MODELED
+BUF_TE_01,Scheme Dependent,MODELED
+BUF_TE_02,Weight Room Warrior,MODELED
+BUF_TE_02,Big Game Hunter,MODELED
+BUF_TE_03,High Motor,MODELED
+BUF_TE_03,Coach's Son,MODELED
+BUF_TE_04,Big Game Hunter,MODELED
+BUF_TE_06,Scheme Dependent,MODELED
+BUF_TE_06,Volatile,MODELED
+BUF_OT_02,Film Junkie,MODELED
+BUF_OT_02,Coach's Son,MODELED
+BUF_OT_03,Locker Room Leader,MODELED
+BUF_OT_04,Coach's Son,MODELED
+BUF_OT_04,Positional Versatility,MODELED
+BUF_OT_05,Practice Squad Grinder,MODELED
+BUF_OT_06,Field General,MODELED
+BUF_OT_06,Injury Prone,MODELED
+BUF_OG_01,High Motor,MODELED
+BUF_OG_02,Field General,MODELED
+BUF_OG_02,Positional Versatility,MODELED
+BUF_OG_02,Big Game Hunter,MODELED
+BUF_OG_03,Coach's Son,MODELED
+BUF_OG_03,Field General,MODELED
+BUF_OG_03,Practice Squad Grinder,MODELED
+BUF_OG_04,Injury Prone,MODELED
+BUF_OG_05,Late Bloomer,MODELED
+BUF_OG_05,High Motor,MODELED
+BUF_OG_05,Field General,MODELED
+BUF_OG_06,Positional Versatility,MODELED
+BUF_OG_06,Field General,MODELED
+BUF_OG_06,Special Teams Ace,MODELED
+BUF_C_01,Scheme Dependent,MODELED
+BUF_C_02,Field General,MODELED
+BUF_C_02,Special Teams Ace,MODELED
+BUF_C_02,Clutch Performer,MODELED
+BUF_C_03,Practice Squad Grinder,MODELED
+BUF_C_03,Weight Room Warrior,MODELED
+BUF_EDGE_01,Slow Starter,MODELED
+BUF_EDGE_02,Field General,MODELED
+BUF_EDGE_03,Scheme Dependent,MODELED
+BUF_EDGE_03,Late Bloomer,MODELED
+BUF_EDGE_03,Special Teams Ace,MODELED
+BUF_EDGE_04,High Motor,MODELED
+BUF_EDGE_04,Field General,MODELED
+BUF_EDGE_05,Ironman,MODELED
+BUF_EDGE_05,Scheme Dependent,MODELED
+BUF_EDGE_06,Volatile,MODELED
+BUF_EDGE_06,Late Bloomer,MODELED
+BUF_EDGE_07,Practice Squad Grinder,MODELED
+BUF_EDGE_07,Scheme Dependent,MODELED
+BUF_EDGE_07,Injury Prone,MODELED
+BUF_EDGE_08,Injury Prone,MODELED
+BUF_EDGE_08,Special Teams Ace,MODELED
+BUF_EDGE_09,Field General,MODELED
+BUF_EDGE_09,Weight Room Warrior,MODELED
+BUF_DT_01,Field General,MODELED
+BUF_DT_02,Clutch Performer,MODELED
+BUF_DT_03,Slow Starter,MODELED
+BUF_DT_03,Coach's Son,MODELED
+BUF_DT_04,Positional Versatility,MODELED
+BUF_DT_04,Weight Room Warrior,MODELED
+BUF_DT_05,Ironman,MODELED
+BUF_DT_06,Film Junkie,MODELED
+BUF_DT_08,Practice Squad Grinder,MODELED
+BUF_LB_01,Clutch Performer,MODELED
+BUF_LB_01,Big Game Hunter,MODELED
+BUF_LB_01,Practice Squad Grinder,MODELED
+BUF_LB_02,Slow Starter,MODELED
+BUF_LB_02,Late Bloomer,MODELED
+BUF_LB_03,Late Bloomer,MODELED
+BUF_LB_03,Practice Squad Grinder,MODELED
+BUF_LB_05,Locker Room Leader,MODELED
+BUF_LB_07,Special Teams Ace,MODELED
+BUF_LB_07,Injury Prone,MODELED
+BUF_LB_07,Big Game Hunter,MODELED
+BUF_LB_08,Big Game Hunter,MODELED
+BUF_LB_08,Coach's Son,MODELED
+BUF_CB_01,Special Teams Ace,MODELED
+BUF_CB_01,Practice Squad Grinder,MODELED
+BUF_CB_03,Field General,MODELED
+BUF_CB_04,Locker Room Leader,MODELED
+BUF_CB_04,Special Teams Ace,MODELED
+BUF_CB_04,Slow Starter,MODELED
+BUF_CB_05,Weight Room Warrior,MODELED
+BUF_CB_05,Late Bloomer,MODELED
+BUF_CB_06,Clutch Performer,MODELED
+BUF_CB_06,Weight Room Warrior,MODELED
+BUF_CB_07,Coach's Son,MODELED
+BUF_CB_07,Locker Room Leader,MODELED
+BUF_CB_08,Late Bloomer,MODELED
+BUF_CB_09,Positional Versatility,MODELED
+BUF_CB_10,Locker Room Leader,MODELED
+BUF_CB_10,Positional Versatility,MODELED
+BUF_CB_11,Ironman,MODELED
+BUF_CB_11,Positional Versatility,MODELED
+BUF_S_03,Positional Versatility,MODELED
+BUF_S_05,Field General,MODELED
+BUF_S_05,Big Game Hunter,MODELED
+BUF_S_06,Late Bloomer,MODELED
+BUF_S_06,Positional Versatility,MODELED
+BUF_S_06,Weight Room Warrior,MODELED
+BUF_S_07,Scheme Dependent,MODELED
+BUF_S_07,Ironman,MODELED
+BUF_K_02,Film Junkie,MODELED
+BUF_K_02,Volatile,MODELED
+BUF_K_02,Practice Squad Grinder,MODELED
+BUF_P_02,Late Bloomer,MODELED
+BUF_P_02,Big Game Hunter,MODELED
+BUF_LS_01,Locker Room Leader,MODELED
+BUF_LS_01,Injury Prone,MODELED
+BUF_LS_01,Big Game Hunter,MODELED
+MIA_QB_01,Practice Squad Grinder,MODELED
+MIA_QB_01,Special Teams Ace,MODELED
+MIA_QB_01,Injury Prone,MODELED
+MIA_QB_02,Scheme Dependent,MODELED
+MIA_QB_03,Clutch Performer,MODELED
+MIA_QB_04,Locker Room Leader,MODELED
+MIA_QB_04,Film Junkie,MODELED
+MIA_RB_02,Injury Prone,MODELED
+MIA_RB_03,Clutch Performer,MODELED
+MIA_RB_03,Field General,MODELED
+MIA_RB_04,Late Bloomer,MODELED
+MIA_RB_04,Weight Room Warrior,MODELED
+MIA_RB_05,Field General,MODELED
+MIA_RB_05,Locker Room Leader,MODELED
+MIA_FB_01,Film Junkie,MODELED
+MIA_WR_01,Scheme Dependent,MODELED
+MIA_WR_02,Field General,MODELED
+MIA_WR_03,Coach's Son,MODELED
+MIA_WR_03,Practice Squad Grinder,MODELED
+MIA_WR_04,Volatile,MODELED
+MIA_WR_05,Big Game Hunter,MODELED
+MIA_WR_05,Field General,MODELED
+MIA_WR_05,Special Teams Ace,MODELED
+MIA_WR_06,Scheme Dependent,MODELED
+MIA_WR_06,High Motor,MODELED
+MIA_WR_07,Ironman,MODELED
+MIA_WR_07,Volatile,MODELED
+MIA_WR_08,Field General,MODELED
+MIA_WR_08,Slow Starter,MODELED
+MIA_WR_08,Ironman,MODELED
+MIA_WR_09,Special Teams Ace,MODELED
+MIA_WR_09,Injury Prone,MODELED
+MIA_WR_10,Coach's Son,MODELED
+MIA_WR_10,High Motor,MODELED
+MIA_TE_01,Ironman,MODELED
+MIA_TE_01,Volatile,MODELED
+MIA_TE_02,Practice Squad Grinder,MODELED
+MIA_TE_03,Locker Room Leader,MODELED
+MIA_TE_03,Volatile,MODELED
+MIA_TE_04,Special Teams Ace,MODELED
+MIA_TE_05,Clutch Performer,MODELED
+MIA_TE_05,Ironman,MODELED
+MIA_TE_06,Slow Starter,MODELED
+MIA_OT_01,Coach's Son,MODELED
+MIA_OT_01,Ironman,MODELED
+MIA_OT_02,Big Game Hunter,MODELED
+MIA_OT_03,Volatile,MODELED
+MIA_OT_04,Field General,MODELED
+MIA_OT_06,Field General,MODELED
+MIA_OT_06,Injury Prone,MODELED
+MIA_OG_01,Big Game Hunter,MODELED
+MIA_OG_02,Ironman,MODELED
+MIA_OG_02,Special Teams Ace,MODELED
+MIA_OG_02,Injury Prone,MODELED
+MIA_OG_03,Injury Prone,MODELED
+MIA_OG_04,Big Game Hunter,MODELED
+MIA_OG_04,Special Teams Ace,MODELED
+MIA_OG_05,Practice Squad Grinder,MODELED
+MIA_OG_06,Ironman,MODELED
+MIA_OG_06,High Motor,MODELED
+MIA_C_01,Late Bloomer,MODELED
+MIA_C_01,High Motor,MODELED
+MIA_C_03,Late Bloomer,MODELED
+MIA_C_03,Positional Versatility,MODELED
+MIA_C_03,Practice Squad Grinder,MODELED
+MIA_EDGE_02,Coach's Son,MODELED
+MIA_EDGE_02,Scheme Dependent,MODELED
+MIA_EDGE_02,Film Junkie,MODELED
+MIA_EDGE_03,Locker Room Leader,MODELED
+MIA_EDGE_03,Big Game Hunter,MODELED
+MIA_EDGE_04,Volatile,MODELED
+MIA_EDGE_05,Ironman,MODELED
+MIA_EDGE_05,Film Junkie,MODELED
+MIA_EDGE_05,Locker Room Leader,MODELED
+MIA_EDGE_06,Film Junkie,MODELED
+MIA_EDGE_06,Injury Prone,MODELED
+MIA_EDGE_08,Locker Room Leader,MODELED
+MIA_EDGE_09,High Motor,MODELED
+MIA_DT_01,Field General,MODELED
+MIA_DT_01,High Motor,MODELED
+MIA_DT_01,Weight Room Warrior,MODELED
+MIA_DT_02,Ironman,MODELED
+MIA_DT_02,Field General,MODELED
+MIA_DT_03,Special Teams Ace,MODELED
+MIA_DT_03,Weight Room Warrior,MODELED
+MIA_DT_04,Weight Room Warrior,MODELED
+MIA_DT_05,Slow Starter,MODELED
+MIA_DT_06,Film Junkie,MODELED
+MIA_DT_06,Injury Prone,MODELED
+MIA_DT_06,Practice Squad Grinder,MODELED
+MIA_DT_07,Volatile,MODELED
+MIA_DT_07,Slow Starter,MODELED
+MIA_DT_07,Practice Squad Grinder,MODELED
+MIA_LB_01,Slow Starter,MODELED
+MIA_LB_03,High Motor,MODELED
+MIA_LB_03,Practice Squad Grinder,MODELED
+MIA_LB_03,Weight Room Warrior,MODELED
+MIA_LB_04,Practice Squad Grinder,MODELED
+MIA_LB_04,Locker Room Leader,MODELED
+MIA_LB_05,Ironman,MODELED
+MIA_LB_05,Big Game Hunter,MODELED
+MIA_LB_06,Field General,MODELED
+MIA_LB_06,Scheme Dependent,MODELED
+MIA_LB_07,Injury Prone,MODELED
+MIA_LB_08,Special Teams Ace,MODELED
+MIA_LB_08,Ironman,MODELED
+MIA_CB_03,Practice Squad Grinder,MODELED
+MIA_CB_03,Injury Prone,MODELED
+MIA_CB_05,Locker Room Leader,MODELED
+MIA_CB_05,Field General,MODELED
+MIA_CB_06,Special Teams Ace,MODELED
+MIA_CB_06,Positional Versatility,MODELED
+MIA_CB_06,Injury Prone,MODELED
+MIA_CB_07,Big Game Hunter,MODELED
+MIA_CB_07,Ironman,MODELED
+MIA_CB_08,Ironman,MODELED
+MIA_CB_08,Big Game Hunter,MODELED
+MIA_CB_08,Coach's Son,MODELED
+MIA_CB_09,Scheme Dependent,MODELED
+MIA_CB_10,Positional Versatility,MODELED
+MIA_CB_10,Coach's Son,MODELED
+MIA_CB_11,Film Junkie,MODELED
+MIA_CB_11,Slow Starter,MODELED
+MIA_CB_11,Coach's Son,MODELED
+MIA_S_01,High Motor,MODELED
+MIA_S_02,Positional Versatility,MODELED
+MIA_S_02,Big Game Hunter,MODELED
+MIA_S_05,Clutch Performer,MODELED
+MIA_S_06,High Motor,MODELED
+MIA_S_06,Volatile,MODELED
+MIA_S_07,Field General,MODELED
+MIA_S_07,Late Bloomer,MODELED
+MIA_S_07,High Motor,MODELED
+MIA_K_02,Slow Starter,MODELED
+MIA_K_02,Weight Room Warrior,MODELED
+MIA_P_01,Scheme Dependent,MODELED
+MIA_P_01,Injury Prone,MODELED
+MIA_P_02,Coach's Son,MODELED
+MIA_P_02,Big Game Hunter,MODELED
+MIA_P_02,Field General,MODELED
+NE_QB_01,Injury Prone,MODELED
+NE_QB_01,Practice Squad Grinder,MODELED
+NE_QB_03,Field General,MODELED
+NE_QB_03,Clutch Performer,MODELED
+NE_RB_01,Big Game Hunter,MODELED
+NE_RB_01,Ironman,MODELED
+NE_RB_02,Film Junkie,MODELED
+NE_RB_05,Positional Versatility,MODELED
+NE_RB_05,Clutch Performer,MODELED
+NE_WR_02,Practice Squad Grinder,MODELED
+NE_WR_03,Positional Versatility,MODELED
+NE_WR_03,Slow Starter,MODELED
+NE_WR_06,Locker Room Leader,MODELED
+NE_WR_06,Positional Versatility,MODELED
+NE_WR_08,Coach's Son,MODELED
+NE_WR_08,Clutch Performer,MODELED
+NE_WR_08,Positional Versatility,MODELED
+NE_WR_09,Film Junkie,MODELED
+NE_WR_10,Injury Prone,MODELED
+NE_WR_11,Clutch Performer,MODELED
+NE_TE_01,Clutch Performer,MODELED
+NE_TE_01,Coach's Son,MODELED
+NE_TE_02,Volatile,MODELED
+NE_TE_02,Late Bloomer,MODELED
+NE_TE_03,Late Bloomer,MODELED
+NE_TE_04,Weight Room Warrior,MODELED
+NE_TE_04,Special Teams Ace,MODELED
+NE_TE_04,Positional Versatility,MODELED
+NE_TE_05,Ironman,MODELED
+NE_TE_06,Locker Room Leader,MODELED
+NE_OT_01,Ironman,MODELED
+NE_OT_01,Scheme Dependent,MODELED
+NE_OT_01,Volatile,MODELED
+NE_OT_02,Injury Prone,MODELED
+NE_OT_02,Big Game Hunter,MODELED
+NE_OT_04,Ironman,MODELED
+NE_OT_05,Positional Versatility,MODELED
+NE_OT_05,Ironman,MODELED
+NE_OT_06,Clutch Performer,MODELED
+NE_OG_01,Ironman,MODELED
+NE_OG_02,Big Game Hunter,MODELED
+NE_OG_02,Locker Room Leader,MODELED
+NE_OG_02,Scheme Dependent,MODELED
+NE_OG_03,Practice Squad Grinder,MODELED
+NE_OG_03,Special Teams Ace,MODELED
+NE_OG_04,Locker Room Leader,MODELED
+NE_OG_05,Field General,MODELED
+NE_OG_05,Late Bloomer,MODELED
+NE_OG_05,Injury Prone,MODELED
+NE_OG_06,Positional Versatility,MODELED
+NE_C_01,Practice Squad Grinder,MODELED
+NE_C_02,Positional Versatility,MODELED
+NE_C_02,Field General,MODELED
+NE_C_02,Big Game Hunter,MODELED
+NE_C_03,Scheme Dependent,MODELED
+NE_C_03,Volatile,MODELED
+NE_EDGE_01,Slow Starter,MODELED
+NE_EDGE_01,Special Teams Ace,MODELED
+NE_EDGE_01,Volatile,MODELED
+NE_EDGE_02,Slow Starter,MODELED
+NE_EDGE_03,Slow Starter,MODELED
+NE_EDGE_04,High Motor,MODELED
+NE_EDGE_05,Weight Room Warrior,MODELED
+NE_EDGE_05,Coach's Son,MODELED
+NE_EDGE_06,Positional Versatility,MODELED
+NE_EDGE_07,Locker Room Leader,MODELED
+NE_EDGE_08,Injury Prone,MODELED
+NE_EDGE_09,Positional Versatility,MODELED
+NE_EDGE_09,Coach's Son,MODELED
+NE_EDGE_09,Big Game Hunter,MODELED
+NE_DT_01,Ironman,MODELED
+NE_DT_01,Injury Prone,MODELED
+NE_DT_02,Ironman,MODELED
+NE_DT_02,Locker Room Leader,MODELED
+NE_DT_03,High Motor,MODELED
+NE_DT_04,Locker Room Leader,MODELED
+NE_DT_04,Late Bloomer,MODELED
+NE_DT_05,Weight Room Warrior,MODELED
+NE_DT_07,Injury Prone,MODELED
+NE_DT_07,High Motor,MODELED
+NE_DT_08,High Motor,MODELED
+NE_LB_02,Positional Versatility,MODELED
+NE_LB_03,Field General,MODELED
+NE_LB_03,Practice Squad Grinder,MODELED
+NE_LB_04,High Motor,MODELED
+NE_LB_04,Big Game Hunter,MODELED
+NE_LB_05,Clutch Performer,MODELED
+NE_LB_06,Injury Prone,MODELED
+NE_LB_06,Weight Room Warrior,MODELED
+NE_LB_06,Ironman,MODELED
+NE_LB_07,Locker Room Leader,MODELED
+NE_LB_07,Coach's Son,MODELED
+NE_LB_08,Ironman,MODELED
+NE_LB_08,High Motor,MODELED
+NE_CB_01,Late Bloomer,MODELED
+NE_CB_02,Locker Room Leader,MODELED
+NE_CB_02,Positional Versatility,MODELED
+NE_CB_04,Field General,MODELED
+NE_CB_04,Locker Room Leader,MODELED
+NE_CB_04,Special Teams Ace,MODELED
+NE_CB_05,Slow Starter,MODELED
+NE_CB_05,Volatile,MODELED
+NE_CB_05,Locker Room Leader,MODELED
+NE_CB_06,Volatile,MODELED
+NE_CB_06,Injury Prone,MODELED
+NE_CB_08,Field General,MODELED
+NE_CB_08,Practice Squad Grinder,MODELED
+NE_CB_09,Positional Versatility,MODELED
+NE_CB_10,Big Game Hunter,MODELED
+NE_CB_10,Positional Versatility,MODELED
+NE_CB_11,Practice Squad Grinder,MODELED
+NE_CB_11,Coach's Son,MODELED
+NE_S_01,High Motor,MODELED
+NE_S_01,Injury Prone,MODELED
+NE_S_02,Big Game Hunter,MODELED
+NE_S_02,Locker Room Leader,MODELED
+NE_S_03,Volatile,MODELED
+NE_S_05,Special Teams Ace,MODELED
+NE_S_06,High Motor,MODELED
+NE_S_06,Scheme Dependent,MODELED
+NE_S_06,Injury Prone,MODELED
+NE_S_07,Field General,MODELED
+NE_S_07,Locker Room Leader,MODELED
+NE_S_07,Injury Prone,MODELED
+NE_K_01,Slow Starter,MODELED
+NE_K_02,Slow Starter,MODELED
+NE_K_02,Film Junkie,MODELED
+NE_P_01,Volatile,MODELED
+NE_P_02,Positional Versatility,MODELED
+NYJ_QB_01,Volatile,MODELED
+NYJ_QB_02,Big Game Hunter,MODELED
+NYJ_QB_03,Scheme Dependent,MODELED
+NYJ_QB_04,Clutch Performer,MODELED
+NYJ_QB_04,Special Teams Ace,MODELED
+NYJ_RB_01,Positional Versatility,MODELED
+NYJ_RB_01,Coach's Son,MODELED
+NYJ_RB_02,Coach's Son,MODELED
+NYJ_RB_02,Slow Starter,MODELED
+NYJ_RB_03,Clutch Performer,MODELED
+NYJ_RB_04,Late Bloomer,MODELED
+NYJ_RB_04,Special Teams Ace,MODELED
+NYJ_RB_05,Volatile,MODELED
+NYJ_RB_05,Practice Squad Grinder,MODELED
+NYJ_FB_01,Field General,MODELED
+NYJ_WR_01,Scheme Dependent,MODELED
+NYJ_WR_01,Clutch Performer,MODELED
+NYJ_WR_02,Special Teams Ace,MODELED
+NYJ_WR_02,Weight Room Warrior,MODELED
+NYJ_WR_03,Special Teams Ace,MODELED
+NYJ_WR_04,Special Teams Ace,MODELED
+NYJ_WR_04,Slow Starter,MODELED
+NYJ_WR_05,Practice Squad Grinder,MODELED
+NYJ_WR_06,Special Teams Ace,MODELED
+NYJ_WR_07,Injury Prone,MODELED
+NYJ_WR_08,Film Junkie,MODELED
+NYJ_WR_08,Field General,MODELED
+NYJ_WR_09,Film Junkie,MODELED
+NYJ_WR_09,Late Bloomer,MODELED
+NYJ_WR_10,Practice Squad Grinder,MODELED
+NYJ_WR_10,Ironman,MODELED
+NYJ_TE_01,Coach's Son,MODELED
+NYJ_TE_02,Late Bloomer,MODELED
+NYJ_TE_02,Practice Squad Grinder,MODELED
+NYJ_TE_03,Positional Versatility,MODELED
+NYJ_TE_03,Clutch Performer,MODELED
+NYJ_TE_03,High Motor,MODELED
+NYJ_TE_04,Slow Starter,MODELED
+NYJ_TE_05,Volatile,MODELED
+NYJ_TE_06,Film Junkie,MODELED
+NYJ_TE_06,Locker Room Leader,MODELED
+NYJ_OT_02,Injury Prone,MODELED
+NYJ_OT_03,Special Teams Ace,MODELED
+NYJ_OT_05,Volatile,MODELED
+NYJ_OT_05,Coach's Son,MODELED
+NYJ_OG_01,Scheme Dependent,MODELED
+NYJ_OG_02,Clutch Performer,MODELED
+NYJ_OG_03,Coach's Son,MODELED
+NYJ_OG_03,Film Junkie,MODELED
+NYJ_OG_03,Field General,MODELED
+NYJ_OG_05,Locker Room Leader,MODELED
+NYJ_OG_05,Slow Starter,MODELED
+NYJ_OG_06,Big Game Hunter,MODELED
+NYJ_C_02,Locker Room Leader,MODELED
+NYJ_C_03,Weight Room Warrior,MODELED
+NYJ_C_03,Ironman,MODELED
+NYJ_EDGE_03,Practice Squad Grinder,MODELED
+NYJ_EDGE_03,Film Junkie,MODELED
+NYJ_EDGE_03,Special Teams Ace,MODELED
+NYJ_EDGE_04,Late Bloomer,MODELED
+NYJ_EDGE_06,Slow Starter,MODELED
+NYJ_EDGE_06,Film Junkie,MODELED
+NYJ_EDGE_07,Ironman,MODELED
+NYJ_EDGE_07,Late Bloomer,MODELED
+NYJ_EDGE_08,Practice Squad Grinder,MODELED
+NYJ_EDGE_08,Locker Room Leader,MODELED
+NYJ_EDGE_09,Coach's Son,MODELED
+NYJ_DT_01,Film Junkie,MODELED
+NYJ_DT_01,Positional Versatility,MODELED
+NYJ_DT_02,Field General,MODELED
+NYJ_DT_03,Late Bloomer,MODELED
+NYJ_DT_03,Weight Room Warrior,MODELED
+NYJ_DT_04,Slow Starter,MODELED
+NYJ_DT_04,Field General,MODELED
+NYJ_DT_05,Injury Prone,MODELED
+NYJ_DT_05,High Motor,MODELED
+NYJ_DT_06,Ironman,MODELED
+NYJ_DT_07,Volatile,MODELED
+NYJ_DT_07,Field General,MODELED
+NYJ_DT_08,Special Teams Ace,MODELED
+NYJ_DT_08,Field General,MODELED
+NYJ_LB_01,Special Teams Ace,MODELED
+NYJ_LB_01,Scheme Dependent,MODELED
+NYJ_LB_02,Positional Versatility,MODELED
+NYJ_LB_02,Injury Prone,MODELED
+NYJ_LB_03,Practice Squad Grinder,MODELED
+NYJ_LB_03,Locker Room Leader,MODELED
+NYJ_LB_04,Injury Prone,MODELED
+NYJ_LB_04,Volatile,MODELED
+NYJ_LB_05,Late Bloomer,MODELED
+NYJ_LB_05,Coach's Son,MODELED
+NYJ_LB_06,Coach's Son,MODELED
+NYJ_LB_06,Volatile,MODELED
+NYJ_LB_07,Special Teams Ace,MODELED
+NYJ_LB_07,Ironman,MODELED
+NYJ_LB_08,Slow Starter,MODELED
+NYJ_CB_01,Positional Versatility,MODELED
+NYJ_CB_01,Late Bloomer,MODELED
+NYJ_CB_02,High Motor,MODELED
+NYJ_CB_03,Volatile,MODELED
+NYJ_CB_03,Injury Prone,MODELED
+NYJ_CB_04,Volatile,MODELED
+NYJ_CB_05,High Motor,MODELED
+NYJ_CB_06,Big Game Hunter,MODELED
+NYJ_CB_09,Late Bloomer,MODELED
+NYJ_CB_10,Film Junkie,MODELED
+NYJ_CB_11,Field General,MODELED
+NYJ_S_01,High Motor,MODELED
+NYJ_S_02,Slow Starter,MODELED
+NYJ_S_03,Locker Room Leader,MODELED
+NYJ_S_03,Coach's Son,MODELED
+NYJ_S_05,Injury Prone,MODELED
+NYJ_S_06,Ironman,MODELED
+NYJ_S_06,Slow Starter,MODELED
+NYJ_S_06,Locker Room Leader,MODELED
+NYJ_S_07,Film Junkie,MODELED
+NYJ_S_07,Ironman,MODELED
+NYJ_S_07,Injury Prone,MODELED
+NYJ_K_01,Big Game Hunter,MODELED
+NYJ_K_02,Ironman,MODELED
+NYJ_P_01,Film Junkie,MODELED
+NYJ_P_01,Practice Squad Grinder,MODELED
+NYJ_P_02,Film Junkie,MODELED
+BAL_QB_01,Coach's Son,MODELED
+BAL_QB_01,Clutch Performer,MODELED
+BAL_QB_02,Film Junkie,MODELED
+BAL_QB_03,Slow Starter,MODELED
+BAL_QB_03,Weight Room Warrior,MODELED
+BAL_QB_04,Weight Room Warrior,MODELED
+BAL_RB_01,High Motor,MODELED
+BAL_RB_01,Locker Room Leader,MODELED
+BAL_RB_02,Special Teams Ace,MODELED
+BAL_RB_02,Coach's Son,MODELED
+BAL_RB_02,Injury Prone,MODELED
+BAL_RB_03,Coach's Son,MODELED
+BAL_RB_03,Clutch Performer,MODELED
+BAL_RB_03,Volatile,MODELED
+BAL_RB_04,Slow Starter,MODELED
+BAL_RB_04,Positional Versatility,MODELED
+BAL_RB_04,Film Junkie,MODELED
+BAL_RB_05,Locker Room Leader,MODELED
+BAL_RB_05,Clutch Performer,MODELED
+BAL_RB_05,Special Teams Ace,MODELED
+BAL_FB_01,Coach's Son,MODELED
+BAL_FB_01,Big Game Hunter,MODELED
+BAL_FB_01,Injury Prone,MODELED
+BAL_WR_01,Volatile,MODELED
+BAL_WR_01,Big Game Hunter,MODELED
+BAL_WR_02,Injury Prone,MODELED
+BAL_WR_04,Injury Prone,MODELED
+BAL_WR_04,Late Bloomer,MODELED
+BAL_WR_06,Volatile,MODELED
+BAL_WR_07,Volatile,MODELED
+BAL_WR_07,Film Junkie,MODELED
+BAL_WR_08,Field General,MODELED
+BAL_WR_09,Locker Room Leader,MODELED
+BAL_WR_09,Slow Starter,MODELED
+BAL_WR_10,Coach's Son,MODELED
+BAL_WR_10,Clutch Performer,MODELED
+BAL_WR_10,Film Junkie,MODELED
+BAL_WR_11,Positional Versatility,MODELED
+BAL_WR_11,Ironman,MODELED
+BAL_TE_02,Special Teams Ace,MODELED
+BAL_TE_03,Injury Prone,MODELED
+BAL_TE_03,Late Bloomer,MODELED
+BAL_TE_03,Big Game Hunter,MODELED
+BAL_TE_04,Positional Versatility,MODELED
+BAL_TE_04,Ironman,MODELED
+BAL_TE_05,Volatile,MODELED
+BAL_OT_01,Big Game Hunter,MODELED
+BAL_OT_02,Scheme Dependent,MODELED
+BAL_OT_03,Positional Versatility,MODELED
+BAL_OT_04,Field General,MODELED
+BAL_OT_04,Scheme Dependent,MODELED
+BAL_OT_04,Big Game Hunter,MODELED
+BAL_OT_05,Coach's Son,MODELED
+BAL_OG_02,Slow Starter,MODELED
+BAL_OG_02,Injury Prone,MODELED
+BAL_OG_02,Weight Room Warrior,MODELED
+BAL_OG_03,Weight Room Warrior,MODELED
+BAL_OG_03,Coach's Son,MODELED
+BAL_OG_04,Late Bloomer,MODELED
+BAL_OG_04,Scheme Dependent,MODELED
+BAL_OG_05,Volatile,MODELED
+BAL_C_01,Late Bloomer,MODELED
+BAL_C_03,Clutch Performer,MODELED
+BAL_EDGE_01,Positional Versatility,MODELED
+BAL_EDGE_02,Volatile,MODELED
+BAL_EDGE_03,Volatile,MODELED
+BAL_EDGE_03,High Motor,MODELED
+BAL_EDGE_03,Weight Room Warrior,MODELED
+BAL_EDGE_04,Late Bloomer,MODELED
+BAL_EDGE_04,Big Game Hunter,MODELED
+BAL_EDGE_05,Big Game Hunter,MODELED
+BAL_EDGE_06,Injury Prone,MODELED
+BAL_EDGE_06,High Motor,MODELED
+BAL_EDGE_06,Positional Versatility,MODELED
+BAL_EDGE_07,Special Teams Ace,MODELED
+BAL_EDGE_08,Locker Room Leader,MODELED
+BAL_EDGE_09,Slow Starter,MODELED
+BAL_DT_01,Weight Room Warrior,MODELED
+BAL_DT_02,Slow Starter,MODELED
+BAL_DT_02,Special Teams Ace,MODELED
+BAL_DT_02,Injury Prone,MODELED
+BAL_DT_03,Injury Prone,MODELED
+BAL_DT_03,Late Bloomer,MODELED
+BAL_DT_04,Film Junkie,MODELED
+BAL_DT_05,Late Bloomer,MODELED
+BAL_DT_06,High Motor,MODELED
+BAL_DT_07,Special Teams Ace,MODELED
+BAL_DT_08,Field General,MODELED
+BAL_DT_08,Weight Room Warrior,MODELED
+BAL_DT_08,Locker Room Leader,MODELED
+BAL_LB_01,Late Bloomer,MODELED
+BAL_LB_01,Scheme Dependent,MODELED
+BAL_LB_03,Injury Prone,MODELED
+BAL_LB_03,Special Teams Ace,MODELED
+BAL_LB_03,High Motor,MODELED
+BAL_LB_04,Slow Starter,MODELED
+BAL_LB_04,Scheme Dependent,MODELED
+BAL_LB_04,Late Bloomer,MODELED
+BAL_LB_05,Locker Room Leader,MODELED
+BAL_LB_05,Coach's Son,MODELED
+BAL_LB_06,Clutch Performer,MODELED
+BAL_LB_08,Ironman,MODELED
+BAL_LB_08,Positional Versatility,MODELED
+BAL_CB_01,Special Teams Ace,MODELED
+BAL_CB_02,Injury Prone,MODELED
+BAL_CB_02,Clutch Performer,MODELED
+BAL_CB_02,Field General,MODELED
+BAL_CB_03,Scheme Dependent,MODELED
+BAL_CB_04,High Motor,MODELED
+BAL_CB_05,Injury Prone,MODELED
+BAL_CB_07,Locker Room Leader,MODELED
+BAL_CB_07,Scheme Dependent,MODELED
+BAL_CB_07,Positional Versatility,MODELED
+BAL_CB_08,Field General,MODELED
+BAL_CB_08,Positional Versatility,MODELED
+BAL_CB_08,High Motor,MODELED
+BAL_CB_09,Locker Room Leader,MODELED
+BAL_CB_09,Coach's Son,MODELED
+BAL_CB_10,Volatile,MODELED
+BAL_CB_10,Clutch Performer,MODELED
+BAL_CB_11,Weight Room Warrior,MODELED
+BAL_CB_11,Slow Starter,MODELED
+BAL_CB_11,Injury Prone,MODELED
+BAL_S_01,Field General,MODELED
+BAL_S_02,Weight Room Warrior,MODELED
+BAL_S_03,Scheme Dependent,MODELED
+BAL_S_03,Big Game Hunter,MODELED
+BAL_S_03,Positional Versatility,MODELED
+BAL_S_04,Field General,MODELED
+BAL_S_05,Coach's Son,MODELED
+BAL_S_05,Field General,MODELED
+BAL_S_07,Slow Starter,MODELED
+BAL_P_01,Volatile,MODELED
+BAL_P_01,Slow Starter,MODELED
+BAL_P_02,High Motor,MODELED
+BAL_P_02,Film Junkie,MODELED
+BAL_LS_01,Scheme Dependent,MODELED
+BAL_LS_01,Volatile,MODELED
+PIT_QB_01,Clutch Performer,MODELED
+PIT_QB_02,Film Junkie,MODELED
+PIT_QB_02,Injury Prone,MODELED
+PIT_QB_03,Special Teams Ace,MODELED
+PIT_QB_03,Volatile,MODELED
+PIT_QB_03,Late Bloomer,MODELED
+PIT_QB_03,Injury Prone,MODELED
+PIT_QB_04,Practice Squad Grinder,MODELED
+PIT_QB_04,Big Game Hunter,MODELED
+PIT_QB_04,Scheme Dependent,MODELED
+PIT_RB_02,Film Junkie,MODELED
+PIT_RB_02,Slow Starter,MODELED
+PIT_RB_02,Big Game Hunter,MODELED
+PIT_RB_02,Injury Prone,MODELED
+PIT_RB_03,Slow Starter,MODELED
+PIT_RB_03,High Motor,MODELED
+PIT_RB_04,Weight Room Warrior,MODELED
+PIT_RB_04,Coach's Son,MODELED
+PIT_RB_04,Field General,MODELED
+PIT_RB_05,Ironman,MODELED
+PIT_FB_01,Injury Prone,MODELED
+PIT_WR_02,Late Bloomer,MODELED
+PIT_WR_02,Weight Room Warrior,MODELED
+PIT_WR_03,Injury Prone,MODELED
+PIT_WR_03,Volatile,MODELED
+PIT_WR_04,Locker Room Leader,MODELED
+PIT_WR_05,High Motor,MODELED
+PIT_WR_06,Field General,MODELED
+PIT_WR_07,Coach's Son,MODELED
+PIT_WR_08,Injury Prone,MODELED
+PIT_WR_08,Film Junkie,MODELED
+PIT_WR_09,Big Game Hunter,MODELED
+PIT_WR_09,Weight Room Warrior,MODELED
+PIT_WR_09,Volatile,MODELED
+PIT_WR_11,Positional Versatility,MODELED
+PIT_TE_01,Scheme Dependent,MODELED
+PIT_TE_02,Coach's Son,MODELED
+PIT_TE_02,Practice Squad Grinder,MODELED
+PIT_TE_03,Ironman,MODELED
+PIT_TE_03,Field General,MODELED
+PIT_TE_03,High Motor,MODELED
+PIT_TE_04,Locker Room Leader,MODELED
+PIT_TE_04,Ironman,MODELED
+PIT_TE_04,Film Junkie,MODELED
+PIT_TE_05,Locker Room Leader,MODELED
+PIT_TE_05,Late Bloomer,MODELED
+PIT_TE_05,High Motor,MODELED
+PIT_OT_01,Positional Versatility,MODELED
+PIT_OT_01,Weight Room Warrior,MODELED
+PIT_OT_02,Field General,MODELED
+PIT_OT_03,Locker Room Leader,MODELED
+PIT_OT_04,Practice Squad Grinder,MODELED
+PIT_OT_04,Injury Prone,MODELED
+PIT_OT_05,Special Teams Ace,MODELED
+PIT_OT_06,Injury Prone,MODELED
+PIT_OG_02,Film Junkie,MODELED
+PIT_OG_02,Locker Room Leader,MODELED
+PIT_OG_03,Special Teams Ace,MODELED
+PIT_OG_03,Slow Starter,MODELED
+PIT_OG_04,Ironman,MODELED
+PIT_OG_05,Locker Room Leader,MODELED
+PIT_OG_06,Injury Prone,MODELED
+PIT_OG_06,High Motor,MODELED
+PIT_OG_06,Special Teams Ace,MODELED
+PIT_C_01,Weight Room Warrior,MODELED
+PIT_C_02,Injury Prone,MODELED
+PIT_C_03,Big Game Hunter,MODELED
+PIT_C_03,Volatile,MODELED
+PIT_C_03,Injury Prone,MODELED
+PIT_EDGE_01,High Motor,MODELED
+PIT_EDGE_02,Coach's Son,MODELED
+PIT_EDGE_02,Volatile,MODELED
+PIT_EDGE_03,Big Game Hunter,MODELED
+PIT_EDGE_04,Scheme Dependent,MODELED
+PIT_EDGE_05,Clutch Performer,MODELED
+PIT_EDGE_05,Slow Starter,MODELED
+PIT_EDGE_07,Field General,MODELED
+PIT_EDGE_07,Special Teams Ace,MODELED
+PIT_EDGE_08,Injury Prone,MODELED
+PIT_EDGE_08,High Motor,MODELED
+PIT_EDGE_09,Late Bloomer,MODELED
+PIT_DT_01,Ironman,MODELED
+PIT_DT_02,Practice Squad Grinder,MODELED
+PIT_DT_02,High Motor,MODELED
+PIT_DT_05,Practice Squad Grinder,MODELED
+PIT_DT_05,Film Junkie,MODELED
+PIT_DT_06,Slow Starter,MODELED
+PIT_DT_06,Positional Versatility,MODELED
+PIT_DT_07,High Motor,MODELED
+PIT_DT_08,High Motor,MODELED
+PIT_LB_01,Locker Room Leader,MODELED
+PIT_LB_01,Film Junkie,MODELED
+PIT_LB_02,Film Junkie,MODELED
+PIT_LB_02,Field General,MODELED
+PIT_LB_02,Weight Room Warrior,MODELED
+PIT_LB_04,Scheme Dependent,MODELED
+PIT_LB_04,Locker Room Leader,MODELED
+PIT_LB_05,Practice Squad Grinder,MODELED
+PIT_LB_05,Film Junkie,MODELED
+PIT_LB_05,Slow Starter,MODELED
+PIT_LB_06,Injury Prone,MODELED
+PIT_LB_06,Scheme Dependent,MODELED
+PIT_LB_07,Coach's Son,MODELED
+PIT_LB_07,Scheme Dependent,MODELED
+PIT_CB_01,Positional Versatility,MODELED
+PIT_CB_03,Positional Versatility,MODELED
+PIT_CB_04,Practice Squad Grinder,MODELED
+PIT_CB_04,Film Junkie,MODELED
+PIT_CB_06,Locker Room Leader,MODELED
+PIT_CB_07,Ironman,MODELED
+PIT_CB_08,Coach's Son,MODELED
+PIT_CB_09,Ironman,MODELED
+PIT_CB_09,Film Junkie,MODELED
+PIT_CB_10,Practice Squad Grinder,MODELED
+PIT_CB_11,Coach's Son,MODELED
+PIT_CB_11,Scheme Dependent,MODELED
+PIT_CB_11,High Motor,MODELED
+PIT_S_01,Scheme Dependent,MODELED
+PIT_S_01,Late Bloomer,MODELED
+PIT_S_01,Field General,MODELED
+PIT_S_02,Weight Room Warrior,MODELED
+PIT_S_02,Special Teams Ace,MODELED
+PIT_S_03,Ironman,MODELED
+PIT_S_04,Positional Versatility,MODELED
+PIT_S_04,Special Teams Ace,MODELED
+PIT_S_05,Practice Squad Grinder,MODELED
+PIT_S_07,Positional Versatility,MODELED
+PIT_S_07,Coach's Son,MODELED
+PIT_K_01,Injury Prone,MODELED
+PIT_K_01,Late Bloomer,MODELED
+PIT_K_02,Clutch Performer,MODELED
+PIT_K_02,Special Teams Ace,MODELED
+PIT_P_01,Field General,MODELED
+PIT_P_01,Ironman,MODELED
+PIT_P_02,Ironman,MODELED
+PIT_LS_01,Clutch Performer,MODELED
+PIT_LS_01,Coach's Son,MODELED
+PIT_LS_01,Scheme Dependent,MODELED
+CLE_QB_02,Field General,MODELED
+CLE_QB_03,Positional Versatility,MODELED
+CLE_QB_03,Practice Squad Grinder,MODELED
+CLE_QB_03,Ironman,MODELED
+CLE_QB_04,Film Junkie,MODELED
+CLE_RB_01,Locker Room Leader,MODELED
+CLE_RB_02,Practice Squad Grinder,MODELED
+CLE_RB_03,Film Junkie,MODELED
+CLE_RB_04,Positional Versatility,MODELED
+CLE_RB_04,Clutch Performer,MODELED
+CLE_RB_04,Late Bloomer,MODELED
+CLE_RB_05,Positional Versatility,MODELED
+CLE_FB_01,Special Teams Ace,MODELED
+CLE_FB_01,Injury Prone,MODELED
+CLE_WR_01,Late Bloomer,MODELED
+CLE_WR_04,Locker Room Leader,MODELED
+CLE_WR_04,High Motor,MODELED
+CLE_WR_06,Locker Room Leader,MODELED
+CLE_WR_07,High Motor,MODELED
+CLE_WR_07,Clutch Performer,MODELED
+CLE_WR_09,Special Teams Ace,MODELED
+CLE_WR_10,Weight Room Warrior,MODELED
+CLE_WR_10,Clutch Performer,MODELED
+CLE_WR_11,Ironman,MODELED
+CLE_WR_11,Coach's Son,MODELED
+CLE_WR_11,Film Junkie,MODELED
+CLE_TE_02,Positional Versatility,MODELED
+CLE_TE_02,Weight Room Warrior,MODELED
+CLE_TE_03,Positional Versatility,MODELED
+CLE_TE_03,Ironman,MODELED
+CLE_TE_04,Injury Prone,MODELED
+CLE_TE_04,Late Bloomer,MODELED
+CLE_TE_05,Positional Versatility,MODELED
+CLE_OT_01,Field General,MODELED
+CLE_OT_01,Late Bloomer,MODELED
+CLE_OT_02,Positional Versatility,MODELED
+CLE_OT_02,Late Bloomer,MODELED
+CLE_OT_02,Practice Squad Grinder,MODELED
+CLE_OT_03,Weight Room Warrior,MODELED
+CLE_OT_03,Film Junkie,MODELED
+CLE_OT_03,Positional Versatility,MODELED
+CLE_OT_04,Volatile,MODELED
+CLE_OT_04,Scheme Dependent,MODELED
+CLE_OT_05,Weight Room Warrior,MODELED
+CLE_OT_06,Late Bloomer,MODELED
+CLE_OG_03,Special Teams Ace,MODELED
+CLE_OG_03,Clutch Performer,MODELED
+CLE_OG_04,High Motor,MODELED
+CLE_OG_04,Ironman,MODELED
+CLE_OG_04,Weight Room Warrior,MODELED
+CLE_OG_05,Film Junkie,MODELED
+CLE_OG_05,Big Game Hunter,MODELED
+CLE_OG_06,High Motor,MODELED
+CLE_C_02,High Motor,MODELED
+CLE_C_02,Ironman,MODELED
+CLE_EDGE_02,Weight Room Warrior,MODELED
+CLE_EDGE_03,Coach's Son,MODELED
+CLE_EDGE_03,Locker Room Leader,MODELED
+CLE_EDGE_04,Ironman,MODELED
+CLE_EDGE_05,High Motor,MODELED
+CLE_EDGE_05,Field General,MODELED
+CLE_EDGE_05,Practice Squad Grinder,MODELED
+CLE_EDGE_06,Big Game Hunter,MODELED
+CLE_EDGE_06,Weight Room Warrior,MODELED
+CLE_EDGE_08,Injury Prone,MODELED
+CLE_EDGE_09,Weight Room Warrior,MODELED
+CLE_DT_01,Practice Squad Grinder,MODELED
+CLE_DT_01,Late Bloomer,MODELED
+CLE_DT_01,Weight Room Warrior,MODELED
+CLE_DT_02,Ironman,MODELED
+CLE_DT_02,Practice Squad Grinder,MODELED
+CLE_DT_02,Late Bloomer,MODELED
+CLE_DT_04,Positional Versatility,MODELED
+CLE_DT_06,High Motor,MODELED
+CLE_DT_06,Late Bloomer,MODELED
+CLE_DT_07,Slow Starter,MODELED
+CLE_DT_07,High Motor,MODELED
+CLE_DT_08,Special Teams Ace,MODELED
+CLE_LB_01,Coach's Son,MODELED
+CLE_LB_01,Ironman,MODELED
+CLE_LB_02,Slow Starter,MODELED
+CLE_LB_02,Film Junkie,MODELED
+CLE_LB_02,Big Game Hunter,MODELED
+CLE_LB_03,Film Junkie,MODELED
+CLE_LB_03,Injury Prone,MODELED
+CLE_LB_03,Clutch Performer,MODELED
+CLE_LB_04,Film Junkie,MODELED
+CLE_LB_04,Volatile,MODELED
+CLE_LB_04,Field General,MODELED
+CLE_LB_05,Special Teams Ace,MODELED
+CLE_LB_06,Volatile,MODELED
+CLE_LB_06,Locker Room Leader,MODELED
+CLE_LB_07,Special Teams Ace,MODELED
+CLE_CB_01,Special Teams Ace,MODELED
+CLE_CB_01,Slow Starter,MODELED
+CLE_CB_02,Field General,MODELED
+CLE_CB_03,Locker Room Leader,MODELED
+CLE_CB_04,Practice Squad Grinder,MODELED
+CLE_CB_04,Weight Room Warrior,MODELED
+CLE_CB_04,Clutch Performer,MODELED
+CLE_CB_06,Volatile,MODELED
+CLE_CB_08,Volatile,MODELED
+CLE_CB_08,Film Junkie,MODELED
+CLE_CB_09,Clutch Performer,MODELED
+CLE_CB_10,Volatile,MODELED
+CLE_CB_10,Field General,MODELED
+CLE_CB_10,Coach's Son,MODELED
+CLE_S_01,Late Bloomer,MODELED
+CLE_S_01,Positional Versatility,MODELED
+CLE_S_01,High Motor,MODELED
+CLE_S_02,Film Junkie,MODELED
+CLE_S_03,Weight Room Warrior,MODELED
+CLE_S_03,Locker Room Leader,MODELED
+CLE_S_03,Special Teams Ace,MODELED
+CLE_S_04,Special Teams Ace,MODELED
+CLE_S_05,Big Game Hunter,MODELED
+CLE_S_05,Field General,MODELED
+CLE_S_06,Film Junkie,MODELED
+CLE_S_06,Practice Squad Grinder,MODELED
+CLE_S_06,Field General,MODELED
+CLE_K_02,Practice Squad Grinder,MODELED
+CLE_P_01,Coach's Son,MODELED
+CLE_P_01,Injury Prone,MODELED
+CLE_P_02,Late Bloomer,MODELED
+CLE_LS_01,Weight Room Warrior,MODELED
+CIN_QB_01,Injury Prone,MODELED
+CIN_QB_01,Slow Starter,MODELED
+CIN_QB_02,Positional Versatility,MODELED
+CIN_QB_02,Special Teams Ace,MODELED
+CIN_QB_02,Big Game Hunter,MODELED
+CIN_QB_03,Scheme Dependent,MODELED
+CIN_QB_04,Field General,MODELED
+CIN_QB_04,Special Teams Ace,MODELED
+CIN_RB_01,Clutch Performer,MODELED
+CIN_RB_01,Weight Room Warrior,MODELED
+CIN_RB_02,Volatile,MODELED
+CIN_RB_03,Locker Room Leader,MODELED
+CIN_RB_04,Ironman,MODELED
+CIN_FB_01,Locker Room Leader,MODELED
+CIN_WR_01,Coach's Son,MODELED
+CIN_WR_01,Positional Versatility,MODELED
+CIN_WR_01,Volatile,MODELED
+CIN_WR_02,High Motor,MODELED
+CIN_WR_02,Positional Versatility,MODELED
+CIN_WR_02,Weight Room Warrior,MODELED
+CIN_WR_02,Injury Prone,MODELED
+CIN_WR_03,Locker Room Leader,MODELED
+CIN_WR_03,Slow Starter,MODELED
+CIN_WR_04,Coach's Son,MODELED
+CIN_WR_04,Film Junkie,MODELED
+CIN_WR_05,Special Teams Ace,MODELED
+CIN_WR_08,Weight Room Warrior,MODELED
+CIN_WR_08,Big Game Hunter,MODELED
+CIN_WR_08,Scheme Dependent,MODELED
+CIN_WR_09,Locker Room Leader,MODELED
+CIN_WR_09,Special Teams Ace,MODELED
+CIN_WR_10,High Motor,MODELED
+CIN_WR_10,Injury Prone,MODELED
+CIN_WR_10,Volatile,MODELED
+CIN_WR_11,Practice Squad Grinder,MODELED
+CIN_WR_11,Volatile,MODELED
+CIN_WR_11,Ironman,MODELED
+CIN_TE_01,Practice Squad Grinder,MODELED
+CIN_TE_01,Clutch Performer,MODELED
+CIN_TE_02,Field General,MODELED
+CIN_TE_02,Injury Prone,MODELED
+CIN_TE_03,Coach's Son,MODELED
+CIN_TE_03,Clutch Performer,MODELED
+CIN_TE_03,Field General,MODELED
+CIN_TE_04,Late Bloomer,MODELED
+CIN_TE_06,Positional Versatility,MODELED
+CIN_TE_06,Film Junkie,MODELED
+CIN_OT_01,Scheme Dependent,MODELED
+CIN_OT_02,Late Bloomer,MODELED
+CIN_OT_03,Locker Room Leader,MODELED
+CIN_OT_04,Volatile,MODELED
+CIN_OT_04,Positional Versatility,MODELED
+CIN_OT_05,High Motor,MODELED
+CIN_OT_06,Special Teams Ace,MODELED
+CIN_OG_01,Weight Room Warrior,MODELED
+CIN_OG_04,Clutch Performer,MODELED
+CIN_OG_04,Field General,MODELED
+CIN_OG_05,Late Bloomer,MODELED
+CIN_OG_06,Slow Starter,MODELED
+CIN_C_01,Locker Room Leader,MODELED
+CIN_C_03,Film Junkie,MODELED
+CIN_EDGE_01,Special Teams Ace,MODELED
+CIN_EDGE_01,Field General,MODELED
+CIN_EDGE_02,Locker Room Leader,MODELED
+CIN_EDGE_03,Volatile,MODELED
+CIN_EDGE_05,Scheme Dependent,MODELED
+CIN_EDGE_05,Injury Prone,MODELED
+CIN_EDGE_05,Field General,MODELED
+CIN_EDGE_06,Volatile,MODELED
+CIN_EDGE_07,Locker Room Leader,MODELED
+CIN_EDGE_08,Late Bloomer,MODELED
+CIN_EDGE_09,Locker Room Leader,MODELED
+CIN_EDGE_09,Field General,MODELED
+CIN_EDGE_09,Late Bloomer,MODELED
+CIN_DT_01,High Motor,MODELED
+CIN_DT_02,Practice Squad Grinder,MODELED
+CIN_DT_03,Locker Room Leader,MODELED
+CIN_DT_05,Special Teams Ace,MODELED
+CIN_DT_05,Slow Starter,MODELED
+CIN_DT_08,Clutch Performer,MODELED
+CIN_DT_08,Locker Room Leader,MODELED
+CIN_DT_08,Coach's Son,MODELED
+CIN_LB_01,Field General,MODELED
+CIN_LB_01,Ironman,MODELED
+CIN_LB_02,Coach's Son,MODELED
+CIN_LB_02,Special Teams Ace,MODELED
+CIN_LB_03,Ironman,MODELED
+CIN_LB_03,Weight Room Warrior,MODELED
+CIN_LB_04,Positional Versatility,MODELED
+CIN_LB_04,Scheme Dependent,MODELED
+CIN_LB_04,Late Bloomer,MODELED
+CIN_LB_05,Slow Starter,MODELED
+CIN_LB_05,Locker Room Leader,MODELED
+CIN_LB_05,Practice Squad Grinder,MODELED
+CIN_LB_06,Slow Starter,MODELED
+CIN_LB_08,Slow Starter,MODELED
+CIN_LB_08,Film Junkie,MODELED
+CIN_CB_01,Weight Room Warrior,MODELED
+CIN_CB_01,Field General,MODELED
+CIN_CB_04,Slow Starter,MODELED
+CIN_CB_04,Practice Squad Grinder,MODELED
+CIN_CB_05,Slow Starter,MODELED
+CIN_CB_06,Film Junkie,MODELED
+CIN_CB_06,Clutch Performer,MODELED
+CIN_CB_07,Ironman,MODELED
+CIN_CB_09,High Motor,MODELED
+CIN_CB_10,Slow Starter,MODELED
+CIN_CB_11,Field General,MODELED
+CIN_S_01,Practice Squad Grinder,MODELED
+CIN_S_01,Scheme Dependent,MODELED
+CIN_S_01,Clutch Performer,MODELED
+CIN_S_02,Coach's Son,MODELED
+CIN_S_02,Injury Prone,MODELED
+CIN_S_03,Big Game Hunter,MODELED
+CIN_S_03,Locker Room Leader,MODELED
+CIN_S_03,Special Teams Ace,MODELED
+CIN_S_04,Film Junkie,MODELED
+CIN_S_05,Film Junkie,MODELED
+CIN_S_05,Big Game Hunter,MODELED
+CIN_S_06,Coach's Son,MODELED
+CIN_S_07,Locker Room Leader,MODELED
+CIN_K_02,Slow Starter,MODELED
+CIN_P_01,Coach's Son,MODELED
+CIN_LS_01,Big Game Hunter,MODELED
+HOU_QB_01,Clutch Performer,MODELED
+HOU_QB_01,Special Teams Ace,MODELED
+HOU_QB_01,Big Game Hunter,MODELED
+HOU_QB_02,Clutch Performer,MODELED
+HOU_QB_02,Late Bloomer,MODELED
+HOU_QB_04,Coach's Son,MODELED
+HOU_QB_04,Ironman,MODELED
+HOU_RB_01,Weight Room Warrior,MODELED
+HOU_RB_01,Big Game Hunter,MODELED
+HOU_RB_01,Film Junkie,MODELED
+HOU_RB_04,Scheme Dependent,MODELED
+HOU_RB_04,Positional Versatility,MODELED
+HOU_RB_05,Coach's Son,MODELED
+HOU_FB_01,Practice Squad Grinder,MODELED
+HOU_FB_01,Late Bloomer,MODELED
+HOU_WR_02,Field General,MODELED
+HOU_WR_03,Special Teams Ace,MODELED
+HOU_WR_03,Volatile,MODELED
+HOU_WR_04,Big Game Hunter,MODELED
+HOU_WR_04,Clutch Performer,MODELED
+HOU_WR_05,Special Teams Ace,MODELED
+HOU_WR_05,Positional Versatility,MODELED
+HOU_WR_06,Ironman,MODELED
+HOU_WR_07,Weight Room Warrior,MODELED
+HOU_WR_08,Volatile,MODELED
+HOU_WR_08,Locker Room Leader,MODELED
+HOU_WR_09,Locker Room Leader,MODELED
+HOU_WR_09,High Motor,MODELED
+HOU_WR_09,Field General,MODELED
+HOU_WR_10,High Motor,MODELED
+HOU_WR_10,Field General,MODELED
+HOU_TE_01,Positional Versatility,MODELED
+HOU_TE_01,Volatile,MODELED
+HOU_TE_02,Film Junkie,MODELED
+HOU_TE_03,Injury Prone,MODELED
+HOU_TE_04,Weight Room Warrior,MODELED
+HOU_TE_04,Field General,MODELED
+HOU_TE_05,Late Bloomer,MODELED
+HOU_TE_06,Weight Room Warrior,MODELED
+HOU_OT_01,Positional Versatility,MODELED
+HOU_OT_01,Film Junkie,MODELED
+HOU_OT_01,Special Teams Ace,MODELED
+HOU_OT_02,Special Teams Ace,MODELED
+HOU_OT_03,Scheme Dependent,MODELED
+HOU_OT_05,Locker Room Leader,MODELED
+HOU_OT_05,High Motor,MODELED
+HOU_OT_05,Late Bloomer,MODELED
+HOU_OT_06,High Motor,MODELED
+HOU_OG_01,Coach's Son,MODELED
+HOU_OG_01,Ironman,MODELED
+HOU_OG_03,Late Bloomer,MODELED
+HOU_OG_03,Injury Prone,MODELED
+HOU_OG_04,Clutch Performer,MODELED
+HOU_OG_04,Late Bloomer,MODELED
+HOU_OG_05,Injury Prone,MODELED
+HOU_OG_06,Scheme Dependent,MODELED
+HOU_C_01,Volatile,MODELED
+HOU_C_01,Practice Squad Grinder,MODELED
+HOU_C_02,Slow Starter,MODELED
+HOU_C_03,Locker Room Leader,MODELED
+HOU_EDGE_01,High Motor,MODELED
+HOU_EDGE_03,Field General,MODELED
+HOU_EDGE_03,Coach's Son,MODELED
+HOU_EDGE_04,Positional Versatility,MODELED
+HOU_EDGE_04,Practice Squad Grinder,MODELED
+HOU_EDGE_06,Field General,MODELED
+HOU_EDGE_07,Volatile,MODELED
+HOU_EDGE_07,Locker Room Leader,MODELED
+HOU_EDGE_08,Weight Room Warrior,MODELED
+HOU_EDGE_09,Volatile,MODELED
+HOU_EDGE_09,Weight Room Warrior,MODELED
+HOU_DT_01,Slow Starter,MODELED
+HOU_DT_01,Ironman,MODELED
+HOU_DT_01,Late Bloomer,MODELED
+HOU_DT_02,Volatile,MODELED
+HOU_DT_02,Special Teams Ace,MODELED
+HOU_DT_02,Positional Versatility,MODELED
+HOU_DT_03,Late Bloomer,MODELED
+HOU_DT_03,Film Junkie,MODELED
+HOU_DT_04,Coach's Son,MODELED
+HOU_DT_04,Film Junkie,MODELED
+HOU_DT_05,Locker Room Leader,MODELED
+HOU_DT_06,Film Junkie,MODELED
+HOU_DT_06,High Motor,MODELED
+HOU_DT_07,Positional Versatility,MODELED
+HOU_DT_07,Clutch Performer,MODELED
+HOU_LB_01,Injury Prone,MODELED
+HOU_LB_02,Practice Squad Grinder,MODELED
+HOU_LB_02,Ironman,MODELED
+HOU_LB_02,Positional Versatility,MODELED
+HOU_LB_04,Clutch Performer,MODELED
+HOU_LB_04,High Motor,MODELED
+HOU_LB_05,Practice Squad Grinder,MODELED
+HOU_LB_05,Weight Room Warrior,MODELED
+HOU_LB_06,Weight Room Warrior,MODELED
+HOU_LB_07,Big Game Hunter,MODELED
+HOU_LB_08,Locker Room Leader,MODELED
+HOU_LB_08,Practice Squad Grinder,MODELED
+HOU_LB_08,Ironman,MODELED
+HOU_CB_01,Clutch Performer,MODELED
+HOU_CB_01,Coach's Son,MODELED
+HOU_CB_01,Slow Starter,MODELED
+HOU_CB_02,Slow Starter,MODELED
+HOU_CB_03,Injury Prone,MODELED
+HOU_CB_03,Film Junkie,MODELED
+HOU_CB_03,Late Bloomer,MODELED
+HOU_CB_04,Practice Squad Grinder,MODELED
+HOU_CB_04,Weight Room Warrior,MODELED
+HOU_CB_04,Injury Prone,MODELED
+HOU_CB_06,Practice Squad Grinder,MODELED
+HOU_CB_07,Big Game Hunter,MODELED
+HOU_CB_07,Film Junkie,MODELED
+HOU_CB_08,Special Teams Ace,MODELED
+HOU_CB_08,Clutch Performer,MODELED
+HOU_CB_09,Film Junkie,MODELED
+HOU_CB_10,Big Game Hunter,MODELED
+HOU_CB_11,Slow Starter,MODELED
+HOU_CB_11,Clutch Performer,MODELED
+HOU_S_01,Coach's Son,MODELED
+HOU_S_02,Ironman,MODELED
+HOU_S_03,Positional Versatility,MODELED
+HOU_S_04,Special Teams Ace,MODELED
+HOU_S_04,Big Game Hunter,MODELED
+HOU_S_06,Locker Room Leader,MODELED
+HOU_S_06,Special Teams Ace,MODELED
+HOU_S_07,Ironman,MODELED
+HOU_K_01,Coach's Son,MODELED
+HOU_K_01,Big Game Hunter,MODELED
+HOU_K_02,Locker Room Leader,MODELED
+HOU_K_02,Slow Starter,MODELED
+HOU_P_01,Slow Starter,MODELED
+HOU_P_01,Clutch Performer,MODELED
+HOU_P_01,Special Teams Ace,MODELED
+HOU_P_02,Scheme Dependent,MODELED
+HOU_P_02,Slow Starter,MODELED
+HOU_LS_01,Coach's Son,MODELED
+IND_QB_02,Injury Prone,MODELED
+IND_QB_02,Late Bloomer,MODELED
+IND_QB_04,Field General,MODELED
+IND_RB_01,Practice Squad Grinder,MODELED
+IND_RB_01,Volatile,MODELED
+IND_RB_01,High Motor,MODELED
+IND_RB_02,Injury Prone,MODELED
+IND_RB_02,Weight Room Warrior,MODELED
+IND_RB_02,Clutch Performer,MODELED
+IND_RB_03,Slow Starter,MODELED
+IND_RB_03,Volatile,MODELED
+IND_RB_04,Late Bloomer,MODELED
+IND_RB_04,Slow Starter,MODELED
+IND_RB_05,High Motor,MODELED
+IND_RB_05,Weight Room Warrior,MODELED
+IND_WR_01,Late Bloomer,MODELED
+IND_WR_01,Ironman,MODELED
+IND_WR_01,Field General,MODELED
+IND_WR_02,Special Teams Ace,MODELED
+IND_WR_03,Weight Room Warrior,MODELED
+IND_WR_03,Injury Prone,MODELED
+IND_WR_04,Big Game Hunter,MODELED
+IND_WR_04,Coach's Son,MODELED
+IND_WR_06,Film Junkie,MODELED
+IND_WR_06,Weight Room Warrior,MODELED
+IND_WR_08,Scheme Dependent,MODELED
+IND_WR_08,Field General,MODELED
+IND_WR_09,Big Game Hunter,MODELED
+IND_WR_09,Slow Starter,MODELED
+IND_WR_09,Ironman,MODELED
+IND_WR_10,Volatile,MODELED
+IND_WR_10,Big Game Hunter,MODELED
+IND_WR_11,Late Bloomer,MODELED
+IND_TE_01,Film Junkie,MODELED
+IND_TE_02,Positional Versatility,MODELED
+IND_TE_03,Positional Versatility,MODELED
+IND_TE_03,Film Junkie,MODELED
+IND_TE_03,Locker Room Leader,MODELED
+IND_TE_04,Big Game Hunter,MODELED
+IND_TE_05,Field General,MODELED
+IND_TE_06,Volatile,MODELED
+IND_TE_06,Practice Squad Grinder,MODELED
+IND_OT_01,Positional Versatility,MODELED
+IND_OT_01,Special Teams Ace,MODELED
+IND_OT_03,Slow Starter,MODELED
+IND_OT_04,Practice Squad Grinder,MODELED
+IND_OT_04,Big Game Hunter,MODELED
+IND_OT_05,Weight Room Warrior,MODELED
+IND_OT_05,Field General,MODELED
+IND_OT_05,High Motor,MODELED
+IND_OT_06,Big Game Hunter,MODELED
+IND_OT_06,Injury Prone,MODELED
+IND_OT_06,Slow Starter,MODELED
+IND_OG_01,Big Game Hunter,MODELED
+IND_OG_01,Clutch Performer,MODELED
+IND_OG_01,Coach's Son,MODELED
+IND_OG_02,Positional Versatility,MODELED
+IND_OG_02,Film Junkie,MODELED
+IND_OG_04,Clutch Performer,MODELED
+IND_OG_04,Film Junkie,MODELED
+IND_OG_05,High Motor,MODELED
+IND_C_01,Positional Versatility,MODELED
+IND_C_01,Late Bloomer,MODELED
+IND_C_03,Field General,MODELED
+IND_EDGE_01,Positional Versatility,MODELED
+IND_EDGE_01,Locker Room Leader,MODELED
+IND_EDGE_02,Special Teams Ace,MODELED
+IND_EDGE_02,Coach's Son,MODELED
+IND_EDGE_02,Ironman,MODELED
+IND_EDGE_03,Field General,MODELED
+IND_EDGE_03,Big Game Hunter,MODELED
+IND_EDGE_04,Scheme Dependent,MODELED
+IND_EDGE_04,Clutch Performer,MODELED
+IND_EDGE_05,Ironman,MODELED
+IND_EDGE_05,Locker Room Leader,MODELED
+IND_EDGE_06,Weight Room Warrior,MODELED
+IND_EDGE_06,Big Game Hunter,MODELED
+IND_EDGE_08,Field General,MODELED
+IND_EDGE_08,Locker Room Leader,MODELED
+IND_EDGE_09,Volatile,MODELED
+IND_EDGE_09,Special Teams Ace,MODELED
+IND_EDGE_09,Late Bloomer,MODELED
+IND_DT_01,Ironman,MODELED
+IND_DT_02,High Motor,MODELED
+IND_DT_02,Ironman,MODELED
+IND_DT_03,Slow Starter,MODELED
+IND_DT_04,Ironman,MODELED
+IND_DT_04,Field General,MODELED
+IND_DT_04,Film Junkie,MODELED
+IND_DT_06,Weight Room Warrior,MODELED
+IND_DT_07,Field General,MODELED
+IND_DT_07,Late Bloomer,MODELED
+IND_LB_01,Weight Room Warrior,MODELED
+IND_LB_02,Film Junkie,MODELED
+IND_LB_02,Late Bloomer,MODELED
+IND_LB_03,Special Teams Ace,MODELED
+IND_LB_03,Volatile,MODELED
+IND_LB_04,Slow Starter,MODELED
+IND_LB_04,Clutch Performer,MODELED
+IND_LB_05,Clutch Performer,MODELED
+IND_LB_05,Practice Squad Grinder,MODELED
+IND_LB_05,Special Teams Ace,MODELED
+IND_LB_06,Positional Versatility,MODELED
+IND_LB_07,Positional Versatility,MODELED
+IND_LB_07,Late Bloomer,MODELED
+IND_LB_08,Coach's Son,MODELED
+IND_LB_08,Big Game Hunter,MODELED
+IND_CB_01,Positional Versatility,MODELED
+IND_CB_01,Injury Prone,MODELED
+IND_CB_02,Special Teams Ace,MODELED
+IND_CB_02,Coach's Son,MODELED
+IND_CB_03,Positional Versatility,MODELED
+IND_CB_05,Locker Room Leader,MODELED
+IND_CB_05,Late Bloomer,MODELED
+IND_CB_05,Practice Squad Grinder,MODELED
+IND_CB_07,Positional Versatility,MODELED
+IND_CB_08,Weight Room Warrior,MODELED
+IND_CB_08,Field General,MODELED
+IND_CB_09,Positional Versatility,MODELED
+IND_CB_09,Clutch Performer,MODELED
+IND_CB_10,Late Bloomer,MODELED
+IND_CB_10,Practice Squad Grinder,MODELED
+IND_CB_11,High Motor,MODELED
+IND_S_01,Coach's Son,MODELED
+IND_S_01,High Motor,MODELED
+IND_S_02,Ironman,MODELED
+IND_S_04,Big Game Hunter,MODELED
+IND_S_04,Coach's Son,MODELED
+IND_S_04,Volatile,MODELED
+IND_S_06,Ironman,MODELED
+IND_P_01,Injury Prone,MODELED
+IND_P_01,Big Game Hunter,MODELED
+IND_LS_01,Special Teams Ace,MODELED
+JAX_QB_01,Locker Room Leader,MODELED
+JAX_QB_01,Special Teams Ace,MODELED
+JAX_QB_03,Volatile,MODELED
+JAX_QB_03,Coach's Son,MODELED
+JAX_QB_04,Locker Room Leader,MODELED
+JAX_RB_01,Film Junkie,MODELED
+JAX_RB_01,Field General,MODELED
+JAX_RB_02,Big Game Hunter,MODELED
+JAX_RB_02,Volatile,MODELED
+JAX_RB_03,Positional Versatility,MODELED
+JAX_RB_03,Practice Squad Grinder,MODELED
+JAX_RB_03,Film Junkie,MODELED
+JAX_RB_04,Big Game Hunter,MODELED
+JAX_RB_05,Film Junkie,MODELED
+JAX_FB_01,Practice Squad Grinder,MODELED
+JAX_WR_03,Locker Room Leader,MODELED
+JAX_WR_03,Field General,MODELED
+JAX_WR_04,Clutch Performer,MODELED
+JAX_WR_05,Field General,MODELED
+JAX_WR_05,Injury Prone,MODELED
+JAX_WR_06,Positional Versatility,MODELED
+JAX_WR_07,Weight Room Warrior,MODELED
+JAX_WR_09,Locker Room Leader,MODELED
+JAX_WR_10,High Motor,MODELED
+JAX_WR_10,Coach's Son,MODELED
+JAX_WR_11,Film Junkie,MODELED
+JAX_WR_11,Locker Room Leader,MODELED
+JAX_TE_01,Late Bloomer,MODELED
+JAX_TE_01,Volatile,MODELED
+JAX_TE_01,Coach's Son,MODELED
+JAX_TE_02,Coach's Son,MODELED
+JAX_TE_03,Slow Starter,MODELED
+JAX_TE_03,Scheme Dependent,MODELED
+JAX_TE_04,Ironman,MODELED
+JAX_TE_04,Locker Room Leader,MODELED
+JAX_TE_04,Field General,MODELED
+JAX_TE_05,Scheme Dependent,MODELED
+JAX_TE_05,Late Bloomer,MODELED
+JAX_TE_06,Ironman,MODELED
+JAX_TE_06,Practice Squad Grinder,MODELED
+JAX_OT_01,Big Game Hunter,MODELED
+JAX_OT_01,High Motor,MODELED
+JAX_OT_02,Weight Room Warrior,MODELED
+JAX_OT_02,Coach's Son,MODELED
+JAX_OT_03,Film Junkie,MODELED
+JAX_OT_04,Weight Room Warrior,MODELED
+JAX_OT_04,Big Game Hunter,MODELED
+JAX_OT_05,Ironman,MODELED
+JAX_OT_06,Ironman,MODELED
+JAX_OG_01,Late Bloomer,MODELED
+JAX_OG_02,Locker Room Leader,MODELED
+JAX_OG_02,Positional Versatility,MODELED
+JAX_OG_02,Practice Squad Grinder,MODELED
+JAX_OG_02,Injury Prone,MODELED
+JAX_OG_03,Clutch Performer,MODELED
+JAX_OG_03,Slow Starter,MODELED
+JAX_OG_03,Special Teams Ace,MODELED
+JAX_OG_04,Volatile,MODELED
+JAX_OG_04,Slow Starter,MODELED
+JAX_OG_05,Field General,MODELED
+JAX_OG_05,Scheme Dependent,MODELED
+JAX_OG_06,Field General,MODELED
+JAX_C_01,Slow Starter,MODELED
+JAX_C_01,Scheme Dependent,MODELED
+JAX_C_02,Clutch Performer,MODELED
+JAX_C_02,Late Bloomer,MODELED
+JAX_C_03,High Motor,MODELED
+JAX_EDGE_01,Late Bloomer,MODELED
+JAX_EDGE_02,Positional Versatility,MODELED
+JAX_EDGE_02,Late Bloomer,MODELED
+JAX_EDGE_02,Big Game Hunter,MODELED
+JAX_EDGE_05,Film Junkie,MODELED
+JAX_EDGE_05,Scheme Dependent,MODELED
+JAX_EDGE_08,Film Junkie,MODELED
+JAX_EDGE_09,Field General,MODELED
+JAX_EDGE_09,Locker Room Leader,MODELED
+JAX_DT_01,Clutch Performer,MODELED
+JAX_DT_01,Practice Squad Grinder,MODELED
+JAX_DT_01,Positional Versatility,MODELED
+JAX_DT_03,Special Teams Ace,MODELED
+JAX_DT_04,Coach's Son,MODELED
+JAX_DT_05,Late Bloomer,MODELED
+JAX_DT_05,Positional Versatility,MODELED
+JAX_DT_08,Scheme Dependent,MODELED
+JAX_DT_08,Slow Starter,MODELED
+JAX_LB_01,Ironman,MODELED
+JAX_LB_02,Clutch Performer,MODELED
+JAX_LB_02,Special Teams Ace,MODELED
+JAX_LB_03,Slow Starter,MODELED
+JAX_LB_03,Ironman,MODELED
+JAX_LB_03,Special Teams Ace,MODELED
+JAX_LB_04,Field General,MODELED
+JAX_LB_05,High Motor,MODELED
+JAX_LB_05,Injury Prone,MODELED
+JAX_LB_06,Volatile,MODELED
+JAX_LB_06,Late Bloomer,MODELED
+JAX_LB_08,Positional Versatility,MODELED
+JAX_LB_08,Ironman,MODELED
+JAX_CB_01,Special Teams Ace,MODELED
+JAX_CB_02,Slow Starter,MODELED
+JAX_CB_02,Late Bloomer,MODELED
+JAX_CB_02,Injury Prone,MODELED
+JAX_CB_03,Weight Room Warrior,MODELED
+JAX_CB_03,Injury Prone,MODELED
+JAX_CB_03,Film Junkie,MODELED
+JAX_CB_04,Volatile,MODELED
+JAX_CB_04,Slow Starter,MODELED
+JAX_CB_05,Injury Prone,MODELED
+JAX_CB_05,Weight Room Warrior,MODELED
+JAX_CB_05,Locker Room Leader,MODELED
+JAX_CB_07,Weight Room Warrior,MODELED
+JAX_CB_08,Field General,MODELED
+JAX_CB_09,Volatile,MODELED
+JAX_CB_10,High Motor,MODELED
+JAX_CB_10,Slow Starter,MODELED
+JAX_CB_11,Ironman,MODELED
+JAX_CB_11,Slow Starter,MODELED
+JAX_S_01,Injury Prone,MODELED
+JAX_S_01,Big Game Hunter,MODELED
+JAX_S_01,Film Junkie,MODELED
+JAX_S_02,Clutch Performer,MODELED
+JAX_S_02,Late Bloomer,MODELED
+JAX_S_03,Late Bloomer,MODELED
+JAX_S_03,High Motor,MODELED
+JAX_S_04,Field General,MODELED
+JAX_S_05,Locker Room Leader,MODELED
+JAX_S_05,Big Game Hunter,MODELED
+JAX_S_06,Coach's Son,MODELED
+JAX_S_06,Injury Prone,MODELED
+JAX_S_07,Positional Versatility,MODELED
+JAX_S_07,Ironman,MODELED
+JAX_S_07,Film Junkie,MODELED
+JAX_K_01,High Motor,MODELED
+JAX_K_02,Big Game Hunter,MODELED
+JAX_K_02,Clutch Performer,MODELED
+JAX_P_01,Big Game Hunter,MODELED
+JAX_P_02,Positional Versatility,MODELED
+JAX_P_02,Clutch Performer,MODELED
+JAX_LS_01,Injury Prone,MODELED
+TEN_QB_01,Field General,MODELED
+TEN_QB_01,Special Teams Ace,MODELED
+TEN_QB_02,Scheme Dependent,MODELED
+TEN_QB_03,Field General,MODELED
+TEN_QB_03,Special Teams Ace,MODELED
+TEN_QB_04,Scheme Dependent,MODELED
+TEN_RB_01,Locker Room Leader,MODELED
+TEN_RB_01,Big Game Hunter,MODELED
+TEN_RB_01,Slow Starter,MODELED
+TEN_RB_02,High Motor,MODELED
+TEN_RB_03,Slow Starter,MODELED
+TEN_RB_03,Locker Room Leader,MODELED
+TEN_RB_04,Locker Room Leader,MODELED
+TEN_RB_04,Weight Room Warrior,MODELED
+TEN_RB_05,Coach's Son,MODELED
+TEN_RB_05,Locker Room Leader,MODELED
+TEN_FB_01,Scheme Dependent,MODELED
+TEN_FB_01,Film Junkie,MODELED
+TEN_WR_01,Locker Room Leader,MODELED
+TEN_WR_02,High Motor,MODELED
+TEN_WR_03,High Motor,MODELED
+TEN_WR_03,Weight Room Warrior,MODELED
+TEN_WR_04,Locker Room Leader,MODELED
+TEN_WR_04,Volatile,MODELED
+TEN_WR_04,Late Bloomer,MODELED
+TEN_WR_06,Field General,MODELED
+TEN_WR_07,Volatile,MODELED
+TEN_WR_07,Positional Versatility,MODELED
+TEN_WR_07,Injury Prone,MODELED
+TEN_WR_08,High Motor,MODELED
+TEN_WR_08,Clutch Performer,MODELED
+TEN_WR_09,Ironman,MODELED
+TEN_WR_09,Weight Room Warrior,MODELED
+TEN_WR_10,Special Teams Ace,MODELED
+TEN_WR_11,Practice Squad Grinder,MODELED
+TEN_WR_11,Ironman,MODELED
+TEN_WR_11,Positional Versatility,MODELED
+TEN_TE_01,Practice Squad Grinder,MODELED
+TEN_TE_01,Injury Prone,MODELED
+TEN_TE_01,Late Bloomer,MODELED
+TEN_TE_02,Volatile,MODELED
+TEN_TE_03,Coach's Son,MODELED
+TEN_TE_03,Special Teams Ace,MODELED
+TEN_TE_04,Locker Room Leader,MODELED
+TEN_TE_04,Volatile,MODELED
+TEN_TE_05,Scheme Dependent,MODELED
+TEN_TE_05,Film Junkie,MODELED
+TEN_TE_06,Clutch Performer,MODELED
+TEN_TE_06,Locker Room Leader,MODELED
+TEN_OT_01,Ironman,MODELED
+TEN_OT_01,Injury Prone,MODELED
+TEN_OT_02,Big Game Hunter,MODELED
+TEN_OT_03,Practice Squad Grinder,MODELED
+TEN_OT_04,Positional Versatility,MODELED
+TEN_OT_05,Late Bloomer,MODELED
+TEN_OT_05,Injury Prone,MODELED
+TEN_OT_06,Special Teams Ace,MODELED
+TEN_OG_01,Practice Squad Grinder,MODELED
+TEN_OG_01,Field General,MODELED
+TEN_OG_02,Film Junkie,MODELED
+TEN_OG_02,Scheme Dependent,MODELED
+TEN_OG_03,Big Game Hunter,MODELED
+TEN_OG_03,Volatile,MODELED
+TEN_OG_04,Coach's Son,MODELED
+TEN_OG_05,Late Bloomer,MODELED
+TEN_OG_05,Clutch Performer,MODELED
+TEN_OG_06,Coach's Son,MODELED
+TEN_C_01,Volatile,MODELED
+TEN_C_01,Injury Prone,MODELED
+TEN_EDGE_01,Slow Starter,MODELED
+TEN_EDGE_02,Clutch Performer,MODELED
+TEN_EDGE_03,Slow Starter,MODELED
+TEN_EDGE_03,Coach's Son,MODELED
+TEN_EDGE_04,Special Teams Ace,MODELED
+TEN_EDGE_04,Field General,MODELED
+TEN_EDGE_04,Positional Versatility,MODELED
+TEN_EDGE_05,Special Teams Ace,MODELED
+TEN_EDGE_05,Practice Squad Grinder,MODELED
+TEN_EDGE_06,Coach's Son,MODELED
+TEN_EDGE_07,Practice Squad Grinder,MODELED
+TEN_EDGE_07,Late Bloomer,MODELED
+TEN_EDGE_08,Practice Squad Grinder,MODELED
+TEN_EDGE_09,Positional Versatility,MODELED
+TEN_DT_02,Practice Squad Grinder,MODELED
+TEN_DT_03,Late Bloomer,MODELED
+TEN_DT_03,Big Game Hunter,MODELED
+TEN_DT_04,Film Junkie,MODELED
+TEN_DT_05,Weight Room Warrior,MODELED
+TEN_DT_06,Coach's Son,MODELED
+TEN_DT_07,Special Teams Ace,MODELED
+TEN_DT_08,Slow Starter,MODELED
+TEN_DT_08,Late Bloomer,MODELED
+TEN_LB_01,Weight Room Warrior,MODELED
+TEN_LB_01,Clutch Performer,MODELED
+TEN_LB_02,Field General,MODELED
+TEN_LB_03,Big Game Hunter,MODELED
+TEN_LB_04,Ironman,MODELED
+TEN_LB_06,Scheme Dependent,MODELED
+TEN_LB_06,Weight Room Warrior,MODELED
+TEN_LB_07,Injury Prone,MODELED
+TEN_LB_08,Field General,MODELED
+TEN_LB_08,Scheme Dependent,MODELED
+TEN_LB_08,Film Junkie,MODELED
+TEN_CB_01,Coach's Son,MODELED
+TEN_CB_01,Clutch Performer,MODELED
+TEN_CB_03,Big Game Hunter,MODELED
+TEN_CB_03,Positional Versatility,MODELED
+TEN_CB_04,Locker Room Leader,MODELED
+TEN_CB_04,Big Game Hunter,MODELED
+TEN_CB_05,Weight Room Warrior,MODELED
+TEN_CB_05,Volatile,MODELED
+TEN_CB_05,High Motor,MODELED
+TEN_CB_06,Special Teams Ace,MODELED
+TEN_CB_08,Slow Starter,MODELED
+TEN_CB_08,Late Bloomer,MODELED
+TEN_CB_08,Special Teams Ace,MODELED
+TEN_CB_09,Positional Versatility,MODELED
+TEN_S_01,Practice Squad Grinder,MODELED
+TEN_S_01,Locker Room Leader,MODELED
+TEN_S_03,Volatile,MODELED
+TEN_S_03,Practice Squad Grinder,MODELED
+TEN_S_04,Special Teams Ace,MODELED
+TEN_S_04,Late Bloomer,MODELED
+TEN_S_04,Volatile,MODELED
+TEN_S_05,Ironman,MODELED
+TEN_S_05,Slow Starter,MODELED
+TEN_S_06,Ironman,MODELED
+TEN_S_07,Ironman,MODELED
+TEN_S_07,Clutch Performer,MODELED
+TEN_K_01,High Motor,MODELED
+TEN_K_01,Slow Starter,MODELED
+TEN_K_02,High Motor,MODELED
+TEN_K_02,Positional Versatility,MODELED
+TEN_P_01,Special Teams Ace,MODELED
+TEN_P_02,Film Junkie,MODELED
+TEN_P_02,Practice Squad Grinder,MODELED
+TEN_LS_01,Late Bloomer,MODELED
+TEN_LS_01,Slow Starter,MODELED
+DEN_QB_02,Volatile,MODELED
+DEN_QB_03,Coach's Son,MODELED
+DEN_QB_04,Field General,MODELED
+DEN_QB_04,Special Teams Ace,MODELED
+DEN_RB_01,Injury Prone,MODELED
+DEN_RB_02,High Motor,MODELED
+DEN_RB_03,Locker Room Leader,MODELED
+DEN_RB_03,Scheme Dependent,MODELED
+DEN_RB_04,Late Bloomer,MODELED
+DEN_RB_05,Ironman,MODELED
+DEN_WR_01,Coach's Son,MODELED
+DEN_WR_01,Locker Room Leader,MODELED
+DEN_WR_02,Clutch Performer,MODELED
+DEN_WR_03,Big Game Hunter,MODELED
+DEN_WR_04,Volatile,MODELED
+DEN_WR_04,Scheme Dependent,MODELED
+DEN_WR_06,Slow Starter,MODELED
+DEN_WR_07,High Motor,MODELED
+DEN_WR_08,Practice Squad Grinder,MODELED
+DEN_WR_09,Locker Room Leader,MODELED
+DEN_WR_09,Film Junkie,MODELED
+DEN_WR_09,Injury Prone,MODELED
+DEN_WR_10,Weight Room Warrior,MODELED
+DEN_WR_11,Practice Squad Grinder,MODELED
+DEN_WR_11,Big Game Hunter,MODELED
+DEN_TE_01,Practice Squad Grinder,MODELED
+DEN_TE_02,Coach's Son,MODELED
+DEN_TE_02,Big Game Hunter,MODELED
+DEN_TE_03,Coach's Son,MODELED
+DEN_TE_03,Film Junkie,MODELED
+DEN_TE_03,Late Bloomer,MODELED
+DEN_TE_04,Slow Starter,MODELED
+DEN_TE_04,Special Teams Ace,MODELED
+DEN_TE_05,Volatile,MODELED
+DEN_TE_05,Film Junkie,MODELED
+DEN_TE_05,Coach's Son,MODELED
+DEN_TE_06,Weight Room Warrior,MODELED
+DEN_OT_02,Film Junkie,MODELED
+DEN_OT_02,Volatile,MODELED
+DEN_OT_02,Weight Room Warrior,MODELED
+DEN_OT_03,Practice Squad Grinder,MODELED
+DEN_OT_03,Positional Versatility,MODELED
+DEN_OT_03,Field General,MODELED
+DEN_OT_04,Injury Prone,MODELED
+DEN_OT_04,Practice Squad Grinder,MODELED
+DEN_OT_04,Slow Starter,MODELED
+DEN_OT_05,High Motor,MODELED
+DEN_OT_06,Clutch Performer,MODELED
+DEN_OT_06,High Motor,MODELED
+DEN_OT_06,Special Teams Ace,MODELED
+DEN_OG_01,Special Teams Ace,MODELED
+DEN_OG_01,Volatile,MODELED
+DEN_OG_02,Clutch Performer,MODELED
+DEN_OG_02,Positional Versatility,MODELED
+DEN_OG_02,Volatile,MODELED
+DEN_OG_03,Practice Squad Grinder,MODELED
+DEN_OG_03,Locker Room Leader,MODELED
+DEN_OG_04,Coach's Son,MODELED
+DEN_OG_04,Volatile,MODELED
+DEN_OG_05,Slow Starter,MODELED
+DEN_OG_05,Injury Prone,MODELED
+DEN_OG_05,Special Teams Ace,MODELED
+DEN_C_01,Special Teams Ace,MODELED
+DEN_C_01,Practice Squad Grinder,MODELED
+DEN_C_01,High Motor,MODELED
+DEN_C_02,Positional Versatility,MODELED
+DEN_C_03,Film Junkie,MODELED
+DEN_EDGE_01,Locker Room Leader,MODELED
+DEN_EDGE_01,Volatile,MODELED
+DEN_EDGE_02,Film Junkie,MODELED
+DEN_EDGE_02,Clutch Performer,MODELED
+DEN_EDGE_03,Film Junkie,MODELED
+DEN_EDGE_03,Locker Room Leader,MODELED
+DEN_EDGE_04,High Motor,MODELED
+DEN_EDGE_04,Special Teams Ace,MODELED
+DEN_EDGE_05,Slow Starter,MODELED
+DEN_EDGE_05,Weight Room Warrior,MODELED
+DEN_EDGE_05,Injury Prone,MODELED
+DEN_EDGE_06,Slow Starter,MODELED
+DEN_EDGE_07,Injury Prone,MODELED
+DEN_EDGE_08,Field General,MODELED
+DEN_EDGE_09,Volatile,MODELED
+DEN_EDGE_09,Ironman,MODELED
+DEN_DT_01,High Motor,MODELED
+DEN_DT_01,Scheme Dependent,MODELED
+DEN_DT_02,Practice Squad Grinder,MODELED
+DEN_DT_03,High Motor,MODELED
+DEN_DT_03,Big Game Hunter,MODELED
+DEN_DT_04,Positional Versatility,MODELED
+DEN_DT_04,Ironman,MODELED
+DEN_DT_05,Ironman,MODELED
+DEN_DT_05,Locker Room Leader,MODELED
+DEN_DT_06,Practice Squad Grinder,MODELED
+DEN_DT_06,High Motor,MODELED
+DEN_DT_07,Film Junkie,MODELED
+DEN_DT_07,Late Bloomer,MODELED
+DEN_DT_07,Big Game Hunter,MODELED
+DEN_DT_08,Coach's Son,MODELED
+DEN_DT_08,Clutch Performer,MODELED
+DEN_LB_01,Late Bloomer,MODELED
+DEN_LB_01,Weight Room Warrior,MODELED
+DEN_LB_01,Slow Starter,MODELED
+DEN_LB_02,Positional Versatility,MODELED
+DEN_LB_02,Scheme Dependent,MODELED
+DEN_LB_02,Injury Prone,MODELED
+DEN_LB_05,Volatile,MODELED
+DEN_LB_05,Positional Versatility,MODELED
+DEN_LB_05,Practice Squad Grinder,MODELED
+DEN_LB_07,Weight Room Warrior,MODELED
+DEN_LB_07,Clutch Performer,MODELED
+DEN_LB_07,Injury Prone,MODELED
+DEN_LB_08,Late Bloomer,MODELED
+DEN_LB_08,Volatile,MODELED
+DEN_CB_01,Slow Starter,MODELED
+DEN_CB_01,Injury Prone,MODELED
+DEN_CB_02,Field General,MODELED
+DEN_CB_02,Positional Versatility,MODELED
+DEN_CB_02,Slow Starter,MODELED
+DEN_CB_03,Practice Squad Grinder,MODELED
+DEN_CB_06,Weight Room Warrior,MODELED
+DEN_CB_06,Film Junkie,MODELED
+DEN_CB_06,Big Game Hunter,MODELED
+DEN_CB_07,High Motor,MODELED
+DEN_CB_08,Big Game Hunter,MODELED
+DEN_CB_09,Big Game Hunter,MODELED
+DEN_CB_09,Scheme Dependent,MODELED
+DEN_CB_09,Weight Room Warrior,MODELED
+DEN_CB_10,Coach's Son,MODELED
+DEN_S_01,Film Junkie,MODELED
+DEN_S_01,Scheme Dependent,MODELED
+DEN_S_02,Late Bloomer,MODELED
+DEN_S_03,Ironman,MODELED
+DEN_S_04,Injury Prone,MODELED
+DEN_S_05,High Motor,MODELED
+DEN_S_05,Scheme Dependent,MODELED
+DEN_S_06,Coach's Son,MODELED
+DEN_S_07,Volatile,MODELED
+DEN_S_07,Film Junkie,MODELED
+DEN_K_01,Coach's Son,MODELED
+DEN_K_01,Weight Room Warrior,MODELED
+DEN_K_01,Big Game Hunter,MODELED
+DEN_K_02,High Motor,MODELED
+DEN_K_02,Slow Starter,MODELED
+DEN_P_01,Ironman,MODELED
+DEN_P_01,Practice Squad Grinder,MODELED
+DEN_P_01,Big Game Hunter,MODELED
+DEN_P_02,Ironman,MODELED
+DEN_P_02,Locker Room Leader,MODELED
+KC_QB_01,Clutch Performer,MODELED
+KC_QB_02,Big Game Hunter,MODELED
+KC_QB_02,Coach's Son,MODELED
+KC_QB_03,Field General,MODELED
+KC_QB_04,Clutch Performer,MODELED
+KC_RB_01,Weight Room Warrior,MODELED
+KC_RB_02,Coach's Son,MODELED
+KC_RB_02,Weight Room Warrior,MODELED
+KC_RB_04,Practice Squad Grinder,MODELED
+KC_RB_05,Injury Prone,MODELED
+KC_RB_05,Volatile,MODELED
+KC_RB_05,Special Teams Ace,MODELED
+KC_FB_01,Field General,MODELED
+KC_FB_01,Late Bloomer,MODELED
+KC_WR_02,Locker Room Leader,MODELED
+KC_WR_03,High Motor,MODELED
+KC_WR_03,Injury Prone,MODELED
+KC_WR_04,High Motor,MODELED
+KC_WR_05,Clutch Performer,MODELED
+KC_WR_06,Coach's Son,MODELED
+KC_WR_06,Volatile,MODELED
+KC_WR_07,Weight Room Warrior,MODELED
+KC_WR_08,Coach's Son,MODELED
+KC_WR_10,Clutch Performer,MODELED
+KC_WR_11,Practice Squad Grinder,MODELED
+KC_WR_11,Locker Room Leader,MODELED
+KC_WR_11,Scheme Dependent,MODELED
+KC_TE_01,Ironman,MODELED
+KC_TE_01,Film Junkie,MODELED
+KC_TE_03,Volatile,MODELED
+KC_TE_03,Field General,MODELED
+KC_TE_04,Film Junkie,MODELED
+KC_TE_05,Ironman,MODELED
+KC_TE_05,Film Junkie,MODELED
+KC_TE_06,Practice Squad Grinder,MODELED
+KC_TE_06,Weight Room Warrior,MODELED
+KC_OT_02,Volatile,MODELED
+KC_OT_02,Injury Prone,MODELED
+KC_OT_03,Special Teams Ace,MODELED
+KC_OT_03,Positional Versatility,MODELED
+KC_OT_04,Positional Versatility,MODELED
+KC_OT_04,Coach's Son,MODELED
+KC_OT_05,Clutch Performer,MODELED
+KC_OT_06,Injury Prone,MODELED
+KC_OT_06,High Motor,MODELED
+KC_OT_06,Ironman,MODELED
+KC_OG_01,Slow Starter,MODELED
+KC_OG_01,Clutch Performer,MODELED
+KC_OG_01,Field General,MODELED
+KC_OG_02,Volatile,MODELED
+KC_OG_02,Injury Prone,MODELED
+KC_OG_02,Special Teams Ace,MODELED
+KC_OG_04,Weight Room Warrior,MODELED
+KC_OG_04,Special Teams Ace,MODELED
+KC_OG_04,High Motor,MODELED
+KC_C_03,Injury Prone,MODELED
+KC_EDGE_01,Field General,MODELED
+KC_EDGE_01,Locker Room Leader,MODELED
+KC_EDGE_02,Volatile,MODELED
+KC_EDGE_03,Clutch Performer,MODELED
+KC_EDGE_03,Practice Squad Grinder,MODELED
+KC_EDGE_04,Field General,MODELED
+KC_EDGE_05,High Motor,MODELED
+KC_EDGE_07,Locker Room Leader,MODELED
+KC_EDGE_07,Late Bloomer,MODELED
+KC_EDGE_09,Big Game Hunter,MODELED
+KC_EDGE_09,Locker Room Leader,MODELED
+KC_DT_01,Big Game Hunter,MODELED
+KC_DT_01,Scheme Dependent,MODELED
+KC_DT_02,Slow Starter,MODELED
+KC_DT_03,Big Game Hunter,MODELED
+KC_DT_04,Clutch Performer,MODELED
+KC_DT_04,Scheme Dependent,MODELED
+KC_DT_05,Late Bloomer,MODELED
+KC_DT_07,Slow Starter,MODELED
+KC_DT_08,Special Teams Ace,MODELED
+KC_LB_01,Injury Prone,MODELED
+KC_LB_01,Practice Squad Grinder,MODELED
+KC_LB_02,Volatile,MODELED
+KC_LB_02,Scheme Dependent,MODELED
+KC_LB_03,Injury Prone,MODELED
+KC_LB_04,Clutch Performer,MODELED
+KC_LB_04,Practice Squad Grinder,MODELED
+KC_LB_04,Injury Prone,MODELED
+KC_LB_06,Coach's Son,MODELED
+KC_LB_07,Positional Versatility,MODELED
+KC_LB_08,Positional Versatility,MODELED
+KC_LB_08,Special Teams Ace,MODELED
+KC_CB_01,Coach's Son,MODELED
+KC_CB_01,Film Junkie,MODELED
+KC_CB_01,Volatile,MODELED
+KC_CB_03,Scheme Dependent,MODELED
+KC_CB_04,Coach's Son,MODELED
+KC_CB_04,Late Bloomer,MODELED
+KC_CB_04,Special Teams Ace,MODELED
+KC_CB_05,Ironman,MODELED
+KC_CB_05,Film Junkie,MODELED
+KC_CB_06,Weight Room Warrior,MODELED
+KC_CB_06,Slow Starter,MODELED
+KC_CB_07,Practice Squad Grinder,MODELED
+KC_CB_07,Late Bloomer,MODELED
+KC_CB_07,Coach's Son,MODELED
+KC_CB_08,Late Bloomer,MODELED
+KC_CB_08,Positional Versatility,MODELED
+KC_CB_09,Slow Starter,MODELED
+KC_CB_09,Practice Squad Grinder,MODELED
+KC_CB_10,Positional Versatility,MODELED
+KC_CB_10,Late Bloomer,MODELED
+KC_CB_11,Big Game Hunter,MODELED
+KC_S_02,Coach's Son,MODELED
+KC_S_02,Ironman,MODELED
+KC_S_04,Late Bloomer,MODELED
+KC_S_05,Positional Versatility,MODELED
+KC_S_05,Coach's Son,MODELED
+KC_S_06,Volatile,MODELED
+KC_S_06,Slow Starter,MODELED
+KC_S_07,Volatile,MODELED
+KC_K_01,Late Bloomer,MODELED
+KC_K_01,Slow Starter,MODELED
+KC_K_02,Special Teams Ace,MODELED
+KC_K_02,Clutch Performer,MODELED
+KC_P_01,Locker Room Leader,MODELED
+KC_P_02,High Motor,MODELED
+LV_QB_02,Slow Starter,MODELED
+LV_QB_02,Scheme Dependent,MODELED
+LV_QB_03,High Motor,MODELED
+LV_RB_01,Locker Room Leader,MODELED
+LV_RB_04,Injury Prone,MODELED
+LV_RB_04,Slow Starter,MODELED
+LV_RB_05,Slow Starter,MODELED
+LV_FB_01,Volatile,MODELED
+LV_FB_01,Big Game Hunter,MODELED
+LV_FB_01,Special Teams Ace,MODELED
+LV_WR_03,Positional Versatility,MODELED
+LV_WR_03,Clutch Performer,MODELED
+LV_WR_04,Positional Versatility,MODELED
+LV_WR_05,Practice Squad Grinder,MODELED
+LV_WR_05,Ironman,MODELED
+LV_WR_06,High Motor,MODELED
+LV_WR_06,Injury Prone,MODELED
+LV_WR_07,Big Game Hunter,MODELED
+LV_WR_07,Volatile,MODELED
+LV_WR_07,Injury Prone,MODELED
+LV_WR_09,Film Junkie,MODELED
+LV_WR_09,High Motor,MODELED
+LV_WR_10,Slow Starter,MODELED
+LV_WR_10,Film Junkie,MODELED
+LV_WR_10,Injury Prone,MODELED
+LV_WR_11,Locker Room Leader,MODELED
+LV_WR_11,Injury Prone,MODELED
+LV_TE_01,Weight Room Warrior,MODELED
+LV_TE_01,Clutch Performer,MODELED
+LV_TE_02,Late Bloomer,MODELED
+LV_TE_02,Scheme Dependent,MODELED
+LV_TE_03,Clutch Performer,MODELED
+LV_TE_03,Slow Starter,MODELED
+LV_TE_03,High Motor,MODELED
+LV_TE_06,Weight Room Warrior,MODELED
+LV_OT_01,Weight Room Warrior,MODELED
+LV_OT_02,Weight Room Warrior,MODELED
+LV_OT_02,Ironman,MODELED
+LV_OT_03,Injury Prone,MODELED
+LV_OT_03,Volatile,MODELED
+LV_OT_03,Field General,MODELED
+LV_OT_04,Practice Squad Grinder,MODELED
+LV_OT_04,Volatile,MODELED
+LV_OT_04,High Motor,MODELED
+LV_OT_05,Volatile,MODELED
+LV_OT_05,Injury Prone,MODELED
+LV_OT_06,Scheme Dependent,MODELED
+LV_OG_01,Positional Versatility,MODELED
+LV_OG_01,Practice Squad Grinder,MODELED
+LV_OG_02,Clutch Performer,MODELED
+LV_OG_02,Slow Starter,MODELED
+LV_OG_03,High Motor,MODELED
+LV_OG_03,Practice Squad Grinder,MODELED
+LV_OG_04,High Motor,MODELED
+LV_OG_05,Scheme Dependent,MODELED
+LV_OG_06,Locker Room Leader,MODELED
+LV_OG_06,Field General,MODELED
+LV_OG_06,Injury Prone,MODELED
+LV_C_02,Positional Versatility,MODELED
+LV_EDGE_01,Scheme Dependent,MODELED
+LV_EDGE_02,Big Game Hunter,MODELED
+LV_EDGE_03,Clutch Performer,MODELED
+LV_EDGE_04,Volatile,MODELED
+LV_EDGE_04,Film Junkie,MODELED
+LV_EDGE_05,Special Teams Ace,MODELED
+LV_EDGE_05,Injury Prone,MODELED
+LV_EDGE_05,Coach's Son,MODELED
+LV_EDGE_06,Clutch Performer,MODELED
+LV_EDGE_06,Coach's Son,MODELED
+LV_EDGE_07,Practice Squad Grinder,MODELED
+LV_EDGE_07,Coach's Son,MODELED
+LV_EDGE_07,Clutch Performer,MODELED
+LV_EDGE_09,Injury Prone,MODELED
+LV_DT_01,Late Bloomer,MODELED
+LV_DT_02,Clutch Performer,MODELED
+LV_DT_03,Coach's Son,MODELED
+LV_DT_04,Scheme Dependent,MODELED
+LV_DT_04,Special Teams Ace,MODELED
+LV_DT_05,Locker Room Leader,MODELED
+LV_DT_05,Film Junkie,MODELED
+LV_DT_06,Coach's Son,MODELED
+LV_DT_06,Locker Room Leader,MODELED
+LV_DT_06,Ironman,MODELED
+LV_DT_07,Clutch Performer,MODELED
+LV_DT_08,Slow Starter,MODELED
+LV_LB_01,Practice Squad Grinder,MODELED
+LV_LB_02,Late Bloomer,MODELED
+LV_LB_02,Locker Room Leader,MODELED
+LV_LB_02,Clutch Performer,MODELED
+LV_LB_03,Locker Room Leader,MODELED
+LV_LB_03,Scheme Dependent,MODELED
+LV_LB_03,Big Game Hunter,MODELED
+LV_LB_04,Practice Squad Grinder,MODELED
+LV_LB_05,Coach's Son,MODELED
+LV_LB_06,Big Game Hunter,MODELED
+LV_LB_07,Late Bloomer,MODELED
+LV_LB_07,High Motor,MODELED
+LV_LB_08,Film Junkie,MODELED
+LV_LB_08,Scheme Dependent,MODELED
+LV_CB_01,Clutch Performer,MODELED
+LV_CB_01,Weight Room Warrior,MODELED
+LV_CB_01,Slow Starter,MODELED
+LV_CB_02,Ironman,MODELED
+LV_CB_03,Injury Prone,MODELED
+LV_CB_04,Big Game Hunter,MODELED
+LV_CB_05,Film Junkie,MODELED
+LV_CB_07,Locker Room Leader,MODELED
+LV_CB_07,High Motor,MODELED
+LV_CB_09,Coach's Son,MODELED
+LV_CB_09,Big Game Hunter,MODELED
+LV_CB_11,Ironman,MODELED
+LV_CB_11,Practice Squad Grinder,MODELED
+LV_S_01,High Motor,MODELED
+LV_S_02,Clutch Performer,MODELED
+LV_S_02,Film Junkie,MODELED
+LV_S_03,Positional Versatility,MODELED
+LV_S_05,Field General,MODELED
+LV_S_05,Practice Squad Grinder,MODELED
+LV_S_05,Scheme Dependent,MODELED
+LV_S_06,High Motor,MODELED
+LV_S_06,Film Junkie,MODELED
+LV_S_06,Volatile,MODELED
+LV_S_06,Injury Prone,MODELED
+LV_K_01,Volatile,MODELED
+LV_K_01,Field General,MODELED
+LV_K_01,Clutch Performer,MODELED
+LV_K_02,Special Teams Ace,MODELED
+LV_K_02,Clutch Performer,MODELED
+LV_P_01,Weight Room Warrior,MODELED
+LV_P_02,Practice Squad Grinder,MODELED
+LV_LS_01,Special Teams Ace,MODELED
+LV_LS_01,Big Game Hunter,MODELED
+LAC_QB_01,Special Teams Ace,MODELED
+LAC_QB_02,Injury Prone,MODELED
+LAC_QB_03,Coach's Son,MODELED
+LAC_QB_03,Injury Prone,MODELED
+LAC_QB_03,Film Junkie,MODELED
+LAC_RB_01,Practice Squad Grinder,MODELED
+LAC_RB_01,Injury Prone,MODELED
+LAC_RB_01,Locker Room Leader,MODELED
+LAC_RB_02,Late Bloomer,MODELED
+LAC_RB_02,Ironman,MODELED
+LAC_RB_02,Clutch Performer,MODELED
+LAC_RB_03,Slow Starter,MODELED
+LAC_RB_04,Coach's Son,MODELED
+LAC_RB_05,Ironman,MODELED
+LAC_FB_01,Slow Starter,MODELED
+LAC_WR_02,Clutch Performer,MODELED
+LAC_WR_02,Late Bloomer,MODELED
+LAC_WR_03,Big Game Hunter,MODELED
+LAC_WR_03,Practice Squad Grinder,MODELED
+LAC_WR_04,Field General,MODELED
+LAC_WR_04,Volatile,MODELED
+LAC_WR_04,Injury Prone,MODELED
+LAC_WR_05,Locker Room Leader,MODELED
+LAC_WR_06,Volatile,MODELED
+LAC_WR_08,Field General,MODELED
+LAC_WR_08,Practice Squad Grinder,MODELED
+LAC_WR_09,Weight Room Warrior,MODELED
+LAC_WR_10,Field General,MODELED
+LAC_WR_10,Injury Prone,MODELED
+LAC_WR_11,Volatile,MODELED
+LAC_TE_01,Volatile,MODELED
+LAC_TE_01,Weight Room Warrior,MODELED
+LAC_TE_02,Big Game Hunter,MODELED
+LAC_TE_02,Scheme Dependent,MODELED
+LAC_TE_05,Volatile,MODELED
+LAC_TE_05,Field General,MODELED
+LAC_TE_05,Injury Prone,MODELED
+LAC_TE_06,Clutch Performer,MODELED
+LAC_TE_06,Weight Room Warrior,MODELED
+LAC_TE_06,Volatile,MODELED
+LAC_TE_06,Injury Prone,MODELED
+LAC_OT_01,Ironman,MODELED
+LAC_OT_01,Slow Starter,MODELED
+LAC_OT_01,Practice Squad Grinder,MODELED
+LAC_OT_02,Ironman,MODELED
+LAC_OT_02,Clutch Performer,MODELED
+LAC_OT_02,Big Game Hunter,MODELED
+LAC_OT_04,Volatile,MODELED
+LAC_OT_05,Positional Versatility,MODELED
+LAC_OT_05,Special Teams Ace,MODELED
+LAC_OT_06,Locker Room Leader,MODELED
+LAC_OT_06,Practice Squad Grinder,MODELED
+LAC_OG_01,Ironman,MODELED
+LAC_OG_04,Injury Prone,MODELED
+LAC_OG_04,Slow Starter,MODELED
+LAC_OG_04,Coach's Son,MODELED
+LAC_OG_05,Late Bloomer,MODELED
+LAC_OG_05,Locker Room Leader,MODELED
+LAC_OG_06,Practice Squad Grinder,MODELED
+LAC_OG_06,Big Game Hunter,MODELED
+LAC_C_01,Ironman,MODELED
+LAC_C_02,High Motor,MODELED
+LAC_C_03,Injury Prone,MODELED
+LAC_EDGE_01,Clutch Performer,MODELED
+LAC_EDGE_01,Late Bloomer,MODELED
+LAC_EDGE_02,Big Game Hunter,MODELED
+LAC_EDGE_02,Slow Starter,MODELED
+LAC_EDGE_05,Slow Starter,MODELED
+LAC_EDGE_05,Late Bloomer,MODELED
+LAC_EDGE_05,Scheme Dependent,MODELED
+LAC_EDGE_06,Clutch Performer,MODELED
+LAC_EDGE_06,Injury Prone,MODELED
+LAC_EDGE_07,Weight Room Warrior,MODELED
+LAC_EDGE_07,Positional Versatility,MODELED
+LAC_EDGE_08,Locker Room Leader,MODELED
+LAC_EDGE_08,Clutch Performer,MODELED
+LAC_EDGE_08,Big Game Hunter,MODELED
+LAC_EDGE_09,Locker Room Leader,MODELED
+LAC_EDGE_09,Field General,MODELED
+LAC_EDGE_09,Ironman,MODELED
+LAC_DT_01,Slow Starter,MODELED
+LAC_DT_01,Clutch Performer,MODELED
+LAC_DT_02,Film Junkie,MODELED
+LAC_DT_04,Clutch Performer,MODELED
+LAC_DT_06,Practice Squad Grinder,MODELED
+LAC_DT_06,Late Bloomer,MODELED
+LAC_DT_07,Scheme Dependent,MODELED
+LAC_DT_07,Volatile,MODELED
+LAC_DT_07,Big Game Hunter,MODELED
+LAC_DT_08,Volatile,MODELED
+LAC_DT_08,Ironman,MODELED
+LAC_DT_08,High Motor,MODELED
+LAC_LB_01,Scheme Dependent,MODELED
+LAC_LB_02,Clutch Performer,MODELED
+LAC_LB_03,Volatile,MODELED
+LAC_LB_03,Ironman,MODELED
+LAC_LB_04,Clutch Performer,MODELED
+LAC_LB_04,Field General,MODELED
+LAC_LB_05,Special Teams Ace,MODELED
+LAC_LB_06,Late Bloomer,MODELED
+LAC_LB_06,Volatile,MODELED
+LAC_LB_06,Locker Room Leader,MODELED
+LAC_LB_07,Clutch Performer,MODELED
+LAC_CB_01,Practice Squad Grinder,MODELED
+LAC_CB_01,High Motor,MODELED
+LAC_CB_01,Field General,MODELED
+LAC_CB_02,Big Game Hunter,MODELED
+LAC_CB_04,Film Junkie,MODELED
+LAC_CB_04,Coach's Son,MODELED
+LAC_CB_04,Field General,MODELED
+LAC_CB_05,Special Teams Ace,MODELED
+LAC_CB_05,Positional Versatility,MODELED
+LAC_CB_05,Injury Prone,MODELED
+LAC_CB_06,Clutch Performer,MODELED
+LAC_CB_07,Field General,MODELED
+LAC_CB_08,Ironman,MODELED
+LAC_CB_08,Practice Squad Grinder,MODELED
+LAC_CB_09,Special Teams Ace,MODELED
+LAC_CB_09,Slow Starter,MODELED
+LAC_CB_10,Big Game Hunter,MODELED
+LAC_CB_11,Injury Prone,MODELED
+LAC_CB_11,Positional Versatility,MODELED
+LAC_S_01,Film Junkie,MODELED
+LAC_S_01,Field General,MODELED
+LAC_S_01,Clutch Performer,MODELED
+LAC_S_02,Volatile,MODELED
+LAC_S_02,Scheme Dependent,MODELED
+LAC_S_03,Slow Starter,MODELED
+LAC_S_03,Big Game Hunter,MODELED
+LAC_S_04,Volatile,MODELED
+LAC_S_07,Field General,MODELED
+LAC_K_01,High Motor,MODELED
+LAC_K_02,Positional Versatility,MODELED
+LAC_K_02,Injury Prone,MODELED
+LAC_P_01,High Motor,MODELED
+LAC_P_01,Ironman,MODELED
+LAC_P_01,Film Junkie,MODELED
+LAC_P_02,Scheme Dependent,MODELED
+DAL_QB_01,Practice Squad Grinder,MODELED
+DAL_QB_02,High Motor,MODELED
+DAL_QB_02,Weight Room Warrior,MODELED
+DAL_QB_04,Practice Squad Grinder,MODELED
+DAL_QB_04,Weight Room Warrior,MODELED
+DAL_RB_05,Special Teams Ace,MODELED
+DAL_FB_01,Injury Prone,MODELED
+DAL_WR_01,Slow Starter,MODELED
+DAL_WR_02,Clutch Performer,MODELED
+DAL_WR_04,Practice Squad Grinder,MODELED
+DAL_WR_04,Film Junkie,MODELED
+DAL_WR_05,Clutch Performer,MODELED
+DAL_WR_05,Weight Room Warrior,MODELED
+DAL_WR_05,Coach's Son,MODELED
+DAL_WR_05,Injury Prone,MODELED
+DAL_WR_06,Ironman,MODELED
+DAL_WR_07,Coach's Son,MODELED
+DAL_WR_07,Slow Starter,MODELED
+DAL_WR_08,Ironman,MODELED
+DAL_WR_08,Late Bloomer,MODELED
+DAL_WR_09,Locker Room Leader,MODELED
+DAL_WR_10,Volatile,MODELED
+DAL_WR_10,Special Teams Ace,MODELED
+DAL_WR_11,Scheme Dependent,MODELED
+DAL_TE_02,High Motor,MODELED
+DAL_TE_02,Big Game Hunter,MODELED
+DAL_TE_03,Coach's Son,MODELED
+DAL_TE_03,High Motor,MODELED
+DAL_TE_05,Coach's Son,MODELED
+DAL_TE_05,Film Junkie,MODELED
+DAL_TE_05,High Motor,MODELED
+DAL_TE_06,High Motor,MODELED
+DAL_TE_06,Locker Room Leader,MODELED
+DAL_OT_01,Locker Room Leader,MODELED
+DAL_OT_03,Clutch Performer,MODELED
+DAL_OT_03,Big Game Hunter,MODELED
+DAL_OT_03,Film Junkie,MODELED
+DAL_OT_04,Locker Room Leader,MODELED
+DAL_OT_04,Big Game Hunter,MODELED
+DAL_OT_04,Special Teams Ace,MODELED
+DAL_OT_05,Big Game Hunter,MODELED
+DAL_OT_05,Ironman,MODELED
+DAL_OT_06,Special Teams Ace,MODELED
+DAL_OG_01,Locker Room Leader,MODELED
+DAL_OG_01,Volatile,MODELED
+DAL_OG_03,Slow Starter,MODELED
+DAL_OG_04,Scheme Dependent,MODELED
+DAL_OG_04,Injury Prone,MODELED
+DAL_OG_05,Scheme Dependent,MODELED
+DAL_OG_06,Volatile,MODELED
+DAL_C_01,Special Teams Ace,MODELED
+DAL_C_02,Slow Starter,MODELED
+DAL_C_03,Slow Starter,MODELED
+DAL_C_03,Volatile,MODELED
+DAL_EDGE_01,Film Junkie,MODELED
+DAL_EDGE_01,Volatile,MODELED
+DAL_EDGE_01,Clutch Performer,MODELED
+DAL_EDGE_02,Scheme Dependent,MODELED
+DAL_EDGE_02,Film Junkie,MODELED
+DAL_EDGE_05,Big Game Hunter,MODELED
+DAL_EDGE_05,Scheme Dependent,MODELED
+DAL_EDGE_06,Weight Room Warrior,MODELED
+DAL_EDGE_06,Scheme Dependent,MODELED
+DAL_EDGE_07,Coach's Son,MODELED
+DAL_EDGE_08,Special Teams Ace,MODELED
+DAL_EDGE_09,Clutch Performer,MODELED
+DAL_EDGE_09,Field General,MODELED
+DAL_EDGE_09,Late Bloomer,MODELED
+DAL_DT_01,Late Bloomer,MODELED
+DAL_DT_01,Big Game Hunter,MODELED
+DAL_DT_03,Slow Starter,MODELED
+DAL_DT_03,Coach's Son,MODELED
+DAL_DT_03,Film Junkie,MODELED
+DAL_DT_04,Special Teams Ace,MODELED
+DAL_DT_05,Practice Squad Grinder,MODELED
+DAL_DT_06,Film Junkie,MODELED
+DAL_DT_06,Weight Room Warrior,MODELED
+DAL_DT_07,Ironman,MODELED
+DAL_DT_08,Special Teams Ace,MODELED
+DAL_LB_01,Locker Room Leader,MODELED
+DAL_LB_03,Scheme Dependent,MODELED
+DAL_LB_03,High Motor,MODELED
+DAL_LB_03,Positional Versatility,MODELED
+DAL_LB_04,Ironman,MODELED
+DAL_LB_04,Practice Squad Grinder,MODELED
+DAL_LB_04,Special Teams Ace,MODELED
+DAL_LB_05,Weight Room Warrior,MODELED
+DAL_LB_05,Ironman,MODELED
+DAL_LB_06,Special Teams Ace,MODELED
+DAL_LB_06,Big Game Hunter,MODELED
+DAL_LB_07,Big Game Hunter,MODELED
+DAL_LB_07,Practice Squad Grinder,MODELED
+DAL_LB_07,High Motor,MODELED
+DAL_LB_08,Field General,MODELED
+DAL_CB_04,Positional Versatility,MODELED
+DAL_CB_04,Injury Prone,MODELED
+DAL_CB_04,Ironman,MODELED
+DAL_CB_05,Weight Room Warrior,MODELED
+DAL_CB_05,Practice Squad Grinder,MODELED
+DAL_CB_05,Late Bloomer,MODELED
+DAL_CB_07,Ironman,MODELED
+DAL_CB_07,Film Junkie,MODELED
+DAL_CB_08,Practice Squad Grinder,MODELED
+DAL_CB_09,Weight Room Warrior,MODELED
+DAL_CB_09,Positional Versatility,MODELED
+DAL_CB_10,Field General,MODELED
+DAL_CB_10,Injury Prone,MODELED
+DAL_CB_11,Field General,MODELED
+DAL_CB_11,Slow Starter,MODELED
+DAL_S_01,Weight Room Warrior,MODELED
+DAL_S_01,Volatile,MODELED
+DAL_S_01,Injury Prone,MODELED
+DAL_S_02,Weight Room Warrior,MODELED
+DAL_S_02,High Motor,MODELED
+DAL_S_03,Field General,MODELED
+DAL_S_05,Big Game Hunter,MODELED
+DAL_S_06,Slow Starter,MODELED
+DAL_S_06,Late Bloomer,MODELED
+DAL_K_01,High Motor,MODELED
+DAL_K_01,Special Teams Ace,MODELED
+DAL_K_01,Clutch Performer,MODELED
+DAL_K_02,Ironman,MODELED
+DAL_K_02,Clutch Performer,MODELED
+DAL_K_02,Big Game Hunter,MODELED
+DAL_P_01,Field General,MODELED
+PHI_QB_01,Clutch Performer,MODELED
+PHI_QB_01,Practice Squad Grinder,MODELED
+PHI_QB_01,Positional Versatility,MODELED
+PHI_QB_02,Scheme Dependent,MODELED
+PHI_QB_04,High Motor,MODELED
+PHI_QB_04,Ironman,MODELED
+PHI_RB_02,Practice Squad Grinder,MODELED
+PHI_RB_03,Late Bloomer,MODELED
+PHI_RB_03,High Motor,MODELED
+PHI_RB_04,High Motor,MODELED
+PHI_RB_04,Big Game Hunter,MODELED
+PHI_RB_04,Film Junkie,MODELED
+PHI_RB_05,Coach's Son,MODELED
+PHI_RB_05,Weight Room Warrior,MODELED
+PHI_FB_01,Big Game Hunter,MODELED
+PHI_WR_01,Late Bloomer,MODELED
+PHI_WR_02,Film Junkie,MODELED
+PHI_WR_02,Volatile,MODELED
+PHI_WR_03,Clutch Performer,MODELED
+PHI_WR_04,Practice Squad Grinder,MODELED
+PHI_WR_04,Weight Room Warrior,MODELED
+PHI_WR_05,Injury Prone,MODELED
+PHI_WR_06,Slow Starter,MODELED
+PHI_WR_06,Clutch Performer,MODELED
+PHI_WR_07,Positional Versatility,MODELED
+PHI_WR_07,High Motor,MODELED
+PHI_WR_08,Special Teams Ace,MODELED
+PHI_WR_08,Injury Prone,MODELED
+PHI_WR_08,Coach's Son,MODELED
+PHI_WR_09,Ironman,MODELED
+PHI_WR_10,Weight Room Warrior,MODELED
+PHI_WR_10,Clutch Performer,MODELED
+PHI_WR_11,Clutch Performer,MODELED
+PHI_TE_01,Late Bloomer,MODELED
+PHI_TE_01,Locker Room Leader,MODELED
+PHI_TE_02,Weight Room Warrior,MODELED
+PHI_TE_02,Locker Room Leader,MODELED
+PHI_TE_04,Scheme Dependent,MODELED
+PHI_TE_04,Locker Room Leader,MODELED
+PHI_TE_04,Coach's Son,MODELED
+PHI_TE_05,Volatile,MODELED
+PHI_TE_06,Scheme Dependent,MODELED
+PHI_TE_06,Volatile,MODELED
+PHI_TE_06,Clutch Performer,MODELED
+PHI_OT_01,Positional Versatility,MODELED
+PHI_OT_03,Coach's Son,MODELED
+PHI_OT_03,Field General,MODELED
+PHI_OT_05,Coach's Son,MODELED
+PHI_OT_06,Coach's Son,MODELED
+PHI_OG_01,Ironman,MODELED
+PHI_OG_01,Clutch Performer,MODELED
+PHI_OG_01,Special Teams Ace,MODELED
+PHI_OG_02,Injury Prone,MODELED
+PHI_OG_03,Big Game Hunter,MODELED
+PHI_OG_03,Locker Room Leader,MODELED
+PHI_OG_03,Slow Starter,MODELED
+PHI_OG_04,Ironman,MODELED
+PHI_OG_04,Coach's Son,MODELED
+PHI_OG_05,Scheme Dependent,MODELED
+PHI_OG_06,Coach's Son,MODELED
+PHI_C_01,Ironman,MODELED
+PHI_C_02,Ironman,MODELED
+PHI_C_03,Injury Prone,MODELED
+PHI_EDGE_01,Late Bloomer,MODELED
+PHI_EDGE_01,Field General,MODELED
+PHI_EDGE_02,Film Junkie,MODELED
+PHI_EDGE_03,Ironman,MODELED
+PHI_EDGE_03,Late Bloomer,MODELED
+PHI_EDGE_03,Volatile,MODELED
+PHI_EDGE_03,Injury Prone,MODELED
+PHI_EDGE_05,Coach's Son,MODELED
+PHI_EDGE_05,Scheme Dependent,MODELED
+PHI_EDGE_07,Clutch Performer,MODELED
+PHI_EDGE_08,Practice Squad Grinder,MODELED
+PHI_EDGE_08,Slow Starter,MODELED
+PHI_EDGE_09,Clutch Performer,MODELED
+PHI_EDGE_09,Special Teams Ace,MODELED
+PHI_DT_02,Field General,MODELED
+PHI_DT_02,Film Junkie,MODELED
+PHI_DT_03,Late Bloomer,MODELED
+PHI_DT_03,Positional Versatility,MODELED
+PHI_DT_03,Injury Prone,MODELED
+PHI_DT_04,Practice Squad Grinder,MODELED
+PHI_DT_05,Film Junkie,MODELED
+PHI_DT_06,Scheme Dependent,MODELED
+PHI_DT_06,Late Bloomer,MODELED
+PHI_DT_07,Big Game Hunter,MODELED
+PHI_DT_08,Slow Starter,MODELED
+PHI_DT_08,Field General,MODELED
+PHI_DT_08,Ironman,MODELED
+PHI_LB_04,Slow Starter,MODELED
+PHI_LB_05,Practice Squad Grinder,MODELED
+PHI_LB_05,Slow Starter,MODELED
+PHI_LB_06,Weight Room Warrior,MODELED
+PHI_LB_06,Injury Prone,MODELED
+PHI_LB_06,Coach's Son,MODELED
+PHI_LB_07,Big Game Hunter,MODELED
+PHI_LB_08,Scheme Dependent,MODELED
+PHI_CB_01,High Motor,MODELED
+PHI_CB_01,Volatile,MODELED
+PHI_CB_02,Clutch Performer,MODELED
+PHI_CB_03,Practice Squad Grinder,MODELED
+PHI_CB_03,Positional Versatility,MODELED
+PHI_CB_04,Big Game Hunter,MODELED
+PHI_CB_04,Clutch Performer,MODELED
+PHI_CB_05,Clutch Performer,MODELED
+PHI_CB_05,Scheme Dependent,MODELED
+PHI_CB_07,Locker Room Leader,MODELED
+PHI_CB_08,Positional Versatility,MODELED
+PHI_CB_08,Injury Prone,MODELED
+PHI_CB_09,Field General,MODELED
+PHI_CB_10,Big Game Hunter,MODELED
+PHI_CB_11,Film Junkie,MODELED
+PHI_CB_11,High Motor,MODELED
+PHI_S_01,Injury Prone,MODELED
+PHI_S_02,Clutch Performer,MODELED
+PHI_S_02,Locker Room Leader,MODELED
+PHI_S_03,High Motor,MODELED
+PHI_S_04,High Motor,MODELED
+PHI_S_04,Injury Prone,MODELED
+PHI_S_04,Big Game Hunter,MODELED
+PHI_S_05,Slow Starter,MODELED
+PHI_S_05,Scheme Dependent,MODELED
+PHI_S_05,Film Junkie,MODELED
+PHI_S_06,Slow Starter,MODELED
+PHI_S_06,Injury Prone,MODELED
+PHI_S_07,Special Teams Ace,MODELED
+PHI_K_01,Injury Prone,MODELED
+PHI_K_01,Late Bloomer,MODELED
+PHI_K_02,Late Bloomer,MODELED
+PHI_K_02,Ironman,MODELED
+PHI_K_02,High Motor,MODELED
+PHI_P_01,Field General,MODELED
+PHI_P_01,Slow Starter,MODELED
+PHI_P_02,Locker Room Leader,MODELED
+WAS_QB_02,Locker Room Leader,MODELED
+WAS_QB_02,Weight Room Warrior,MODELED
+WAS_QB_03,Late Bloomer,MODELED
+WAS_QB_04,Ironman,MODELED
+WAS_RB_01,Film Junkie,MODELED
+WAS_RB_02,Coach's Son,MODELED
+WAS_RB_02,Special Teams Ace,MODELED
+WAS_RB_02,Weight Room Warrior,MODELED
+WAS_RB_03,Clutch Performer,MODELED
+WAS_RB_03,Late Bloomer,MODELED
+WAS_RB_04,Big Game Hunter,MODELED
+WAS_RB_04,Coach's Son,MODELED
+WAS_RB_04,Film Junkie,MODELED
+WAS_RB_05,High Motor,MODELED
+WAS_RB_05,Field General,MODELED
+WAS_FB_01,Film Junkie,MODELED
+WAS_FB_01,Field General,MODELED
+WAS_FB_01,Slow Starter,MODELED
+WAS_WR_01,Scheme Dependent,MODELED
+WAS_WR_01,Field General,MODELED
+WAS_WR_01,Ironman,MODELED
+WAS_WR_03,Practice Squad Grinder,MODELED
+WAS_WR_04,Special Teams Ace,MODELED
+WAS_WR_04,Locker Room Leader,MODELED
+WAS_WR_05,Big Game Hunter,MODELED
+WAS_WR_06,High Motor,MODELED
+WAS_WR_07,Ironman,MODELED
+WAS_WR_08,High Motor,MODELED
+WAS_WR_08,Scheme Dependent,MODELED
+WAS_WR_08,Positional Versatility,MODELED
+WAS_WR_09,Big Game Hunter,MODELED
+WAS_WR_09,Ironman,MODELED
+WAS_WR_11,Volatile,MODELED
+WAS_WR_11,Big Game Hunter,MODELED
+WAS_TE_01,Positional Versatility,MODELED
+WAS_TE_02,Film Junkie,MODELED
+WAS_TE_02,Ironman,MODELED
+WAS_TE_02,Scheme Dependent,MODELED
+WAS_TE_03,Scheme Dependent,MODELED
+WAS_TE_03,Practice Squad Grinder,MODELED
+WAS_TE_03,Injury Prone,MODELED
+WAS_TE_04,Clutch Performer,MODELED
+WAS_TE_04,Coach's Son,MODELED
+WAS_TE_05,Locker Room Leader,MODELED
+WAS_OT_02,Big Game Hunter,MODELED
+WAS_OT_02,Practice Squad Grinder,MODELED
+WAS_OT_02,Clutch Performer,MODELED
+WAS_OT_03,Injury Prone,MODELED
+WAS_OT_04,Positional Versatility,MODELED
+WAS_OT_04,High Motor,MODELED
+WAS_OT_05,Coach's Son,MODELED
+WAS_OT_05,Field General,MODELED
+WAS_OT_06,Clutch Performer,MODELED
+WAS_OG_01,Weight Room Warrior,MODELED
+WAS_OG_02,Slow Starter,MODELED
+WAS_OG_02,Ironman,MODELED
+WAS_OG_02,Big Game Hunter,MODELED
+WAS_OG_03,Coach's Son,MODELED
+WAS_OG_04,Slow Starter,MODELED
+WAS_OG_04,High Motor,MODELED
+WAS_OG_05,Scheme Dependent,MODELED
+WAS_OG_06,Film Junkie,MODELED
+WAS_OG_06,Positional Versatility,MODELED
+WAS_OG_06,Late Bloomer,MODELED
+WAS_C_01,Practice Squad Grinder,MODELED
+WAS_C_01,Scheme Dependent,MODELED
+WAS_C_03,Volatile,MODELED
+WAS_C_03,Positional Versatility,MODELED
+WAS_C_03,Ironman,MODELED
+WAS_EDGE_01,Film Junkie,MODELED
+WAS_EDGE_01,Late Bloomer,MODELED
+WAS_EDGE_02,Clutch Performer,MODELED
+WAS_EDGE_03,Volatile,MODELED
+WAS_EDGE_06,Scheme Dependent,MODELED
+WAS_EDGE_06,Positional Versatility,MODELED
+WAS_EDGE_07,Clutch Performer,MODELED
+WAS_EDGE_07,Injury Prone,MODELED
+WAS_EDGE_08,Injury Prone,MODELED
+WAS_EDGE_08,Big Game Hunter,MODELED
+WAS_EDGE_08,Weight Room Warrior,MODELED
+WAS_EDGE_09,Clutch Performer,MODELED
+WAS_EDGE_09,High Motor,MODELED
+WAS_EDGE_09,Weight Room Warrior,MODELED
+WAS_DT_01,Slow Starter,MODELED
+WAS_DT_03,Field General,MODELED
+WAS_DT_03,Scheme Dependent,MODELED
+WAS_DT_04,Late Bloomer,MODELED
+WAS_DT_04,Clutch Performer,MODELED
+WAS_DT_06,Locker Room Leader,MODELED
+WAS_DT_06,Film Junkie,MODELED
+WAS_DT_07,Film Junkie,MODELED
+WAS_DT_07,Ironman,MODELED
+WAS_DT_08,Scheme Dependent,MODELED
+WAS_DT_08,Clutch Performer,MODELED
+WAS_DT_08,High Motor,MODELED
+WAS_LB_01,Film Junkie,MODELED
+WAS_LB_01,Weight Room Warrior,MODELED
+WAS_LB_01,Field General,MODELED
+WAS_LB_02,Injury Prone,MODELED
+WAS_LB_02,Practice Squad Grinder,MODELED
+WAS_LB_03,Clutch Performer,MODELED
+WAS_LB_05,Clutch Performer,MODELED
+WAS_LB_05,Coach's Son,MODELED
+WAS_LB_07,Clutch Performer,MODELED
+WAS_LB_07,Ironman,MODELED
+WAS_LB_07,Big Game Hunter,MODELED
+WAS_LB_08,High Motor,MODELED
+WAS_LB_08,Special Teams Ace,MODELED
+WAS_CB_02,Weight Room Warrior,MODELED
+WAS_CB_04,Clutch Performer,MODELED
+WAS_CB_06,Film Junkie,MODELED
+WAS_CB_07,Volatile,MODELED
+WAS_CB_07,Ironman,MODELED
+WAS_CB_08,Field General,MODELED
+WAS_CB_08,Ironman,MODELED
+WAS_CB_09,Late Bloomer,MODELED
+WAS_CB_10,Practice Squad Grinder,MODELED
+WAS_CB_10,Scheme Dependent,MODELED
+WAS_CB_11,Ironman,MODELED
+WAS_CB_11,Big Game Hunter,MODELED
+WAS_CB_11,Special Teams Ace,MODELED
+WAS_S_01,Positional Versatility,MODELED
+WAS_S_01,Scheme Dependent,MODELED
+WAS_S_03,Coach's Son,MODELED
+WAS_S_04,Clutch Performer,MODELED
+WAS_S_05,Positional Versatility,MODELED
+WAS_S_05,Weight Room Warrior,MODELED
+WAS_S_05,Slow Starter,MODELED
+WAS_S_06,Clutch Performer,MODELED
+WAS_S_06,Late Bloomer,MODELED
+WAS_S_07,Coach's Son,MODELED
+WAS_S_07,Locker Room Leader,MODELED
+WAS_S_07,Volatile,MODELED
+WAS_K_01,Practice Squad Grinder,MODELED
+WAS_K_01,Film Junkie,MODELED
+WAS_K_02,Slow Starter,MODELED
+WAS_K_02,Ironman,MODELED
+WAS_K_02,Scheme Dependent,MODELED
+WAS_P_01,Injury Prone,MODELED
+WAS_P_01,Slow Starter,MODELED
+WAS_LS_01,Special Teams Ace,MODELED
+NYG_QB_01,Weight Room Warrior,MODELED
+NYG_QB_01,Locker Room Leader,MODELED
+NYG_QB_02,Film Junkie,MODELED
+NYG_QB_02,Locker Room Leader,MODELED
+NYG_QB_02,Clutch Performer,MODELED
+NYG_QB_03,Film Junkie,MODELED
+NYG_QB_04,Positional Versatility,MODELED
+NYG_QB_04,Slow Starter,MODELED
+NYG_QB_04,Field General,MODELED
+NYG_RB_02,Locker Room Leader,MODELED
+NYG_RB_04,Locker Room Leader,MODELED
+NYG_RB_04,Practice Squad Grinder,MODELED
+NYG_RB_04,Scheme Dependent,MODELED
+NYG_FB_01,Big Game Hunter,MODELED
+NYG_WR_01,Late Bloomer,MODELED
+NYG_WR_02,Scheme Dependent,MODELED
+NYG_WR_02,Positional Versatility,MODELED
+NYG_WR_02,Locker Room Leader,MODELED
+NYG_WR_05,Big Game Hunter,MODELED
+NYG_WR_05,Special Teams Ace,MODELED
+NYG_WR_06,Injury Prone,MODELED
+NYG_WR_06,Clutch Performer,MODELED
+NYG_WR_07,Scheme Dependent,MODELED
+NYG_WR_07,Injury Prone,MODELED
+NYG_WR_10,Ironman,MODELED
+NYG_WR_10,High Motor,MODELED
+NYG_WR_11,Injury Prone,MODELED
+NYG_WR_11,Locker Room Leader,MODELED
+NYG_WR_11,Slow Starter,MODELED
+NYG_TE_01,Late Bloomer,MODELED
+NYG_TE_01,Locker Room Leader,MODELED
+NYG_TE_02,Big Game Hunter,MODELED
+NYG_TE_03,Slow Starter,MODELED
+NYG_TE_03,Scheme Dependent,MODELED
+NYG_TE_04,Weight Room Warrior,MODELED
+NYG_TE_04,Coach's Son,MODELED
+NYG_TE_04,Field General,MODELED
+NYG_TE_05,Film Junkie,MODELED
+NYG_TE_05,Late Bloomer,MODELED
+NYG_TE_05,Field General,MODELED
+NYG_TE_06,Injury Prone,MODELED
+NYG_TE_06,Positional Versatility,MODELED
+NYG_OT_01,High Motor,MODELED
+NYG_OT_01,Special Teams Ace,MODELED
+NYG_OT_01,Coach's Son,MODELED
+NYG_OT_04,Injury Prone,MODELED
+NYG_OT_04,Big Game Hunter,MODELED
+NYG_OT_04,Film Junkie,MODELED
+NYG_OT_05,Slow Starter,MODELED
+NYG_OT_05,Late Bloomer,MODELED
+NYG_OT_06,Practice Squad Grinder,MODELED
+NYG_OG_01,Ironman,MODELED
+NYG_OG_01,Positional Versatility,MODELED
+NYG_OG_01,Film Junkie,MODELED
+NYG_OG_02,Injury Prone,MODELED
+NYG_OG_02,Field General,MODELED
+NYG_OG_02,Scheme Dependent,MODELED
+NYG_OG_03,Big Game Hunter,MODELED
+NYG_OG_03,Ironman,MODELED
+NYG_OG_03,Clutch Performer,MODELED
+NYG_OG_04,Volatile,MODELED
+NYG_OG_05,Film Junkie,MODELED
+NYG_OG_06,Volatile,MODELED
+NYG_OG_06,Locker Room Leader,MODELED
+NYG_C_01,Late Bloomer,MODELED
+NYG_C_02,Film Junkie,MODELED
+NYG_C_02,Practice Squad Grinder,MODELED
+NYG_C_02,Locker Room Leader,MODELED
+NYG_C_03,Injury Prone,MODELED
+NYG_EDGE_01,Big Game Hunter,MODELED
+NYG_EDGE_01,Film Junkie,MODELED
+NYG_EDGE_02,Big Game Hunter,MODELED
+NYG_EDGE_02,Coach's Son,MODELED
+NYG_EDGE_03,Practice Squad Grinder,MODELED
+NYG_EDGE_03,Clutch Performer,MODELED
+NYG_EDGE_04,Practice Squad Grinder,MODELED
+NYG_EDGE_05,Practice Squad Grinder,MODELED
+NYG_EDGE_05,Special Teams Ace,MODELED
+NYG_EDGE_06,Practice Squad Grinder,MODELED
+NYG_DT_03,Scheme Dependent,MODELED
+NYG_DT_04,Special Teams Ace,MODELED
+NYG_DT_04,Slow Starter,MODELED
+NYG_DT_05,Locker Room Leader,MODELED
+NYG_DT_05,Slow Starter,MODELED
+NYG_DT_05,Volatile,MODELED
+NYG_DT_06,Volatile,MODELED
+NYG_DT_06,Field General,MODELED
+NYG_DT_06,Injury Prone,MODELED
+NYG_DT_07,Film Junkie,MODELED
+NYG_DT_07,Coach's Son,MODELED
+NYG_DT_08,Big Game Hunter,MODELED
+NYG_LB_01,Special Teams Ace,MODELED
+NYG_LB_01,Injury Prone,MODELED
+NYG_LB_02,Big Game Hunter,MODELED
+NYG_LB_03,Injury Prone,MODELED
+NYG_LB_03,Late Bloomer,MODELED
+NYG_LB_04,Big Game Hunter,MODELED
+NYG_LB_05,Slow Starter,MODELED
+NYG_LB_06,Coach's Son,MODELED
+NYG_LB_06,High Motor,MODELED
+NYG_LB_07,Injury Prone,MODELED
+NYG_LB_07,Practice Squad Grinder,MODELED
+NYG_LB_08,Big Game Hunter,MODELED
+NYG_LB_08,Special Teams Ace,MODELED
+NYG_LB_08,Ironman,MODELED
+NYG_CB_01,Weight Room Warrior,MODELED
+NYG_CB_03,Special Teams Ace,MODELED
+NYG_CB_04,Big Game Hunter,MODELED
+NYG_CB_05,Scheme Dependent,MODELED
+NYG_CB_06,Practice Squad Grinder,MODELED
+NYG_CB_06,Weight Room Warrior,MODELED
+NYG_CB_07,Big Game Hunter,MODELED
+NYG_CB_07,Locker Room Leader,MODELED
+NYG_CB_08,Big Game Hunter,MODELED
+NYG_CB_08,Scheme Dependent,MODELED
+NYG_CB_09,Field General,MODELED
+NYG_CB_11,Clutch Performer,MODELED
+NYG_CB_11,Slow Starter,MODELED
+NYG_S_01,Volatile,MODELED
+NYG_S_02,Positional Versatility,MODELED
+NYG_S_02,Injury Prone,MODELED
+NYG_S_03,Positional Versatility,MODELED
+NYG_S_03,Field General,MODELED
+NYG_S_03,Injury Prone,MODELED
+NYG_S_04,Late Bloomer,MODELED
+NYG_S_05,Weight Room Warrior,MODELED
+NYG_S_05,Volatile,MODELED
+NYG_S_05,Field General,MODELED
+NYG_S_07,Clutch Performer,MODELED
+NYG_K_01,Locker Room Leader,MODELED
+NYG_K_02,High Motor,MODELED
+NYG_K_02,Late Bloomer,MODELED
+NYG_P_01,Field General,MODELED
+NYG_P_01,Practice Squad Grinder,MODELED
+NYG_P_01,Injury Prone,MODELED
+NYG_P_02,Scheme Dependent,MODELED
+NYG_P_02,Special Teams Ace,MODELED
+NYG_LS_01,Slow Starter,MODELED
+NYG_LS_01,Practice Squad Grinder,MODELED
+CHI_QB_01,Practice Squad Grinder,MODELED
+CHI_QB_01,Volatile,MODELED
+CHI_QB_01,Coach's Son,MODELED
+CHI_QB_02,Practice Squad Grinder,MODELED
+CHI_QB_02,Injury Prone,MODELED
+CHI_QB_03,Big Game Hunter,MODELED
+CHI_QB_03,Coach's Son,MODELED
+CHI_QB_04,Slow Starter,MODELED
+CHI_RB_01,Positional Versatility,MODELED
+CHI_RB_01,Big Game Hunter,MODELED
+CHI_RB_01,Clutch Performer,MODELED
+CHI_RB_02,Injury Prone,MODELED
+CHI_RB_03,Scheme Dependent,MODELED
+CHI_RB_03,Injury Prone,MODELED
+CHI_RB_03,Special Teams Ace,MODELED
+CHI_RB_04,Slow Starter,MODELED
+CHI_RB_04,High Motor,MODELED
+CHI_RB_05,Clutch Performer,MODELED
+CHI_FB_01,Big Game Hunter,MODELED
+CHI_FB_01,Scheme Dependent,MODELED
+CHI_WR_01,Clutch Performer,MODELED
+CHI_WR_01,Slow Starter,MODELED
+CHI_WR_01,Special Teams Ace,MODELED
+CHI_WR_03,Slow Starter,MODELED
+CHI_WR_04,Practice Squad Grinder,MODELED
+CHI_WR_04,Late Bloomer,MODELED
+CHI_WR_04,Field General,MODELED
+CHI_WR_05,Late Bloomer,MODELED
+CHI_WR_05,Injury Prone,MODELED
+CHI_WR_07,Ironman,MODELED
+CHI_WR_07,Slow Starter,MODELED
+CHI_WR_07,Film Junkie,MODELED
+CHI_WR_08,Clutch Performer,MODELED
+CHI_WR_08,Scheme Dependent,MODELED
+CHI_WR_08,Positional Versatility,MODELED
+CHI_WR_09,Coach's Son,MODELED
+CHI_WR_09,Special Teams Ace,MODELED
+CHI_WR_10,Clutch Performer,MODELED
+CHI_WR_10,Film Junkie,MODELED
+CHI_WR_10,Weight Room Warrior,MODELED
+CHI_WR_11,Locker Room Leader,MODELED
+CHI_TE_01,Practice Squad Grinder,MODELED
+CHI_TE_02,Coach's Son,MODELED
+CHI_TE_02,Ironman,MODELED
+CHI_TE_02,Injury Prone,MODELED
+CHI_TE_03,Volatile,MODELED
+CHI_TE_04,Practice Squad Grinder,MODELED
+CHI_TE_04,Big Game Hunter,MODELED
+CHI_TE_05,Ironman,MODELED
+CHI_TE_05,Locker Room Leader,MODELED
+CHI_TE_05,Slow Starter,MODELED
+CHI_TE_06,High Motor,MODELED
+CHI_TE_06,Scheme Dependent,MODELED
+CHI_OT_01,Slow Starter,MODELED
+CHI_OT_01,Late Bloomer,MODELED
+CHI_OT_02,Coach's Son,MODELED
+CHI_OT_05,Clutch Performer,MODELED
+CHI_OT_05,Coach's Son,MODELED
+CHI_OT_06,Ironman,MODELED
+CHI_OG_01,Field General,MODELED
+CHI_OG_01,Ironman,MODELED
+CHI_OG_02,Field General,MODELED
+CHI_OG_02,Weight Room Warrior,MODELED
+CHI_OG_04,Film Junkie,MODELED
+CHI_OG_04,Special Teams Ace,MODELED
+CHI_OG_05,Ironman,MODELED
+CHI_OG_05,Field General,MODELED
+CHI_OG_05,Scheme Dependent,MODELED
+CHI_OG_06,Slow Starter,MODELED
+CHI_C_01,Clutch Performer,MODELED
+CHI_C_01,Locker Room Leader,MODELED
+CHI_C_02,Late Bloomer,MODELED
+CHI_C_03,Field General,MODELED
+CHI_C_03,Scheme Dependent,MODELED
+CHI_C_03,Late Bloomer,MODELED
+CHI_EDGE_01,Slow Starter,MODELED
+CHI_EDGE_01,Practice Squad Grinder,MODELED
+CHI_EDGE_02,Field General,MODELED
+CHI_EDGE_02,Clutch Performer,MODELED
+CHI_EDGE_03,Field General,MODELED
+CHI_EDGE_04,High Motor,MODELED
+CHI_EDGE_05,Special Teams Ace,MODELED
+CHI_EDGE_05,Coach's Son,MODELED
+CHI_EDGE_05,Scheme Dependent,MODELED
+CHI_EDGE_06,Ironman,MODELED
+CHI_EDGE_06,Injury Prone,MODELED
+CHI_EDGE_08,Weight Room Warrior,MODELED
+CHI_EDGE_08,Late Bloomer,MODELED
+CHI_EDGE_09,Big Game Hunter,MODELED
+CHI_EDGE_09,Coach's Son,MODELED
+CHI_DT_01,Ironman,MODELED
+CHI_DT_01,Coach's Son,MODELED
+CHI_DT_02,Practice Squad Grinder,MODELED
+CHI_DT_02,Volatile,MODELED
+CHI_DT_02,Locker Room Leader,MODELED
+CHI_DT_03,Film Junkie,MODELED
+CHI_DT_05,Field General,MODELED
+CHI_DT_05,Late Bloomer,MODELED
+CHI_DT_06,Locker Room Leader,MODELED
+CHI_DT_07,Practice Squad Grinder,MODELED
+CHI_DT_07,Clutch Performer,MODELED
+CHI_DT_08,Injury Prone,MODELED
+CHI_LB_01,Locker Room Leader,MODELED
+CHI_LB_01,Practice Squad Grinder,MODELED
+CHI_LB_03,Practice Squad Grinder,MODELED
+CHI_LB_04,Locker Room Leader,MODELED
+CHI_LB_04,Late Bloomer,MODELED
+CHI_LB_05,Weight Room Warrior,MODELED
+CHI_LB_06,Clutch Performer,MODELED
+CHI_LB_07,Late Bloomer,MODELED
+CHI_LB_07,Coach's Son,MODELED
+CHI_LB_08,Ironman,MODELED
+CHI_LB_08,High Motor,MODELED
+CHI_CB_01,Big Game Hunter,MODELED
+CHI_CB_02,Volatile,MODELED
+CHI_CB_02,Locker Room Leader,MODELED
+CHI_CB_03,High Motor,MODELED
+CHI_CB_05,Injury Prone,MODELED
+CHI_CB_06,Big Game Hunter,MODELED
+CHI_CB_06,Scheme Dependent,MODELED
+CHI_CB_07,Weight Room Warrior,MODELED
+CHI_CB_07,Coach's Son,MODELED
+CHI_CB_07,Big Game Hunter,MODELED
+CHI_CB_08,Clutch Performer,MODELED
+CHI_CB_08,Scheme Dependent,MODELED
+CHI_CB_10,Coach's Son,MODELED
+CHI_CB_10,Film Junkie,MODELED
+CHI_CB_11,Late Bloomer,MODELED
+CHI_S_01,Clutch Performer,MODELED
+CHI_S_02,Big Game Hunter,MODELED
+CHI_S_02,Slow Starter,MODELED
+CHI_S_03,Big Game Hunter,MODELED
+CHI_S_03,Film Junkie,MODELED
+CHI_S_03,Slow Starter,MODELED
+CHI_S_04,Ironman,MODELED
+CHI_S_04,Locker Room Leader,MODELED
+CHI_S_06,Late Bloomer,MODELED
+CHI_S_06,Special Teams Ace,MODELED
+CHI_S_06,Coach's Son,MODELED
+CHI_S_07,Late Bloomer,MODELED
+CHI_S_07,Practice Squad Grinder,MODELED
+CHI_K_01,Special Teams Ace,MODELED
+CHI_K_01,Clutch Performer,MODELED
+CHI_K_01,Locker Room Leader,MODELED
+CHI_K_02,Volatile,MODELED
+CHI_P_01,Scheme Dependent,MODELED
+CHI_P_01,Weight Room Warrior,MODELED
+CHI_P_01,Practice Squad Grinder,MODELED
+CHI_P_02,Weight Room Warrior,MODELED
+CHI_P_02,Injury Prone,MODELED
+CHI_LS_01,Scheme Dependent,MODELED
+CHI_LS_01,Clutch Performer,MODELED
+DET_QB_01,Scheme Dependent,MODELED
+DET_QB_02,Volatile,MODELED
+DET_QB_03,Late Bloomer,MODELED
+DET_QB_03,Special Teams Ace,MODELED
+DET_QB_03,Injury Prone,MODELED
+DET_QB_04,Late Bloomer,MODELED
+DET_RB_01,High Motor,MODELED
+DET_RB_01,Film Junkie,MODELED
+DET_RB_03,Big Game Hunter,MODELED
+DET_RB_03,Field General,MODELED
+DET_RB_05,Special Teams Ace,MODELED
+DET_RB_05,Ironman,MODELED
+DET_RB_05,Weight Room Warrior,MODELED
+DET_FB_01,Clutch Performer,MODELED
+DET_WR_01,Field General,MODELED
+DET_WR_01,Slow Starter,MODELED
+DET_WR_01,Injury Prone,MODELED
+DET_WR_02,Clutch Performer,MODELED
+DET_WR_02,Coach's Son,MODELED
+DET_WR_03,Scheme Dependent,MODELED
+DET_WR_04,Locker Room Leader,MODELED
+DET_WR_05,Field General,MODELED
+DET_WR_05,Volatile,MODELED
+DET_WR_06,Scheme Dependent,MODELED
+DET_WR_07,Special Teams Ace,MODELED
+DET_WR_07,Injury Prone,MODELED
+DET_WR_08,Locker Room Leader,MODELED
+DET_WR_08,Big Game Hunter,MODELED
+DET_WR_09,Positional Versatility,MODELED
+DET_WR_09,Scheme Dependent,MODELED
+DET_WR_10,Big Game Hunter,MODELED
+DET_WR_10,Late Bloomer,MODELED
+DET_WR_11,Big Game Hunter,MODELED
+DET_WR_11,Practice Squad Grinder,MODELED
+DET_WR_11,Field General,MODELED
+DET_TE_01,Late Bloomer,MODELED
+DET_TE_01,Ironman,MODELED
+DET_TE_02,Field General,MODELED
+DET_TE_02,High Motor,MODELED
+DET_TE_02,Locker Room Leader,MODELED
+DET_TE_05,Injury Prone,MODELED
+DET_TE_06,Film Junkie,MODELED
+DET_TE_06,Late Bloomer,MODELED
+DET_OT_03,Volatile,MODELED
+DET_OT_03,Practice Squad Grinder,MODELED
+DET_OT_03,Film Junkie,MODELED
+DET_OT_04,High Motor,MODELED
+DET_OT_04,Coach's Son,MODELED
+DET_OT_04,Injury Prone,MODELED
+DET_OT_05,Coach's Son,MODELED
+DET_OT_06,Locker Room Leader,MODELED
+DET_OG_01,Locker Room Leader,MODELED
+DET_OG_01,Film Junkie,MODELED
+DET_OG_02,Locker Room Leader,MODELED
+DET_OG_03,Positional Versatility,MODELED
+DET_OG_03,Locker Room Leader,MODELED
+DET_OG_03,Ironman,MODELED
+DET_OG_05,Scheme Dependent,MODELED
+DET_OG_06,Clutch Performer,MODELED
+DET_C_02,Clutch Performer,MODELED
+DET_C_03,Big Game Hunter,MODELED
+DET_C_03,Practice Squad Grinder,MODELED
+DET_EDGE_01,High Motor,MODELED
+DET_EDGE_02,Coach's Son,MODELED
+DET_EDGE_02,Special Teams Ace,MODELED
+DET_EDGE_03,Weight Room Warrior,MODELED
+DET_EDGE_04,Slow Starter,MODELED
+DET_EDGE_05,High Motor,MODELED
+DET_EDGE_08,Locker Room Leader,MODELED
+DET_EDGE_09,Positional Versatility,MODELED
+DET_DT_03,Big Game Hunter,MODELED
+DET_DT_03,Ironman,MODELED
+DET_DT_03,Film Junkie,MODELED
+DET_DT_04,Field General,MODELED
+DET_DT_05,Injury Prone,MODELED
+DET_DT_05,Ironman,MODELED
+DET_DT_07,Special Teams Ace,MODELED
+DET_DT_07,Slow Starter,MODELED
+DET_DT_08,Locker Room Leader,MODELED
+DET_DT_08,Injury Prone,MODELED
+DET_LB_02,Coach's Son,MODELED
+DET_LB_03,Coach's Son,MODELED
+DET_LB_06,Practice Squad Grinder,MODELED
+DET_LB_06,Injury Prone,MODELED
+DET_LB_08,Injury Prone,MODELED
+DET_LB_08,Positional Versatility,MODELED
+DET_CB_01,Positional Versatility,MODELED
+DET_CB_06,Late Bloomer,MODELED
+DET_CB_08,Film Junkie,MODELED
+DET_CB_08,High Motor,MODELED
+DET_CB_08,Late Bloomer,MODELED
+DET_CB_09,Scheme Dependent,MODELED
+DET_CB_09,Positional Versatility,MODELED
+DET_CB_10,Ironman,MODELED
+DET_CB_10,Big Game Hunter,MODELED
+DET_CB_11,Clutch Performer,MODELED
+DET_CB_11,Ironman,MODELED
+DET_S_02,Special Teams Ace,MODELED
+DET_S_02,Injury Prone,MODELED
+DET_S_03,Scheme Dependent,MODELED
+DET_S_03,Field General,MODELED
+DET_S_03,Special Teams Ace,MODELED
+DET_S_04,High Motor,MODELED
+DET_S_04,Weight Room Warrior,MODELED
+DET_S_05,Special Teams Ace,MODELED
+DET_S_05,Big Game Hunter,MODELED
+DET_S_05,High Motor,MODELED
+DET_S_07,High Motor,MODELED
+DET_S_07,Practice Squad Grinder,MODELED
+DET_K_02,Ironman,MODELED
+GB_QB_02,Film Junkie,MODELED
+GB_QB_02,Positional Versatility,MODELED
+GB_QB_03,High Motor,MODELED
+GB_QB_03,Slow Starter,MODELED
+GB_QB_03,Injury Prone,MODELED
+GB_QB_04,Locker Room Leader,MODELED
+GB_QB_04,Injury Prone,MODELED
+GB_RB_04,Field General,MODELED
+GB_RB_05,Locker Room Leader,MODELED
+GB_RB_05,High Motor,MODELED
+GB_FB_01,Late Bloomer,MODELED
+GB_FB_01,Special Teams Ace,MODELED
+GB_WR_02,Slow Starter,MODELED
+GB_WR_02,Coach's Son,MODELED
+GB_WR_03,Weight Room Warrior,MODELED
+GB_WR_03,Special Teams Ace,MODELED
+GB_WR_03,Injury Prone,MODELED
+GB_WR_05,Weight Room Warrior,MODELED
+GB_WR_05,Big Game Hunter,MODELED
+GB_WR_06,Coach's Son,MODELED
+GB_WR_06,Positional Versatility,MODELED
+GB_WR_07,Scheme Dependent,MODELED
+GB_WR_07,High Motor,MODELED
+GB_WR_09,Injury Prone,MODELED
+GB_WR_10,Scheme Dependent,MODELED
+GB_WR_10,Field General,MODELED
+GB_WR_11,High Motor,MODELED
+GB_WR_11,Locker Room Leader,MODELED
+GB_TE_03,Injury Prone,MODELED
+GB_TE_05,Positional Versatility,MODELED
+GB_OT_01,Coach's Son,MODELED
+GB_OT_02,Coach's Son,MODELED
+GB_OT_02,Late Bloomer,MODELED
+GB_OT_04,Volatile,MODELED
+GB_OT_04,High Motor,MODELED
+GB_OT_04,Slow Starter,MODELED
+GB_OT_05,High Motor,MODELED
+GB_OT_06,Big Game Hunter,MODELED
+GB_OG_02,Ironman,MODELED
+GB_OG_03,Coach's Son,MODELED
+GB_OG_03,Injury Prone,MODELED
+GB_OG_04,Coach's Son,MODELED
+GB_OG_05,Scheme Dependent,MODELED
+GB_OG_05,Volatile,MODELED
+GB_OG_06,Slow Starter,MODELED
+GB_OG_06,Locker Room Leader,MODELED
+GB_OG_06,Special Teams Ace,MODELED
+GB_C_01,Late Bloomer,MODELED
+GB_C_01,Special Teams Ace,MODELED
+GB_C_02,Slow Starter,MODELED
+GB_C_03,Field General,MODELED
+GB_C_03,Film Junkie,MODELED
+GB_EDGE_02,Volatile,MODELED
+GB_EDGE_02,Injury Prone,MODELED
+GB_EDGE_04,Coach's Son,MODELED
+GB_EDGE_04,High Motor,MODELED
+GB_EDGE_04,Practice Squad Grinder,MODELED
+GB_EDGE_05,Injury Prone,MODELED
+GB_EDGE_06,Coach's Son,MODELED
+GB_EDGE_07,Practice Squad Grinder,MODELED
+GB_EDGE_08,Volatile,MODELED
+GB_EDGE_08,Slow Starter,MODELED
+GB_EDGE_09,Big Game Hunter,MODELED
+GB_DT_01,Clutch Performer,MODELED
+GB_DT_02,Slow Starter,MODELED
+GB_DT_02,Coach's Son,MODELED
+GB_DT_02,Film Junkie,MODELED
+GB_DT_03,Locker Room Leader,MODELED
+GB_DT_03,Film Junkie,MODELED
+GB_DT_04,Injury Prone,MODELED
+GB_DT_04,Late Bloomer,MODELED
+GB_DT_05,Injury Prone,MODELED
+GB_DT_06,Field General,MODELED
+GB_DT_06,Slow Starter,MODELED
+GB_DT_07,Volatile,MODELED
+GB_DT_07,Special Teams Ace,MODELED
+GB_DT_08,Locker Room Leader,MODELED
+GB_DT_08,Film Junkie,MODELED
+GB_DT_08,Scheme Dependent,MODELED
+GB_LB_02,Slow Starter,MODELED
+GB_LB_02,Ironman,MODELED
+GB_LB_02,Volatile,MODELED
+GB_LB_03,Scheme Dependent,MODELED
+GB_LB_03,Special Teams Ace,MODELED
+GB_LB_03,Field General,MODELED
+GB_LB_07,High Motor,MODELED
+GB_LB_07,Ironman,MODELED
+GB_LB_08,Clutch Performer,MODELED
+GB_LB_08,Injury Prone,MODELED
+GB_LB_08,Big Game Hunter,MODELED
+GB_CB_01,Locker Room Leader,MODELED
+GB_CB_01,Ironman,MODELED
+GB_CB_02,Coach's Son,MODELED
+GB_CB_02,Late Bloomer,MODELED
+GB_CB_03,Field General,MODELED
+GB_CB_03,High Motor,MODELED
+GB_CB_03,Injury Prone,MODELED
+GB_CB_04,Big Game Hunter,MODELED
+GB_CB_04,Locker Room Leader,MODELED
+GB_CB_05,Special Teams Ace,MODELED
+GB_CB_05,Late Bloomer,MODELED
+GB_CB_06,Big Game Hunter,MODELED
+GB_CB_06,Ironman,MODELED
+GB_CB_07,Volatile,MODELED
+GB_CB_07,Field General,MODELED
+GB_CB_08,Injury Prone,MODELED
+GB_CB_08,Big Game Hunter,MODELED
+GB_CB_08,Ironman,MODELED
+GB_CB_10,Slow Starter,MODELED
+GB_CB_11,Slow Starter,MODELED
+GB_S_01,Injury Prone,MODELED
+GB_S_01,Weight Room Warrior,MODELED
+GB_S_01,Scheme Dependent,MODELED
+GB_S_02,Clutch Performer,MODELED
+GB_S_02,Big Game Hunter,MODELED
+GB_S_03,Weight Room Warrior,MODELED
+GB_S_03,High Motor,MODELED
+GB_S_04,Positional Versatility,MODELED
+GB_S_05,Big Game Hunter,MODELED
+GB_S_06,Scheme Dependent,MODELED
+GB_K_01,Scheme Dependent,MODELED
+GB_K_01,Practice Squad Grinder,MODELED
+GB_K_02,Locker Room Leader,MODELED
+GB_K_02,Slow Starter,MODELED
+GB_K_02,Ironman,MODELED
+GB_P_02,Injury Prone,MODELED
+GB_LS_01,Slow Starter,MODELED
+MIN_QB_01,Practice Squad Grinder,MODELED
+MIN_QB_01,High Motor,MODELED
+MIN_QB_01,Weight Room Warrior,MODELED
+MIN_QB_02,Clutch Performer,MODELED
+MIN_QB_03,Special Teams Ace,MODELED
+MIN_QB_04,Coach's Son,MODELED
+MIN_RB_01,Volatile,MODELED
+MIN_RB_01,Weight Room Warrior,MODELED
+MIN_RB_02,Locker Room Leader,MODELED
+MIN_RB_03,Volatile,MODELED
+MIN_RB_03,Injury Prone,MODELED
+MIN_RB_04,Special Teams Ace,MODELED
+MIN_RB_05,Locker Room Leader,MODELED
+MIN_FB_01,Injury Prone,MODELED
+MIN_FB_01,Scheme Dependent,MODELED
+MIN_FB_01,Practice Squad Grinder,MODELED
+MIN_WR_01,Ironman,MODELED
+MIN_WR_01,Volatile,MODELED
+MIN_WR_02,Ironman,MODELED
+MIN_WR_03,Field General,MODELED
+MIN_WR_05,Field General,MODELED
+MIN_WR_05,Weight Room Warrior,MODELED
+MIN_WR_06,High Motor,MODELED
+MIN_WR_06,Special Teams Ace,MODELED
+MIN_WR_07,Scheme Dependent,MODELED
+MIN_WR_07,Slow Starter,MODELED
+MIN_WR_09,Weight Room Warrior,MODELED
+MIN_WR_09,Field General,MODELED
+MIN_WR_10,High Motor,MODELED
+MIN_WR_10,Field General,MODELED
+MIN_WR_11,Special Teams Ace,MODELED
+MIN_TE_01,Scheme Dependent,MODELED
+MIN_TE_02,Scheme Dependent,MODELED
+MIN_TE_02,Practice Squad Grinder,MODELED
+MIN_TE_02,Injury Prone,MODELED
+MIN_TE_03,Coach's Son,MODELED
+MIN_TE_03,High Motor,MODELED
+MIN_TE_04,Special Teams Ace,MODELED
+MIN_TE_04,Clutch Performer,MODELED
+MIN_TE_05,High Motor,MODELED
+MIN_TE_05,Coach's Son,MODELED
+MIN_TE_05,Practice Squad Grinder,MODELED
+MIN_TE_06,Scheme Dependent,MODELED
+MIN_TE_06,Weight Room Warrior,MODELED
+MIN_TE_06,Late Bloomer,MODELED
+MIN_OT_02,Injury Prone,MODELED
+MIN_OT_03,Locker Room Leader,MODELED
+MIN_OT_03,Weight Room Warrior,MODELED
+MIN_OT_04,Scheme Dependent,MODELED
+MIN_OT_04,Special Teams Ace,MODELED
+MIN_OT_05,High Motor,MODELED
+MIN_OT_05,Special Teams Ace,MODELED
+MIN_OT_05,Late Bloomer,MODELED
+MIN_OT_06,Special Teams Ace,MODELED
+MIN_OG_03,Injury Prone,MODELED
+MIN_OG_04,Injury Prone,MODELED
+MIN_OG_05,Scheme Dependent,MODELED
+MIN_OG_06,Late Bloomer,MODELED
+MIN_OG_06,Ironman,MODELED
+MIN_OG_06,Volatile,MODELED
+MIN_C_01,Special Teams Ace,MODELED
+MIN_C_01,Practice Squad Grinder,MODELED
+MIN_C_01,Film Junkie,MODELED
+MIN_C_02,Late Bloomer,MODELED
+MIN_C_03,Slow Starter,MODELED
+MIN_C_03,Practice Squad Grinder,MODELED
+MIN_EDGE_01,High Motor,MODELED
+MIN_EDGE_01,Coach's Son,MODELED
+MIN_EDGE_02,Field General,MODELED
+MIN_EDGE_03,Injury Prone,MODELED
+MIN_EDGE_03,Ironman,MODELED
+MIN_EDGE_04,Positional Versatility,MODELED
+MIN_EDGE_04,Field General,MODELED
+MIN_EDGE_05,Film Junkie,MODELED
+MIN_EDGE_05,Coach's Son,MODELED
+MIN_EDGE_06,Field General,MODELED
+MIN_EDGE_06,Film Junkie,MODELED
+MIN_EDGE_06,Ironman,MODELED
+MIN_EDGE_07,Late Bloomer,MODELED
+MIN_EDGE_07,Volatile,MODELED
+MIN_EDGE_08,Slow Starter,MODELED
+MIN_EDGE_08,Field General,MODELED
+MIN_EDGE_08,Injury Prone,MODELED
+MIN_EDGE_09,Clutch Performer,MODELED
+MIN_DT_01,Coach's Son,MODELED
+MIN_DT_01,Scheme Dependent,MODELED
+MIN_DT_02,Locker Room Leader,MODELED
+MIN_DT_02,Weight Room Warrior,MODELED
+MIN_DT_03,Special Teams Ace,MODELED
+MIN_DT_03,Locker Room Leader,MODELED
+MIN_DT_04,Weight Room Warrior,MODELED
+MIN_DT_04,Slow Starter,MODELED
+MIN_DT_05,Ironman,MODELED
+MIN_DT_06,Scheme Dependent,MODELED
+MIN_DT_07,Film Junkie,MODELED
+MIN_LB_01,Positional Versatility,MODELED
+MIN_LB_02,Clutch Performer,MODELED
+MIN_LB_02,Late Bloomer,MODELED
+MIN_LB_04,Clutch Performer,MODELED
+MIN_LB_04,High Motor,MODELED
+MIN_LB_04,Weight Room Warrior,MODELED
+MIN_LB_05,Locker Room Leader,MODELED
+MIN_LB_05,Clutch Performer,MODELED
+MIN_LB_05,Coach's Son,MODELED
+MIN_LB_06,Ironman,MODELED
+MIN_LB_06,Practice Squad Grinder,MODELED
+MIN_LB_06,Big Game Hunter,MODELED
+MIN_LB_07,Injury Prone,MODELED
+MIN_LB_07,Film Junkie,MODELED
+MIN_LB_08,High Motor,MODELED
+MIN_CB_01,Positional Versatility,MODELED
+MIN_CB_02,Volatile,MODELED
+MIN_CB_02,Locker Room Leader,MODELED
+MIN_CB_03,Field General,MODELED
+MIN_CB_03,Slow Starter,MODELED
+MIN_CB_03,Ironman,MODELED
+MIN_CB_04,Injury Prone,MODELED
+MIN_CB_04,High Motor,MODELED
+MIN_CB_05,Injury Prone,MODELED
+MIN_CB_05,Field General,MODELED
+MIN_CB_05,Coach's Son,MODELED
+MIN_CB_07,Clutch Performer,MODELED
+MIN_CB_08,Coach's Son,MODELED
+MIN_CB_09,High Motor,MODELED
+MIN_CB_10,Clutch Performer,MODELED
+MIN_CB_10,Locker Room Leader,MODELED
+MIN_CB_10,Ironman,MODELED
+MIN_CB_11,Slow Starter,MODELED
+MIN_CB_11,Film Junkie,MODELED
+MIN_CB_11,Late Bloomer,MODELED
+MIN_S_01,Scheme Dependent,MODELED
+MIN_S_01,High Motor,MODELED
+MIN_S_03,Film Junkie,MODELED
+MIN_S_03,Positional Versatility,MODELED
+MIN_S_04,Slow Starter,MODELED
+MIN_S_04,Film Junkie,MODELED
+MIN_S_05,Volatile,MODELED
+MIN_S_06,Volatile,MODELED
+MIN_S_07,Ironman,MODELED
+MIN_S_07,Film Junkie,MODELED
+MIN_S_07,Practice Squad Grinder,MODELED
+MIN_K_01,Coach's Son,MODELED
+MIN_K_01,Big Game Hunter,MODELED
+MIN_K_02,Locker Room Leader,MODELED
+MIN_P_01,Clutch Performer,MODELED
+MIN_P_01,Slow Starter,MODELED
+MIN_P_01,Big Game Hunter,MODELED
+MIN_P_02,Practice Squad Grinder,MODELED
+MIN_P_02,Locker Room Leader,MODELED
+ATL_QB_01,Special Teams Ace,MODELED
+ATL_QB_01,Ironman,MODELED
+ATL_QB_02,Late Bloomer,MODELED
+ATL_QB_02,Special Teams Ace,MODELED
+ATL_QB_04,Late Bloomer,MODELED
+ATL_QB_04,Volatile,MODELED
+ATL_RB_01,Special Teams Ace,MODELED
+ATL_RB_01,Volatile,MODELED
+ATL_RB_02,High Motor,MODELED
+ATL_RB_03,Positional Versatility,MODELED
+ATL_RB_04,Positional Versatility,MODELED
+ATL_RB_05,Scheme Dependent,MODELED
+ATL_RB_05,Ironman,MODELED
+ATL_FB_01,Field General,MODELED
+ATL_FB_01,Slow Starter,MODELED
+ATL_FB_01,Late Bloomer,MODELED
+ATL_WR_02,Field General,MODELED
+ATL_WR_02,Scheme Dependent,MODELED
+ATL_WR_03,Scheme Dependent,MODELED
+ATL_WR_03,Weight Room Warrior,MODELED
+ATL_WR_03,Injury Prone,MODELED
+ATL_WR_04,High Motor,MODELED
+ATL_WR_05,Slow Starter,MODELED
+ATL_WR_05,Coach's Son,MODELED
+ATL_WR_06,Injury Prone,MODELED
+ATL_WR_07,Field General,MODELED
+ATL_WR_07,Special Teams Ace,MODELED
+ATL_WR_08,Scheme Dependent,MODELED
+ATL_WR_08,Big Game Hunter,MODELED
+ATL_WR_09,Clutch Performer,MODELED
+ATL_WR_09,Volatile,MODELED
+ATL_WR_10,Volatile,MODELED
+ATL_WR_10,Clutch Performer,MODELED
+ATL_WR_10,Injury Prone,MODELED
+ATL_WR_11,Clutch Performer,MODELED
+ATL_WR_11,Field General,MODELED
+ATL_TE_01,Ironman,MODELED
+ATL_TE_01,Volatile,MODELED
+ATL_TE_02,Field General,MODELED
+ATL_TE_03,Late Bloomer,MODELED
+ATL_TE_04,Special Teams Ace,MODELED
+ATL_TE_05,Late Bloomer,MODELED
+ATL_TE_05,High Motor,MODELED
+ATL_TE_05,Big Game Hunter,MODELED
+ATL_TE_06,Weight Room Warrior,MODELED
+ATL_TE_06,Slow Starter,MODELED
+ATL_OT_01,Clutch Performer,MODELED
+ATL_OT_02,Late Bloomer,MODELED
+ATL_OT_02,Volatile,MODELED
+ATL_OT_03,Ironman,MODELED
+ATL_OT_05,Big Game Hunter,MODELED
+ATL_OT_05,Volatile,MODELED
+ATL_OT_06,Slow Starter,MODELED
+ATL_OT_06,Weight Room Warrior,MODELED
+ATL_OG_01,High Motor,MODELED
+ATL_OG_01,Field General,MODELED
+ATL_OG_03,Scheme Dependent,MODELED
+ATL_OG_03,Big Game Hunter,MODELED
+ATL_OG_03,Injury Prone,MODELED
+ATL_OG_05,Ironman,MODELED
+ATL_OG_05,Clutch Performer,MODELED
+ATL_OG_05,Slow Starter,MODELED
+ATL_OG_06,Special Teams Ace,MODELED
+ATL_OG_06,Coach's Son,MODELED
+ATL_C_02,Volatile,MODELED
+ATL_C_02,Clutch Performer,MODELED
+ATL_C_02,Weight Room Warrior,MODELED
+ATL_C_03,Coach's Son,MODELED
+ATL_C_03,Locker Room Leader,MODELED
+ATL_EDGE_01,Practice Squad Grinder,MODELED
+ATL_EDGE_01,Injury Prone,MODELED
+ATL_EDGE_02,Scheme Dependent,MODELED
+ATL_EDGE_02,Volatile,MODELED
+ATL_EDGE_03,Late Bloomer,MODELED
+ATL_EDGE_03,High Motor,MODELED
+ATL_EDGE_03,Clutch Performer,MODELED
+ATL_EDGE_04,Special Teams Ace,MODELED
+ATL_EDGE_05,Slow Starter,MODELED
+ATL_EDGE_05,Volatile,MODELED
+ATL_EDGE_06,Volatile,MODELED
+ATL_EDGE_07,Injury Prone,MODELED
+ATL_EDGE_09,Locker Room Leader,MODELED
+ATL_DT_02,Locker Room Leader,MODELED
+ATL_DT_02,High Motor,MODELED
+ATL_DT_03,High Motor,MODELED
+ATL_DT_03,Positional Versatility,MODELED
+ATL_DT_04,Volatile,MODELED
+ATL_DT_04,High Motor,MODELED
+ATL_DT_05,Practice Squad Grinder,MODELED
+ATL_DT_05,Big Game Hunter,MODELED
+ATL_DT_05,Injury Prone,MODELED
+ATL_DT_06,Volatile,MODELED
+ATL_LB_01,Coach's Son,MODELED
+ATL_LB_01,Weight Room Warrior,MODELED
+ATL_LB_01,Scheme Dependent,MODELED
+ATL_LB_02,Big Game Hunter,MODELED
+ATL_LB_03,Field General,MODELED
+ATL_LB_04,Slow Starter,MODELED
+ATL_LB_04,Positional Versatility,MODELED
+ATL_LB_05,Coach's Son,MODELED
+ATL_LB_05,Locker Room Leader,MODELED
+ATL_LB_06,Film Junkie,MODELED
+ATL_LB_06,High Motor,MODELED
+ATL_LB_06,Practice Squad Grinder,MODELED
+ATL_LB_07,Slow Starter,MODELED
+ATL_LB_07,Positional Versatility,MODELED
+ATL_LB_08,Positional Versatility,MODELED
+ATL_LB_08,Clutch Performer,MODELED
+ATL_LB_08,Locker Room Leader,MODELED
+ATL_CB_01,Scheme Dependent,MODELED
+ATL_CB_01,Clutch Performer,MODELED
+ATL_CB_02,Ironman,MODELED
+ATL_CB_02,Injury Prone,MODELED
+ATL_CB_04,Clutch Performer,MODELED
+ATL_CB_04,Volatile,MODELED
+ATL_CB_05,Positional Versatility,MODELED
+ATL_CB_05,Weight Room Warrior,MODELED
+ATL_CB_06,Slow Starter,MODELED
+ATL_CB_07,Volatile,MODELED
+ATL_CB_07,Ironman,MODELED
+ATL_CB_08,Film Junkie,MODELED
+ATL_CB_08,Big Game Hunter,MODELED
+ATL_CB_10,Film Junkie,MODELED
+ATL_CB_10,Late Bloomer,MODELED
+ATL_CB_11,Coach's Son,MODELED
+ATL_CB_11,Big Game Hunter,MODELED
+ATL_S_01,Special Teams Ace,MODELED
+ATL_S_01,Ironman,MODELED
+ATL_S_05,Scheme Dependent,MODELED
+ATL_S_06,Coach's Son,MODELED
+ATL_K_01,High Motor,MODELED
+ATL_K_01,Ironman,MODELED
+ATL_K_02,Locker Room Leader,MODELED
+ATL_P_02,Film Junkie,MODELED
+ATL_P_02,Positional Versatility,MODELED
+ATL_LS_01,Big Game Hunter,MODELED
+CAR_QB_01,Field General,MODELED
+CAR_QB_01,Big Game Hunter,MODELED
+CAR_QB_01,Coach's Son,MODELED
+CAR_QB_02,Clutch Performer,MODELED
+CAR_QB_03,Locker Room Leader,MODELED
+CAR_QB_04,Big Game Hunter,MODELED
+CAR_QB_04,Practice Squad Grinder,MODELED
+CAR_RB_01,High Motor,MODELED
+CAR_RB_01,Scheme Dependent,MODELED
+CAR_RB_02,Film Junkie,MODELED
+CAR_RB_02,Weight Room Warrior,MODELED
+CAR_RB_05,High Motor,MODELED
+CAR_WR_02,Practice Squad Grinder,MODELED
+CAR_WR_02,High Motor,MODELED
+CAR_WR_03,Volatile,MODELED
+CAR_WR_03,Positional Versatility,MODELED
+CAR_WR_04,Weight Room Warrior,MODELED
+CAR_WR_04,Coach's Son,MODELED
+CAR_WR_05,Practice Squad Grinder,MODELED
+CAR_WR_06,Special Teams Ace,MODELED
+CAR_WR_06,Locker Room Leader,MODELED
+CAR_WR_07,Locker Room Leader,MODELED
+CAR_WR_08,Coach's Son,MODELED
+CAR_WR_08,Late Bloomer,MODELED
+CAR_WR_09,Locker Room Leader,MODELED
+CAR_WR_09,Late Bloomer,MODELED
+CAR_WR_09,Scheme Dependent,MODELED
+CAR_WR_10,Positional Versatility,MODELED
+CAR_WR_11,Clutch Performer,MODELED
+CAR_TE_02,Coach's Son,MODELED
+CAR_TE_03,Positional Versatility,MODELED
+CAR_TE_03,Weight Room Warrior,MODELED
+CAR_TE_04,Scheme Dependent,MODELED
+CAR_TE_04,Weight Room Warrior,MODELED
+CAR_TE_05,Locker Room Leader,MODELED
+CAR_OT_01,Slow Starter,MODELED
+CAR_OT_02,Special Teams Ace,MODELED
+CAR_OT_02,Injury Prone,MODELED
+CAR_OT_03,Field General,MODELED
+CAR_OT_04,Ironman,MODELED
+CAR_OT_04,Practice Squad Grinder,MODELED
+CAR_OT_04,Scheme Dependent,MODELED
+CAR_OT_05,Field General,MODELED
+CAR_OT_05,Locker Room Leader,MODELED
+CAR_OT_06,Practice Squad Grinder,MODELED
+CAR_OT_06,Positional Versatility,MODELED
+CAR_OT_06,Big Game Hunter,MODELED
+CAR_OG_01,Positional Versatility,MODELED
+CAR_OG_01,Practice Squad Grinder,MODELED
+CAR_OG_01,Weight Room Warrior,MODELED
+CAR_OG_03,Slow Starter,MODELED
+CAR_OG_03,Big Game Hunter,MODELED
+CAR_OG_04,Special Teams Ace,MODELED
+CAR_OG_04,Locker Room Leader,MODELED
+CAR_OG_04,High Motor,MODELED
+CAR_OG_05,Volatile,MODELED
+CAR_OG_05,Special Teams Ace,MODELED
+CAR_OG_05,Big Game Hunter,MODELED
+CAR_OG_06,Film Junkie,MODELED
+CAR_OG_06,Injury Prone,MODELED
+CAR_C_01,Late Bloomer,MODELED
+CAR_C_01,High Motor,MODELED
+CAR_C_01,Coach's Son,MODELED
+CAR_C_02,Clutch Performer,MODELED
+CAR_C_02,Volatile,MODELED
+CAR_C_02,Big Game Hunter,MODELED
+CAR_C_03,Late Bloomer,MODELED
+CAR_EDGE_01,Locker Room Leader,MODELED
+CAR_EDGE_02,Locker Room Leader,MODELED
+CAR_EDGE_02,Injury Prone,MODELED
+CAR_EDGE_03,Ironman,MODELED
+CAR_EDGE_03,Field General,MODELED
+CAR_EDGE_03,Clutch Performer,MODELED
+CAR_EDGE_04,High Motor,MODELED
+CAR_EDGE_04,Field General,MODELED
+CAR_EDGE_04,Slow Starter,MODELED
+CAR_EDGE_05,Slow Starter,MODELED
+CAR_EDGE_05,Scheme Dependent,MODELED
+CAR_EDGE_05,Special Teams Ace,MODELED
+CAR_EDGE_06,High Motor,MODELED
+CAR_EDGE_07,Coach's Son,MODELED
+CAR_EDGE_07,Positional Versatility,MODELED
+CAR_EDGE_08,Weight Room Warrior,MODELED
+CAR_DT_02,Practice Squad Grinder,MODELED
+CAR_DT_04,Ironman,MODELED
+CAR_DT_04,Late Bloomer,MODELED
+CAR_DT_05,Ironman,MODELED
+CAR_DT_05,Clutch Performer,MODELED
+CAR_DT_07,Volatile,MODELED
+CAR_DT_08,Coach's Son,MODELED
+CAR_DT_08,Ironman,MODELED
+CAR_DT_08,Late Bloomer,MODELED
+CAR_LB_01,High Motor,MODELED
+CAR_LB_01,Field General,MODELED
+CAR_LB_02,Volatile,MODELED
+CAR_LB_02,Field General,MODELED
+CAR_LB_02,Special Teams Ace,MODELED
+CAR_LB_04,Volatile,MODELED
+CAR_LB_04,Slow Starter,MODELED
+CAR_LB_06,Injury Prone,MODELED
+CAR_LB_07,Field General,MODELED
+CAR_LB_08,Special Teams Ace,MODELED
+CAR_LB_08,Coach's Son,MODELED
+CAR_CB_01,High Motor,MODELED
+CAR_CB_01,Field General,MODELED
+CAR_CB_01,Clutch Performer,MODELED
+CAR_CB_02,Ironman,MODELED
+CAR_CB_02,Coach's Son,MODELED
+CAR_CB_04,Big Game Hunter,MODELED
+CAR_CB_05,Practice Squad Grinder,MODELED
+CAR_CB_05,Ironman,MODELED
+CAR_CB_05,Positional Versatility,MODELED
+CAR_CB_06,Weight Room Warrior,MODELED
+CAR_CB_09,Field General,MODELED
+CAR_CB_09,Injury Prone,MODELED
+CAR_CB_09,Scheme Dependent,MODELED
+CAR_CB_10,Slow Starter,MODELED
+CAR_CB_10,Clutch Performer,MODELED
+CAR_CB_10,High Motor,MODELED
+CAR_CB_11,Volatile,MODELED
+CAR_CB_11,Injury Prone,MODELED
+CAR_S_01,Weight Room Warrior,MODELED
+CAR_S_02,Slow Starter,MODELED
+CAR_S_02,Positional Versatility,MODELED
+CAR_S_03,Coach's Son,MODELED
+CAR_S_04,Locker Room Leader,MODELED
+CAR_S_04,Weight Room Warrior,MODELED
+CAR_S_05,Positional Versatility,MODELED
+CAR_S_07,Ironman,MODELED
+CAR_S_07,High Motor,MODELED
+CAR_K_02,Weight Room Warrior,MODELED
+CAR_K_02,Positional Versatility,MODELED
+CAR_P_01,Weight Room Warrior,MODELED
+CAR_P_02,Coach's Son,MODELED
+CAR_P_02,Positional Versatility,MODELED
+CAR_P_02,Slow Starter,MODELED
+CAR_LS_01,Coach's Son,MODELED
+CAR_LS_01,Late Bloomer,MODELED
+CAR_LS_01,Positional Versatility,MODELED
+NO_QB_01,Coach's Son,MODELED
+NO_QB_02,Scheme Dependent,MODELED
+NO_QB_02,Big Game Hunter,MODELED
+NO_QB_02,Clutch Performer,MODELED
+NO_QB_03,High Motor,MODELED
+NO_QB_03,Slow Starter,MODELED
+NO_QB_03,Film Junkie,MODELED
+NO_QB_04,Coach's Son,MODELED
+NO_RB_02,Positional Versatility,MODELED
+NO_RB_03,Practice Squad Grinder,MODELED
+NO_RB_04,Film Junkie,MODELED
+NO_FB_01,Scheme Dependent,MODELED
+NO_FB_01,Late Bloomer,MODELED
+NO_WR_01,Big Game Hunter,MODELED
+NO_WR_01,Scheme Dependent,MODELED
+NO_WR_04,Practice Squad Grinder,MODELED
+NO_WR_04,Positional Versatility,MODELED
+NO_WR_05,Weight Room Warrior,MODELED
+NO_WR_05,Ironman,MODELED
+NO_WR_06,Film Junkie,MODELED
+NO_WR_07,Clutch Performer,MODELED
+NO_WR_07,Ironman,MODELED
+NO_WR_08,Positional Versatility,MODELED
+NO_WR_08,Locker Room Leader,MODELED
+NO_WR_08,Special Teams Ace,MODELED
+NO_WR_09,Locker Room Leader,MODELED
+NO_WR_09,Field General,MODELED
+NO_WR_10,Slow Starter,MODELED
+NO_WR_10,Big Game Hunter,MODELED
+NO_WR_11,Special Teams Ace,MODELED
+NO_WR_11,Positional Versatility,MODELED
+NO_TE_01,Special Teams Ace,MODELED
+NO_TE_02,Ironman,MODELED
+NO_TE_03,Late Bloomer,MODELED
+NO_TE_04,Late Bloomer,MODELED
+NO_TE_04,Big Game Hunter,MODELED
+NO_TE_05,Weight Room Warrior,MODELED
+NO_TE_05,Slow Starter,MODELED
+NO_TE_05,Positional Versatility,MODELED
+NO_TE_06,Slow Starter,MODELED
+NO_TE_06,Locker Room Leader,MODELED
+NO_OT_01,Late Bloomer,MODELED
+NO_OT_02,Clutch Performer,MODELED
+NO_OT_02,Practice Squad Grinder,MODELED
+NO_OT_02,Injury Prone,MODELED
+NO_OT_03,Special Teams Ace,MODELED
+NO_OT_04,Volatile,MODELED
+NO_OT_04,Field General,MODELED
+NO_OT_04,Film Junkie,MODELED
+NO_OT_05,Scheme Dependent,MODELED
+NO_OT_05,Injury Prone,MODELED
+NO_OG_01,Special Teams Ace,MODELED
+NO_OG_01,Ironman,MODELED
+NO_OG_02,Locker Room Leader,MODELED
+NO_OG_03,Scheme Dependent,MODELED
+NO_OG_04,Coach's Son,MODELED
+NO_OG_05,Volatile,MODELED
+NO_OG_06,Ironman,MODELED
+NO_OG_06,Injury Prone,MODELED
+NO_C_01,Field General,MODELED
+NO_C_01,Practice Squad Grinder,MODELED
+NO_C_03,Big Game Hunter,MODELED
+NO_C_03,Coach's Son,MODELED
+NO_EDGE_01,High Motor,MODELED
+NO_EDGE_02,Special Teams Ace,MODELED
+NO_EDGE_02,High Motor,MODELED
+NO_EDGE_02,Late Bloomer,MODELED
+NO_EDGE_03,Locker Room Leader,MODELED
+NO_EDGE_04,Locker Room Leader,MODELED
+NO_EDGE_04,Field General,MODELED
+NO_EDGE_05,Locker Room Leader,MODELED
+NO_EDGE_06,Special Teams Ace,MODELED
+NO_EDGE_06,Practice Squad Grinder,MODELED
+NO_EDGE_07,Big Game Hunter,MODELED
+NO_EDGE_07,Volatile,MODELED
+NO_EDGE_08,Locker Room Leader,MODELED
+NO_EDGE_08,Volatile,MODELED
+NO_EDGE_09,Film Junkie,MODELED
+NO_DT_02,Scheme Dependent,MODELED
+NO_DT_02,Field General,MODELED
+NO_DT_03,High Motor,MODELED
+NO_DT_03,Practice Squad Grinder,MODELED
+NO_DT_05,Weight Room Warrior,MODELED
+NO_DT_05,Special Teams Ace,MODELED
+NO_DT_05,Clutch Performer,MODELED
+NO_DT_06,Injury Prone,MODELED
+NO_DT_06,Slow Starter,MODELED
+NO_DT_06,Special Teams Ace,MODELED
+NO_DT_07,Coach's Son,MODELED
+NO_DT_07,Clutch Performer,MODELED
+NO_DT_07,Late Bloomer,MODELED
+NO_LB_02,Locker Room Leader,MODELED
+NO_LB_03,Practice Squad Grinder,MODELED
+NO_LB_03,Coach's Son,MODELED
+NO_LB_04,Injury Prone,MODELED
+NO_LB_04,Coach's Son,MODELED
+NO_LB_05,Positional Versatility,MODELED
+NO_LB_05,High Motor,MODELED
+NO_LB_05,Special Teams Ace,MODELED
+NO_LB_06,High Motor,MODELED
+NO_LB_06,Locker Room Leader,MODELED
+NO_LB_07,Ironman,MODELED
+NO_LB_08,Injury Prone,MODELED
+NO_LB_08,High Motor,MODELED
+NO_CB_01,High Motor,MODELED
+NO_CB_01,Locker Room Leader,MODELED
+NO_CB_02,Coach's Son,MODELED
+NO_CB_04,Positional Versatility,MODELED
+NO_CB_07,Practice Squad Grinder,MODELED
+NO_CB_08,Slow Starter,MODELED
+NO_CB_08,Field General,MODELED
+NO_CB_08,Injury Prone,MODELED
+NO_CB_10,Locker Room Leader,MODELED
+NO_CB_11,Scheme Dependent,MODELED
+NO_CB_11,Volatile,MODELED
+NO_S_01,Weight Room Warrior,MODELED
+NO_S_01,Injury Prone,MODELED
+NO_S_01,Locker Room Leader,MODELED
+NO_S_03,Weight Room Warrior,MODELED
+NO_S_04,Positional Versatility,MODELED
+NO_S_04,Coach's Son,MODELED
+NO_S_06,Positional Versatility,MODELED
+NO_K_01,Field General,MODELED
+NO_K_01,Special Teams Ace,MODELED
+NO_K_01,Ironman,MODELED
+NO_P_01,Special Teams Ace,MODELED
+NO_P_02,Scheme Dependent,MODELED
+NO_LS_01,Special Teams Ace,MODELED
+TB_QB_01,Injury Prone,MODELED
+TB_QB_02,Special Teams Ace,MODELED
+TB_QB_03,Late Bloomer,MODELED
+TB_QB_03,Injury Prone,MODELED
+TB_QB_04,High Motor,MODELED
+TB_QB_04,Big Game Hunter,MODELED
+TB_QB_04,Scheme Dependent,MODELED
+TB_RB_01,Special Teams Ace,MODELED
+TB_RB_01,Positional Versatility,MODELED
+TB_RB_03,Ironman,MODELED
+TB_RB_03,Volatile,MODELED
+TB_RB_04,Special Teams Ace,MODELED
+TB_RB_05,Practice Squad Grinder,MODELED
+TB_RB_05,High Motor,MODELED
+TB_WR_01,Slow Starter,MODELED
+TB_WR_02,Big Game Hunter,MODELED
+TB_WR_02,Ironman,MODELED
+TB_WR_04,Scheme Dependent,MODELED
+TB_WR_04,Big Game Hunter,MODELED
+TB_WR_04,High Motor,MODELED
+TB_WR_05,Big Game Hunter,MODELED
+TB_WR_05,Practice Squad Grinder,MODELED
+TB_WR_05,Scheme Dependent,MODELED
+TB_WR_06,Volatile,MODELED
+TB_WR_06,High Motor,MODELED
+TB_WR_07,Film Junkie,MODELED
+TB_WR_07,Volatile,MODELED
+TB_WR_08,Volatile,MODELED
+TB_WR_08,Weight Room Warrior,MODELED
+TB_WR_09,Volatile,MODELED
+TB_WR_09,Big Game Hunter,MODELED
+TB_WR_10,Injury Prone,MODELED
+TB_WR_10,Ironman,MODELED
+TB_TE_01,Positional Versatility,MODELED
+TB_TE_01,Weight Room Warrior,MODELED
+TB_TE_02,Late Bloomer,MODELED
+TB_TE_02,Clutch Performer,MODELED
+TB_TE_02,High Motor,MODELED
+TB_TE_03,Slow Starter,MODELED
+TB_TE_03,Ironman,MODELED
+TB_TE_03,Injury Prone,MODELED
+TB_TE_04,Scheme Dependent,MODELED
+TB_TE_06,Practice Squad Grinder,MODELED
+TB_TE_06,Slow Starter,MODELED
+TB_OT_01,Weight Room Warrior,MODELED
+TB_OT_05,Positional Versatility,MODELED
+TB_OT_05,High Motor,MODELED
+TB_OT_06,Injury Prone,MODELED
+TB_OG_01,Locker Room Leader,MODELED
+TB_OG_01,Clutch Performer,MODELED
+TB_OG_02,Special Teams Ace,MODELED
+TB_OG_03,Injury Prone,MODELED
+TB_OG_03,Clutch Performer,MODELED
+TB_OG_04,Scheme Dependent,MODELED
+TB_OG_05,Ironman,MODELED
+TB_OG_06,Scheme Dependent,MODELED
+TB_OG_06,Volatile,MODELED
+TB_C_01,Injury Prone,MODELED
+TB_C_02,Scheme Dependent,MODELED
+TB_C_02,Film Junkie,MODELED
+TB_C_02,Volatile,MODELED
+TB_C_03,Practice Squad Grinder,MODELED
+TB_EDGE_01,Big Game Hunter,MODELED
+TB_EDGE_02,Volatile,MODELED
+TB_EDGE_02,Slow Starter,MODELED
+TB_EDGE_02,Positional Versatility,MODELED
+TB_EDGE_03,Film Junkie,MODELED
+TB_EDGE_04,Late Bloomer,MODELED
+TB_EDGE_04,Injury Prone,MODELED
+TB_EDGE_05,Ironman,MODELED
+TB_EDGE_05,Scheme Dependent,MODELED
+TB_EDGE_06,Practice Squad Grinder,MODELED
+TB_EDGE_07,Ironman,MODELED
+TB_EDGE_08,Practice Squad Grinder,MODELED
+TB_DT_01,Injury Prone,MODELED
+TB_DT_01,Locker Room Leader,MODELED
+TB_DT_01,Clutch Performer,MODELED
+TB_DT_02,Coach's Son,MODELED
+TB_DT_02,Field General,MODELED
+TB_DT_04,Slow Starter,MODELED
+TB_DT_06,Big Game Hunter,MODELED
+TB_DT_07,Big Game Hunter,MODELED
+TB_DT_07,Coach's Son,MODELED
+TB_DT_08,Practice Squad Grinder,MODELED
+TB_DT_08,Field General,MODELED
+TB_LB_01,Scheme Dependent,MODELED
+TB_LB_01,Ironman,MODELED
+TB_LB_01,Field General,MODELED
+TB_LB_02,Field General,MODELED
+TB_LB_02,Locker Room Leader,MODELED
+TB_LB_02,Coach's Son,MODELED
+TB_LB_03,Positional Versatility,MODELED
+TB_LB_03,Coach's Son,MODELED
+TB_LB_03,Weight Room Warrior,MODELED
+TB_LB_04,Ironman,MODELED
+TB_LB_04,Positional Versatility,MODELED
+TB_LB_06,High Motor,MODELED
+TB_LB_06,Locker Room Leader,MODELED
+TB_LB_07,Volatile,MODELED
+TB_LB_08,Injury Prone,MODELED
+TB_LB_08,Locker Room Leader,MODELED
+TB_LB_08,Clutch Performer,MODELED
+TB_CB_01,Volatile,MODELED
+TB_CB_01,Clutch Performer,MODELED
+TB_CB_02,Film Junkie,MODELED
+TB_CB_02,Weight Room Warrior,MODELED
+TB_CB_03,Scheme Dependent,MODELED
+TB_CB_03,Injury Prone,MODELED
+TB_CB_04,Slow Starter,MODELED
+TB_CB_05,Big Game Hunter,MODELED
+TB_CB_06,Field General,MODELED
+TB_CB_06,Ironman,MODELED
+TB_CB_08,Locker Room Leader,MODELED
+TB_CB_08,Film Junkie,MODELED
+TB_CB_09,Scheme Dependent,MODELED
+TB_CB_10,Ironman,MODELED
+TB_CB_11,High Motor,MODELED
+TB_CB_11,Big Game Hunter,MODELED
+TB_S_01,Locker Room Leader,MODELED
+TB_S_01,Injury Prone,MODELED
+TB_S_02,Slow Starter,MODELED
+TB_S_03,Weight Room Warrior,MODELED
+TB_S_03,Big Game Hunter,MODELED
+TB_S_05,Ironman,MODELED
+TB_S_06,Ironman,MODELED
+TB_S_07,Weight Room Warrior,MODELED
+TB_K_01,Weight Room Warrior,MODELED
+TB_K_02,Film Junkie,MODELED
+TB_K_02,Late Bloomer,MODELED
+TB_K_02,Special Teams Ace,MODELED
+TB_P_01,Practice Squad Grinder,MODELED
+TB_P_02,Late Bloomer,MODELED
+TB_P_02,Coach's Son,MODELED
+TB_LS_01,Field General,MODELED
+TB_LS_01,Ironman,MODELED
+ARI_QB_01,Special Teams Ace,MODELED
+ARI_QB_01,Ironman,MODELED
+ARI_QB_01,Locker Room Leader,MODELED
+ARI_QB_02,Special Teams Ace,MODELED
+ARI_QB_03,Practice Squad Grinder,MODELED
+ARI_QB_03,Locker Room Leader,MODELED
+ARI_QB_04,Weight Room Warrior,MODELED
+ARI_QB_04,Volatile,MODELED
+ARI_QB_04,Clutch Performer,MODELED
+ARI_RB_02,Injury Prone,MODELED
+ARI_RB_02,Practice Squad Grinder,MODELED
+ARI_RB_03,High Motor,MODELED
+ARI_RB_03,Weight Room Warrior,MODELED
+ARI_RB_03,Ironman,MODELED
+ARI_RB_05,Locker Room Leader,MODELED
+ARI_RB_05,Injury Prone,MODELED
+ARI_FB_01,Film Junkie,MODELED
+ARI_WR_01,Field General,MODELED
+ARI_WR_01,Slow Starter,MODELED
+ARI_WR_02,Late Bloomer,MODELED
+ARI_WR_02,High Motor,MODELED
+ARI_WR_03,Weight Room Warrior,MODELED
+ARI_WR_03,Ironman,MODELED
+ARI_WR_04,Slow Starter,MODELED
+ARI_WR_04,Injury Prone,MODELED
+ARI_WR_05,Positional Versatility,MODELED
+ARI_WR_05,Clutch Performer,MODELED
+ARI_WR_06,Big Game Hunter,MODELED
+ARI_WR_06,Scheme Dependent,MODELED
+ARI_WR_07,Big Game Hunter,MODELED
+ARI_WR_07,Practice Squad Grinder,MODELED
+ARI_WR_08,Clutch Performer,MODELED
+ARI_WR_08,Weight Room Warrior,MODELED
+ARI_WR_08,Special Teams Ace,MODELED
+ARI_WR_09,Practice Squad Grinder,MODELED
+ARI_WR_10,Volatile,MODELED
+ARI_WR_10,Locker Room Leader,MODELED
+ARI_WR_11,Scheme Dependent,MODELED
+ARI_TE_01,Practice Squad Grinder,MODELED
+ARI_TE_01,Film Junkie,MODELED
+ARI_TE_02,Ironman,MODELED
+ARI_TE_03,Special Teams Ace,MODELED
+ARI_TE_04,Clutch Performer,MODELED
+ARI_TE_05,Weight Room Warrior,MODELED
+ARI_TE_06,Volatile,MODELED
+ARI_TE_06,Slow Starter,MODELED
+ARI_OT_01,Weight Room Warrior,MODELED
+ARI_OT_01,Special Teams Ace,MODELED
+ARI_OT_02,Field General,MODELED
+ARI_OT_03,Locker Room Leader,MODELED
+ARI_OT_03,Late Bloomer,MODELED
+ARI_OT_04,Practice Squad Grinder,MODELED
+ARI_OT_04,Locker Room Leader,MODELED
+ARI_OT_04,High Motor,MODELED
+ARI_OT_05,Volatile,MODELED
+ARI_OT_05,Clutch Performer,MODELED
+ARI_OT_05,Positional Versatility,MODELED
+ARI_OT_06,Coach's Son,MODELED
+ARI_OT_06,Film Junkie,MODELED
+ARI_OT_06,Injury Prone,MODELED
+ARI_OG_01,Scheme Dependent,MODELED
+ARI_OG_02,Big Game Hunter,MODELED
+ARI_OG_02,Special Teams Ace,MODELED
+ARI_OG_02,Locker Room Leader,MODELED
+ARI_OG_03,Practice Squad Grinder,MODELED
+ARI_OG_03,High Motor,MODELED
+ARI_OG_05,Injury Prone,MODELED
+ARI_OG_05,Weight Room Warrior,MODELED
+ARI_OG_06,Practice Squad Grinder,MODELED
+ARI_C_01,Film Junkie,MODELED
+ARI_C_01,Locker Room Leader,MODELED
+ARI_C_02,Late Bloomer,MODELED
+ARI_C_02,Positional Versatility,MODELED
+ARI_C_03,Practice Squad Grinder,MODELED
+ARI_EDGE_01,Volatile,MODELED
+ARI_EDGE_01,Field General,MODELED
+ARI_EDGE_01,Weight Room Warrior,MODELED
+ARI_EDGE_02,Ironman,MODELED
+ARI_EDGE_02,Practice Squad Grinder,MODELED
+ARI_EDGE_02,Coach's Son,MODELED
+ARI_EDGE_03,Scheme Dependent,MODELED
+ARI_EDGE_03,Practice Squad Grinder,MODELED
+ARI_EDGE_04,Positional Versatility,MODELED
+ARI_EDGE_04,High Motor,MODELED
+ARI_EDGE_07,Ironman,MODELED
+ARI_EDGE_07,Weight Room Warrior,MODELED
+ARI_EDGE_08,Late Bloomer,MODELED
+ARI_EDGE_08,Clutch Performer,MODELED
+ARI_EDGE_09,Injury Prone,MODELED
+ARI_DT_01,Clutch Performer,MODELED
+ARI_DT_02,Practice Squad Grinder,MODELED
+ARI_DT_02,Special Teams Ace,MODELED
+ARI_DT_03,Special Teams Ace,MODELED
+ARI_DT_03,Volatile,MODELED
+ARI_DT_03,Field General,MODELED
+ARI_DT_04,Ironman,MODELED
+ARI_DT_04,Practice Squad Grinder,MODELED
+ARI_DT_04,Weight Room Warrior,MODELED
+ARI_DT_04,Injury Prone,MODELED
+ARI_DT_05,Clutch Performer,MODELED
+ARI_DT_05,Positional Versatility,MODELED
+ARI_DT_05,Volatile,MODELED
+ARI_DT_07,Injury Prone,MODELED
+ARI_DT_07,High Motor,MODELED
+ARI_DT_08,Field General,MODELED
+ARI_DT_08,Late Bloomer,MODELED
+ARI_LB_02,Positional Versatility,MODELED
+ARI_LB_03,Practice Squad Grinder,MODELED
+ARI_LB_03,Weight Room Warrior,MODELED
+ARI_LB_04,Big Game Hunter,MODELED
+ARI_LB_04,Practice Squad Grinder,MODELED
+ARI_LB_05,Clutch Performer,MODELED
+ARI_LB_05,Scheme Dependent,MODELED
+ARI_LB_06,Weight Room Warrior,MODELED
+ARI_LB_06,High Motor,MODELED
+ARI_LB_06,Injury Prone,MODELED
+ARI_LB_07,Locker Room Leader,MODELED
+ARI_LB_07,High Motor,MODELED
+ARI_CB_01,Big Game Hunter,MODELED
+ARI_CB_02,Special Teams Ace,MODELED
+ARI_CB_03,Ironman,MODELED
+ARI_CB_04,Film Junkie,MODELED
+ARI_CB_05,Coach's Son,MODELED
+ARI_CB_05,Slow Starter,MODELED
+ARI_CB_06,Injury Prone,MODELED
+ARI_CB_06,Film Junkie,MODELED
+ARI_CB_07,Big Game Hunter,MODELED
+ARI_CB_08,Volatile,MODELED
+ARI_CB_08,Late Bloomer,MODELED
+ARI_CB_08,Locker Room Leader,MODELED
+ARI_CB_09,Locker Room Leader,MODELED
+ARI_CB_09,Practice Squad Grinder,MODELED
+ARI_CB_10,Ironman,MODELED
+ARI_CB_10,Injury Prone,MODELED
+ARI_CB_11,Special Teams Ace,MODELED
+ARI_S_01,Positional Versatility,MODELED
+ARI_S_01,Practice Squad Grinder,MODELED
+ARI_S_02,Positional Versatility,MODELED
+ARI_S_04,Big Game Hunter,MODELED
+ARI_S_04,Film Junkie,MODELED
+ARI_S_05,Big Game Hunter,MODELED
+ARI_S_05,Positional Versatility,MODELED
+ARI_S_05,Weight Room Warrior,MODELED
+ARI_S_06,Special Teams Ace,MODELED
+ARI_S_06,Injury Prone,MODELED
+ARI_S_06,Film Junkie,MODELED
+ARI_S_07,High Motor,MODELED
+ARI_S_07,Injury Prone,MODELED
+ARI_K_02,Volatile,MODELED
+ARI_K_02,Locker Room Leader,MODELED
+ARI_K_02,Positional Versatility,MODELED
+ARI_P_01,High Motor,MODELED
+ARI_P_01,Big Game Hunter,MODELED
+ARI_LS_01,Weight Room Warrior,MODELED
+ARI_LS_01,Film Junkie,MODELED
+LAR_QB_01,Volatile,MODELED
+LAR_QB_01,Positional Versatility,MODELED
+LAR_QB_01,Late Bloomer,MODELED
+LAR_QB_02,Injury Prone,MODELED
+LAR_QB_03,Positional Versatility,MODELED
+LAR_QB_03,Injury Prone,MODELED
+LAR_RB_01,Special Teams Ace,MODELED
+LAR_RB_02,Slow Starter,MODELED
+LAR_RB_03,Slow Starter,MODELED
+LAR_RB_03,Weight Room Warrior,MODELED
+LAR_RB_04,Volatile,MODELED
+LAR_RB_04,High Motor,MODELED
+LAR_RB_04,Film Junkie,MODELED
+LAR_WR_01,Clutch Performer,MODELED
+LAR_WR_01,Weight Room Warrior,MODELED
+LAR_WR_01,Field General,MODELED
+LAR_WR_02,Practice Squad Grinder,MODELED
+LAR_WR_03,Injury Prone,MODELED
+LAR_WR_03,Weight Room Warrior,MODELED
+LAR_WR_04,Coach's Son,MODELED
+LAR_WR_04,Injury Prone,MODELED
+LAR_WR_04,Field General,MODELED
+LAR_WR_05,Clutch Performer,MODELED
+LAR_WR_05,Scheme Dependent,MODELED
+LAR_WR_06,Special Teams Ace,MODELED
+LAR_WR_06,Coach's Son,MODELED
+LAR_WR_07,Weight Room Warrior,MODELED
+LAR_WR_08,Locker Room Leader,MODELED
+LAR_WR_09,Positional Versatility,MODELED
+LAR_WR_11,Field General,MODELED
+LAR_WR_11,Late Bloomer,MODELED
+LAR_TE_01,Ironman,MODELED
+LAR_TE_01,Locker Room Leader,MODELED
+LAR_TE_02,Locker Room Leader,MODELED
+LAR_TE_02,Positional Versatility,MODELED
+LAR_TE_04,High Motor,MODELED
+LAR_TE_06,Clutch Performer,MODELED
+LAR_TE_06,Big Game Hunter,MODELED
+LAR_TE_06,Film Junkie,MODELED
+LAR_OT_01,Big Game Hunter,MODELED
+LAR_OT_01,Special Teams Ace,MODELED
+LAR_OT_02,Clutch Performer,MODELED
+LAR_OT_02,Positional Versatility,MODELED
+LAR_OT_03,Field General,MODELED
+LAR_OT_04,Big Game Hunter,MODELED
+LAR_OT_06,Practice Squad Grinder,MODELED
+LAR_OT_06,Film Junkie,MODELED
+LAR_OG_01,Big Game Hunter,MODELED
+LAR_OG_02,Practice Squad Grinder,MODELED
+LAR_OG_02,Weight Room Warrior,MODELED
+LAR_OG_03,Injury Prone,MODELED
+LAR_OG_03,Special Teams Ace,MODELED
+LAR_OG_03,Locker Room Leader,MODELED
+LAR_OG_05,Special Teams Ace,MODELED
+LAR_OG_05,Clutch Performer,MODELED
+LAR_OG_05,Scheme Dependent,MODELED
+LAR_OG_06,Positional Versatility,MODELED
+LAR_OG_06,Special Teams Ace,MODELED
+LAR_C_02,Weight Room Warrior,MODELED
+LAR_C_02,Injury Prone,MODELED
+LAR_C_02,Positional Versatility,MODELED
+LAR_C_03,Locker Room Leader,MODELED
+LAR_EDGE_01,Injury Prone,MODELED
+LAR_EDGE_02,Positional Versatility,MODELED
+LAR_EDGE_03,Special Teams Ace,MODELED
+LAR_EDGE_03,Practice Squad Grinder,MODELED
+LAR_EDGE_04,Positional Versatility,MODELED
+LAR_EDGE_04,Late Bloomer,MODELED
+LAR_EDGE_04,Ironman,MODELED
+LAR_EDGE_05,Field General,MODELED
+LAR_EDGE_06,Practice Squad Grinder,MODELED
+LAR_EDGE_06,Ironman,MODELED
+LAR_EDGE_06,High Motor,MODELED
+LAR_EDGE_08,Coach's Son,MODELED
+LAR_EDGE_09,Film Junkie,MODELED
+LAR_EDGE_09,Locker Room Leader,MODELED
+LAR_DT_01,Volatile,MODELED
+LAR_DT_01,Weight Room Warrior,MODELED
+LAR_DT_02,Slow Starter,MODELED
+LAR_DT_02,Big Game Hunter,MODELED
+LAR_DT_03,Special Teams Ace,MODELED
+LAR_DT_05,Locker Room Leader,MODELED
+LAR_DT_05,Film Junkie,MODELED
+LAR_DT_05,Injury Prone,MODELED
+LAR_DT_06,Coach's Son,MODELED
+LAR_DT_06,Clutch Performer,MODELED
+LAR_DT_06,Late Bloomer,MODELED
+LAR_LB_02,Special Teams Ace,MODELED
+LAR_LB_03,Big Game Hunter,MODELED
+LAR_LB_04,Coach's Son,MODELED
+LAR_LB_05,High Motor,MODELED
+LAR_LB_06,Coach's Son,MODELED
+LAR_LB_06,Special Teams Ace,MODELED
+LAR_LB_07,Volatile,MODELED
+LAR_LB_08,Big Game Hunter,MODELED
+LAR_LB_08,Late Bloomer,MODELED
+LAR_CB_01,Positional Versatility,MODELED
+LAR_CB_01,Film Junkie,MODELED
+LAR_CB_02,Locker Room Leader,MODELED
+LAR_CB_02,Field General,MODELED
+LAR_CB_02,High Motor,MODELED
+LAR_CB_03,Positional Versatility,MODELED
+LAR_CB_03,Locker Room Leader,MODELED
+LAR_CB_03,Coach's Son,MODELED
+LAR_CB_04,Film Junkie,MODELED
+LAR_CB_05,Locker Room Leader,MODELED
+LAR_CB_06,Weight Room Warrior,MODELED
+LAR_CB_07,Volatile,MODELED
+LAR_CB_07,Ironman,MODELED
+LAR_CB_08,Volatile,MODELED
+LAR_CB_08,Injury Prone,MODELED
+LAR_CB_08,Field General,MODELED
+LAR_CB_09,Late Bloomer,MODELED
+LAR_CB_09,Field General,MODELED
+LAR_CB_09,Clutch Performer,MODELED
+LAR_CB_10,Big Game Hunter,MODELED
+LAR_CB_11,Practice Squad Grinder,MODELED
+LAR_S_01,Coach's Son,MODELED
+LAR_S_01,High Motor,MODELED
+LAR_S_03,High Motor,MODELED
+LAR_S_03,Coach's Son,MODELED
+LAR_S_03,Ironman,MODELED
+LAR_S_04,Locker Room Leader,MODELED
+LAR_S_06,Film Junkie,MODELED
+LAR_S_06,Injury Prone,MODELED
+LAR_S_07,Positional Versatility,MODELED
+LAR_S_07,Film Junkie,MODELED
+LAR_K_01,Coach's Son,MODELED
+LAR_K_01,Volatile,MODELED
+LAR_K_01,Locker Room Leader,MODELED
+LAR_K_02,Scheme Dependent,MODELED
+LAR_K_02,Volatile,MODELED
+LAR_P_01,Coach's Son,MODELED
+LAR_P_01,Clutch Performer,MODELED
+LAR_P_02,Clutch Performer,MODELED
+LAR_LS_01,Scheme Dependent,MODELED
+LAR_LS_01,Weight Room Warrior,MODELED
+LAR_LS_01,Big Game Hunter,MODELED
+SF_QB_01,Field General,MODELED
+SF_QB_02,Practice Squad Grinder,MODELED
+SF_QB_02,Field General,MODELED
+SF_QB_03,Special Teams Ace,MODELED
+SF_RB_02,Scheme Dependent,MODELED
+SF_RB_02,Film Junkie,MODELED
+SF_RB_02,Practice Squad Grinder,MODELED
+SF_RB_03,Late Bloomer,MODELED
+SF_RB_04,Field General,MODELED
+SF_RB_04,Weight Room Warrior,MODELED
+SF_RB_04,Positional Versatility,MODELED
+SF_RB_05,Field General,MODELED
+SF_FB_01,Volatile,MODELED
+SF_FB_01,Ironman,MODELED
+SF_FB_01,Coach's Son,MODELED
+SF_WR_01,Coach's Son,MODELED
+SF_WR_01,Scheme Dependent,MODELED
+SF_WR_01,Special Teams Ace,MODELED
+SF_WR_02,Scheme Dependent,MODELED
+SF_WR_03,Injury Prone,MODELED
+SF_WR_05,Slow Starter,MODELED
+SF_WR_06,Big Game Hunter,MODELED
+SF_WR_07,Positional Versatility,MODELED
+SF_WR_08,Field General,MODELED
+SF_WR_08,Injury Prone,MODELED
+SF_WR_10,Volatile,MODELED
+SF_WR_10,Practice Squad Grinder,MODELED
+SF_WR_11,Field General,MODELED
+SF_TE_01,Positional Versatility,MODELED
+SF_TE_03,Big Game Hunter,MODELED
+SF_TE_03,Film Junkie,MODELED
+SF_TE_04,Practice Squad Grinder,MODELED
+SF_TE_05,Scheme Dependent,MODELED
+SF_TE_05,Volatile,MODELED
+SF_OT_01,High Motor,MODELED
+SF_OT_01,Clutch Performer,MODELED
+SF_OT_02,Clutch Performer,MODELED
+SF_OT_03,Ironman,MODELED
+SF_OT_04,Special Teams Ace,MODELED
+SF_OT_04,Film Junkie,MODELED
+SF_OT_05,Practice Squad Grinder,MODELED
+SF_OT_05,Weight Room Warrior,MODELED
+SF_OT_06,Practice Squad Grinder,MODELED
+SF_OT_06,Coach's Son,MODELED
+SF_OT_06,Special Teams Ace,MODELED
+SF_OG_01,Ironman,MODELED
+SF_OG_02,Film Junkie,MODELED
+SF_OG_02,Volatile,MODELED
+SF_OG_02,Injury Prone,MODELED
+SF_OG_03,Field General,MODELED
+SF_OG_03,Clutch Performer,MODELED
+SF_OG_03,High Motor,MODELED
+SF_OG_05,Coach's Son,MODELED
+SF_OG_05,Positional Versatility,MODELED
+SF_OG_06,Slow Starter,MODELED
+SF_OG_06,Field General,MODELED
+SF_OG_06,Injury Prone,MODELED
+SF_C_01,Ironman,MODELED
+SF_C_01,Special Teams Ace,MODELED
+SF_C_02,Scheme Dependent,MODELED
+SF_C_03,Big Game Hunter,MODELED
+SF_C_03,Injury Prone,MODELED
+SF_EDGE_02,Practice Squad Grinder,MODELED
+SF_EDGE_02,Field General,MODELED
+SF_EDGE_02,High Motor,MODELED
+SF_EDGE_03,Locker Room Leader,MODELED
+SF_EDGE_07,Clutch Performer,MODELED
+SF_EDGE_07,Weight Room Warrior,MODELED
+SF_EDGE_07,Scheme Dependent,MODELED
+SF_EDGE_08,Clutch Performer,MODELED
+SF_EDGE_09,Special Teams Ace,MODELED
+SF_EDGE_09,Locker Room Leader,MODELED
+SF_DT_01,Late Bloomer,MODELED
+SF_DT_01,Big Game Hunter,MODELED
+SF_DT_01,Field General,MODELED
+SF_DT_02,Clutch Performer,MODELED
+SF_DT_03,Field General,MODELED
+SF_DT_04,Ironman,MODELED
+SF_DT_05,Coach's Son,MODELED
+SF_DT_06,Locker Room Leader,MODELED
+SF_DT_06,Volatile,MODELED
+SF_DT_07,Ironman,MODELED
+SF_DT_07,Big Game Hunter,MODELED
+SF_LB_01,Late Bloomer,MODELED
+SF_LB_01,Clutch Performer,MODELED
+SF_LB_02,Injury Prone,MODELED
+SF_LB_02,Clutch Performer,MODELED
+SF_LB_03,Slow Starter,MODELED
+SF_LB_03,Field General,MODELED
+SF_LB_04,Clutch Performer,MODELED
+SF_LB_04,Big Game Hunter,MODELED
+SF_LB_04,Late Bloomer,MODELED
+SF_LB_05,Ironman,MODELED
+SF_LB_06,Coach's Son,MODELED
+SF_LB_06,Field General,MODELED
+SF_LB_07,Coach's Son,MODELED
+SF_LB_08,Practice Squad Grinder,MODELED
+SF_LB_08,Coach's Son,MODELED
+SF_CB_01,Practice Squad Grinder,MODELED
+SF_CB_02,High Motor,MODELED
+SF_CB_02,Positional Versatility,MODELED
+SF_CB_03,Ironman,MODELED
+SF_CB_04,Injury Prone,MODELED
+SF_CB_04,Scheme Dependent,MODELED
+SF_CB_04,Field General,MODELED
+SF_CB_05,Slow Starter,MODELED
+SF_CB_05,Big Game Hunter,MODELED
+SF_CB_06,Practice Squad Grinder,MODELED
+SF_CB_07,Ironman,MODELED
+SF_CB_07,Locker Room Leader,MODELED
+SF_CB_07,Clutch Performer,MODELED
+SF_CB_08,Positional Versatility,MODELED
+SF_CB_08,Field General,MODELED
+SF_CB_09,Special Teams Ace,MODELED
+SF_CB_10,Film Junkie,MODELED
+SF_CB_10,Positional Versatility,MODELED
+SF_CB_10,Field General,MODELED
+SF_CB_11,Film Junkie,MODELED
+SF_CB_11,High Motor,MODELED
+SF_CB_11,Special Teams Ace,MODELED
+SF_S_02,Positional Versatility,MODELED
+SF_S_02,Slow Starter,MODELED
+SF_S_02,High Motor,MODELED
+SF_S_03,Field General,MODELED
+SF_S_04,Film Junkie,MODELED
+SF_S_04,Injury Prone,MODELED
+SF_S_05,Locker Room Leader,MODELED
+SF_S_05,Coach's Son,MODELED
+SF_S_05,Big Game Hunter,MODELED
+SF_S_06,High Motor,MODELED
+SF_S_07,Late Bloomer,MODELED
+SF_K_01,Weight Room Warrior,MODELED
+SF_K_01,Coach's Son,MODELED
+SF_K_02,Clutch Performer,MODELED
+SF_P_01,Injury Prone,MODELED
+SF_P_01,Coach's Son,MODELED
+SF_P_02,Injury Prone,MODELED
+SF_LS_01,Volatile,MODELED
+SF_LS_01,Positional Versatility,MODELED
+SF_LS_01,Locker Room Leader,MODELED
+SEA_QB_01,Injury Prone,MODELED
+SEA_QB_02,Scheme Dependent,MODELED
+SEA_QB_02,High Motor,MODELED
+SEA_QB_02,Late Bloomer,MODELED
+SEA_QB_03,Slow Starter,MODELED
+SEA_QB_03,Scheme Dependent,MODELED
+SEA_QB_04,Big Game Hunter,MODELED
+SEA_QB_04,Clutch Performer,MODELED
+SEA_RB_01,Clutch Performer,MODELED
+SEA_RB_02,Weight Room Warrior,MODELED
+SEA_RB_03,Ironman,MODELED
+SEA_RB_04,Special Teams Ace,MODELED
+SEA_RB_04,Locker Room Leader,MODELED
+SEA_RB_04,Film Junkie,MODELED
+SEA_RB_05,Field General,MODELED
+SEA_RB_05,Slow Starter,MODELED
+SEA_WR_01,Locker Room Leader,MODELED
+SEA_WR_03,Locker Room Leader,MODELED
+SEA_WR_04,Locker Room Leader,MODELED
+SEA_WR_05,High Motor,MODELED
+SEA_WR_05,Volatile,MODELED
+SEA_WR_05,Film Junkie,MODELED
+SEA_WR_06,Special Teams Ace,MODELED
+SEA_WR_06,Practice Squad Grinder,MODELED
+SEA_WR_06,Locker Room Leader,MODELED
+SEA_WR_07,Slow Starter,MODELED
+SEA_WR_07,High Motor,MODELED
+SEA_WR_08,Practice Squad Grinder,MODELED
+SEA_WR_08,High Motor,MODELED
+SEA_WR_09,Late Bloomer,MODELED
+SEA_WR_09,Film Junkie,MODELED
+SEA_WR_09,Locker Room Leader,MODELED
+SEA_WR_10,Weight Room Warrior,MODELED
+SEA_WR_10,Coach's Son,MODELED
+SEA_WR_11,High Motor,MODELED
+SEA_TE_01,Weight Room Warrior,MODELED
+SEA_TE_01,Ironman,MODELED
+SEA_TE_01,Practice Squad Grinder,MODELED
+SEA_TE_02,High Motor,MODELED
+SEA_TE_02,Film Junkie,MODELED
+SEA_TE_03,Positional Versatility,MODELED
+SEA_TE_03,Injury Prone,MODELED
+SEA_TE_03,Field General,MODELED
+SEA_TE_04,Coach's Son,MODELED
+SEA_TE_04,Positional Versatility,MODELED
+SEA_TE_04,Weight Room Warrior,MODELED
+SEA_TE_05,Late Bloomer,MODELED
+SEA_TE_05,Scheme Dependent,MODELED
+SEA_TE_06,Field General,MODELED
+SEA_TE_06,Locker Room Leader,MODELED
+SEA_OT_01,Positional Versatility,MODELED
+SEA_OT_02,Practice Squad Grinder,MODELED
+SEA_OT_02,Slow Starter,MODELED
+SEA_OT_03,Scheme Dependent,MODELED
+SEA_OT_03,Locker Room Leader,MODELED
+SEA_OT_04,Weight Room Warrior,MODELED
+SEA_OT_05,Volatile,MODELED
+SEA_OT_05,Special Teams Ace,MODELED
+SEA_OT_05,Coach's Son,MODELED
+SEA_OT_06,Coach's Son,MODELED
+SEA_OG_01,Slow Starter,MODELED
+SEA_OG_01,Special Teams Ace,MODELED
+SEA_OG_01,Coach's Son,MODELED
+SEA_OG_04,High Motor,MODELED
+SEA_OG_04,Special Teams Ace,MODELED
+SEA_OG_06,Ironman,MODELED
+SEA_OG_06,Coach's Son,MODELED
+SEA_C_01,Clutch Performer,MODELED
+SEA_C_02,Slow Starter,MODELED
+SEA_C_02,Injury Prone,MODELED
+SEA_C_02,Volatile,MODELED
+SEA_C_03,Weight Room Warrior,MODELED
+SEA_EDGE_02,Film Junkie,MODELED
+SEA_EDGE_02,Coach's Son,MODELED
+SEA_EDGE_03,Big Game Hunter,MODELED
+SEA_EDGE_03,High Motor,MODELED
+SEA_EDGE_03,Positional Versatility,MODELED
+SEA_EDGE_04,Scheme Dependent,MODELED
+SEA_EDGE_04,Coach's Son,MODELED
+SEA_EDGE_05,Scheme Dependent,MODELED
+SEA_EDGE_05,Field General,MODELED
+SEA_EDGE_05,Film Junkie,MODELED
+SEA_EDGE_06,Late Bloomer,MODELED
+SEA_EDGE_06,Locker Room Leader,MODELED
+SEA_EDGE_07,Volatile,MODELED
+SEA_EDGE_07,Injury Prone,MODELED
+SEA_DT_01,Late Bloomer,MODELED
+SEA_DT_01,Special Teams Ace,MODELED
+SEA_DT_02,Coach's Son,MODELED
+SEA_DT_02,High Motor,MODELED
+SEA_DT_03,Film Junkie,MODELED
+SEA_DT_03,Special Teams Ace,MODELED
+SEA_DT_03,Ironman,MODELED
+SEA_DT_04,Film Junkie,MODELED
+SEA_DT_05,Big Game Hunter,MODELED
+SEA_DT_07,Injury Prone,MODELED
+SEA_DT_07,Field General,MODELED
+SEA_DT_08,Injury Prone,MODELED
+SEA_LB_01,Weight Room Warrior,MODELED
+SEA_LB_01,Locker Room Leader,MODELED
+SEA_LB_02,Late Bloomer,MODELED
+SEA_LB_02,Clutch Performer,MODELED
+SEA_LB_03,Film Junkie,MODELED
+SEA_LB_05,Film Junkie,MODELED
+SEA_LB_06,Injury Prone,MODELED
+SEA_LB_07,Slow Starter,MODELED
+SEA_LB_07,High Motor,MODELED
+SEA_LB_08,High Motor,MODELED
+SEA_LB_08,Clutch Performer,MODELED
+SEA_CB_01,Field General,MODELED
+SEA_CB_01,Special Teams Ace,MODELED
+SEA_CB_01,Clutch Performer,MODELED
+SEA_CB_02,Film Junkie,MODELED
+SEA_CB_03,Field General,MODELED
+SEA_CB_04,High Motor,MODELED
+SEA_CB_05,Injury Prone,MODELED
+SEA_CB_06,Injury Prone,MODELED
+SEA_CB_08,Big Game Hunter,MODELED
+SEA_CB_08,Weight Room Warrior,MODELED
+SEA_CB_09,Film Junkie,MODELED
+SEA_CB_10,Volatile,MODELED
+SEA_S_01,Ironman,MODELED
+SEA_S_01,Practice Squad Grinder,MODELED
+SEA_S_02,Injury Prone,MODELED
+SEA_S_02,Weight Room Warrior,MODELED
+SEA_S_02,Practice Squad Grinder,MODELED
+SEA_S_03,Locker Room Leader,MODELED
+SEA_S_05,Big Game Hunter,MODELED
+SEA_S_06,Positional Versatility,MODELED
+SEA_S_06,Practice Squad Grinder,MODELED
+SEA_K_01,Injury Prone,MODELED
+SEA_K_01,Weight Room Warrior,MODELED
+SEA_P_01,Practice Squad Grinder,MODELED
+SEA_P_01,High Motor,MODELED
+SEA_P_02,Late Bloomer,MODELED
+SEA_P_02,Weight Room Warrior,MODELED

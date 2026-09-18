@@ -1,0 +1,455 @@
+# Saves
+
+Two layers, versioned independently because they change for different reasons.
+
+| | What it versions | Where | Migrated by |
+|---|---|---|---|
+| **Save document** | the shape of the engine's own state | `supabase/functions/_shared/save/` | `migrate()` in TypeScript |
+| **Save rows** | the shape of a save's rows in Postgres | `supabase/migrations/0013` | `apply_save_migrations()` in SQL |
+
+`engine_version` is recorded and never migrated: it explains a result, it does
+not change one.
+
+The document lives in Postgres, in `save_documents`, through `PostgresSaveStore`
+(`supabase/functions/_shared/api/saveStore.ts`), which implements the same
+store interface the memory store does -- so every load goes through the one
+path: read, migrate, validate, deserialise. The relational tables are a
+projection of the document; see `docs/SCHEMA.md`.
+
+## Forward only
+
+There is no downgrade path and there will not be one. An older build opening a
+newer save must refuse, because the alternative is loading it, silently
+dropping whatever the newer format added, and then saving over it. Both layers
+refuse loudly:
+
+```
+Save was written by a newer build (format 4, this build reads 3).
+Update the app rather than opening it here.
+```
+
+Adding a version means three things, and a test asserts all three agree:
+bump `SAVE_SCHEMA_VERSION`, add the `VERSION_LOG` entry, add the step in
+`migrations.ts`. A bump without a step fails the build rather than failing on
+somebody's dynasty.
+
+## What a migration step may do
+
+A step takes a document at version N and returns one at N+1. Three rules:
+
+**It never reads the current types.** Steps work on `UnknownDocument`. A step
+that imported `SavedPlayer` would compile against today's shape and break
+silently the next time that shape changed — which is precisely the moment the
+step needs to keep working.
+
+**It never invents data it cannot derive.** Where a new field has no answer in
+the old document, the honest value is the one that makes the old behaviour
+continue. The v2→v3 step adds `previousTeamId`, and sets it to the player's
+current club for anyone under contract and `null` for a free agent — because v2
+free agency had no loyalty term at all, so "nowhere" is what reproduces how the
+save was actually played. Inventing a plausible former club would change the
+outcome of the next market the player opened the save to run.
+
+**It is pure and total.** No clock, no RNG, no I/O — so a failed load can be
+retried, and migrating twice gives the same answer.
+
+The driver proves it arrived: a step that forgets to set `version` on its
+output is caught rather than looping or returning a half-migrated document that
+deserialises without complaint.
+
+## Loading
+
+One path, always: read bytes → migrate → validate → deserialise. Migration
+happens *before* validation, never after — a v1 document validated against v3
+rules fails for the wrong reason and tells the player their save is corrupt
+when it is merely old.
+
+The loader validates every field and names the one that failed:
+
+```
+Save is unreadable at players[412].ability: expected a finite number, got null
+```
+
+`ARCHITECTURE.md` rule 3 has its sharpest application here. A loader that
+defaulted a missing ability to 50 would turn a corrupt save into a league of
+mediocre players and tell nobody.
+
+## Integrity
+
+`checkIntegrity()` runs against the document, so it holds for a save on disk, a
+save in Postgres and a league in memory alike. Three families:
+
+- **Nulls** — a required field that arrived null or NaN.
+- **Orphans** — a reference to something absent: a contract on a retired player,
+  a roster spot at a club that does not exist, a draft class for a season
+  already played.
+- **Cap** — a club over the salary cap, a roster over the limit, a contract
+  outside the rules it was signed under.
+
+## The integration test
+
+`tests/save/integration.test.ts` creates a save, plays ten seasons and asserts
+all three families hold every year. The league is **not** held in memory across
+seasons: each year it is serialised, pushed through a store that round-trips it
+as JSON, migrated, validated and rebuilt, and the next season is played on
+whatever came back. A save system tested by keeping the object graph alive
+tests nothing.
+
+It also asserts that load-then-save is a fixed point — byte-identical. If it is
+not, every reload mutates the save a little and ten reloads compound into
+something nobody wrote, which is how long saves rot.
+
+### What it found
+
+Four real defects, none of which any existing test could see:
+
+**Compliance ran cut and fill once each, in that order.** Clubs cut their way
+under the cap, then signed minimum-salary bodies to fill the roster — and went
+straight back over, with nothing re-checking. Two clubs were over the cap by
+season four.
+
+The first fix was wrong and the test caught that too: alternating cut and fill
+until they settle turned one club into 183M of dead money and released the first
+overall pick. Every cut charges dead money, so a club that is over the cap cuts,
+becomes *more* over, and cuts again — cutting is not a fixed-point operation and
+must not be iterated as if it were. The cut pass now reserves the room the fill
+pass will need, and each runs once.
+
+**Free agents held contracts for ever.** `expireContracts` skipped unrostered
+players, so a contract on a player with no club never ticked down and never
+expired. 188 players in the first season alone were "under contract" to nobody.
+A contract is a relationship with a club: no club, no contract.
+
+**The starting world is already over the cap — seven of 32 clubs, one by 84M.**
+Contracts in the seed loader are derived from market value, which knows nothing
+about the cap. This one is **reported and bounded, not fixed**, and that is a
+deliberate call worth reviewing:
+
+- Running the engine's compliance pass at load releases players and charges dead
+  money. A from-scratch world has no history to charge, so one club came out
+  with 276M of dead money and further over than it started.
+- Scaling wages to fit works arithmetically, but the intake, market and drift
+  baselines are all calibrated against these exact contracts. Scaling broke the
+  draft-need test and pushed the first offseason hard enough to release two
+  first-round rookies on guaranteed deals — which
+  `tests/offseason/freeAgency.test.ts` correctly refuses, because cutting a
+  guaranteed rookie deal frees nothing.
+
+The first offseason's compliance pass resolves it, and the league stays legal
+for the ten seasons after. The real fix belongs to the seed importer that will
+build the production template world, where each club's wages can be constructed
+inside a cap budget from the start and the calibration re-run once against the
+result. `tests/save/save.test.ts` bounds the overage so it cannot quietly grow
+from seven clubs to twenty.
+
+**One game in 2,720 went unplayed.** A club lost a position group to injury and
+could not field a side. The engine reports that rather than inventing a
+scoreline, which is right; the gap it exposes is that nothing signs a
+replacement mid-season. A real club whose only kicker tears a knee signs one off
+the street on Tuesday, and this league cannot. The test bounds the rate rather
+than asserting zero, so the regression that would matter — this becoming
+systemic — still fails.
+
+The first two fixes were confirmed by reverting each and watching the test fail.
+
+## The SQL side
+
+`saves.schema_version` tracks a save's row shape. Migration is per-save rather
+than a bare `ALTER`, because a DDL change applies to every save at once — right
+for adding a column, wrong for anything that has to look at a save's data.
+Backfills differ per dynasty, some are expensive, and a save nobody opens should
+not pay for one.
+
+`apply_save_migrations()` reads the version `FOR UPDATE`: two clients opening the
+same dynasty would otherwise both run the v1 step and the second would fail on
+the log's primary key having already written half its migration. Steps are
+idempotent, so a migration that failed after its writes but before its version
+bump can be retried.
+
+`supabase/tests/01_rls_test.sql` proves the driver reaches the current version,
+stamps the save, logs each step, is a no-op on a second run, refuses a save from
+a newer build, and cannot be invoked by a client.
+
+## Save files
+
+A save sits in a numbered slot the player chooses, and carries the name of the
+general manager who runs it and the style he was created with. All of it lives
+on `public.saves` -- `slot`, `gm_first_name`, `gm_last_name`, `gm_style` -- and
+not in the engine document, because the menu has to read them before anything is
+opened and opening a 12MB document per slot to print a record is not a menu.
+
+| | |
+|---|---|
+| Slots offered | three (`SLOT_COUNT`), plus any a save already sits beyond them |
+| One save per slot | `saves_user_slot`, a unique index on `(user_id, slot)` |
+| Every player save has a slot | `saves_slot_presence`, a **deferred** constraint trigger |
+| A GM has both names or neither | `saves_gm_name_pair` |
+| A style is one of the five, or absent | `saves_gm_style_known` |
+
+The presence rule is a deferred constraint trigger rather than a `CHECK` because
+`create_save()` inserts the row and then clones the world under it, and the slot
+is written by the handler that called it. Postgres cannot defer a `CHECK`. The
+trigger re-reads the row rather than trusting `NEW`: a deferred trigger runs at
+commit but carries the row as the triggering statement left it, so `NEW.slot` is
+still the null the INSERT wrote.
+
+Nothing is invented for a save that predates this. Slots were backfilled in
+creation order -- a slot is an ordering the player chooses, not a fact about the
+world -- but GM names were left null, and the menu prints *No GM recorded*.
+`gm_style` was neither backfilled nor defaulted for the same reason: the picker
+opens on `ARCHITECT`, but that is where a control starts, not an answer a save
+whose creator was never asked may claim to have given. It reads back as null,
+and the screens say the style was not recorded.
+
+Nothing in the simulation reads `gm_style` yet. It is stored because the Create
+GM screen asks for it, and a question the save discards is a question that
+should not have been asked; the column is there so that the day the engine does
+read it, every franchise created from now has an honest answer. The five keys
+live in `_shared/api/gmStyles.ts`, which is what `create-save` validates
+against -- a style the server does not know is **refused**, not stored as null,
+because dropping it would hide a drift between the catalogue and the migration's
+`CHECK` behind a save that looks fine. `src/screens/gmStyles.ts` holds the
+labels and the one-line explanations, and a test asserts the two lists name the
+same five keys.
+
+`create-save` takes an optional `slot` (the lowest free one when omitted), an
+optional GM name and an optional style, and refuses a slot that is occupied
+before it clones anything.
+The `slots` read answers the menu from `saves`, `teams`, `standings`,
+`salary_cap` and `league_history` in one query; `save` opens the save it is
+given, or the most recently touched when it is given none.
+
+It never opens a save document. A file list that had to deserialize a 12MB
+league to print a record would cost a second per slot, so everything a card
+shows is a column or an aggregate:
+
+| On the card | From |
+|---|---|
+| Team, colours | `teams`, joined on the save's own `user_team_id` |
+| Record | `standings`, for the season the save is in |
+| Cap space | `salary_cap.available`, cast `::text` — cap money is `bigint` and outgrows a JS number by 2062 |
+| Titles | `count(*)` over `league_history` where `playoff_result = 'CHAMPION'`, as a scalar subquery rather than a join, which would multiply the row by one per season played |
+| Name | `saves.name` |
+
+Every join is a left join, and every missing value reaches the card as null
+rather than as zero: a season with no cap sheet has unknown space, which is not
+the same fact as no space.
+
+### Choosing a club
+
+`team-profiles` answers the one screen where a manager is comparing clubs
+rather than opening one, so it is its own route: `clubs` stays the cheap read
+that anything needing a name and a colour uses, and this is the expensive one.
+It reads the template world, because it is asked before any save exists, and it
+aggregates in Postgres -- 3,066 players and 448 picks in one query, about 30ms,
+against thirty-two round trips or one enormous row set.
+
+| On the board | From |
+|---|---|
+| Offence, defence, special teams | the mean of the best 11, 11 and 3 by `overall_rating` in the matching `position_group`s — the players who would be on the field, not the depth of the practice squad |
+| Overall | 45% offence, 45% defence, 10% special teams |
+| Average age | `players.age` over the whole roster |
+| Cap space | `salary_cap.available`, cast `::text` |
+| Draft capital | picks in `draft_picks` the club owns now, weighted 100/60/36/22/13/8/5 by round |
+| Quarterback | the best `overall_rating` at QB, banded — 88+ is Elite |
+| Owner patience | `owners.patience` |
+| Stadium | `stadiums.capacity` |
+| Conference, division | `league_conferences.name` and `league_divisions.name`, the division with its conference stripped off the front |
+| Roster count | `count(*)` over the club's players |
+| Best player, top young player | the roster's top `overall_rating`, and the top `potential_rating` at 24 or under **excluding the best player** — on a young roster they are often the same man, and a report that names him twice has spent a row saying nothing |
+| Biggest weakness | the position room this club is furthest below the **league's average for that room** — rated flat, specialists come out lowest almost everywhere, which is a fact about how kickers are rated and not about any club |
+| Fan pressure | `teams.market_size`, said in words — the world models a market's size and does not simulate a crowd, so "Demanding" says the measurement without implying one |
+
+The words on the report -- the six quarterback labels, the fan-pressure and
+owner-patience phrases, the draft label, the roster timeline, the franchise
+status and the suggested first move -- live in `teamOutlook.ts`, as pure
+functions of the measurements above. Every one returns null when its input is
+missing: a phrase like "Find a long-term quarterback" is only worth reading if
+it could not have been printed over a club whose quarterback nobody looked at.
+
+### The checklist on the save
+
+`saves.checklist` (migration 0029) is a jsonb document of at most five keys,
+each `VIEWED` or `DONE`. It is written by `mark-checklist`, which merges one
+mark with `||` in Postgres rather than reading, merging in TypeScript and
+writing back — two taps in quick succession cannot then lose one another — and
+never downgrades a `DONE`.
+
+It holds only what the save cannot work out for itself. Whether a week has been
+played is a question `game_results` already answers, so the screen derives that
+item's tick from the football rather than from a second copy of the fact beside
+it. An unknown item or an unknown mark is refused with a 400 naming it, not
+dropped: a dropped key hides a drift between the two catalogues behind a save
+that looks fine.
+
+Null and `{}` are the same fact — a save from before the column existed reads
+exactly like one nobody has tapped — so the read reports both as an empty
+object and nothing has to be backfilled.
+
+### The franchise dashboard
+
+`dashboard` answers the screen a manager opens every week, and it answers all
+of it in one call: identity, unit ratings, the season's numbers, the next
+fixture, the owner's mandate and the counts the before-kick-off checklist
+reports. Six round trips on the slowest connection this game will ever be
+played on is the alternative.
+
+It reuses the scouting board's aggregate (`teamBoard.ts`) scoped to the open
+save rather than to the template, which is deliberate: the ratings a manager
+saw when they chose the club must be the ratings the dashboard shows on day
+one, and one query producing both is the only way that stays true. It also
+hands back the next opponent's rating, which is what the matchup line reads.
+
+| On the dashboard | From |
+|---|---|
+| Ratings and bands | the same aggregate the board uses, on this save's players |
+| Record, streak, points | `standings` for the open season |
+| League position | `rank()` over the same table — **null until a game is played**, because every club is level in week one and the order is only the tie-break |
+| Turnover differential | opponents' turnovers less the club's own, summed over `game_results` box scores — null before a game is played, and a real zero after one |
+| Cap space | `salary_cap.available` for this season |
+| Owner, patience | `owners.owner_name`, `archetype`, `patience`, `win_now_bias` |
+| The mandate | `ownerMandate()` in `teamOutlook.ts`, from patience, win-now bias, rating, age, cap and the quarterback |
+| Mandate standing | the record against the bar the mandate sets — null before a game, and null for the three mandates a win column cannot judge |
+| This week | `season_schedule` for the save's week, with the opponent's record and rating |
+| Matchup difficulty | the margin between the two overall ratings, not a ranking |
+| Checklist counts | `team_rosters`, `team_depth_charts`, `season_schedule` and `game_results` row counts |
+| Injuries out this week | `player_injuries`, with **the same arithmetic `absentPlayers()` uses** when the week is played — a report that disagreed with who actually misses the game would be worse than none |
+| Injured starters | those of them first in line in one of the thirteen groups: six backups out is a thinner roster, one starter out is a different team |
+| Opponent units | the same aggregate, on their roster — offense, defense, special teams, and which is their best |
+| Last result | `game_results` joined to the fixture, reported from **the club's own side**: their score first whether they were home or away |
+| Playoff seed | `standings.conference_seed` — null through the regular season, and null afterwards for a club that missed the field; the screen tells those apart by the phase rather than guessing |
+| Best win, worst loss | the widest positive and negative margins over `game_results`, ties broken by the earlier week so one season always names the same two games |
+
+It costs about **36ms** warm against a full save, against 9ms for the old
+`team` read it replaced. That is the price of the thirty-two-club aggregate,
+and it buys the opponent's rating and one round trip where the screen would
+otherwise make four.
+
+Four states of "this week" are told apart rather than collapsed: a fixture, a
+bye, a season that is over, and a save whose `season_schedule` is empty. Only
+the last is a fault, and the screen says so instead of drawing a rest week over
+a broken world.
+
+Nothing in the simulation reads the mandate back. No owner fires anybody and
+patience never moves. The card says so in as many words, because a goal the
+game silently ignored would be worse than no goal.
+
+Draft capital is scored against the standard allotment rather than against the
+league: two drafts of seven rounds, none traded, scores **50**. The number is
+"how far from standard", not "how far from the best club in this particular
+league", so it means the same thing in a league where everyone has hoarded picks.
+
+Difficulty and archetype are the only league-relative judgements, and they live
+in `teamShape.ts` so both builds pass the same one. Difficulty is a **rank** in
+this league (top 6 Dynasty Ready, to 14 Playoff Push, to 24 Middle Class, to 29
+Rebuild, the rest Hard Rebuild) with one absolute override: a club with negative
+cap space is Cap Hell whatever its roster is rated, because the first thing that
+manager does is cut somebody. No club in the shipped league starts over the cap,
+so that band is empty on a fresh world — which is the honest outcome, not a
+reason to push a club into it.
+
+Archetype is **absolute**, because it is a description and not a placing: the
+eighth most offence-leaning club in a balanced league is not an offensive
+engine. Its thresholds are calibrated against the spread this seed actually has,
+and `tests/api/teamProfiles` fails if any one label has swallowed the league.
+
+The play-test rig measures the same thirty-two from the seed packed into its own
+page and puts them through the same `shapeLeague`. `tests/api/boardParity`
+compares the two club by club, so a position group that moves on one side or a
+column dropped from the rig's packed world fails a test rather than showing up
+as a screenshot somebody notices weeks later.
+
+### The rules a franchise is played under
+
+Eight settings chosen on Franchise Settings and stored on the save as one
+`jsonb` document, `saves.franchise_settings` (migration 0028). One column rather
+than eight: they are read and written together, a franchise is played under all
+of them at once, and a ninth should not need a migration.
+
+`_shared/api/franchiseOptions.ts` holds the keys, the values each accepts, and
+the three presets. It is what `create-save` validates against, and it refuses
+three things rather than storing them — a document missing a setting, a value it
+does not know, and a key it does not know. Each of those means the client and
+the server have drifted; filling in the gap from a default would write a value
+indistinguishable from one the player chose, and dropping an unknown key would
+hide the drift behind a save that looks fine until a setting turns out to be
+gone. `src/screens/settingsCatalogue.ts` holds the labels and the explanations,
+and a test asserts the two sides name the same eight settings with the same
+values in the same order.
+
+Nothing was backfilled. A save created before 0028 was made by a player who was
+never asked, and the Normal preset is an answer they did not give: it reads back
+as null and the screens say the rules were not recorded.
+
+**Nothing in the simulation reads the column yet.** It exists because the screen
+asks, so that a franchise created today has an honest record of the rules it was
+started under; the screen states this plainly rather than letting a player infer
+that injuries really are lighter on Easy.
+
+`rename-save` is the only write handler that stores a free-text string from the
+client. It trims once, refuses an empty or over-long name rather than
+truncating, and resolves the save through `ownedSave` first, so a rename can
+only land on a row the caller already owns.
+
+## Honours
+
+Three selections share one table, told apart by `honour_type` and by the roster
+they belong to:
+
+| `honour_type` | `team_unit` | Rows a season |
+|---|---|---|
+| `ALL_LEAGUE_FIRST` | `LEAGUE` | 25 |
+| `ALL_LEAGUE_SECOND` | `LEAGUE` | 25 |
+| `ALL_STAR` | the conference id | 41 per conference |
+
+`team_unit` is what makes the all-star rosters possible. It used to be written
+as a copy of `position` -- the same value in two columns, telling nobody
+anything -- and the key was `(save_id, season, honour_type, position, slot)`,
+so both conferences' second quarterback was `ALL_STAR / QB / 2` and the second
+written would have overwritten the first. Migration `0026` gives the column its
+meaning and puts it in the key.
+
+Seasons played before `0026` keep every honour they had. Their `team_unit` is
+backfilled to `LEAGUE`, which is a reading of those rows rather than a guess:
+every honour written before that migration was an all-league selection, and
+all-league teams are picked league-wide. They have no all-star rosters, and the
+screens say so rather than showing an empty list.
+
+## Where the pieces live
+
+| | |
+|---|---|
+| Format, versioning, migrations | `supabase/functions/_shared/save/` |
+| Row versioning and SQL steps | `supabase/migrations/0013_save_versioning.sql` |
+| Career state → playable squads | `supabase/functions/_shared/engine/careerBridge.ts` |
+| The season loop | `supabase/functions/_shared/engine/season.ts` |
+| Integration test | `tests/save/integration.test.ts` |
+| Format tests | `tests/save/save.test.ts` |
+| Save files and the GM | `supabase/migrations/0025_save_slots.sql` |
+| The menu's read | `supabase/functions/_shared/api/reads/slots.ts` |
+| The start flow | `src/screens/HomeScreen.tsx` and the three after it |
+| Save-file tests | `tests/api/slots.test.ts`, `tests/api/renameSave.test.ts`, `tests/startFlow.test.tsx` |
+| All-star rosters | `supabase/migrations/0026_all_star_rosters.sql` |
+| The selections | `supabase/functions/_shared/engine/offseason/awards.ts` |
+| The panel all three are shown on | `src/screens/honoursPanel.tsx` |
+
+`careerBridge.ts` and `season.ts` are new and were needed for the test to exist
+at all: nothing previously turned career state into a squad that could play, and
+the season loop had been rewritten three times inside report scripts. The bridge
+deliberately does **not** synthesise per-skill ratings. `PlayerRatings` has
+sixteen optional skills and the career model knows none of them — it has
+`ability`. `roster.ts` already reads a skill as `ratings[skill] ?? overall`, so a
+player carrying only `overall` is rated on his actual ability everywhere, which
+is right for a model that does not distinguish them. Synthesising a spread from
+a hash of the player id would look more detailed and would be fabrication: it
+would decide, from nothing, that this quarterback is accurate but indecisive,
+and games would then be won and lost on it.
+
+## Not yet built
+
+The Postgres-backed `SaveStore` — writing the document to the save-scoped tables
+and reading it back. The interface (`store.ts`) and the two migration layers are
+in place; what is missing is the implementation that maps the document onto the
+45 tables, which needs the write path the app does not have yet. Until then
+`MemorySaveStore` is the only implementation, and it round-trips through JSON
+precisely so that it cannot pass tests a real store would fail.

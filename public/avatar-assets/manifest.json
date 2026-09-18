@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "note": "No artwork yet. See docs/AVATAR-ASSET-SPEC.md. Every layer array is empty on purpose: the compositor reports that it cannot draw rather than inventing a face.",
+  "canvas": { "width": 1024, "height": 1024 },
+  "anchors": {
+    "crownY": 0.155,
+    "eyeY": 0.395,
+    "chinY": 0.665,
+    "eyeCentreX": 0.5,
+    "eyeSpanX": 0.175,
+    "shoulderY": 0.92
+  },
+  "pigmentAnchors": [
+    { "id": "deep", "step": 5 },
+    { "id": "mid", "step": 18 },
+    { "id": "light", "step": 30 }
+  ],
+  "baseFaces": [],
+  "hair": [],
+  "facialHair": [],
+  "complexion": [],
+  "age": [],
+  "accessories": [],
+  "clothing": [],
+  "background": []
+}

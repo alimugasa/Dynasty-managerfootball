@@ -1,0 +1,33 @@
+stadium_id,team_id,name,capacity,roof_type,surface,opened_year,city,state,data_class
+STD_BUF,BUF,Lakeshore Field,68400,open,grass,2026,Orchard Park,NY,GENERATED
+STD_MIA,MIA,Palmetto Bay Stadium,65300,open,grass,1987,Miami Gardens,FL,GENERATED
+STD_NE,NE,Commonwealth Field,65900,open,artificial,2002,Foxborough,MA,GENERATED
+STD_NYJ,NYJ,Meadowlark Stadium,82500,open,artificial,2010,East Rutherford,NJ,GENERATED
+STD_BAL,BAL,Harborworks Field,71000,open,grass,1998,Baltimore,MD,GENERATED
+STD_PIT,PIT,Three Rivers Yard,68400,open,grass,2001,Pittsburgh,PA,GENERATED
+STD_CLE,CLE,Lakefront Stadium,67400,open,grass,1999,Cleveland,OH,GENERATED
+STD_CIN,CIN,Queen City Field,65500,open,artificial,2000,Cincinnati,OH,GENERATED
+STD_HOU,HOU,Gulf Coast Dome,72200,retractable,artificial,2002,Houston,TX,GENERATED
+STD_IND,IND,Circle City Dome,67000,retractable,artificial,2008,Indianapolis,IN,GENERATED
+STD_JAX,JAX,Atlantic Bank Field,67800,open,grass,1995,Jacksonville,FL,GENERATED
+STD_TEN,TEN,Cumberland Yard,69100,open,grass,2027,Nashville,TN,GENERATED
+STD_DEN,DEN,Mile High Park,76100,open,grass,2001,Denver,CO,GENERATED
+STD_KC,KC,Stockyards Stadium,76400,open,grass,1972,Kansas City,MO,GENERATED
+STD_LV,LV,Silver Vault,65000,dome,grass,2020,Paradise,NV,GENERATED
+STD_LAC,LAC,Pacific Crossing,70200,retractable,artificial,2020,Inglewood,CA,GENERATED
+STD_DAL,DAL,Lone Star Palace,80000,retractable,artificial,2009,Arlington,TX,GENERATED
+STD_PHI,PHI,Independence Field,69800,open,grass,2003,Philadelphia,PA,GENERATED
+STD_WAS,WAS,Potomac Yard,67000,open,grass,2027,Landover,MD,GENERATED
+STD_NYG,NYG,Meadowlark Stadium,82500,open,artificial,2010,East Rutherford,NJ,GENERATED
+STD_CHI,CHI,Lakeside Grounds,62500,open,grass,1924,Chicago,IL,GENERATED
+STD_DET,DET,Assembly Dome,65000,dome,artificial,2002,Detroit,MI,GENERATED
+STD_GB,GB,Northwoods Field,81400,open,grass,1957,Green Bay,WI,GENERATED
+STD_MIN,MIN,Aurora Bank Dome,66900,dome,artificial,2016,Minneapolis,MN,GENERATED
+STD_ATL,ATL,Peachtree Dome,71000,retractable,artificial,2017,Atlanta,GA,GENERATED
+STD_CAR,CAR,Piedmont Field,74900,open,grass,1996,Charlotte,NC,GENERATED
+STD_NO,NO,Crescent Dome,73200,dome,artificial,1975,New Orleans,LA,GENERATED
+STD_TB,TB,Bayshore Stadium,69200,open,grass,1998,Tampa,FL,GENERATED
+STD_ARI,ARI,Desert Vista Stadium,63400,retractable,grass,2006,Glendale,AZ,GENERATED
+STD_LAR,LAR,Pacific Crossing,70200,retractable,artificial,2020,Inglewood,CA,GENERATED
+STD_SF,SF,Bayview Park,68500,open,grass,2014,Santa Clara,CA,GENERATED
+STD_SEA,SEA,Puget Sound Field,69000,open,artificial,2002,Seattle,WA,GENERATED

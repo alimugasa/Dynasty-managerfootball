@@ -1,0 +1,84 @@
+/* Design tokens extracted verbatim from legacy/ui/index.html :root.
+ * These values are canonical. Do not "improve" or normalise any hex code,
+ * and do not shadow them with a Tailwind theme holding different numbers. */
+:root {
+  /* Night press box: cool slate ink, warm paper text, sideline amber */
+  --ink: #0f151b;
+  --panel: #161f27;
+  --raise: #1d2833;
+  --line: #28353f;
+  --line2: #33434f;
+  --tx: #e8eef4;
+  --mut: #8698a8;
+  --dim: #5e7080;
+  --amber: #f0a830; /* the first-down marker */
+  --teal: #48c4ae; /* positive */
+  --red: #e2574c;
+  --blue: #5b9bd5;
+  --violet: #9b7be0;
+  --g-elite: #9b7be0;
+  --g-vgood: #48c4ae;
+  --g-good: #8fbf56;
+  --g-avg: #d9a441;
+  --g-poor: #d9743f;
+  --g-bad: #c9483e;
+  /* ---------------------------------------------------------------- form
+   * The colours above are the prototype's and are canonical. Everything from
+   * here down is the layer the prototype never had: how a surface sits above
+   * the one behind it, how round its corners are, how far apart things stand,
+   * and how fast anything moves. One scale each, so a screen cannot invent a
+   * fourth radius or a seventh grey gap by accident. */
+
+  /* Radius. Three steps and a pill: a chip, a card, a hero, a control. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* Elevation. A dark interface cannot lift a surface with a drop shadow
+   * alone -- black on near-black is invisible -- so each step pairs a shadow
+   * below with a one-pixel highlight along the top edge, which is what reads
+   * as "lit from above" and is the whole trick. */
+  --e-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --e-2: 0 2px 8px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --e-3: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --lip: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --lip-strong: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+
+  /* Space. A four-based scale; nothing between the steps. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s7: 32px;
+  --s8: 40px;
+
+  /* Motion. Fast enough to feel like feedback rather than animation. The
+   * curve decelerates hard, which is what makes a press feel mechanical. */
+  --t-fast: 110ms;
+  --t-base: 200ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --nav-h: 60px;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --f-disp: 'Barlow Condensed', system-ui, sans-serif;
+  --f-ui: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--tx);
+  font-family: var(--f-ui);
+  -webkit-font-smoothing: antialiased;
+  /* The page itself never scrolls sideways. Wide tables scroll inside
+   * their own .tscroll containers — see components/TableScroll.tsx. */
+  overflow-x: hidden;
+}

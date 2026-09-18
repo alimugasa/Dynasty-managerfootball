@@ -1,0 +1,91 @@
+coach,event,expected_wins,mentor,season,team_id,wins
+Delmar Spielman,FIRED,13.0,,2026,MIA,5
+Garth Bellinger,FIRED,13.0,,2026,NE,5
+Norman Keeler,FIRED,13.0,,2026,BAL,5
+Orville Buckner,FIRED,13.0,,2026,CLE,7
+Edwin Oduya,FIRED,13.0,,2026,HOU,5
+Wayne Dillard,FIRED,13.0,,2026,IND,9
+Fitzgerald Dumervil,FIRED,13.0,,2026,KC,9
+Edwin Paschall,FIRED,13.0,,2026,LAC,4
+Douglas Gwaltney,FIRED,13.0,,2026,DAL,8
+Dennis Dungy,FIRED,13.0,,2026,PHI,10
+Lester Shepley,FIRED,13.0,,2026,WAS,8
+Chuck Hockenson,FIRED,13.0,,2026,NYG,2
+Gerald Weatherspoon,FIRED,13.0,,2026,MIN,9
+Rex Wiggington,FIRED,13.0,,2026,ARI,6
+Truman Lutrell,FIRED,13.0,,2026,SEA,6
+Chuck Hockenson,HIRED,,Delmar Spielman,2026,MIA,
+Linwood Canfield,HIRED,,,2026,NE,
+Truman Lutrell,HIRED,,Delmar Spielman,2026,BAL,
+Orville Ingold,HIRED,,Wendell Morrissey,2026,CLE,
+Ellsworth Cardenas,HIRED,,Dennis Stanback,2026,HOU,
+Gerald Hargrave,HIRED,,Byron Berrios,2026,IND,
+Hollis Halloran,HIRED,,Morris Kalapana,2026,KC,
+Merle Hufanga,HIRED,,Isaac Bouchard,2026,LAC,
+Dennis Dungy,HIRED,,Delmar Spielman,2026,DAL,
+Yeats Ironside,HIRED,,Delmar Spielman,2026,PHI,
+Elliot Lessard,HIRED,,Wendell Morrissey,2026,WAS,
+Rex Wiggington,HIRED,,Delmar Spielman,2026,NYG,
+Wayne Dillard,HIRED,,Delmar Spielman,2026,MIN,
+Ronald Petitgout,HIRED,,Elliot Prescott,2026,ARI,
+Lester Shepley,HIRED,,Delmar Spielman,2026,SEA,
+Lyle Sigler,FIRED,13.0,,2027,BUF,7
+Judson Lemieux,FIRED,13.0,,2027,CIN,4
+Kenneth Drayton,FIRED,13.0,,2027,CHI,8
+Norman Grissom,FIRED,13.0,,2027,NO,5
+Cornelius Dombrowski,FIRED,13.0,,2027,TB,8
+Judson Lemieux,HIRED,,Lyle Sigler,2027,BUF,
+Fredrick Freeney,HIRED,,Lyle Sigler,2027,CIN,
+Kenneth Drayton,HIRED,,Lyle Sigler,2027,CHI,
+Gerald Weatherspoon,HIRED,,Lyle Sigler,2027,NO,
+Edwin Paschall,HIRED,,Lyle Sigler,2027,TB,
+Prentice Ingold,FIRED,13.0,,2028,JAX,5
+Isaac Bouchard,FIRED,13.0,,2028,TEN,7
+Ira Mascarenas,FIRED,13.0,,2028,DEN,10
+Morris Kalapana,FIRED,13.0,,2028,LV,10
+Sterling Schmitz,FIRED,13.0,,2028,CAR,8
+Ira Mascarenas,HIRED,,Lyle Sigler,2028,JAX,
+Fitzgerald Dumervil,HIRED,,Lyle Sigler,2028,TEN,
+Norman Keeler,HIRED,,Lyle Sigler,2028,DEN,
+Isaac Bouchard,HIRED,,Lyle Sigler,2028,LV,
+Monte Macalister,HIRED,,Elliot Lessard,2028,CAR,
+Chuck Hockenson,FIRED,13.0,,2029,MIA,7
+Truman Lutrell,FIRED,13.0,,2029,BAL,8
+Ellsworth Cardenas,FIRED,13.0,,2029,HOU,3
+Dennis Dungy,FIRED,13.0,,2029,DAL,4
+Elliot Lessard,FIRED,13.0,,2029,WAS,6
+Rex Wiggington,FIRED,13.0,,2029,NYG,8
+Jarrett Rapp,FIRED,13.0,,2029,GB,4
+Ronald Petitgout,FIRED,13.0,,2029,ARI,7
+Ellsworth Cardenas,HIRED,,Lyle Sigler,2029,MIA,
+Jarrett Rapp,HIRED,,Lyle Sigler,2029,BAL,
+Chuck Hockenson,HIRED,,Lyle Sigler,2029,HOU,
+Truman Lutrell,HIRED,,Lyle Sigler,2029,DAL,
+Ronald Petitgout,HIRED,,Lyle Sigler,2029,WAS,
+Norman Grissom,HIRED,,Lyle Sigler,2029,NYG,
+Cornelius Dombrowski,HIRED,,Lyle Sigler,2029,GB,
+Curtis Woodhead,HIRED,,Wayne Dillard,2029,ARI,
+Judson Lemieux,FIRED,13.0,,2030,BUF,8
+Linwood Canfield,FIRED,13.0,,2030,NE,7
+Hollis Halloran,FIRED,13.0,,2030,KC,6
+Yeats Ironside,FIRED,13.0,,2030,PHI,7
+Gerald Weatherspoon,FIRED,13.0,,2030,NO,8
+Edwin Paschall,FIRED,13.0,,2030,TB,7
+Lester Shepley,FIRED,13.0,,2030,SEA,5
+Judson Lemieux,HIRED,,Lyle Sigler,2030,BUF,
+Linwood Canfield,HIRED,,Lyle Sigler,2030,NE,
+Elliot Lessard,HIRED,,Lyle Sigler,2030,KC,
+Dennis Dungy,HIRED,,Lyle Sigler,2030,PHI,
+Lester Shepley,HIRED,,Lyle Sigler,2030,NO,
+Morris Kalapana,HIRED,,Lyle Sigler,2030,TB,
+Hollis Halloran,HIRED,,Lyle Sigler,2030,SEA,
+Byron Berrios,FIRED,13.0,,2031,PIT,6
+Fitzgerald Dumervil,FIRED,13.0,,2031,TEN,4
+Merle Hufanga,FIRED,13.0,,2031,LAC,7
+Elliot Prescott,FIRED,13.0,,2031,DET,7
+Wendell Morrissey,FIRED,13.0,,2031,ATL,7
+Merle Hufanga,HIRED,,Lyle Sigler,2031,PIT,
+Byron Berrios,HIRED,,Lyle Sigler,2031,TEN,
+Wendell Morrissey,HIRED,,Lyle Sigler,2031,LAC,
+Rex Wiggington,HIRED,,Lyle Sigler,2031,DET,
+Elliot Prescott,HIRED,,Lyle Sigler,2031,ATL,

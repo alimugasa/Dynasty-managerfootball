@@ -1,0 +1,33 @@
+team_id,offensive_scheme,offensive_identity,run_pass_balance,tempo,defensive_scheme,base_front,coverage_tendency,blitz_rate,fourth_down_aggression,data_class
+BUF,Wide Zone Play-Action,run,0.62,Up-Tempo,Blitz-Heavy Man Pressure,3-4,Man-Heavy,0.27,28,MODELED
+MIA,Pistol RPO,balanced,0.51,Mixed,4-2-5 Cover 2 Match,4-3,Zone-Heavy,0.21,75,MODELED
+NE,Shanahan Outside Zone,run,0.58,Mixed,Nickel Quarters,4-3,Zone-Heavy,0.24,41,MODELED
+NYJ,Gap-Scheme Power,run,0.64,Huddle,3-3-5 Odd Stack,3-4,Zone-Heavy,0.28,32,MODELED
+BAL,Air Raid Spread,pass,0.35,Mixed,3-3-5 Odd Stack,3-4,Zone-Heavy,0.26,71,MODELED
+PIT,Air Raid Spread,pass,0.35,Huddle,3-3-5 Odd Stack,3-4,Balanced,0.36,63,MODELED
+CLE,Condensed Pro Style,balanced,0.5,Mixed,Blitz-Heavy Man Pressure,3-4,Balanced,0.25,53,MODELED
+CIN,Gap-Scheme Power,run,0.62,Mixed,3-3-5 Odd Stack,3-4,Zone-Heavy,0.27,48,MODELED
+HOU,West Coast Timing,pass,0.39,Mixed,3-3-5 Odd Stack,3-4,Zone-Heavy,0.2,5,MODELED
+IND,Condensed Pro Style,balanced,0.56,Huddle,4-2-5 Cover 2 Match,4-3,Balanced,0.23,30,MODELED
+JAX,Vertical Spread,pass,0.35,Up-Tempo,3-3-5 Odd Stack,3-4,Zone-Heavy,0.26,56,MODELED
+TEN,Condensed Pro Style,balanced,0.57,Up-Tempo,Wide-9 Attack Front,4-3,Zone-Heavy,0.2,45,MODELED
+DEN,Wide Zone Play-Action,run,0.58,Mixed,Multiple Amoeba Front,3-4,Man-Heavy,0.32,21,MODELED
+KC,Shanahan Outside Zone,run,0.54,Huddle,Blitz-Heavy Man Pressure,3-4,Zone-Heavy,0.28,51,MODELED
+LV,Pistol RPO,balanced,0.54,Mixed,Multiple Amoeba Front,3-4,Man-Heavy,0.28,52,MODELED
+LAC,Air Raid Spread,pass,0.31,Huddle,3-4 Two-Gap,3-4,Man-Heavy,0.1,26,MODELED
+DAL,Air Raid Spread,pass,0.26,Up-Tempo,3-4 Two-Gap,3-4,Man-Heavy,0.37,9,MODELED
+PHI,Pistol RPO,balanced,0.52,Mixed,Wide-9 Attack Front,4-3,Man-Heavy,0.1,28,MODELED
+WAS,Gap-Scheme Power,run,0.63,Huddle,3-3-5 Odd Stack,3-4,Man-Heavy,0.21,55,MODELED
+NYG,Gap-Scheme Power,run,0.67,Huddle,Wide-9 Attack Front,4-3,Man-Heavy,0.25,36,MODELED
+CHI,Air Raid Spread,pass,0.26,Huddle,4-2-5 Cover 2 Match,4-3,Man-Heavy,0.15,40,MODELED
+DET,Air Raid Spread,pass,0.26,Mixed,Nickel Quarters,4-3,Zone-Heavy,0.35,79,MODELED
+GB,Air Raid Spread,pass,0.35,Huddle,3-4 Two-Gap,3-4,Zone-Heavy,0.25,41,MODELED
+MIN,Shanahan Outside Zone,run,0.54,Mixed,4-3 Over Cover 3,4-3,Man-Heavy,0.25,71,MODELED
+ATL,Air Raid Spread,pass,0.25,Mixed,Blitz-Heavy Man Pressure,3-4,Man-Heavy,0.3,35,MODELED
+CAR,Shanahan Outside Zone,run,0.56,Mixed,3-4 Two-Gap,3-4,Zone-Heavy,0.36,81,MODELED
+NO,Wide Zone Play-Action,run,0.57,Mixed,Wide-9 Attack Front,4-3,Balanced,0.29,55,MODELED
+TB,Pistol RPO,balanced,0.46,Mixed,Blitz-Heavy Man Pressure,3-4,Man-Heavy,0.33,61,MODELED
+ARI,Pistol RPO,balanced,0.51,Huddle,4-3 Over Cover 3,4-3,Zone-Heavy,0.17,58,MODELED
+LAR,Wide Zone Play-Action,run,0.52,Mixed,Wide-9 Attack Front,4-3,Zone-Heavy,0.23,43,MODELED
+SF,Shanahan Outside Zone,run,0.59,Mixed,4-3 Over Cover 3,4-3,Balanced,0.31,33,MODELED
+SEA,Gap-Scheme Power,run,0.65,Mixed,4-3 Over Cover 3,4-3,Man-Heavy,0.16,42,MODELED
