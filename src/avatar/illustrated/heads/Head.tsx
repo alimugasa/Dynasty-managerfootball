@@ -20,7 +20,11 @@ export function headPath(l: FaceLayout): string {
   // between the two crown landmarks and every skull comes out with a flat top
   // -- which is exactly what the first pass produced.
   const apex = pt(l.cx, l.crownY - l.faceH * 0.020);
-  return closedPath([apex, ...right, ...left.slice(1, -1)], jawTension(l.jaw));
+  // The side endpoints are not shared: each crown and chin landmark has its
+  // own x coordinate. Dropping the left endpoints clips that half of the skull
+  // and draws a diagonal from the right chin to the left jaw.
+  const chin = pt(l.cx, l.chinY + l.faceH * 0.012);
+  return closedPath([apex, ...right, chin, ...left], jawTension(l.jaw));
 }
 
 export function Head({ ctx }: { readonly ctx: DrawContext }) {

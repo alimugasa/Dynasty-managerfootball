@@ -19,26 +19,32 @@ import { heterochromicPair, type EyeColour } from './colors';
 const sclera = (pigment: number): string =>
   shade('#f2ece4', -0.10 + pigment * 0.055);
 
-function lidPaths(spec: EyeSpec, w: number, h: number): { upper: string; lower: string } {
+function lidPaths(spec: EyeSpec, w: number, h: number): { upper: string; lower: string; opening: string } {
   const inner = pt(-w, spec.innerY * h);
   const outer = pt(w, spec.outerY * h);
   const ax = -w + 2 * w * spec.upperApex;
   const lx = -w + 2 * w * spec.lowerApex;
+  const upperPoints = [
+    inner,
+    pt(inner.x + (ax - inner.x) * 0.45, -spec.upperRise * h * 0.72),
+    pt(ax, -spec.upperRise * h),
+    pt(ax + (outer.x - ax) * 0.55, -spec.upperRise * h * 0.60),
+    outer,
+  ];
+  const lowerPoints = [
+    inner,
+    pt(inner.x + (lx - inner.x) * 0.5, spec.lowerDrop * h * 0.70),
+    pt(lx, spec.lowerDrop * h),
+    pt(lx + (outer.x - lx) * 0.5, spec.lowerDrop * h * 0.62),
+    outer,
+  ];
+  const upper = openPath(upperPoints, 0.92);
   return {
-    upper: openPath([
-      inner,
-      pt(inner.x + (ax - inner.x) * 0.45, -spec.upperRise * h * 0.72),
-      pt(ax, -spec.upperRise * h),
-      pt(ax + (outer.x - ax) * 0.55, -spec.upperRise * h * 0.60),
-      outer,
-    ], 0.92),
-    lower: openPath([
-      inner,
-      pt(inner.x + (lx - inner.x) * 0.5, spec.lowerDrop * h * 0.70),
-      pt(lx, spec.lowerDrop * h),
-      pt(lx + (outer.x - lx) * 0.5, spec.lowerDrop * h * 0.62),
-      outer,
-    ], 0.92),
+    upper,
+    lower: openPath(lowerPoints, 0.92),
+    // The sclera and iris clip must meet the drawn lower lid. A second,
+    // approximate lower curve left bright slivers outside the eyelid.
+    opening: `${upper} ${openPath([...lowerPoints].reverse(), 0.92).replace('M', 'L')} Z`,
   };
 }
 
@@ -53,19 +59,12 @@ function OneEye({ ctx, spec, w, h, colour, side }: {
   readonly side: number;
 }) {
   const { skin, morph, detail } = ctx;
-  const { upper, lower } = lidPaths(spec, w, h);
-  const opening = `${upper} ${openPath([
-    pt(w, spec.outerY * h),
-    pt(w * 0.4, spec.lowerDrop * h * 0.72),
-    pt(-w * 0.2, spec.lowerDrop * h),
-    pt(-w, spec.innerY * h),
-  ], 0.92).replace('M', 'L')} Z`;
+  const { upper, lower, opening } = lidPaths(spec, w, h);
   const clipId = `${ctx.uid}-eye${side < 0 ? 'l' : 'r'}`;
 
-  /* The iris is large and the lid cuts its top, which is what an open human
-     eye does. A small iris floating in white is the cartoon tell, and it was
-     the tell in the first draft of this file. */
-  const irisR = (h * spec.iris) / 2 * 1.32;
+  // Iris diameter follows eye width, not how far the lids are open. Tying it
+  // to opening height gave open-eyed variants oversized, nearly black eyes.
+  const irisR = w * (0.46 + (spec.iris - 1) * 0.15);
   const irisY = -h * 0.10 + clamp(morph.lowerLid, -1, 1) * h * 0.05;
   const lash = Math.max(1.8, h * 0.19 * spec.lash);
 
@@ -137,7 +136,9 @@ export function Eyes({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
   const { layout, morph } = ctx;
   const [leftColour, rightColour] = heterochromicPair(ctx.eyeColor);
   const w = layout.eyeSize / 2;
-  const h = w * 2 * spec.ratio;
+  // ratio describes the complete aperture, rather than a height multiplied
+  // once more by both lid curves. Keep the widest openings restrained.
+  const h = w * 2 * Math.min(spec.ratio * 0.9, 0.42) / (spec.upperRise + spec.lowerDrop);
   const dx = layout.eyeSpan / 2;
   const tilt = clamp(morph.eyeAngle, -1, 1) * 7;
   const asymY = clamp(morph.asymEye, -1, 1) * h * 0.10;

@@ -133,13 +133,51 @@ raster renderer. `illustratedSvgAvatarRenderer` implements `PortraitRenderer`
 and switching to it is a one-line change, deliberately not made until the
 visual direction has been approved.
 
-Known weak areas, in the order they are worth attention:
+## Anatomy and eye refinement — September 2026
+
+This pass keeps the existing renderer and all identity generation unchanged.
+The complete-player, bald/clean-shaven and fixed-pigmentation diagnostics remain
+at `/dev/illustrated-avatars`.
+
+- The head contour now includes both crown and chin landmarks and a rounded
+  chin centre. Previously the left endpoints were dropped as if they were
+  duplicates, producing a tilted chin and an uneven crown even with neutral
+  asymmetry. Deliberate morph asymmetry is preserved.
+- Facial landmarks now place the eyes near the middle of the skull and reduce
+  the overly long lower face. The 22 authored skulls retain their individual
+  proportions. Angular jaws taper continuously instead of forming a notch.
+- Eyes are wider and brows track the actual eye spacing. Ear roots overlap the
+  silhouette; protrusion changes the outer ear rather than detaching it.
+- Iris size follows eye width independently of eyelid openness. Open-eye
+  constructions no longer acquire oversized irises. The iris clip and sclera
+  use the same lower contour as the visible eyelid.
+- Every mounted portrait owns its SVG paint/clip IDs via React `useId`.
+  Repeated players and feature-library variants previously reused seed-based
+  IDs, allowing one portrait's clip to affect another. DOM IDs do not feed
+  seeds, morphs, feature selection or texture streams.
+- The same-skin-tone section now applies exactly step 18 / neutral at rendering
+  time. Its previous seed sample used steps 17–19 with varying undertones,
+  despite claiming one pigmentation. The original profiles and sampled faces
+  are retained; only this diagnostic's palette is held fixed.
+
+Regression tests sample the actual head curves for unintended asymmetry, check
+landmarks across a generated population, verify ear attachment and eye bounds,
+and check repeated-portrait SVG references. Artwork determinism is compared
+after normalizing only the per-instance DOM IDs. These checks prevent drawing
+defects; they do not replace visual approval.
+
+Further facial work is still needed, particularly integrating nose tips and
+nostril marks into a more coherent illustrated form. Hair and facial hair remain
+separate later refinements. `PlayerAvatar.tsx` still uses the raster renderer;
+this pass does not enable the illustrated portraits in game screens.
+
+Remaining hair and library limitations:
 
 1. **Hair silhouettes.** Each family now perturbs its own outer edge -- curls
    and afros scallop, locs and twists notch, a grown-out crop is irregular, a
    barbered cut stays clean -- and every style with no fall dissolves into the
    skin rather than stopping on a ruled line. It is much better than a helmet
-   and still the largest remaining gap: the reference's hair is *drawn*, this
+   and still needs refinement: the reference's hair is *drawn*, this
    is *derived*.
 2. **Facial hair** follows the jaw and the mouth and no longer starts on a
    ruled line across the cheeks, but it reads as texture over a region rather

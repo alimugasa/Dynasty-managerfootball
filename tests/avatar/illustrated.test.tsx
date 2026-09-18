@@ -193,12 +193,17 @@ suite('rendering', () => {
     }
   });
 
-  it('draws the same markup twice for the same player', () => {
+  it('draws the same artwork twice for the same player, apart from local SVG ids', () => {
+    const artwork = (container: HTMLElement) => {
+      const prefix = container.querySelector('[id]')?.id.split('-')[0];
+      expect(prefix).toBeDefined();
+      return container.innerHTML.replaceAll(prefix!, 'portrait');
+    };
     const one = render(<IllustratedPortrait profile={at(7)} px={160} />);
-    const first = one.container.innerHTML;
+    const first = artwork(one.container);
     one.unmount();
     const two = render(<IllustratedPortrait profile={at(7)} px={160} />);
-    expect(two.container.innerHTML).toBe(first);
+    expect(artwork(two.container)).toBe(first);
     two.unmount();
   });
 
@@ -213,6 +218,44 @@ suite('rendering', () => {
     );
     const ids = [...container.querySelectorAll('[id]')].map((el) => el.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('isolates clips and paint servers for repeated players and feature-library variants', () => {
+    const profile = at(3);
+    const { container, unmount } = render(<>
+      <IllustratedPortrait profile={profile} px={112} bare override={{ head: 'oval-long' }} />
+      <IllustratedPortrait profile={profile} px={112} bare override={{ head: 'square-heavy' }} />
+      <IllustratedPortrait profile={profile} px={112} bare override={{ head: 'square-heavy' }} />
+    </>);
+    const ids = [...container.querySelectorAll('[id]')].map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const svg of container.querySelectorAll('svg')) {
+      const localIds = new Set([...svg.querySelectorAll('[id]')].map((el) => el.id));
+      for (const el of svg.querySelectorAll('*')) {
+        for (const attr of el.attributes) {
+          const reference = /^url\(#(.+)\)$/.exec(attr.value);
+          if (reference) expect(localIds.has(reference[1]!)).toBe(true);
+        }
+      }
+    }
+    unmount();
+  });
+
+  it('holds the diagnostic palette fixed without changing geometry or identity', () => {
+    const profile = at(4);
+    const original = JSON.stringify(profile);
+    const { container, rerender, unmount } = render(<IllustratedPortrait profile={profile} px={168} bare />);
+    const paths = [...container.querySelectorAll('path')].map((el) => el.getAttribute('d'));
+    rerender(<IllustratedPortrait profile={profile} px={168} bare
+      diagnosticSkinTone={{ skinStep: 18, undertone: 'neutral' }} />);
+    expect([...container.querySelectorAll('path')].map((el) => el.getAttribute('d'))).toEqual(paths);
+    expect(JSON.stringify(profile)).toBe(original);
+    const firstFill = container.querySelector('svg > g > path')?.getAttribute('fill');
+    rerender(<IllustratedPortrait profile={at(19)} px={168} bare
+      diagnosticSkinTone={{ skinStep: 18, undertone: 'neutral' }} />);
+    expect(container.querySelector('svg > g > path')?.getAttribute('fill')).toBe(firstFill);
+    expect(firstFill).toMatch(/^#[a-f0-9]{6}$/);
+    unmount();
   });
 
   it('strips hair, beard and accessories in bare mode', () => {

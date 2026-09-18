@@ -36,6 +36,8 @@ const FAMILIES = [
   { kind: 'ears', label: 'Ears', items: EAR_SPECS },
 ] as const;
 
+const DIAGNOSTIC_TONE = { skinStep: 18, undertone: 'neutral' } as const;
+
 export function IllustratedLab() {
   const complete = useMemo(() => cohort('illustrated-complete', 20), []);
   const bald = useMemo(() => cohort('illustrated-bald', 20), []);
@@ -74,11 +76,13 @@ export function IllustratedLab() {
       <h1 style={{ ...TYPE.display, color: COLOR.tx, margin: 0 }}>Illustrated avatars</h1>
       <p style={{ ...TYPE.prose, color: COLOR.mut, maxWidth: 760, margin: '8px 0 0', fontSize: 13 }}>
         Original 2D illustration, drawn entirely in SVG from the existing identity system. No
-        photographs, no external artwork, no 3D. Twenty-two head silhouettes, fourteen eye
-        constructions, eighteen noses, fourteen mouths, twelve brows, seven ears, sixty-two
-        hairstyles and twenty-seven beards, selected by nearest match against the morph
-        dimensions each family expresses &mdash; so the drawing agrees with the data rather
-        than hashing past it.
+        photographs, no external artwork, no 3D. {HEAD_SHAPES.length} head silhouettes,
+        {' '}{EYE_SPECS.length} eye constructions, {NOSE_SPECS.length} noses,
+        {' '}{MOUTH_SPECS.length} mouths, {BROW_SPECS.length} brows,
+        {' '}{EAR_SPECS.length} ears, {HAIR_STYLES.length} hairstyles and
+        {' '}{FACIAL_HAIR_STYLES.length} facial-hair styles. Heads follow the existing
+        morph lattice; other features use the closest construction for their morph.
+        Preview only, pending visual approval.
       </p>
 
       <Section
@@ -116,17 +120,18 @@ export function IllustratedLab() {
 
       <Section
         title="12 same-skin-tone faces"
-        note="Twelve players on one pigmentation, stripped the same way. This is the control for the row above it: a grid of different complexions can look diverse while every face underneath is the same drawing, and holding the tone fixed takes that cover away."
+        note="Twelve seeded players drawn with one skin palette, without hair, facial hair or accessories. This rendering-only override leaves every player's identity and facial structure unchanged. Differences here must come from the faces themselves."
       >
         <div style={{ ...TYPE.micro, color: COLOR.mut, marginBottom: 10, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
           <span>{`${String(new Set(same.map((s2) => selectFeatures(s2.profile, faceMorph(s2.profile)).head)).size)} of 12 distinct head silhouettes`}</span>
-          <span>{`skin steps ${same.map((s2) => String(s2.profile.identity.skinStep)).join(', ')}`}</span>
+          <span>Preview skin step 18 · neutral undertone</span>
         </div>
         <Grid gap={12}>
           {same.map((s2, i) => (
             <PlayerCard
               key={s2.profile.seed} subject={s2} size={168} bare
-              caption={<StructureCaption subject={s2} index={i} />}
+              diagnosticSkinTone={DIAGNOSTIC_TONE}
+              caption={<StructureCaption subject={s2} index={i} skinStep={DIAGNOSTIC_TONE.skinStep} />}
             />
           ))}
         </Grid>

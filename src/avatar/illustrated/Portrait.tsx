@@ -6,8 +6,8 @@
 // features, the jersey goes over everything. Every one of those was a visible
 // bug in an earlier renderer before it was a rule here.
 
-import { useMemo } from 'react';
-import type { AvatarProfile } from '../../../supabase/functions/_shared/avatar/profile';
+import { useId, useMemo } from 'react';
+import type { AvatarIdentity, AvatarProfile } from '../../../supabase/functions/_shared/avatar/profile';
 import { faceMorph } from '../../../supabase/functions/_shared/avatar/morph';
 import { skinColor } from '../../../supabase/functions/_shared/avatar/skin';
 import { hairPalette, skinPalette } from './palette';
@@ -49,6 +49,9 @@ export interface IllustratedPortraitProps {
   readonly background?: string;
   /** Overrides, for the feature library page. */
   readonly override?: Partial<ReturnType<typeof selectFeatures>>;
+  /** Lab-only paint override: holds pigmentation fixed without changing the
+   *  profile or the morph, so the face structure can be judged on its own. */
+  readonly diagnosticSkinTone?: Pick<AvatarIdentity, 'skinStep' | 'undertone'>;
   readonly label?: string;
 }
 
@@ -57,12 +60,13 @@ const hairHex = (id: string): string =>
 
 export function IllustratedPortrait({
   profile, px, bare = false, shirt = SHIRT, collar = COLLAR,
-  background = BACKDROP, override, label = '',
+  background = BACKDROP, override, diagnosticSkinTone, label = '',
 }: IllustratedPortraitProps) {
-  const uid = useMemo(
-    () => `ip${profile.seed.slice(0, 10)}${bare ? 'b' : 'f'}${String(Math.round(px))}`,
-    [profile.seed, bare, px],
-  );
+  // A player may appear more than once, with different feature overrides.
+  // Scope paint servers to the mounted portrait, not the player's seed, so
+  // library tiles cannot borrow another tile's clip or shading coordinates.
+  // This DOM id never participates in identity, geometry or trait selection.
+  const uid = `ip${useId().replace(/:/g, '')}`;
 
   const morph = useMemo(() => faceMorph(profile), [profile]);
   const picked = useMemo(() => selectFeatures(profile, morph), [profile, morph]);
@@ -70,14 +74,15 @@ export function IllustratedPortrait({
 
   const i = profile.identity;
   const a = profile.appearance;
-  const skinHex = skinColor(i.skinStep, i.undertone);
+  const tone = diagnosticSkinTone ?? i;
+  const skinHex = skinColor(tone.skinStep, tone.undertone);
   const layout = useMemo(() => buildFace(headShape(sel.head), morph), [sel.head, morph]);
 
   const ctx: DrawContext = {
     uid,
     seed: profile.seed,
     layout,
-    skin: skinPalette(skinHex, i.skinStep / 35),
+    skin: skinPalette(skinHex, tone.skinStep / 35),
     hair: hairPalette(hairHex(a.hairColor)),
     brow: hairPalette(hairHex(i.naturalHairColor)),
     morph,

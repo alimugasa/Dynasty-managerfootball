@@ -9,7 +9,7 @@ import { generateAvatar } from '../../supabase/functions/_shared/avatar/generate
 import type { AvatarProfile } from '../../supabase/functions/_shared/avatar/profile';
 import { skinBand } from '../../supabase/functions/_shared/avatar/skin';
 import { BUILD_LABEL } from '../../supabase/functions/_shared/avatar/build';
-import { IllustratedPortrait } from '../avatar/illustrated/Portrait';
+import { IllustratedPortrait, type IllustratedPortraitProps } from '../avatar/illustrated/Portrait';
 import { selectFeatures } from '../avatar/illustrated/select';
 import { faceMorph } from '../../supabase/functions/_shared/avatar/morph';
 
@@ -100,13 +100,17 @@ const capStyle: React.CSSProperties = {
   fontFamily: FONT.display, lineHeight: 1.4,
 };
 
-export function PlayerCard({ subject, size, bare, caption }: {
+export function PlayerCard({ subject, size, bare, caption, diagnosticSkinTone }: {
   readonly subject: Subject; readonly size: number;
   readonly bare: boolean; readonly caption: React.ReactNode;
+  readonly diagnosticSkinTone?: IllustratedPortraitProps['diagnosticSkinTone'];
 }) {
   return (
     <figure style={{ ...cardStyle, width: size, margin: 0 }}>
-      <IllustratedPortrait profile={subject.profile} px={size} bare={bare} />
+      <IllustratedPortrait
+        profile={subject.profile} px={size} bare={bare}
+        {...(diagnosticSkinTone === undefined ? {} : { diagnosticSkinTone })}
+      />
       <figcaption style={capStyle}>{caption}</figcaption>
     </figure>
   );
@@ -124,8 +128,9 @@ export function PlayerCaption({ subject }: { readonly subject: Subject }) {
   );
 }
 
-export function StructureCaption({ subject, index }: {
+export function StructureCaption({ subject, index, skinStep }: {
   readonly subject: Subject; readonly index: number;
+  readonly skinStep?: number;
 }) {
   const sel = useMemo(
     () => selectFeatures(subject.profile, faceMorph(subject.profile)),
@@ -135,7 +140,7 @@ export function StructureCaption({ subject, index }: {
     <>
       <div style={{ color: COLOR.tx, letterSpacing: '.1em' }}>{String(index + 1).padStart(2, '0')}</div>
       <div style={{ color: COLOR.dim }}>{sel.head}</div>
-      <div style={{ color: COLOR.dim }}>{skinBand(subject.profile.identity.skinStep)}</div>
+      <div style={{ color: COLOR.dim }}>{skinBand(skinStep ?? subject.profile.identity.skinStep)}</div>
     </>
   );
 }

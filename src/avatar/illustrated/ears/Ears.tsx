@@ -29,16 +29,17 @@ export function Ears({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
   const spec = earSpec(id);
   const { layout, skin, morph, detail } = ctx;
   const h = layout.earHeight * nudge(morph.earSize, 0.16);
-  const w = h * spec.ratio;
+  const w = h * spec.ratio * (0.85 + spec.projection * 0.30 + clamp(morph.earProtrusion, -1, 1) * 0.16);
   const y = layout.earY;
-  const push = w * (0.34 + spec.projection * 0.8 + clamp(morph.earProtrusion, -1, 1) * 0.16);
 
   return (
     <Fragment>
       {[-1, 1].map((side) => (
         <g
           key={side}
-          transform={`translate(${String(layout.cx + (layout.halfAt(y) - w * 0.34 + push) * side)},${String(y)}) scale(${String(side)},1)`}
+          // Protrusion changes the outer helix width, never the attachment.
+          // The root overlaps the skull on each side, including asymmetric jaws.
+          transform={`translate(${String(layout.cx + (layout.halfAt(y) * (side < 0 ? layout.asym.left / layout.asym.right : 1) - w * 0.24) * side)},${String(y)}) scale(${String(side)},1)`}
         >
           <path d={outlinePath(spec.outline, w, h, spec.bulge, spec.lobe)} fill={skin.base} />
           <path

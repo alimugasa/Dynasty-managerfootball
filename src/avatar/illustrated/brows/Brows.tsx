@@ -42,7 +42,9 @@ export function Brows({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
   const { layout, morph, brow, detail } = ctx;
   const len = layout.eyeSize * spec.length * nudge(morph.browLength, 0.14);
   const thickScale = nudge(morph.browThickness, 0.32) * 1.30;
-  const gap = layout.eyeSize * spec.gap;
+  // Start at the inner eye corner, with the construction's authored overhang.
+  // Anchoring to the nose alone made wide-set eyes outgrow their eyebrows.
+  const gap = layout.eyeSpan / 2 - layout.eyeSize * (0.84 - spec.gap);
   const d = browShape(spec, len, thickScale);
   const asym = clamp(morph.asymBrow, -1, 1);
 

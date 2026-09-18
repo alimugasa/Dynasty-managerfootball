@@ -24,7 +24,7 @@ export const CX = 150;
  *  sits at four fifths of the frame, the crown a seventh down from the top,
  *  and what is left at the bottom is shoulder. Getting it wrong the first time
  *  put the collar off the bottom edge and left every player on a bare neck. */
-export const EYE_Y = 165;
+export const EYE_Y = 178;
 const REF_FACE_H = 292;
 /**
  * Widths, globally.
@@ -37,7 +37,9 @@ const REF_FACE_H = 292;
  */
 const WIDTH_SCALE = 0.905;
 
-const DEFAULTS = { browT: 0.40, eyeT: 0.455, noseT: 0.655, mouthT: 0.775 };
+// Adult facial landmarks: eyes near mid-skull, then a shorter lower face.
+// Shape-specific offsets below retain long midfaces and tall foreheads.
+const DEFAULTS = { browT: 0.445, eyeT: 0.50, noseT: 0.70, mouthT: 0.81 };
 
 export interface FaceLayout {
   readonly cx: number;
@@ -122,9 +124,12 @@ export function buildFace(shape: HeadShape, m: FaceMorph): FaceLayout {
     // number: it gets an extra landmark below the jaw so the corner turns
     // rather than curving away.
     if (shape.jaw === 'square' || shape.jaw === 'angular') {
-      const k = shape.jaw === 'square' ? 1.1 : 1.04;
-      const y = lerp(ys[7] as number, ys[8] as number, shape.jaw === 'square' ? 0.55 : 0.4);
-      pts.splice(8, 0, pt(CX + (half[8] as number) * k * mult, y));
+      const t = shape.jaw === 'square' ? 0.55 : 0.4;
+      const y = lerp(ys[7] as number, ys[8] as number, t);
+      // Follow the jaw's taper. Repeating the lower jaw width here made a
+      // notch followed by a bulge, especially on the heavy-jaw construction.
+      const width = lerp(half[7] as number, half[8] as number, t);
+      pts.splice(8, 0, pt(CX + width * mult, y));
     }
     return pts;
   };
@@ -170,12 +175,12 @@ export function buildFace(shape: HeadShape, m: FaceMorph): FaceLayout {
     right: rightPts,
     left: leftPts,
     jaw: shape.jaw,
-    eyeSpan: widthAtEye * (0.365 + clamp(m.eyeSpacing, -1, 1) * 0.030),
-    eyeSize: widthAtEye * (0.162 + clamp(m.eyeWidth, -1, 1) * 0.018),
+    eyeSpan: widthAtEye * (0.40 + clamp(m.eyeSpacing, -1, 1) * 0.030),
+    eyeSize: widthAtEye * (0.19 + clamp(m.eyeWidth, -1, 1) * 0.018),
     noseWidth: widthAtEye * (0.232 + clamp(m.nostrilWidth, -1, 1) * 0.038),
     mouthWidth: widthAtEye * (0.330 + clamp(m.mouthWidth, -1, 1) * 0.046),
-    earY: eyeY + faceH * 0.045,
-    earHeight: faceH * (0.125 + clamp(m.earLength, -1, 1) * 0.018),
+    earY: eyeY + faceH * 0.075,
+    earHeight: faceH * (0.16 + clamp(m.earLength, -1, 1) * 0.018),
     asym,
   };
 }
