@@ -29,7 +29,7 @@ interface ClubRow {
   conference_wins: number; conference_losses: number; conference_ties: number;
 }
 
-async function clubRecords(db: Db, saveId: string, season: number): Promise<ClubRecord[]> {
+export async function clubRecords(db: Db, saveId: string, season: number): Promise<ClubRecord[]> {
   const rows = await db<ClubRow[]>`
     select st.team_id, t.conference_id, t.division_id, st.wins, st.losses, st.ties,
            st.points_for, st.points_against,
@@ -49,7 +49,7 @@ async function clubRecords(db: Db, saveId: string, season: number): Promise<Club
   }));
 }
 
-async function regularResults(db: Db, saveId: string, season: number): Promise<Result[]> {
+export async function regularResults(db: Db, saveId: string, season: number): Promise<Result[]> {
   const rows = await db<{ home_team_id: string; away_team_id: string; home_score: number; away_score: number }[]>`
     select home_team_id, away_team_id, home_score, away_score from public.game_results
      where save_id = ${saveId} and season = ${season} and competition = 'REGULAR'

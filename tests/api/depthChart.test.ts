@@ -39,6 +39,19 @@ describe('authoritative depth chart', () => {
     await expect(pipe.api.call('set-depth-chart', { saveId: id, group: 'QB', order, expectedRevision: d.revision }))
       .rejects.toMatchObject({ status: 409 });
   });
+  it('accepts generated OL labels without mistaking them for missing roster data', async () => {
+    const d = await read(); const lineman = d.groups.find((g) => g.group === 'OL')?.order[0];
+    if (lineman === undefined) throw new Error('No lineman in fixture');
+    try {
+      await pipe.sql`update public.players set position = 'OL' where save_id = ${id} and player_id = ${lineman.playerId}`;
+      const fresh = await read(); const group = fresh.groups.find((g) => g.group === 'OL');
+      if (group === undefined) throw new Error('Missing OL group');
+      expect(group.order.some((p) => p.playerId === lineman.playerId && p.position === 'OL')).toBe(true);
+      await pipe.api.call('set-depth-chart', { saveId: id, group: 'OL', order: group.order.map((p) => p.playerId), expectedRevision: fresh.revision });
+    } finally {
+      await pipe.sql`update public.players set position = ${lineman.position} where save_id = ${id} and player_id = ${lineman.playerId}`;
+    }
+  });
   it('rejects foreign or duplicate players', async () => {
     await expect(pipe.api.call('set-depth-chart', { saveId: id, group: 'QB', order: ['foreign'] }))
       .rejects.toMatchObject({ status: 400 });
@@ -63,7 +76,7 @@ describe('authoritative depth chart', () => {
     const [row] = await pipe.sql<{ n: string }[]>`select count(*)::text as n from public.game_results where save_id = ${id}`;
     expect(row?.n).toBe('0');
   });
-  it('reports an illegal camp count as a blocker, with commissioner exception unchanged', async () => {
+  it('reports an illegal camp count as a blocker', async () => {
     await pipe.sql`update public.saves set phase = 'FINAL_CUTS' where id = ${id}`;
     const d = await read(); const victim = d.groups.find((g) => g.group === 'QB')?.order.at(-1);
     if (!victim) throw new Error('No cut candidate');

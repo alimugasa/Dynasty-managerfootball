@@ -144,6 +144,9 @@ export const ALL_STAR_ROSTER_SIZE = Object.values(ALL_STAR_SLOTS)
 /** Ballot depth. Five is what a voter names and what the ballot table keeps. */
 export const BALLOT_DEPTH = 5;
 
+/** The final electorate's existing positional weighting, shared with live reads. */
+export const awardPositionWeight = (group: PositionGroup): number => 0.45 + POSITION_VALUE[group] * 0.55;
+
 /** Yards and counting numbers, on one scale. Deliberately blunt: this is how
  *  much a voter is swayed by the box score, not a model of value. */
 function production(c: AwardCandidate): number {
@@ -162,7 +165,7 @@ function production(c: AwardCandidate): number {
  */
 export function voterScore(c: AwardCandidate, games: number): number {
   const availability = clamp(c.games / Math.max(1, games), 0, 1);
-  const weight = 0.45 + POSITION_VALUE[c.group] * 0.55;
+  const weight = awardPositionWeight(c.group);
   return (c.grade * 0.6 + c.gradeZ * 6 + production(c) * 9)
     * weight
     * (0.7 + 0.3 * availability)

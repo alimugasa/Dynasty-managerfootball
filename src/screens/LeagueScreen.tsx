@@ -24,6 +24,7 @@ import { useUiState } from '../app/useUiState';
 import { COMPETITION_PARAM, type Competition } from '../domain/competition';
 import { HubCard, HubStack, NotBuilt } from './hubCards';
 import { Screen } from './Screen';
+import { IntelligenceEntry } from './league/IntelligenceEntry';
 import {
   DEFAULT_SORT, LEAGUE_ORDER, LeadersPanel, SPLIT_CHIPS, StandingsPanel,
   type Sort, type Split,
@@ -71,6 +72,7 @@ export function LeagueScreen() {
       {save !== null && (
         <>
           <SectionHeader title="Around the league" />
+          <IntelligenceEntry />
           <HubStack>
             <HubCard
               title="Schedule"

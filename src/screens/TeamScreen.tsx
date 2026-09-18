@@ -14,7 +14,7 @@
 
 import { useRef, useState } from 'react';
 import { COLOR, S } from '../app/tokens';
-import { useNavigator } from '../app/navigation';
+import { useNavigator, useNavigationState } from '../app/navigation';
 import { useSave } from '../app/SaveProvider';
 import { useQuery } from '../hooks/useQuery';
 import { Caption, Panel, SectionHeader } from '../components/Surface';
@@ -36,6 +36,7 @@ import { divisionShort } from '../../supabase/functions/_shared/api/leaguePlacin
 import { Screen } from './Screen';
 import { isCampPhase, PHASE_LABEL } from '../domain/phase';
 import { CampEntry } from './camp/CampEntry';
+import { LeagueTeamScreen, TeamRankSummary } from './league/TeamRankSummary';
 import type { DashboardOut } from '../../supabase/functions/_shared/api/reads/dashboard';
 
 const recordOf = (r: DashboardOut['record']): string =>
@@ -56,6 +57,14 @@ const ordinal = (n: number): string => {
 const NO_IDS: readonly string[] = [];
 
 export function TeamScreen() {
+  const { params } = useNavigationState();
+  const { save } = useSave();
+  const id = params['id'];
+  if (id !== undefined && id !== save?.userTeamId) return <LeagueTeamScreen teamId={id} />;
+  return <TeamDashboard />;
+}
+
+function TeamDashboard() {
   const nav = useNavigator();
   /** Which placeholder is open, or null. Named rather than boolean now that
    *  more than one row can raise one. */
@@ -202,6 +211,7 @@ export function TeamScreen() {
           </Panel>
 
           <SectionHeader title="Season" />
+          <TeamRankSummary teamId={save.userTeamId} />
           <PerformanceTiles
             pointsFor={d.record?.pointsFor ?? null}
             pointsAgainst={d.record?.pointsAgainst ?? null}
@@ -226,7 +236,7 @@ export function TeamScreen() {
                   void markChecklist('opponent', 'VIEWED');
                   setSheet('opponent');
                 }}
-                onDepthChart={() => { nav.push('roster'); }}
+                onDepthChart={() => { nav.push('depthChart'); }}
                 onRecheck={() => { setAttempt((n) => n + 1); }}
               />}
             </div>

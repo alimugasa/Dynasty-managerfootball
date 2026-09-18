@@ -7,7 +7,7 @@ import { loadEngineState } from './saveStore.ts';
 import { defaultDepthChart, readDepthChart, type DepthChart } from './project/depthChart.ts';
 import { weeksOut } from './project/stats.ts';
 import { POSITION_GROUPS, type PositionGroup } from '../engine/types.ts';
-import { GROUP_OF } from '../engine/careerWorld.ts';
+import { positionGroup } from './positionGroup.ts';
 
 export interface DepthPlayer {
   readonly player_id: string; readonly display_name: string; readonly position: string;
@@ -28,7 +28,7 @@ export async function depthState(db: Db, save: SaveRow) {
   const automatic = defaultDepthChart(state.league, save.user_team_id);
   const byId = new Map(players.map((p) => [p.player_id, p]));
   for (const p of players) {
-    const group = GROUP_OF[p.position];
+    const group = positionGroup(p.position);
     if (group === undefined || !automatic[group].includes(p.player_id)
       || typeof p.display_name !== 'string' || !Number.isFinite(p.age)
       || !Number.isFinite(p.overall_rating) || typeof p.roster_status !== 'string') {
