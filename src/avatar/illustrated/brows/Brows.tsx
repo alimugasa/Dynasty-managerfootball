@@ -10,6 +10,7 @@ import { Fragment } from 'react';
 import { clamp, closedPath, lerp, nudge, pt, type Pt } from '../geom';
 import type { DrawContext } from '../types';
 import { browSpec, type BrowSpec } from './constructions';
+import { shade } from '../palette';
 
 const SAMPLES = 9;
 
@@ -41,7 +42,7 @@ export function Brows({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
   const spec = browSpec(id);
   const { layout, morph, brow, detail } = ctx;
   const len = layout.eyeSize * spec.length * nudge(morph.browLength, 0.14);
-  const thickScale = nudge(morph.browThickness, 0.32) * 1.30;
+  const thickScale = nudge(morph.browThickness, 0.32) * 1.45;
   // Start at the inner eye corner, with the construction's authored overhang.
   // Anchoring to the nose alone made wide-set eyes outgrow their eyebrows.
   const gap = layout.eyeSpan / 2 - layout.eyeSize * (0.84 - spec.gap);
@@ -57,7 +58,7 @@ export function Brows({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
         >
           {/* A soft under-shadow gives the brow somewhere to sit on the ridge. */}
           <path d={d} fill={ctx.skin.deep} opacity={0.22} transform={`translate(0,${String(len * 0.035)})`} />
-          <path d={d} fill={brow.base} />
+          <path d={d} fill={shade(brow.base, -0.22)} />
           {detail > 0.5 && (
             <path d={d} fill={brow.light} opacity={0.35} transform={`translate(0,${String(-len * 0.012)}) scale(0.94,0.52)`} />
           )}

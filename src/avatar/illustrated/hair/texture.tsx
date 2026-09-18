@@ -18,6 +18,7 @@ import type { HairPalette } from '../palette';
 import type { FaceLayout } from '../layout';
 import { stream, type HairOutline } from './outline';
 import type { HairStyle } from './styles';
+import { BraidedRows, SweptLocks } from './Locks';
 
 export interface TextureProps {
   readonly l: FaceLayout;
@@ -27,6 +28,7 @@ export interface TextureProps {
   readonly uid: string;
   readonly seed: string;
   readonly detail: number;
+  readonly scalp: string;
 }
 
 /** Points spread over the mass, respecting its width at each height. */
@@ -82,13 +84,18 @@ function Clusters({ t, count, size, edge }: {
           />
         );
       })}
-      {pts.map((s, i) => (
-        <circle
-          key={`c${String(i)}`} cx={s.x} cy={s.y} r={r0 * (0.55 + s.r * 0.75)}
-          fill={i % 3 === 0 ? t.p.light : i % 3 === 1 ? t.p.shadow : t.p.base}
-          opacity={i % 3 === 0 ? 0.55 : 0.75}
-        />
-      ))}
+      {pts.map((s, i) => {
+        const r = r0 * (0.55 + s.r * 0.75);
+        return <g key={`c${i}`} transform={`translate(${s.x},${s.y}) rotate(${s.r * 160 - 80})`}>
+          <path d={`M${-r},0 C${-r},${-r} ${r * 0.8},${-r * 1.2} ${r},${-r * 0.2}
+            C${r * 1.2},${r * 0.6} ${-r * 0.1},${r} ${-r * 0.55},${r * 0.3} Z`}
+            fill={i % 3 === 0 ? t.p.shadow : t.p.base} />
+          <path d={`M${-r * 0.8},${r * 0.1} C${-r * 0.9},${-r * 0.7} ${r * 0.7},${-r * 0.8} ${r * 0.65},0
+            C${r * 0.6},${r * 0.5} ${-r * 0.2},${r * 0.45} ${-r * 0.1},0`}
+            fill="none" stroke={t.p.light} strokeWidth={Math.max(0.6, r * 0.12)}
+            strokeLinecap="round" opacity={0.40} />
+        </g>;
+      })}
     </Fragment>
   );
 }
@@ -101,25 +108,26 @@ function Strands({ t, count, vertical, length }: {
   const items = [];
   for (let i = 0; i < count; i += 1) {
     const k = (i + 0.5) / count;
-    const spanY = t.out.endY - t.out.topY;
-    const startY = t.out.topY + spanY * 0.06;
-    const half = t.out.halfAt(startY + spanY * 0.3);
-    const x = t.l.cx + (k * 2 - 1) * half * 0.94;
+    const spanY = t.out.hairlineY - t.out.topY;
+    const startY = t.out.topY + spanY * (0.08 + Math.abs(k - 0.5) * 0.5);
+    const half = t.l.halfAt(t.out.hairlineY);
+    const x = t.l.cx + (k * 2 - 1) * half * 0.42;
     const jitter = (rnd() * 2 - 1);
-    const endY = vertical
-      ? startY + spanY * (0.55 + length * 0.45 + jitter * 0.08)
-      : startY + spanY * (0.35 + jitter * 0.1);
-    const bend = vertical ? jitter * t.l.faceH * 0.02 : (k * 2 - 1) * t.l.faceH * 0.06;
+    const endY = t.out.hairlineY + t.l.faceH * (vertical ? 0.025 : -0.015) * (1 + length);
+    const endX = t.l.cx + (k * 2 - 1) * half * 0.96;
+    const bend = (k * 2 - 1) * half * 0.4 + jitter * t.l.faceH * 0.025;
+    const d = `M${x},${startY} C${x + bend},${startY - t.l.faceH * 0.045}
+      ${endX + bend * 0.25},${endY - spanY * 0.4} ${endX},${endY}`;
     items.push(
       <g key={i}>
         <path
-          d={openPath([pt(x, startY), pt(x + bend * 0.6, (startY + endY) / 2), pt(x + bend, endY)], 1)}
-          fill="none" stroke={t.p.base} strokeWidth={w * (0.85 + rnd() * 0.5)} strokeLinecap="round"
+          d={d} fill="none" stroke={t.p.shadow} strokeWidth={w * 1.3} strokeLinecap="round"
         />
         <path
-          d={openPath([pt(x - w * 0.18, startY + spanY * 0.05), pt(x + bend * 0.5, (startY + endY) / 2)], 1)}
-          fill="none" stroke={t.p.light} strokeWidth={w * 0.26} strokeLinecap="round" opacity={0.6}
+          d={d} fill="none" stroke={t.p.base} strokeWidth={w * 0.85} strokeLinecap="round"
         />
+        <path d={d} fill="none" stroke={t.p.light} strokeWidth={w * 0.16}
+          strokeLinecap="round" opacity={0.6} strokeDasharray="5 2" />
       </g>,
     );
   }
@@ -127,14 +135,15 @@ function Strands({ t, count, vertical, length }: {
 }
 
 export function HairTexture(t: TextureProps) {
-  const { style, p, l, out, detail } = t;
+  const { style, p, l, detail } = t;
   const line = Math.max(0.9, l.faceH * 0.011);
 
   switch (style.family) {
-    case 'waves':
     case 'cornrows':
-    case 'braids': {
-      const count = style.family === 'waves' ? 7 : style.family === 'braids' ? 6 : 7;
+    case 'braids':
+      return <BraidedRows t={t} />;
+    case 'waves': {
+      const count = 7;
       const zig = style.id === 'cornrows-zigzag';
       return (
         <g>
@@ -142,8 +151,8 @@ export function HairTexture(t: TextureProps) {
             <Fragment key={i}>
               <path
                 d={d} fill="none" stroke={p.shadow}
-                strokeWidth={line * (style.family === 'waves' ? 1.5 : 2.6)}
-                strokeLinecap="round" opacity={style.family === 'waves' ? 0.55 : 0.9}
+                strokeWidth={line * 1.5}
+                strokeLinecap="round" opacity={0.55}
               />
               <path
                 d={d} fill="none" stroke={p.light} strokeWidth={line * 0.7}
@@ -152,16 +161,13 @@ export function HairTexture(t: TextureProps) {
               />
             </Fragment>
           ))}
-          {style.family === 'braids' && detail > 0.4 && (
-            <Strands t={t} count={7} vertical length={style.fall * 2.2} />
-          )}
         </g>
       );
     }
     case 'curls':
-      return <Clusters t={t} count={detail > 0.5 ? 46 : 20} size={0.036} edge />;
+      return <Clusters t={t} count={detail > 0.5 ? 80 : 24} size={0.030} edge={false} />;
     case 'afro':
-      return <Clusters t={t} count={detail > 0.5 ? 58 : 24} size={0.040} edge={style.id !== 'flat-top'} />;
+      return <Clusters t={t} count={detail > 0.5 ? 105 : 28} size={0.029} edge={false} />;
     case 'twists':
       return <Strands t={t} count={detail > 0.5 ? 16 : 9} vertical={false} length={style.fall * 2} />;
     case 'locs':
@@ -184,31 +190,7 @@ export function HairTexture(t: TextureProps) {
     case 'sweep':
     case 'long':
     case 'crop':
-    default: {
-      const rnd = stream(`${t.seed}:${style.id}:sweep`);
-      const dir = style.part >= 0 ? 1 : -1;
-      const lines = [];
-      const n = detail > 0.5 ? 11 : 5;
-      for (let i = 0; i < n; i += 1) {
-        const k = (i + 0.5) / n;
-        const y = out.topY + (out.endY - out.topY) * (0.08 + k * 0.72);
-        const half = out.halfAt(y);
-        const wob = (rnd() * 2 - 1) * l.faceH * 0.018;
-        lines.push(
-          <path
-            key={i}
-            d={openPath([
-              pt(l.cx - half * 0.96 * dir, y + wob),
-              pt(l.cx - half * 0.2 * dir, y - l.faceH * 0.022 + wob),
-              pt(l.cx + half * 0.92 * dir, y + l.faceH * (style.family === 'long' ? 0.05 : 0.012)),
-            ], 0.95)}
-            fill="none" stroke={i % 2 === 0 ? p.shadow : p.light}
-            strokeWidth={line * (i % 2 === 0 ? 1.7 : 1.0)} strokeLinecap="round"
-            opacity={i % 2 === 0 ? 0.5 : 0.22}
-          />,
-        );
-      }
-      return <g>{lines}</g>;
-    }
+    default:
+      return <SweptLocks t={t} />;
   }
 }

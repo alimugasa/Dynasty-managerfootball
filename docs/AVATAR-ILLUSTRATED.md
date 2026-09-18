@@ -106,10 +106,10 @@ age progression, builds and the anti-clone registry are all as they were.
 A reference grid set the bar, and closing the distance to it was mostly four
 changes, none of them about adding detail:
 
-**Proportion.** A head four fifths as wide as it is tall reads as a cartoon
-head; the reference sits nearer three fifths. Everything else looked wrong
-largely because it was sitting on a head of the wrong shape. `WIDTH_SCALE` in
-`layout.ts` is that number.
+**Proportion.** The current reference calls for fuller adult faces with distinct
+jaws and cheekbones. The early globally narrow treatment stretched the faces.
+`layout.ts` now bounds length variation and the authored head profiles carry
+their own widths; no single width/height ratio is a quality criterion.
 
 **Crop.** The frame is portrait, not square, and the crop is fixed: chin at
 four fifths of the height, crown a seventh down from the top, shoulders in
@@ -166,10 +166,9 @@ and check repeated-portrait SVG references. Artwork determinism is compared
 after normalizing only the per-instance DOM IDs. These checks prevent drawing
 defects; they do not replace visual approval.
 
-Further facial work is still needed, particularly integrating nose tips and
-nostril marks into a more coherent illustrated form. Hair and facial hair remain
-separate later refinements. `PlayerAvatar.tsx` still uses the raster renderer;
-this pass does not enable the illustrated portraits in game screens.
+This anatomy pass left nose, hair and facial-hair art for subsequent refinement.
+`PlayerAvatar.tsx` still uses the raster renderer; illustrated portraits are
+not enabled in game screens.
 
 Remaining hair and library limitations:
 
@@ -197,3 +196,40 @@ one place and obvious in another:
   `dark-brown` nothing at all, so every eye in the first draft was wrong.
 - Stubble was a flat fill over the lower face. At any opacity that showed, it
   desaturated the jaw into a grey trapezoid with hard edges.
+
+## Supplied-reference refinement — September 2026
+
+The user's complete-player and bald-face reference guides this art pass. It is
+an appearance target, not a source of character identities or traced assets.
+The existing SVG renderer, trait IDs and selection architecture remain intact.
+
+- Fuller cheeks and jaws, bounded long-face proportions, and a higher crop
+  leave more space for shoulders. Eyes retain the tested adult mid-skull
+  placement. Brows have stronger weight without changing their constructions.
+- Nose tips use the underlying skin plane with a small highlight; narrower
+  nostril creases replace dark round marks. Short bridge accents improve
+  definition. Lips are thinner with restrained warmth.
+- A shared warm illustration light is applied to the existing pigmentation
+  swatches. Lightness and undertone ordering remain intact. This changes paint,
+  not stored pigmentation or identity.
+- Swept styles use directional curved locks; curly styles use small curl
+  contours and silhouette tufts. Braids follow the scalp. Hanging locs, twists
+  and braids have separate strands behind the ears, with their foreground cap
+  clipped above the brows.
+- Dense beards follow the cheek and mouth contours with clipped grain.
+  Stubble has no flat fill. The lower beard may extend below the face clip,
+  as its existing style specifies.
+- The jersey has a continuous light crew collar and restrained shoulder trim.
+
+The complete-player, bald/clean-shaven and exact-skin-palette diagnostics are
+preserved. Regression checks cover every stored hairstyle and beard, finite
+geometry, local SVG references, unobstructed brows, stubble versus filled
+beards, and collar visibility across the head library and different builds.
+
+**Visual status:** closer to the reference's proportions and drawing direction,
+but still a prototype. Hair silhouette authorship, hairline transitions and
+subtler facial modelling need further visual review; passing geometry tests
+does not establish reference-level art quality. The illustrated renderer stays
+out of production pending explicit visual approval. No identity seeds, named
+identity RNG streams, generation rules, anti-clone signatures, saved profiles,
+simulation code, dependencies or canonical design tokens changed.

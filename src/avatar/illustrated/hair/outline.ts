@@ -25,6 +25,8 @@ export interface HairOutline {
   readonly endY: number;
   /** Half-width of the mass at a height, for scattering texture over it. */
   readonly halfAt: (y: number) => number;
+  /** Outer landmarks for small authored edge tufts, outside the mass clip. */
+  readonly outer: readonly Pt[];
 }
 
 /** Temples sit a little higher than the centre on every real hairline, so
@@ -51,7 +53,7 @@ export function hairOutline(l: FaceLayout, s: HairStyle, recession: number): Hai
   const rec = clamp(recession, 0, 1);
 
   const hl = HAIRLINE[s.hairline];
-  const baseT = 0.150 + rec * 0.105;
+  const baseT = 0.215 + rec * 0.105;
   const hairlineY = l.crownY + l.faceH * (baseT + hl.centre);
   const sideY = l.crownY + l.faceH * (baseT + hl.side - rec * 0.055);
 
@@ -173,6 +175,7 @@ export function hairOutline(l: FaceLayout, s: HairStyle, recession: number): Hai
     topY,
     endY,
     halfAt: outerHalf,
+    outer,
   };
 }
 

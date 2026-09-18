@@ -96,8 +96,15 @@ export interface SkinPalette {
  */
 export function skinPalette(hex: string, pigment: number): SkinPalette {
   const p = clamp(pigment, 0, 1);
-  const shadowPull = 0.20 + p * 0.16;
-  const lightPull = 0.17 - p * 0.09;
+  // A shared warm illustration light, applied after identity pigmentation.
+  // Preserve lightness and the ordering of undertones; avoid grey/green casts
+  // from the neutral swatches in a dark portrait surround.
+  const swatch = toHsl(hex);
+  hex = toHex({ h: swatch.h + (24 - swatch.h) * 0.35,
+    s: clamp(swatch.s * 1.12 + 0.04, 0, 0.65), l: swatch.l });
+  const shadowPull = 0.26 + p * 0.14;
+  const lightPull = 0.14 - p * 0.07;
+  const lip = toHsl(hex);
   return {
     base: hex,
     soft: shade(hex, -shadowPull * 0.55),
@@ -108,7 +115,7 @@ export function skinPalette(hex: string, pigment: number): SkinPalette {
     // Lips need to separate from the skin or the mouth vanishes at portrait
     // size, and they separate by being darker and a touch more saturated --
     // never by being pink, which is the doll tell.
-    lip: shade(hex, -(0.16 + p * 0.13)),
+    lip: toHex({ h: lip.h - 7, s: lip.s * 0.90, l: lip.l * 0.86 }),
     lipShadow: shade(hex, -(0.36 + p * 0.12)),
   };
 }

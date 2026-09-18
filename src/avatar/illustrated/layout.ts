@@ -18,28 +18,17 @@ import type { FaceMorph } from '../../../supabase/functions/_shared/avatar/morph
 export const VIEW_W = 300;
 export const VIEW_H = 400;
 export const CX = 150;
-/** The eye line is the anchor. Faces vary in length around it.
- *
- *  These three numbers are the crop, and the crop is art direction: the chin
- *  sits at four fifths of the frame, the crown a seventh down from the top,
- *  and what is left at the bottom is shoulder. Getting it wrong the first time
- *  put the collar off the bottom edge and left every player on a bare neck. */
-export const EYE_Y = 178;
-const REF_FACE_H = 292;
-/**
- * Widths, globally.
- *
- * The single biggest structural difference between the first illustrated pass
- * and the reference: a head about four fifths as wide as it is tall reads as a
- * round cartoon head, and the reference sits nearer three fifths. Everything
- * else -- the shading, the line work, the hair -- looked wrong mostly because
- * it was sitting on a head of the wrong shape.
- */
-const WIDTH_SCALE = 0.905;
+/** The eye line anchors the portrait; shorter faces leave room for the
+ *  shoulders and crew collar while long faces retain their own proportions. */
+export const EYE_Y = 166;
+const REF_FACE_H = 276;
+/** Fuller adult proportions from the supplied illustrated sports reference.
+ *  Individual jaw, cheek and forehead constructions still determine shape. */
+const WIDTH_SCALE = 0.98;
 
 // Adult facial landmarks: eyes near mid-skull, then a shorter lower face.
 // Shape-specific offsets below retain long midfaces and tall foreheads.
-const DEFAULTS = { browT: 0.445, eyeT: 0.50, noseT: 0.70, mouthT: 0.81 };
+const DEFAULTS = { browT: 0.445, eyeT: 0.50, noseT: 0.675, mouthT: 0.79 };
 
 export interface FaceLayout {
   readonly cx: number;
@@ -89,20 +78,16 @@ function profileScale(m: FaceMorph): readonly number[] {
   ];
 }
 
-/**
- * Build the face.
- *
- * `widthTrim` exists for the body: shoulders need to know the neck's width
- * before the head is drawn, and passing the whole layout around is cheaper
- * than computing the silhouette twice.
- */
+/** Resolve the shared frame once so all features attach to the same face. */
 export function buildFace(shape: HeadShape, m: FaceMorph): FaceLayout {
   const eyeT = shape.eyeT ?? DEFAULTS.eyeT;
   const browT = shape.browT ?? DEFAULTS.browT;
   const noseT = shape.noseT ?? DEFAULTS.noseT;
   const mouthT = shape.mouthT ?? DEFAULTS.mouthT;
 
-  const faceH = REF_FACE_H * shape.length * nudge(m.skullLength, 0.055);
+  // Preserve long/short identities within the reference's adult portrait
+  // envelope; long skulls must not become stretched, narrow cones.
+  const faceH = REF_FACE_H * (1 + (shape.length - 1) * 0.65) * nudge(m.skullLength, 0.040);
   const crownY = EYE_Y - faceH * eyeT;
   const chinY = crownY + faceH;
 
@@ -178,7 +163,7 @@ export function buildFace(shape: HeadShape, m: FaceMorph): FaceLayout {
     eyeSpan: widthAtEye * (0.40 + clamp(m.eyeSpacing, -1, 1) * 0.030),
     eyeSize: widthAtEye * (0.19 + clamp(m.eyeWidth, -1, 1) * 0.018),
     noseWidth: widthAtEye * (0.232 + clamp(m.nostrilWidth, -1, 1) * 0.038),
-    mouthWidth: widthAtEye * (0.330 + clamp(m.mouthWidth, -1, 1) * 0.046),
+    mouthWidth: widthAtEye * (0.355 + clamp(m.mouthWidth, -1, 1) * 0.046),
     earY: eyeY + faceH * 0.075,
     earHeight: faceH * (0.16 + clamp(m.earLength, -1, 1) * 0.018),
     asym,

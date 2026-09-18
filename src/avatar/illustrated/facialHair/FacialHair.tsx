@@ -12,7 +12,7 @@
 
 import { Fragment } from 'react';
 import { closedPath, clamp, lerp, pt, type Pt } from '../geom';
-import { hairPalette } from '../palette';
+import { hairPalette, shade } from '../palette';
 import type { DrawContext } from '../types';
 import { stream } from '../hair/outline';
 import { facialHairStyle, type FacialHairStyle } from './styles';
@@ -31,17 +31,28 @@ function lowerFace(ctx: DrawContext, s: FacialHairStyle): Pt[] {
   const at = (t: number): number => lerp(l.crownY, l.chinY, t);
   const ts = [s.topT, 0.70, 0.80, 0.90, 0.97];
   const right = ts.map((t) => pt(l.cx + l.halfAt(at(t)) * (t > 0.95 ? 0.92 : 1.0), at(t)));
-  const bottom = pt(l.cx, l.chinY + l.faceH * s.drop);
+  const bottomY = l.chinY + l.faceH * s.drop;
+  const chinW = l.halfAt(l.chinY) * 0.75;
+  const bottom = [pt(l.cx + chinW, bottomY - l.faceH * 0.01), pt(l.cx, bottomY),
+    pt(l.cx - chinW, bottomY - l.faceH * 0.01)];
   const left = [...right].reverse().map((p) => pt(2 * l.cx - p.x, p.y));
-  return [...right, bottom, ...left];
+  return [...right, ...bottom, ...left];
 }
 
 function regionPath(ctx: DrawContext, s: FacialHairStyle): string {
   const l = ctx.layout;
   const outer = lowerFace(ctx, s);
   if (s.cheek && s.jaw) {
-    // A full lower face. The upper boundary runs just under the cheekbones.
-    return closedPath(outer, 1.0);
+    // Authored cheek line descends from the sideburns, then returns toward
+    // the corners of the mouth. A straight closing edge painted a face mask.
+    const mouthSide = l.mouthWidth * 0.66;
+    return closedPath([...outer,
+      pt(l.cx - l.halfAt(l.noseBaseY) * 0.72, l.noseBaseY + l.faceH * 0.02),
+      pt(l.cx - mouthSide, l.mouthY - l.faceH * 0.015),
+      pt(l.cx, l.mouthY + l.faceH * 0.045),
+      pt(l.cx + mouthSide, l.mouthY - l.faceH * 0.015),
+      pt(l.cx + l.halfAt(l.noseBaseY) * 0.72, l.noseBaseY + l.faceH * 0.02),
+    ], 0.85);
   }
   if (s.jaw) {
     // A jawline band: the lower face, hollowed by an inner curve.
@@ -78,8 +89,8 @@ function chinPath(ctx: DrawContext, s: FacialHairStyle): string {
 function moustachePath(ctx: DrawContext, s: FacialHairStyle): string {
   const l = ctx.layout;
   const wide = s.id === 'mustache-thick' || s.id === 'horseshoe';
-  const w = l.mouthWidth * (wide ? 0.78 : 0.64);
-  const top = l.noseBaseY + l.faceH * 0.008;
+  const w = l.mouthWidth * (wide ? 0.61 : 0.51);
+  const top = l.noseBaseY + l.faceH * 0.038;
   const bottom = l.mouthY - l.faceH * 0.014;
   const droop = s.id === 'horseshoe' ? l.faceH * 0.085 : l.faceH * 0.008;
   /* Shaped, not boxed. The first version was a rounded rectangle between the
@@ -143,13 +154,13 @@ function Bristles({ ctx, s, count, colour }: {
     // gradient-masked: growth has a boundary, not a border.
     const ramp = clamp((y - top) / Math.max(1e-6, l.faceH * 0.12), 0, 1);
     if (rnd() > 0.25 + ramp * 0.75) continue;
-    const len = l.faceH * (0.012 + rnd() * 0.016);
+    const len = l.faceH * (0.004 + rnd() * 0.009);
     const lean = ((x - l.cx) / Math.max(1, half)) * len * 0.5;
     items.push(
       <path
         key={i}
         d={`M${String(x)},${String(y)} l${String(lean)},${String(len)}`}
-        stroke={colour} strokeWidth={Math.max(0.6, l.faceH * 0.0045)}
+        stroke={colour} strokeWidth={Math.max(0.45, l.faceH * 0.0025)}
         strokeLinecap="round" fill="none"
       />,
     );
@@ -163,12 +174,16 @@ export function FacialHair({ ctx, id, density, greying }: Props) {
 
   const l = ctx.layout;
   const base = ctx.hair.base;
-  const p = hairPalette(greying > 0 ? base : base);
+  // Beard growth is denser and less directly lit than the crown. This is
+  // paint only; the stored hair colour and age progression remain unchanged.
+  const p = hairPalette(shade(base, -0.18 * (1 - greying)));
   const clip = `${ctx.uid}-face`;
   const grad = `${ctx.uid}-beard`;
   const top = lerp(l.crownY, l.chinY, s.topT);
-  const opacity = 0.35 + density * 0.55;
+  const opacity = 0.65 + density * 0.35;
   const region = regionPath(ctx, s);
+  const filled = !s.id.startsWith('stubble-') && s.fill > 0;
+  const growthClip = `${ctx.uid}-beard-growth`;
   // Scattered over the whole lower face and filtered down to the style's own
   // regions, so a moustache asks for as many samples as a full beard and keeps
   // a fraction of them.
@@ -177,40 +192,46 @@ export function FacialHair({ ctx, id, density, greying }: Props) {
   const dense = Math.round((ctx.detail > 0.5 ? 260 : 90) * (0.5 + density * 0.7));
 
   return (
-    <g clipPath={`url(#${clip})`}>
+    <g>
       <defs>
+        <clipPath id={growthClip}>
+          {region !== '' && <path d={region} fillRule="evenodd" clipRule="evenodd" />}
+          {s.chin && !s.jaw && <path d={chinPath(ctx, s)} />}
+          {s.moustache && <path d={moustachePath(ctx, s)} />}
+        </clipPath>
         {/* Beards do not start on a ruled line. Filled and stippled from a flat
             boundary across the cheeks, every player came out wearing a
             horizontal edge under his eyes. */}
         <linearGradient
           id={grad} gradientUnits="userSpaceOnUse"
-          x1={0} y1={top - l.faceH * 0.02} x2={0} y2={top + l.faceH * 0.13}
+          x1={0} y1={top - l.faceH * 0.01} x2={0} y2={top + l.faceH * 0.045}
         >
           <stop offset="0%" stopColor={p.base} stopOpacity="0" />
           <stop offset="100%" stopColor={p.base} stopOpacity="1" />
         </linearGradient>
       </defs>
       <g opacity={opacity}>
-        {s.fill > 0 && region !== '' && (
+        {filled && region !== '' && (
           <path d={region} fill={`url(#${grad})`} fillRule="evenodd" opacity={s.fill} />
         )}
-        {s.fill > 0 && s.chin && (
+        {filled && s.chin && !s.jaw && (
           <path d={chinPath(ctx, s)} fill={`url(#${grad})`} opacity={s.fill * 0.9} />
         )}
-        {s.fill > 0 && s.moustache && (
+        {filled && s.moustache && (
           <path d={moustachePath(ctx, s)} fill={p.base} opacity={s.fill * 0.9} />
         )}
         {/* stubble is texture only; a full beard gets texture over its fill */}
-        <g opacity={0.55}>
-          <Bristles ctx={ctx} s={s} count={dense} colour={p.base} />
+        <g opacity={filled ? 0.65 : 0.42 + density * 0.25}
+          clipPath={`url(#${filled ? growthClip : clip})`}>
+          <Bristles ctx={ctx} s={s} count={dense} colour={p.shadow} />
           {ctx.detail > 0.45 && (
-            <Bristles ctx={ctx} s={s} count={Math.round(dense * 0.14)} colour={p.light} />
+            <Bristles ctx={ctx} s={s} count={Math.round(dense * (filled ? 0.85 : 0.14))} colour={p.light} />
           )}
         </g>
       </g>
-      {s.fill > 0.8 && (
+      {filled && s.fill > 0.8 && (
         <path
-          d={s.chin ? chinPath(ctx, s) : region} fill="none" stroke={p.shadow}
+          d={s.jaw ? region : s.chin ? chinPath(ctx, s) : ''} fill="none" stroke={p.shadow}
           strokeWidth={Math.max(0.8, ctx.layout.faceH * 0.006)} opacity={0.3}
         />
       )}

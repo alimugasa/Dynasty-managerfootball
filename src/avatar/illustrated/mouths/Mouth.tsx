@@ -16,8 +16,8 @@ export function Mouth({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
   const { layout, skin, morph, detail } = ctx;
 
   const hw = (layout.mouthWidth * spec.width) / 2;
-  const upper = spec.upper * hw * 2 * nudge(morph.upperLip, 0.35);
-  const lower = spec.lower * hw * 2 * nudge(morph.lowerLip, 0.35);
+  const upper = spec.upper * hw * 1.55 * nudge(morph.upperLip, 0.35);
+  const lower = spec.lower * hw * 1.55 * nudge(morph.lowerLip, 0.35);
   const bow = spec.bow * nudge(morph.cupidBow, 0.5);
   const pk = spec.peaks * hw;
   const corner = spec.corner * hw + clamp(morph.mouthCorner, -1, 1) * hw * 0.06;
@@ -54,7 +54,7 @@ export function Mouth({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
 
   /* The upper lip faces down and the lower faces up, so they are never the
      same colour. Getting this backwards is what makes a mouth look pasted on. */
-  const upperFill = shade(skin.lip, -0.16);
+  const upperFill = shade(skin.lip, -0.10);
   const lowerFill = shade(skin.lip, 0.05);
 
   return (
@@ -65,7 +65,7 @@ export function Mouth({ ctx, id }: { readonly ctx: DrawContext; readonly id: str
           pt(-hw * 0.78, lower * 0.9), pt(0, lower * (1.30 + spec.fullness * 0.3)),
           pt(hw * 0.78, lower * 0.9), pt(0, lower * 0.8),
         ], 1.05)}
-        fill={skin.deep} opacity={0.26}
+        fill={skin.deep} opacity={0.20}
       />
       <path d={upperShape} fill={upperFill} />
       <path d={lowerShape} fill={lowerFill} />

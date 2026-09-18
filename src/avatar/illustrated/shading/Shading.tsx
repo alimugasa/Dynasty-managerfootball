@@ -65,21 +65,21 @@ export function Shading({ ctx }: { readonly ctx: DrawContext }) {
 
   /* The hollow under the cheekbone. A wedge, not a smudge. */
   const hollow = (dir: number): string => closedPath([
-    pt(l.cx + w(at(0.54)) * dir * 0.94, at(0.545)),
-    pt(l.cx + w(at(0.68)) * dir * 0.86, at(0.68)),
-    pt(l.cx + w(at(0.78)) * dir * 0.62, at(0.78)),
-    pt(l.cx + w(at(0.64)) * dir * 0.44, at(0.65)),
-    pt(l.cx + w(at(0.54)) * dir * 0.52, at(0.555)),
-  ], 1.0);
+    pt(l.cx + w(at(0.58)) * dir * 0.95, at(0.58)),
+    pt(l.cx + w(at(0.72)) * dir * 0.88, at(0.72)),
+    pt(l.cx + w(at(0.82)) * dir * 0.72, at(0.82)),
+    pt(l.cx + w(at(0.70)) * dir * 0.64, at(0.70)),
+    pt(l.cx + w(at(0.60)) * dir * 0.72, at(0.60)),
+  ], 0.72);
 
   /* The underside of the jaw, meeting under the chin. */
   const underJaw = closedPath([
-    pt(l.cx - w(at(0.88)) * 0.92, at(0.885)),
-    pt(l.cx - w(at(0.95)) * 0.80, at(0.955)),
+    pt(l.cx - w(at(0.91)) * 0.95, at(0.915)),
+    pt(l.cx - w(at(0.97)) * 0.90, at(0.975)),
     pt(l.cx, l.chinY + l.faceH * 0.004),
-    pt(l.cx + w(at(0.95)) * 0.80, at(0.955)),
-    pt(l.cx + w(at(0.88)) * 0.92, at(0.885)),
-    pt(l.cx, at(0.90)),
+    pt(l.cx + w(at(0.97)) * 0.90, at(0.975)),
+    pt(l.cx + w(at(0.91)) * 0.95, at(0.915)),
+    pt(l.cx, at(0.965)),
   ], 1.0);
 
   return (
@@ -87,21 +87,27 @@ export function Shading({ ctx }: { readonly ctx: DrawContext }) {
       <path d={cover} fill={`url(#${uid}-top)`} />
       {/* One side, not two. Shading both sides leaves a lit column down the
           middle of the face, which is a stripe rather than a form. */}
-      <path d={sideShadow(1)} fill={skin.soft} opacity={0.30} />
-      <path d={sideShadow(-1)} fill={skin.soft} opacity={0.14} />
+      <path d={sideShadow(1)} fill={skin.deep} opacity={0.36} />
+      <path d={sideShadow(-1)} fill={skin.soft} opacity={0.20} />
       {detail > 0.3 && (
         <>
-          <path d={hollow(1)} fill={skin.soft} opacity={0.30} />
-          <path d={hollow(-1)} fill={skin.soft} opacity={0.16} />
-          <path d={underJaw} fill={skin.deep} opacity={0.26} />
+          <path d={hollow(1)} fill={skin.deep} opacity={0.27} />
+          <path d={hollow(-1)} fill={skin.soft} opacity={0.30} />
+          <path d={underJaw} fill={skin.deep} opacity={0.32} />
         </>
       )}
       {/* the brow ridge sits over each eye */}
       {detail > 0.35 && [-1, 1].map((dir) => (
-        <ellipse
-          key={`s${dir}`} cx={l.cx + dir * (l.eyeSpan / 2)} cy={l.eyeY - l.eyeSize * 0.34}
-          rx={l.eyeSize * 0.90} ry={l.eyeSize * 0.50}
-          fill={skin.soft} opacity={dir > 0 ? 0.26 : 0.20}
+        <path
+          key={`s${dir}`}
+          d={closedPath([
+            pt(l.cx + dir * (l.eyeSpan / 2 - l.eyeSize * 0.58), l.browY + l.eyeSize * 0.06),
+            pt(l.cx + dir * (l.eyeSpan / 2 + l.eyeSize * 0.62), l.browY - l.eyeSize * 0.03),
+            pt(l.cx + dir * (l.eyeSpan / 2 + l.eyeSize * 0.66), l.eyeY + l.eyeSize * 0.12),
+            pt(l.cx + dir * (l.eyeSpan / 2), l.eyeY - l.eyeSize * 0.14),
+            pt(l.cx + dir * (l.eyeSpan / 2 - l.eyeSize * 0.50), l.eyeY - l.eyeSize * 0.06),
+          ], 0.85)}
+          fill={skin.soft} opacity={dir > 0 ? 0.32 : 0.24}
         />
       ))}
       {/* The rim. Half the stroke falls outside the clip, so what survives is
@@ -109,11 +115,11 @@ export function Shading({ ctx }: { readonly ctx: DrawContext }) {
           vector face reading as a sticker. */}
       <path
         d={headPath(l)} fill="none" stroke={skin.soft}
-        strokeWidth={l.faceH * 0.030} opacity={0.34}
+        strokeWidth={l.faceH * 0.012} opacity={0.48}
       />
       <path
         d={headPath(l)} fill="none" stroke={skin.deep}
-        strokeWidth={l.faceH * 0.011} opacity={0.26}
+        strokeWidth={l.faceH * 0.004} opacity={0.42}
       />
     </g>
   );

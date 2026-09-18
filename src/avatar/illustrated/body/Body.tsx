@@ -6,8 +6,8 @@
 // the frame further out. All three come from the build the existing system
 // already assigns by position, so nothing new decides it here.
 
-import { closedPath, clamp, pt, type Pt } from '../geom';
-import { VIEW_H, VIEW_W } from '../layout';
+import { closedPath, clamp, openPath, pt, type Pt } from '../geom';
+import { VIEW_H } from '../layout';
 import type { DrawContext } from '../types';
 
 export interface BodyProps {
@@ -25,14 +25,14 @@ function metrics(ctx: DrawContext) {
   const jawHalf = l.halfAt(l.chinY - l.faceH * 0.22);
   const neckHalf = jawHalf * (0.86 + clamp(morph.neckWidth, -1, 1) * 0.15);
   const shoulderHalf = l.faceH * (0.70 + clamp(morph.shoulderWidth, -1, 1) * 0.22);
-  const trapRise = l.faceH * (0.070 + clamp(morph.trapSize, -1, 1) * 0.048);
+  const trapRise = l.faceH * (0.14 - clamp(morph.trapSize, -1, 1) * 0.038);
   const neckTop = l.chinY - l.faceH * 0.12;
   // A head-and-shoulders crop has a short neck. The first attempt put this a
   // third of a face below the chin, which pushed the collar off the frame and
   // left twenty players standing on a stalk.
   // Close under the chin. A head-and-shoulders crop shows very little neck,
   // and the first attempt at this left every player on a long column.
-  const shoulderY = l.chinY + l.faceH * 0.035;
+  const shoulderY = l.chinY + l.faceH * 0.065;
   return { neckHalf, shoulderHalf, trapRise, neckTop, shoulderY };
 }
 
@@ -50,7 +50,7 @@ export function Neck({ ctx }: { readonly ctx: DrawContext }) {
   ], 0.8);
   return (
     <g>
-      <path d={d} fill={skin.soft} />
+      <path d={d} fill={skin.base} />
       {/* The neck is in shadow all the way down. The first pass let it fade
           back to full skin at the bottom, which made it read as a separate,
           brighter object bolted under the chin. */}
@@ -95,7 +95,7 @@ export function Jersey({ ctx, shirt, collar }: BodyProps) {
      portrait ends in an undifferentiated dark mass. */
   const trim = (dir: number): string => {
     const outer = shoulder(dir, 0);
-    const inner = shoulder(dir, l.faceH * 0.032);
+    const inner = shoulder(dir, l.faceH * 0.016);
     return closedPath([...outer.slice(0, 3), ...[...inner.slice(0, 3)].reverse()], 0.92);
   };
 
@@ -113,19 +113,20 @@ export function Jersey({ ctx, shirt, collar }: BodyProps) {
         fill="#000000" opacity={0.14}
       />
       {[-1, 1].map((dir) => (
-        <path key={dir} d={trim(dir)} fill={collar} opacity={dir > 0 ? 0.88 : 1} />
+        <path key={dir} d={trim(dir)} fill={collar} opacity={0.4} />
       ))}
-      {/* the neckline itself, dark, cut into the collar */}
+      {/* A continuous crew collar follows the neck opening. The earlier
+          shoulder stripes never actually connected around the neck. */}
       <path
-        d={closedPath([
-          pt(l.cx - neckHalf * 1.12, collarY - l.faceH * 0.006),
-          pt(l.cx, collarY + l.faceH * 0.095),
-          pt(l.cx + neckHalf * 1.12, collarY - l.faceH * 0.006),
-          pt(l.cx, collarY + l.faceH * 0.045),
+        d={openPath([
+          pt(l.cx - neckHalf * 1.06, collarY + l.faceH * 0.008),
+          pt(l.cx - neckHalf * 0.58, collarY + l.faceH * 0.075),
+          pt(l.cx, collarY + l.faceH * 0.10),
+          pt(l.cx + neckHalf * 0.58, collarY + l.faceH * 0.075),
+          pt(l.cx + neckHalf * 1.06, collarY + l.faceH * 0.008),
         ], 1.0)}
-        fill={shirt}
+        fill="none" stroke={collar} strokeWidth={l.faceH * 0.035}
       />
-      <path d={`M0,0 H${String(VIEW_W)} V0 H0 Z`} fill="none" />
     </g>
   );
 }

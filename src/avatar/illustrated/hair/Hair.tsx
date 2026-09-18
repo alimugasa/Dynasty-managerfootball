@@ -16,6 +16,7 @@ import type { DrawContext } from '../types';
 import { hairOutline } from './outline';
 import { HairTexture } from './texture';
 import { hairStyle } from './styles';
+import { EdgeTufts, HangingLocks } from './Locks';
 
 interface HairProps {
   readonly ctx: DrawContext;
@@ -46,6 +47,10 @@ function useHair(ctx: DrawContext, id: string, recession: number, greying: numbe
 /** Behind the head: only the part that falls past the ear. */
 export function HairBack({ ctx, id, recession, greying }: HairProps) {
   const { style, out, p } = useHair(ctx, id, recession, greying);
+  if (['locs', 'braids', 'twists'].includes(style.family)) {
+    return <HangingLocks t={{ l: ctx.layout, style, out, p, seed: ctx.seed,
+      detail: ctx.detail, uid: ctx.uid, scalp: ctx.skin.base }} />;
+  }
   if (style.fall < 0.10) return null;
   const l = ctx.layout;
   const half = out.halfAt(l.earY) * 1.04;
@@ -71,6 +76,8 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
   const l = ctx.layout;
   const clip = `${ctx.uid}-hair`;
   const grad = `${ctx.uid}-fadegrad`;
+  const cap = `${ctx.uid}-haircap`;
+  const separateLocks = ['locs', 'braids', 'twists'].includes(style.family);
   // Every style gets the dissolve, not just the barbered ones: a hard bottom
   // edge on a haircut is the helmet tell whatever the style is called.
   // Every style with no fall gets the dissolve. A hard bottom edge is the
@@ -85,6 +92,8 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
     <g>
       <defs>
         <clipPath id={clip}><path d={out.mass} /></clipPath>
+        {separateLocks && <clipPath id={cap}><rect width={l.cx * 2}
+          height={out.hairlineY + l.faceH * 0.018} /></clipPath>}
         {fades && (
           <linearGradient id={grad} x1="0" x2="0" y1={fadeTop} y2={fadeBottom} gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor={ctx.skin.soft} stopOpacity="0" />
@@ -94,6 +103,9 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
         )}
       </defs>
 
+      <EdgeTufts l={l} style={style} out={out} p={p} seed={ctx.seed} detail={ctx.detail}
+        uid={ctx.uid} scalp={ctx.skin.base} />
+      <g clipPath={separateLocks ? `url(#${cap})` : undefined}>
       <path d={out.mass} fill={p.base} />
       {/* the mass turns away from the light at its edges */}
       <g clipPath={`url(#${clip})`}>
@@ -103,6 +115,7 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
         />
         <HairTexture
           l={l} style={style} out={out} p={p} uid={ctx.uid} seed={ctx.seed} detail={ctx.detail}
+          scalp={ctx.skin.base}
         />
         {fades && (
           <rect
@@ -116,6 +129,7 @@ export function Hair({ ctx, id, recession, greying }: HairProps) {
         d={out.arc} fill="none" stroke={p.shadow}
         strokeWidth={Math.max(1, l.faceH * 0.009)} opacity={0.4}
       />
+      </g>
       {style.family === 'bun' && (
         <g>
           <circle

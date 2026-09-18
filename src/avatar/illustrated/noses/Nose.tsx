@@ -1,11 +1,7 @@
 // The nose, as filled form.
 //
-// No outline anywhere. A nose drawn with a contour reads as a symbol, which is
-// what every version of this project has produced so far -- an arrowhead, then
-// a bowtie, then two lines and two dots. What actually reads as a nose is the
-// shadow down one side of the bridge, the light along the other, a tip with
-// volume and two wings that turn away from the light. The skin underneath is
-// the lit plane; nothing draws it.
+// Filled bridge and wing planes carry the form. Short crease accents define
+// the tip and bridge without outlining the entire nose as a separate object.
 
 import { closedPath, clamp, nudge, openPath, pt } from '../geom';
 import type { DrawContext } from '../types';
@@ -82,7 +78,7 @@ export function Nose({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
     pt(rw * 0.16, -L),
   ], 0.95);
 
-  const nostrilW = nw * 0.115 * nudge(morph.nostrilWidth, 0.2);
+  const nostrilW = nw * 0.083 * nudge(morph.nostrilWidth, 0.2);
   const nostrilY = -lift * 0.32;
   const nostrilX = aw - tw * 0.24;
   const line = Math.max(0.7, nw * 0.032);
@@ -99,22 +95,34 @@ export function Nose({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
         ], 1.05)}
         fill={skin.soft} opacity={0.30 + depth * 0.18}
       />
-      <path d={shadow} fill={skin.soft} opacity={0.28 + depth * 0.34} />
+      <path d={shadow} fill={skin.deep} opacity={0.24 + depth * 0.32} />
+      {detail > 0.4 && <path d={openPath([
+        pt(bw * 0.70 + bulge * 0.5, -L * 0.67),
+        pt(bw + bulge, -L * 0.38),
+        pt(tw * 1.03, tipY + tw * 0.14),
+      ], 0.9)} fill="none" stroke={skin.line} strokeWidth={line * 0.8}
+        opacity={0.34} strokeLinecap="round" />}
 
-      {/* the tip: a lit form sitting in front of the shadow */}
+      {/* The tip interrupts the bridge shadow with skin, not a pale circular
+          spot. Its small upper-plane accent joins it back to the bridge. */}
       <path
         d={tipPath(spec.tip, tw * 0.94, tipY - tw * 0.06)}
-        fill={skin.light} opacity={0.34 + depth * 0.14}
+        fill={skin.base}
       />
+      <path d={openPath([
+        pt(-tw * 0.55, tipY), pt(-tw * 0.18, tipY - tw * 0.32), pt(tw * 0.38, tipY - tw * 0.12),
+      ], 0.95)} fill="none" stroke={skin.light} strokeWidth={Math.max(1, tw * 0.25)}
+        opacity={0.6} strokeLinecap="round" />
 
       {/* the crease under the tip, and the two wing creases. These three short
           lines are most of what makes a nose read as a nose at portrait size,
           and the reference has all three. */}
       <path
         d={openPath([
-          pt(-aw * 0.52, nw * 0.035), pt(0, nw * 0.075), pt(aw * 0.52, nw * 0.035),
+          pt(-aw * 0.58, -nw * 0.01), pt(-tw * 0.28, nw * 0.06),
+          pt(0, nw * 0.085), pt(tw * 0.28, nw * 0.06), pt(aw * 0.58, -nw * 0.01),
         ], 1.0)}
-        fill="none" stroke={skin.line} strokeWidth={line} strokeLinecap="round" opacity={0.42}
+        fill="none" stroke={skin.line} strokeWidth={line} strokeLinecap="round" opacity={0.66}
       />
       {[-1, 1].map((dir) => (
         <path
@@ -131,7 +139,7 @@ export function Nose({ ctx, id }: { readonly ctx: DrawContext; readonly id: stri
 
       {[-1, 1].map((dir) => (
         <g key={dir} transform={`translate(${String(dir * nostrilX)},${String(nostrilY)}) scale(${String(dir)},1)`}>
-          <path d={nostrilPath(spec.nostril, nostrilW, nw * 0.105)} fill={skin.line} opacity={0.82} />
+          <path d={nostrilPath(spec.nostril, nostrilW, nw * 0.044)} fill={skin.line} opacity={0.88} />
         </g>
       ))}
 
